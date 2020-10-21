@@ -45,7 +45,7 @@ def paths_for(game):
     return t
 
 
-def html_soups(game):
+def soups_for(game):
     paths=paths_for(game)
     soups=tuple()
     if game == '9':
@@ -58,7 +58,7 @@ def html_soups(game):
     return soups
 
 
-def row_fetcher(table):
+def rows_for(table):
     data=tuple()
     got_header=False
     for row in table.find_all(name='tr'):
@@ -74,8 +74,8 @@ def row_fetcher(table):
     return list(data)
 
 
-def table_fetcher(game):
-    soups=html_soups(game)
+def tables_for(game):
+    soups=soups_for(game)
     contents={}
     sites=paths_for(game)
     for soup,site in zip(soups,sites):
@@ -86,15 +86,15 @@ def table_fetcher(game):
         if len(tables) > 1:
             n=1
             for table in tables:
-                contents[path+str(n)]=row_fetcher(table)
+                contents[path+str(n)]=rows_for(table)
                 n+=1
         else:
-            contents[path]=row_fetcher(soup.table)
+            contents[path]=rows_for(soup.table)
     return contents
 
 
-def stat_recorder(game):
-    tables=table_fetcher(game)
+def save_stats(game):
+    tables=tables_for(game)
     import pandas as pd
     folder='fe'+game
     full_dir=cache+sep+folder
@@ -105,7 +105,8 @@ def stat_recorder(game):
         x=pd.DataFrame(tables[name])
         x.to_csv(file,index=False,header=False)
 
+
 if __name__=='__main__':
     for k in range(4,10):
         game=str(k)
-        stat_recorder(game)
+        save_stats(game)
