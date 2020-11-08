@@ -1,10 +1,10 @@
 HP,
 Str,
 Mag,
-Skl,Skill
+Skl,
 Spd,
-Luck,
-Lck,Luck
+Luck,Lck
+Lck,
 Def,
 Res,
 Mov,
