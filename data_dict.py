@@ -5,6 +5,19 @@ from aenir2.gender_dict import gender_dict
 import pandas as pd
 
 
+def read_stat_names(game):
+    data_source=r'fe'+game+'.csv'
+    file=('.','metadata','stat_names',data_source)
+    file=sep.join(file)
+    stat_names={}
+    with open(file) as rFile:
+        for line in rFile.readlines():
+            line=line.strip()
+            line=line.split(',')
+            stat_names[line[0]]=line[1]
+    return stat_names
+
+
 def collect_table(table,headers,rows,files):
     with open(table,'r') as r_file:
         for line in r_file.readlines():
@@ -252,30 +265,10 @@ def class_growths(game):
 from aenir2.gender_dict import gender_dict
 
 
-def bases_class_in_list(game,compare_list):
-    #   For comparing character bases list to class attribute lists
-    list_to_audit=character_bases(game)
-    match_list=compare_list(game)
-    gender=gender_dict(game)
-    unmatched_items=set()
-    for char,cls in list_to_audit.items():
-        suffix=gender[char]
-        if cls in match_list:
-            continue
-        else:
-            gendered_class=cls+suffix
-            if gendered_class in match_list:
-                continue
-            else:
-                unmatched_items|={cls,gendered_class}
-    write_difference(game,character_bases,compare_list,unmatched_items)
-    return unmatched_items
-
-
 def read_class_names(game,audit_list,match_list):
-    d={}
     if game == '5':
-        return
+        return {}
+    d={}
     d[character_bases]='bases'
     d[class_growths]='growths'
     d[class_maxes]='maxes'
@@ -301,7 +294,36 @@ def read_class_names(game,audit_list,match_list):
     if None in (start,stop):
         return {}
     else:
-        return dict(s[start:stop])
+        return dict(s[start+1:stop])
+
+
+def bases_class_in_list(game,compare_list):
+    #   For comparing character bases list to class attribute lists
+    list_to_audit=character_bases(game)
+    match_list=compare_list(game)
+    gender=gender_dict(game)
+    unmatched_items=set()
+    name_matches=read_class_names(game,character_bases,compare_list)
+    for char,cls in list_to_audit.items():
+        suffix=gender[char]
+        if cls in match_list:
+            continue
+        if cls in name_matches.keys():
+            proper_name=name_matches[cls]
+            if proper_name in match_list:
+                continue
+        if cls+suffix in name_matches.keys():
+            proper_name=name_matches[cls+suffix]
+            if proper_name in match_list:
+                continue
+        else:
+            gendered_class=cls+suffix
+            if gendered_class in match_list:
+                continue
+            else:
+                unmatched_items|={cls,gendered_class}
+    write_difference(game,character_bases,compare_list,unmatched_items)
+    return unmatched_items
 
 
 def compare_class_lists(game,audit_list,match_to_list):
@@ -309,9 +331,15 @@ def compare_class_lists(game,audit_list,match_to_list):
     list_to_audit=audit_list(game)
     list_to_match=match_to_list(game)
     unmatched=set()
+    name_matches=read_class_names(game,audit_list,match_to_list)
     for cls in list_to_audit:
         if cls not in list_to_match:
-            unmatched|={cls}
+            if cls in name_matches.keys():
+                proper_name=name_matches[cls]
+                if proper_name in list_to_match:
+                    continue
+                else:
+                    unmatched|={cls}
     write_difference(game,audit_list,match_to_list,unmatched)
     return unmatched
 
@@ -380,9 +408,8 @@ def compile_all():
 
 
 if __name__ == '__main__':
-    #search_all_tables(x=0,in_filename='classes')
-    #search_tables(game='4',x=0,in_filename='_')
-    #compile_all()
-    for k in range(4,10):
-        game=str(k)
-        save_header_info(game)
+    k=4
+    game=str(k)
+    x=read_class_names(game,character_bases,class_maxes)
+    for l in x.items():
+        print(l)
