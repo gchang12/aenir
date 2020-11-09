@@ -46,8 +46,6 @@ def promo_dict(game,is_promo=False):
             if is_promo:
                 if promo_path == 'NA':
                     x=True
-                elif promo_path == 'Variable':
-                    x=None
                 else:
                     x=False
                 d[unit]=x
