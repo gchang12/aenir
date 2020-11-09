@@ -78,7 +78,7 @@ def index_for_name(table,in_filename,stat_name):
             stat=line[0]
             if not stat:
                 for col_num,name in enumerate(line):
-                    if name.find(in_filename) >= 0:
+                    if in_filename in name:
                         headers[col_num]=name
             else:
                 if stat == stat_name:
@@ -99,7 +99,7 @@ def name_for_index(table,index,find_in):
             stat=line[0]
             if not stat:
                 for col_num,name in enumerate(line):
-                    if name.find(find_in) != -1:
+                    if find_in in name:
                         headers[col_num]=name
             else:
                 for col_num,cell in enumerate(line):
@@ -160,7 +160,7 @@ def column_extractor(game,in_filename,index):
     names=()
     for root,folders,files in os.walk(data_folder):
         for file in files:
-            if file.find(in_filename) < 0:
+            if in_filename not in file:
                 continue
             data_file=(data_folder,file)
             data_file=sep.join(data_file)
@@ -184,7 +184,7 @@ def column_extractor(game,in_filename,index):
                 wallace_exception=(
                     val == 'General',\
                     column.name == 'Name',\
-                    in_filename.find('classes') < 0
+                    'classes' not in in_filename
                     )
                 if all(wallace_exception):
                     continue

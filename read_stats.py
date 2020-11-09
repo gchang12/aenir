@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from aenir2.data_dict import read_stat_names
-from aenir2.gender_dict import gender_dict
+from aenir2.gender_dict import gender_dict,promo_dict
 from aenir2 import save_stats
 
 
@@ -30,10 +30,14 @@ def read_stat_table(game,filename):
         promo_file=os.path.sep.join(promo_file)
         unpromoted=()
         with open(promo_file) as r_file:
+            index=0
             for line in r_file.readlines():
                 line=line.strip()
                 line=line.split(',')
                 unpromoted+=(line[0],)
+                #   Just to match correct classes to each other
+                assert line[1] == data.index[index]
+                index+=1
         promoted=tuple(data.index)
         data.index=unpromoted
         data.insert(loc=0,column='Promotion',value=promoted)
@@ -164,15 +168,22 @@ def load_unit_attributes(game,unit,lyn_mode=False):
     return attr
 
 
-def load_unit_info(game,unit):
+def load_unit_info(game,unit,lyn_mode=False):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
     unit_info={}
+    file_substr='base-stats'
+    if game == '7':
+        if lyn_mode:
+            suffix='1'
+        else:
+            suffix='2'
+        file_substr+=suffix
     for root,folders,files in os.walk(data_dir):
         if not files:
             continue
         for file in files:
-            if 'base-stats' not in file:
+            if file_substr not in file:
                 continue
             data_file=data_dir,file
             data_file=os.path.sep.join(data_file)
@@ -187,10 +198,10 @@ def load_unit_info(game,unit):
     return unit_info
 
 
-def load_class_attributes(game,unit,lyn_mode=False):
+def load_class_attributes(game,unit,lyn_mode=False,promo_path=0):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
-    unit_info=load_unit_info(game,unit)
+    unit_info=load_unit_info(game,unit,lyn_mode=lyn_mode)
     unit_class=unit_info['Class']
     attr={}
     if not os.path.exists(data_dir):
@@ -217,6 +228,14 @@ def load_class_attributes(game,unit,lyn_mode=False):
                 key='promo'
             class_stats=data.loc[proper_class,:]
             attr[key]=class_stats
+    if 'promo' in attr.keys():
+        x=attr['promo']
+        if len(x) > 1:
+            t=promo_dict(game)
+            if unit in t.keys():
+                promo_path=t[unit]
+            assert 0 <= promo_path < len(x)
+            attr['promo']=x.iloc[promo_path,:]
     return attr
 
 
@@ -264,7 +283,7 @@ def test_character_attr(game=4):
 
 
 if __name__=='__main__':
-    k=4
+    k=5
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -275,5 +294,6 @@ if __name__=='__main__':
         '9':'Ike'
         }
     unit=lord[game]
+    unit='Lara'
     x=load_unit_table(game,unit)
     print(x)
