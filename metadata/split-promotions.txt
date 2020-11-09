@@ -1,0 +1,34 @@
+FE4
+===
+Swordfighter
+0 Forrest		Holyn,Skasaher,Roddlevan,Radney
+1 Swordmaster		Ayra,Larcei
+
+Mage
+0 Mage Knight		Azel,Arthur
+1 Mage Fighter (F)	Tinny
+
+
+FE5
+===
+Swordfighter
+0 Mercenary		Machua
+1 Swordmaster		Shiva,Mareeta,Trewd
+
+Mage
+0 Sage			Asvel
+1 Mage Knight		Miranda
+
+Thief
+0 Thief Fighter		Lifis
+1 Dancer		
+
+Bow Fighter
+0 Sniper (M)		Ronan
+1 Sniper (F)		Tania
+
+
+FE7
+===
+Note
+-Set Wallace promotion status to whatever Lyn Mode bool-value is

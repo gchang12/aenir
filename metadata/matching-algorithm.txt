@@ -1,0 +1,26 @@
+gender=gender_dict(game)
+suffix=gender[char]
+
+match_list = (first column in classes page)
+
+if class_name in match_list:
+	MATCH
+
+elif class_name in name_matches.keys():
+	proper_name=name_matches[class_name]
+	if proper_name in match_list:
+		MATCH
+
+proper_name=class_name+suffix
+
+elif proper_name in name_matches.keys():
+	proper_name=name_matches[proper_name]
+	if proper_name in match_list:
+		MATCH
+
+else:
+	gendered_class=class_name+suffix
+	if gendered_class in match_list:
+		MATCH
+
+READ FROM CLASS_NAMES .CSV FILE AND REPEAT WITH class_name = class_names[class_name] if None
