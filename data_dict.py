@@ -70,8 +70,6 @@ def save_header_info(game):
 def index_for_name(table,in_filename,stat_name):
     d={}
     headers={}
-    start=0
-    stop=0
     with open(table,'r') as r_file:
         for line in r_file.readlines():
             line=line.strip().split(',')
@@ -131,7 +129,6 @@ def search_tables(game,x,in_filename):
             table=(root,file)
             table=sep.join(table)
             search_results[file]=s(table)
-    print(game)
     for result in search_results.values():
         for key,val in result.items():
             print(key,val)
@@ -202,20 +199,8 @@ def character_bases(game):
     character_list=column_extractor(**kwargs)
     char_to_class={}
     for cls,char in zip(class_list,character_list):
-        #print(cls,char)
         char_to_class[char]=cls
     return char_to_class
-
-
-def test_table_searcher():
-    kwargs={}
-    kwargs['x']=0
-    kwargs['in_filename']='base-stats'
-    results=search_all_tables(**kwargs)
-    for game,dictionaries in results.items():
-        print(game)
-        for path,index in dictionaries.items():
-            print(path,index)
     
 
 def class_maxes(game):
