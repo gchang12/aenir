@@ -82,7 +82,7 @@ def load_unit_info(game,unit,lyn_mode=False):
     return unit_info
 
 
-def zero_filler(row_data):
+def zero_filler(game,file,row_data):
     num_stats=read_stat_names(game)
     stats=()
     #   Consolidate names here
@@ -104,6 +104,15 @@ def zero_filler(row_data):
     #   Order stats here
     for stat in stats:
         ordered_data[stat]=row_data[stat]
+    if file == 'classes_maximum-stats.csv':
+        if game == '6':
+            ordered_data['HP']=60
+            ordered_data['Lck']=30
+            ordered_data['Mov']=15
+        if game == '9':
+            ordered_data['Mov']=99
+            ordered_data['Con']=99
+            ordered_data['Wt']=99
     data=pd.Series(ordered_data)
     return data
 
@@ -197,27 +206,33 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
     match_list=x.index
     name_matches=read_class_names2(game,audit,code)
 
+    gendered_class=class_name+suffix
+
     #   Check if name without suffix appears in page
     if class_name in match_list:
         return class_name
 
+    #   Check if gendered version of that name appears
+    if gendered_class in match_list:
+        return gendered_class
+
     #   Check if name with gender-suffix appears
-    elif class_name in name_matches.keys():
+    if class_name in name_matches.keys():
         proper_name=name_matches[class_name]
         if proper_name in match_list:
             return proper_name
-
-    gendered_class=class_name+suffix
+        gendered_class2=proper_name+suffix
+        if gendered_class2 in match_list:
+            return gendered_class2
 
     #   Check if corrected version of name appears
     if gendered_class in name_matches.keys():
         proper_name=name_matches[gendered_class]
         if proper_name in match_list:
             return proper_name
-
-    #   Check if gendered version of that name appears
-    elif gendered_class in match_list:
-        return gendered_class
+        ungen_class=proper_name[:-4]
+        if ungen_class in match_list:
+            return ungen_class
 
 
 def load_stats(game,name,file_match,exceptions=()):
@@ -239,7 +254,7 @@ def load_stats(game,name,file_match,exceptions=()):
                 name=name(file)
             if name in data.index:
                 row_data=data.loc[name,:].to_dict()
-                zf_data=zero_filler(row_data)
+                zf_data=zero_filler(game,file,row_data)
                 return zf_data
             else:
                 continue
@@ -364,7 +379,7 @@ def load_class_growths(game,unit,class_name='',lyn_mode=False):
 
 
 if __name__=='__main__':
-    k=5
+    k=9
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -388,7 +403,6 @@ if __name__=='__main__':
         if data is None:
             continue
         all_data+=(data,)
-        print(data)
     df=pd.DataFrame(all_data)
     for item in unit_info.items():
         print(item)
