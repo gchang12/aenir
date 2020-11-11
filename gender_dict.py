@@ -53,7 +53,6 @@ def promo_dict(game,is_promo=False):
             if promo_path.isdigit():
                 promo_path=int(promo_path)
                 d[unit]=promo_path
-
     return d
 
 
