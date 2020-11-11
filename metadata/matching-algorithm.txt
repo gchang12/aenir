@@ -22,5 +22,3 @@ else:
 	gendered_class=class_name+suffix
 	if gendered_class in match_list:
 		MATCH
-
-READ FROM CLASS_NAMES .CSV FILE AND REPEAT WITH class_name = class_names[class_name] if None
