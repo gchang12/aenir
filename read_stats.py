@@ -5,6 +5,36 @@ from aenir2.gender_dict import gender_dict,promo_dict
 from aenir2 import save_stats
 
 
+def load_unit_info(game,unit,lyn_mode=False):
+    data_dir='.','raw_data','fe'+game
+    data_dir=os.path.sep.join(data_dir)
+    unit_info={}
+    file_substr='base-stats'
+    if game == '7':
+        if lyn_mode:
+            suffix='1'
+        else:
+            suffix='2'
+        file_substr+=suffix
+    for root,folders,files in os.walk(data_dir):
+        if not files:
+            continue
+        for file in files:
+            if file_substr not in file:
+                continue
+            data_file=data_dir,file
+            data_file=os.path.sep.join(data_file)
+            data=pd.read_csv(data_file,index_col=0)
+            if 'Lv' in data.columns:
+                col='Lv'
+            elif 'Level' in data.columns:
+                col='Level'
+            if unit in data.index:
+                unit_info['Class']=data.at[unit,'Class']
+                unit_info['Level']=data.at[unit,col]
+    return unit_info
+
+
 def read_stat_table(game,filename):
     file='.','raw_data','fe'+game,filename
     file=os.path.sep.join(file)
@@ -24,24 +54,6 @@ def read_stat_table(game,filename):
             x=stat
         new_stat_names+=(x,)
     data.columns=new_stat_names
-    if (game,filename) == ('7','classes_promotion-gains.csv'):
-        #   SF page for FE7 does not have column for unpromoted classes
-        promo_file='.','metadata',r'fe7_promo.csv'
-        promo_file=os.path.sep.join(promo_file)
-        unpromoted=()
-        with open(promo_file) as r_file:
-            index=0
-            for line in r_file.readlines():
-                line=line.strip()
-                line=line.split(',')
-                unpromoted+=(line[0],)
-                #   Just to match correct classes to each other
-                assert line[1] == data.index[index]
-                index+=1
-        promoted=tuple(data.index)
-        data.index=unpromoted
-        data.insert(loc=0,column='Promotion',value=promoted)
-        data.rename_axis(axis=0,mapper='Class',inplace=True)
     return data
 
 
@@ -65,36 +77,24 @@ def read_class_names2(game,audit_name,match_name):
             stop=num
             break
     if None in (start,stop):
-        return {}
+        x={}
     else:
-        return dict(s[start+1:stop])
-
-
-def test_read_stats():
-    k=4
-    game=str(k)
-    filename='characters_base-stats1'
-    args=game,filename
-    x=read_stat_table(*args)
-    unit=x.loc['Sigurd',:].transpose()
-    print(unit)
+        x=dict(s[start+1:stop])
+    return x
 
 
 def match_class_name(game,unit,class_name,filename,audit='bases'):
     assert 'classes' in filename
-    categories='bases',\
-                'growths',\
-                'maxes',\
-                'promo'
-    file_substrings='base-stats',\
-                     'growth-rates',\
-                     'maximum-stats',\
-                     'promotion-gains'
+    categories={
+        'base-stats':'bases',\
+        'growth-rates':'growths',\
+        'maximum-stats':'maxes',\
+        'promotion-gains':'promo'
+        }
 
-    for substring in file_substrings:
+    for substring,codename in categories.items():
         if substring in filename:
-            code_loc=file_substrings.index(substring)
-            code=categories[code_loc]
+            code=categories[substring]
             break
 
     gender_for=gender_dict(game)
@@ -126,160 +126,139 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
         return gendered_class
 
 
-def load_unit_attributes(game,unit,lyn_mode=False):
+def load_stats(game,name,file_match,exceptions=()):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
-    attr={}
+
     if not os.path.exists(data_dir):
         save_stats(game)
     for root,folders,files in os.walk(data_dir):
-        #   Skip metadata check
-        if not folders:
+        if root != '.':
             continue
         for file in files:
-            if 'characters' not in file:
+            if file_match not in file:
                 continue
-            #   List of bad tables
-            if game == '4':
-                #   Skip growths of Gen-1 units without Holy Blood bonus
-                if file == 'characters_growth-rates1.csv':
-                    continue
-                #   Take only bases from these three
-                baldr_family='Celice','Leaf','Altenna'
-                if unit not in baldr_family:
-                    if file == 'characters_base-stats3.csv':
-                        continue
-                #   Skip growth rates for variable kids
-                if file == 'characters_growth-rates4.csv':
-                    continue
-            if game == '7':
-                if lyn_mode:
-                    #   Skip main unit list
-                    if file == 'characters_base-stats2.csv':
-                        continue
-                else:
-                    #   Skip Lyn Mode unit list
-                    if file == 'characters_base-stats1.csv':
-                        continue
-            data=read_stat_table(game,file)
-            if unit in data.index:
-                key=('bases' if 'base-stats' in file else 'growths')
-                attr[key]=data.loc[unit,:]
-    return attr
-
-
-def load_unit_info(game,unit,lyn_mode=False):
-    data_dir='.','raw_data','fe'+game
-    data_dir=os.path.sep.join(data_dir)
-    unit_info={}
-    file_substr='base-stats'
-    if game == '7':
-        if lyn_mode:
-            suffix='1'
-        else:
-            suffix='2'
-        file_substr+=suffix
-    for root,folders,files in os.walk(data_dir):
-        if not files:
-            continue
-        for file in files:
-            if file_substr not in file:
-                continue
-            data_file=data_dir,file
-            data_file=os.path.sep.join(data_file)
-            data=pd.read_csv(data_file,index_col=0)
-            if 'Lv' in data.columns:
-                col='Lv'
-            elif 'Level' in data.columns:
-                col='Level'
-            if unit in data.index:
-                unit_info['Class']=data.at[unit,'Class']
-                unit_info['Level']=data.at[unit,col]
-    return unit_info
-
-
-def load_class_attributes(game,unit,lyn_mode=False,promo_path=0):
-    data_dir='.','raw_data','fe'+game
-    data_dir=os.path.sep.join(data_dir)
-    unit_info=load_unit_info(game,unit,lyn_mode=lyn_mode)
-    unit_class=unit_info['Class']
-    attr={}
-    if not os.path.exists(data_dir):
-        save_stats(game)
-    for root,folders,files in os.walk(data_dir):
-        #   Skip metadata check
-        if not folders:
-            continue
-        for file in files:
-            #   Skip going through character bases/growths
-            if 'characters' in file:
+            if file in exceptions:
                 continue
             data=read_stat_table(game,file)
-            #   Will get right class name per section
-            proper_class=match_class_name(game,unit,unit_class,file)
-            #   For names that do not appear in some lists, like promoted classes
-            if proper_class not in data.index:
+            if callable(name):
+                name=name(file)
+            if name in data.index:
+                return data.loc[name,:]
+            else:
                 continue
-            if 'growth-rates' in file:
-                key='class-growths'
-            elif 'maximum-stats' in file:
-                key='maxes'
-            elif 'promotion-gains' in file:
-                key='promo'
-            class_stats=data.loc[proper_class,:]
-            attr[key]=class_stats
-    if 'promo' in attr.keys():
-        x=attr['promo']
-        if len(x) > 1:
-            t=promo_dict(game)
-            if unit in t.keys():
-                promo_path=t[unit]
-            assert 0 <= promo_path < len(x)
-            attr['promo']=x.iloc[promo_path,:]
-    return attr
 
 
-def load_unit_table(game,unit,lyn_mode=False):
-    args=game,unit,lyn_mode
-    columns={}
-    class_attr=load_class_attributes(*args)
-    unit_attr=load_unit_attributes(*args)
-    columns.update(unit_attr)
-    columns.update(class_attr)
-    unit_data=pd.concat(columns,axis=1)
+def load_character_bases(game,unit_name,lyn_mode=False):
+    file_match='base-stats'
+    exceptions=()
+    if game == '4':
+        baldr_family='Celice','Leaf','Altenna'
+        if unit_name not in baldr_family:
+            exceptions+=('characters_base-stats3.csv',)
+    elif game == '7':
+        table_num=('1.csv' if not lyn_mode else '2.csv')
+        exceptions+=('characters_base-stats'+table_num,)
+    kwargs={
+        'game':game,\
+        'name':unit_name,\
+        'file_match':file_match,\
+        'exceptions':exceptions
+        }
+    data=load_stats(**kwargs)
+    return data
+
+
+def load_character_growths(game,unit_name):
+    file_match='character_growth-rates'
+    exceptions=()
+    if game == '4':
+        exceptions+=(
+            'characters_growth-rates1.csv',\
+            'characters_growth-rates4.csv'
+            )
+    kwargs={
+        'game':game,\
+        'name':unit_name,\
+        'file_match':file_match,\
+        'exceptions':exceptions
+        }
+    data=load_stats(**kwargs)
+    return data
+
+
+def load_class_maxes(game,unit,class_name='',lyn_mode=False):
     if game == '5':
         maxes_data='.','metadata','fe5_maxes.csv'
         maxes_data=os.path.sep.join(maxes_data)
-        fe5_maxes=pd.read_csv(maxes_data,index_col=0,header=None)
-        unit_data.insert(loc=0,column='maxes',value=fe5_maxes)
-    unit_data=unit_data.fillna(value=0)
-    return unit_data
-
-
-def test_character_attr(game=4):
-    game=str(game)
-    lords={
-        '4':'Sigurd',
-        '5':'Leaf',
-        '6':'Roy',
-        '7':'Eliwood',
-        '8':'Eirika',
-        '9':'Ike'
+        data=pd.read_csv(maxes_data,index_col=0,header=None)
+        return data
+    file_match='maximum-stats'
+    exceptions=()
+    if not class_name:
+        class_name=load_unit_info(game,unit,lyn_mode=lyn_mode)
+    proper_name=lambda file: match_class_name(game,unit,class_name,file)
+    kwargs={
+        'game':game,\
+        'name':proper_name,\
+        'file_match':file_match,
         }
-    unit=lords[game]
-    args=game,unit
-    x=load_unit_attributes(*args)
-    y=load_class_attributes(*args)
-    z=load_unit_info(*args)
-    print('unit')
-    for xx in x.values():
-        print(xx)
-    print('class')
-    for yy in y.values():
-        print(yy)
-    print('info')
-    for zz in z.items():
-        print(zz)
+    data=load_stats(**kwargs)
+    return data
+
+
+def load_class_promo(game,unit,class_name='',promo_path=0,lyn_mode=False):
+    file_match='promotion-gains'
+    if not class_name:
+        class_name=load_unit_info(game,unit,lyn_mode=lyn_mode)
+    proper_name=lambda file: match_class_name(game,unit,class_name,file)
+    kwargs={
+        'game':game,\
+        'name':proper_name,\
+        'file_match':file_match,
+        }
+    data=load_stats(**kwargs)
+    if game == '7':
+        #   SF page for FE7 does not have column for unpromoted classes
+        promo_file='.','metadata',r'fe7_promo.csv'
+        promo_file=os.path.sep.join(promo_file)
+        unpromoted=()
+        with open(promo_file) as r_file:
+            index=0
+            for line in r_file.readlines():
+                line=line.strip()
+                line=line.split(',')
+                unpromoted+=(line[0],)
+                #   Just to match correct classes to each other
+                assert line[1] == data.index[index]
+                index+=1
+        promoted=tuple(data.index)
+        data.index=unpromoted
+        data.insert(loc=0,column='Promotion',value=promoted)
+        data.rename_axis(axis=0,mapper='Class',inplace=True)
+    if len(data) > 1:
+        t=promo_dict(game)
+        if unit in t.keys():
+            promo_path=t[unit]
+        assert 0 <= promo_path < len(data)
+        data=data.iloc[promo_path,:]
+    return data
+
+
+def load_class_growths(game,unit,class_name='',lyn_mode=False):
+    if game not in ('6','7'):
+        return
+    file_match='class_growth-rates'
+    if not class_name:
+        class_name=load_unit_info(game,unit,lyn_mode=lyn_mode)
+    proper_name=lambda file: match_class_name(game,unit,class_name,file)
+    kwargs={
+        'game':game,\
+        'name':proper_name,\
+        'file_match':file_match,
+        }
+    data=load_stats(**kwargs)
+    return data
 
 
 if __name__=='__main__':
@@ -294,6 +273,3 @@ if __name__=='__main__':
         '9':'Ike'
         }
     unit=lord[game]
-    unit='Lara'
-    x=load_unit_table(game,unit)
-    print(x)
