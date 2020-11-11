@@ -277,9 +277,10 @@ def read_class_names(game,audit_list,match_list):
             stop=num
             break
     if None in (start,stop):
-        return {}
+        x={}
     else:
-        return dict(s[start+1:stop])
+        x=dict(s[start+1:stop])
+    return x
 
 
 def bases_class_in_list(game,compare_list):
@@ -289,24 +290,29 @@ def bases_class_in_list(game,compare_list):
     gender=gender_dict(game)
     unmatched_items=set()
     name_matches=read_class_names(game,character_bases,compare_list)
-    for char,cls in list_to_audit.items():
+    for char,class_name in list_to_audit.items():
         suffix=gender[char]
-        if cls in match_list:
+        gendered_class=class_name+suffix
+        if class_name in match_list:
             continue
-        if cls in name_matches.keys():
-            proper_name=name_matches[cls]
+        if gendered_class in match_list:
+            continue
+        if class_name in name_matches.keys():
+            proper_name=name_matches[class_name]
             if proper_name in match_list:
                 continue
-        if cls+suffix in name_matches.keys():
-            proper_name=name_matches[cls+suffix]
+            gen_class=proper_name+suffix
+            if gen_class in match_list:
+                continue
+        if gendered_class in name_matches.keys():
+            proper_name=name_matches[class_name+suffix]
             if proper_name in match_list:
                 continue
+            ungen_class=proper_name[:-4]
+            if ungen_class in match_list:
+                return ungen_class
         else:
-            gendered_class=cls+suffix
-            if gendered_class in match_list:
-                continue
-            else:
-                unmatched_items|={cls,gendered_class}
+            unmatched_items|={class_name,gendered_class}
     write_difference(game,character_bases,compare_list,unmatched_items)
     return unmatched_items
 
@@ -393,8 +399,4 @@ def compile_all():
 
 
 if __name__ == '__main__':
-    k=4
-    game=str(k)
-    x=read_class_names(game,character_bases,class_maxes)
-    for l in x.items():
-        print(l)
+    compile_all()
