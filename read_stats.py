@@ -30,9 +30,10 @@ def character_list(game,lyn_mode=False):
                 if name in compiled_names:
                     continue
                 compiled_names+=(name,)
-    x=compiled_names
     if lyn_mode:
         x=compiled_names[:-1]
+    else:
+        x=compiled_names
     return x
 
 
@@ -83,18 +84,27 @@ def load_unit_info(game,unit,lyn_mode=False):
 
 def zero_filler(row_data):
     num_stats=read_stat_names(game)
+    stats=()
+    #   Consolidate names here
     for stat in num_stats.keys():
         if num_stats[stat]:
             x=num_stats[stat]
         else:
             x=stat
+        stats+=(x,)
+        #   Fill zeros here
         if x not in row_data.keys():
             row_data[x]=0
     for cell,stat in row_data.items():
+        #   Resolve multi-promotion class errors
         if type(stat) == dict:
             for key,val in stat.items():
                 row_data[cell]=val
-    data=pd.Series(row_data)
+    ordered_data={}
+    #   Order stats here
+    for stat in stats:
+        ordered_data[stat]=row_data[stat]
+    data=pd.Series(ordered_data)
     return data
 
 
@@ -354,7 +364,7 @@ def load_class_growths(game,unit,class_name='',lyn_mode=False):
 
 
 if __name__=='__main__':
-    k=7
+    k=5
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -364,7 +374,6 @@ if __name__=='__main__':
         '8':'Eirika',
         '9':'Ike'
         }
-    #unit='Geitz'
     unit=lord[game]
     args=game,unit
     test_cases=load_character_bases,\
@@ -379,6 +388,7 @@ if __name__=='__main__':
         if data is None:
             continue
         all_data+=(data,)
+        print(data)
     df=pd.DataFrame(all_data)
     for item in unit_info.items():
         print(item)
