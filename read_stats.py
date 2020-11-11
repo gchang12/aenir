@@ -98,6 +98,26 @@ def zero_filler(row_data):
     return data
 
 
+def add_column(game,filename,data):
+    if (game,filename) == ('7','classes_promotion-gains.csv'):
+        #   SF page for FE7 does not have column for unpromoted classes
+        promo_file='.','metadata',r'fe7_promo.csv'
+        promo_file=os.path.sep.join(promo_file)
+        unpromoted=()
+        with open(promo_file) as r_file:
+            index=0
+            for line in r_file.readlines():
+                line=line.strip()
+                line=line.split(',')
+                unpromoted+=(line[0],)
+                #   Just to match correct classes to each other
+                assert line[1] == data.index[index]
+                index+=1
+        promoted=tuple(data.index)
+        data.index=unpromoted
+        data.rename_axis(axis=0,mapper='Class',inplace=True)
+
+
 def read_stat_table(game,filename):
     file='.','raw_data','fe'+game,filename
     file=os.path.sep.join(file)
@@ -117,23 +137,7 @@ def read_stat_table(game,filename):
             x=stat
         new_stat_names+=(x,)
     data.columns=new_stat_names
-    if (game,filename) == ('7','classes_promotion-gains.csv'):
-        #   SF page for FE7 does not have column for unpromoted classes
-        promo_file='.','metadata',r'fe7_promo.csv'
-        promo_file=os.path.sep.join(promo_file)
-        unpromoted=()
-        with open(promo_file) as r_file:
-            index=0
-            for line in r_file.readlines():
-                line=line.strip()
-                line=line.split(',')
-                unpromoted+=(line[0],)
-                #   Just to match correct classes to each other
-                assert line[1] == data.index[index]
-                index+=1
-        promoted=tuple(data.index)
-        data.index=unpromoted
-        data.rename_axis(axis=0,mapper='Class',inplace=True)
+    add_column(game,filename,data)
     return data
 
 
@@ -309,6 +313,27 @@ def load_class_promo(game,unit,class_name='',promo_path=0,lyn_mode=False):
         assert 0 <= promo_path < len(data)
         data=data.iloc[promo_path,:]
     return data
+
+
+def load_class_promo_dict(game,promo_path=0):
+    filename='classes_promotion-gains.csv'
+    file='.','raw_data','fe'+game,filename
+    file=os.path.sep.join(file)
+    data=pd.read_csv(file,index_col=0)
+    add_column(game,filename,data)
+    unpromoted=tuple(data.index)
+    promoted=tuple(data.iloc[:,0])
+    d={}
+    count=0
+    for scrub,elite in zip(unpromoted,promoted):
+        if scrub in d.keys():
+            count+=1
+            if count == promo_path:
+                d[scrub]=elite
+        else:
+            d[scrub]=elite
+            count=0
+    return d
 
 
 def load_class_growths(game,unit,class_name='',lyn_mode=False):
