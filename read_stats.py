@@ -61,6 +61,7 @@ def load_child_attributes(unit,filename,father):
     #   Growths: characters_growth-rates4.csv
     kid_list=fe4_child_list()
     dad_list=fe4_child_list(get_father=True)
+    #   Check if valid pair
     if unit not in kid_list:
         return
     elif father not in dad_list:
@@ -72,26 +73,34 @@ def load_child_attributes(unit,filename,father):
         'game':'4',
         'file_match':filename
         }
+    #   Generate list to find index of father
     unit_list=character_list(**kwargs)
-
     unit_row_loc=unit_list.index(unit)
     father_column_loc=tuple(data.columns).index('Father')
+    #   Will always be 'Arden'
     arden=data.iat[unit_row_loc,father_column_loc]
+    #   Temporary row for unit with Arden as father
     unit_stats=data.iloc[unit_row_loc,:]
     if father == arden:
         return unit_stats
+    #   Begin looking for father by searching through list
     get_pos=False
     for name in unit_list:
         if name == father:
+            #   Does not get turned on until unit is found
             if not get_pos:
                 continue
             father_row_loc=unit_list.index(name)
             break
+        #   If found unit, then start searching for row with father
         if name == unit:
             get_pos=True
+    #   Length of the rows subtracted by father index
     stop=len(data.columns)-father_column_loc
+    #   Isolate row with father up until last numerical stat
     stats_slice=data.iloc[father_row_loc,:stop]
     corrected_stats=unit_stats[:father_column_loc],stats_slice
+    #   Merge and rename row
     df=pd.concat(corrected_stats)
     df.index=data.columns
     return df
@@ -101,19 +110,14 @@ def load_child_stats(unit,filename,father):
     df=load_child_attributes(unit,filename,father)
     num_stats=read_stat_names(game)
     stat_names=[]
+    #   Refactor stats here
     for stat in num_stats.keys():
         if stat not in df.index:
             continue
         stat_names+=[stat]
+    #   Isolate rows with numerical stats
     data=df.loc[stat_names]
     new_stat_names=()
-    for stat in stat_names:
-        if num_stats[stat]:
-            x=num_stats[stat]
-        else:
-            x=stat
-        new_stat_names+=(x,)
-    data.columns=new_stat_names
     return pd.Series(data,dtype='int64')
 
 
@@ -329,9 +333,10 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
         proper_name=name_matches[gendered_class]
         if proper_name in match_list:
             return proper_name
-        ungen_class=proper_name[:-4]
-        if ungen_class in match_list:
-            return ungen_class
+        if ' (' in proper_name:
+            ungen_class=proper_name[:-4]
+            if ungen_class in match_list:
+                return ungen_class
 
 
 def load_stats(game,name,file_match,exceptions=()):
