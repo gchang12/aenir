@@ -108,30 +108,25 @@ def load_child_attributes(unit,filename,father):
 
 def load_child_stats(unit,filename,father):
     df=load_child_attributes(unit,filename,father)
-    num_stats=read_stat_names(game)
-    stat_names=[]
-    #   Refactor stats here
-    for stat in num_stats.keys():
-        if stat not in df.index:
-            continue
-        stat_names+=[stat]
-    #   Isolate rows with numerical stats
+    num_stats=read_stat_names('4')
+    stat_names=list(num_stats.keys())
     data=df.loc[stat_names]
-    new_stat_names=()
     return pd.Series(data,dtype='int64')
 
 
-def load_child_bases(unit,father='Arden'):
+def load_child_bases(unit,father):
     filename='characters_base-stats3.csv'
-    return load_child_stats(unit,filename,father)
+    args=unit,filename,father
+    return load_child_stats(*args)
 
 
-def load_child_growths(unit,father='Arden'):
+def load_child_growths(unit,father):
     filename='characters_growth-rates4.csv'
-    return load_child_stats(unit,filename,father)
+    args=unit,filename,father
+    return load_child_stats(*args)
 
 
-def load_unit_info(game,unit,father='',lyn_mode=False):
+def load_unit_info(game,unit,father='Arden',lyn_mode=False):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
     unit_info={}
@@ -139,7 +134,7 @@ def load_unit_info(game,unit,father='',lyn_mode=False):
     unit_info['Game']=game
     unit_info['Name']=unit
 
-    if unit in fe4_child_list() and father:
+    if unit in fe4_child_list():
         unit_info['Father']=father
 
     if unit == 'Wallace':
@@ -367,13 +362,15 @@ def load_stats(game,name,file_match,exceptions=()):
                 continue
 
 
-def load_character_bases(game,unit_name,lyn_mode=False,father=''):
-    if unit_name in fe4_child_list() and game == '4':
-        data=load_child_bases(unit,father=father)
-        return data
+def load_character_bases(game,unit_name,lyn_mode=False,father='Arden'):
     file_match='characters_base-stats'
     exceptions=()
     if game == '4':
+        #   For FE4 kids
+        if unit_name in fe4_child_list():
+            data=load_child_bases(unit_name,father)
+            return data
+        #   Back to main routine
         baldr_family='Celice','Leaf','Altenna'
         if unit_name not in baldr_family:
             exceptions+=('characters_base-stats3.csv',)
@@ -390,13 +387,15 @@ def load_character_bases(game,unit_name,lyn_mode=False,father=''):
     return data
 
 
-def load_character_growths(game,unit_name,father=''):
-    if unit_name in fe4_child_list() and game == '4':
-        data=load_child_growths(unit,father=father)
-        return data
+def load_character_growths(game,unit_name,father='Arden'):
     file_match='characters_growth-rates'
     exceptions=()
     if game == '4':
+        #   For FE4 kids
+        if unit_name in fe4_child_list():
+            data=load_child_growths(unit_name,father)
+            return data
+        #   Return to main routine if fails
         exceptions+=(
             'characters_growth-rates1.csv',\
             'characters_growth-rates4.csv'
@@ -589,8 +588,18 @@ def test_child_hunt(unit='Rana',father='Claude'):
     print(message)
 
 
+def test_match_name(unit='Ross',class_name='Journeyman (2)',match_against_maxes=True):
+    game='8'
+    if match_against_maxes:
+        filename='classes_maximum-stats.csv'
+    else:
+        filename='classes_promotion-gains.csv'
+    x=match_class_name(game,unit,'Journeyman (2)',filename,audit='promo')
+    print(x)
+
+
 if __name__=='__main__':
-    k=4
+    k=8
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -600,5 +609,4 @@ if __name__=='__main__':
         '8':'Eirika',
         '9':'Ike'
         }
-    unit='Rana'
     test_child_hunt()
