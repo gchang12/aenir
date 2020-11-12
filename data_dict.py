@@ -40,7 +40,7 @@ def rows_and_headers_for(game):
     raw_data_path=sep.join(raw_data_path)
     headers=[]
     for root,folders,files in os.walk(raw_data_path):
-        if not folders:
+        if root != raw_data_path:
             continue
         for file in files:
             table=(raw_data_path,file)
@@ -308,9 +308,10 @@ def bases_class_in_list(game,compare_list):
             proper_name=name_matches[class_name+suffix]
             if proper_name in match_list:
                 continue
-            ungen_class=proper_name[:-4]
-            if ungen_class in match_list:
-                return ungen_class
+            if ' (' in proper_name:
+                ungen_class=proper_name[:-4]
+                if ungen_class in match_list:
+                    return ungen_class
         else:
             unmatched_items|={class_name,gendered_class}
     write_difference(game,character_bases,compare_list,unmatched_items)
