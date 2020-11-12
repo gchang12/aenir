@@ -40,17 +40,12 @@ def fe4_child_list(get_father=False):
     unit_list=character_list(**kwargs)
     kwargs['file_match']=filename.replace('4','1')
     parent_list=character_list(**kwargs)
-    count_list={}
-    for unit in unit_list:
-        if unit in count_list.keys():
-            continue
-        count_list[unit]=unit_list.count(unit)
     if get_father:
         yield 'Arden'
         condition = lambda unit: unit in parent_list
     else:
         condition = lambda unit: unit not in parent_list
-    for unit,count in count_list.items():
+    for unit in unit_list:
         if condition(unit):
             yield unit
 
@@ -74,7 +69,7 @@ def load_child_attributes(unit,filename,father):
         'file_match':filename
         }
     #   Generate list to find index of father
-    unit_list=character_list(**kwargs)
+    unit_list=tuple(data.iloc[:,0])
     unit_row_loc=unit_list.index(unit)
     father_column_loc=tuple(data.columns).index('Father')
     #   Will always be 'Arden'
@@ -85,12 +80,12 @@ def load_child_attributes(unit,filename,father):
         return unit_stats
     #   Begin looking for father by searching through list
     get_pos=False
-    for name in unit_list:
+    for num,name in enumerate(unit_list):
         if name == father:
             #   Does not get turned on until unit is found
             if not get_pos:
                 continue
-            father_row_loc=unit_list.index(name)
+            father_row_loc=num
             break
         #   If found unit, then start searching for row with father
         if name == unit:
@@ -498,7 +493,7 @@ def load_class_growths(game,unit,class_name='',lyn_mode=False):
     return data
 
 
-def test_stat_retrieval(game,unit=''):
+def test_stat_retrieval(game='5',unit=''):
     lord={
         '4':'Sigurd',
         '5':'Leaf',
@@ -561,18 +556,12 @@ def test_child_list():
 def test_child_hunt(unit='Rana',father='Claude'):
     args='4',unit
     test_cases=load_character_bases,\
-                load_character_growths,\
-                load_class_maxes,\
-                load_class_promo,\
-                load_class_growths
+                load_character_growths
     all_data=()
     unit_info=load_unit_info(*args,father=father)
     indices=()
     for case in test_cases:
-        try:
-            data=case(*args,father=father)
-        except:
-            data=case(*args)
+        data=case(*args,father=father)
         if data is None:
             continue
         all_data+=(data,)
@@ -599,7 +588,7 @@ def test_match_name(unit='Ross',class_name='Journeyman (2)',match_against_maxes=
 
 
 if __name__=='__main__':
-    k=8
+    k=6
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -609,4 +598,6 @@ if __name__=='__main__':
         '8':'Eirika',
         '9':'Ike'
         }
-    test_child_hunt()
+    unit=lord[game]
+    #test_child_hunt(unit='Lakche',father='Arden')
+    #test_stat_retrieval(game=game,unit=unit)
