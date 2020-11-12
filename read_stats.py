@@ -5,13 +5,10 @@ from aenir2.gender_dict import gender_dict,promo_dict
 from aenir2 import save_stats
 
 
-def character_list(game,lyn_mode=False):
+def character_list(game,file_match='characters_base-stats'):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
     compiled_names=()
-    file_match='characters_base-stats'
-    if lyn_mode:
-        file_match+='1'
     for root,folders,files in os.walk(data_dir):
         if root != data_dir:
             continue
@@ -25,21 +22,121 @@ def character_list(game,lyn_mode=False):
             for name in name_list:
                 if name in compiled_names:
                     continue
+                if 'HM' in name:
+                    continue
+                if name == 'General':
+                    continue
                 compiled_names+=(name,)
-    if lyn_mode:
-        x=compiled_names[:-1]
+    return compiled_names
+
+
+def fe4_child_list(get_father=False):
+    game='4'
+    filename='characters_growth-rates4.csv'
+    kwargs={
+        'game':game,\
+        'file_match':filename
+        }
+    unit_list=character_list(**kwargs)
+    kwargs['file_match']=filename.replace('4','1')
+    parent_list=character_list(**kwargs)
+    count_list={}
+    for unit in unit_list:
+        if unit in count_list.keys():
+            continue
+        count_list[unit]=unit_list.count(unit)
+    if get_father:
+        yield 'Arden'
+        condition = lambda unit: unit in parent_list
     else:
-        x=compiled_names
-    return x
+        condition = lambda unit: unit not in parent_list
+    for unit,count in count_list.items():
+        if condition(unit):
+            yield unit
 
 
-def load_unit_info(game,unit,lyn_mode=False):
+def load_child_attributes(unit,filename,father):
+    #   Bases: characters_base-stats3.csv
+    #   -   Exclude Celice, Leaf, Altenna
+    #   Growths: characters_growth-rates4.csv
+    kid_list=fe4_child_list()
+    dad_list=fe4_child_list(get_father=True)
+    if unit not in kid_list:
+        return
+    elif father not in dad_list:
+        return
+    data_src='.','raw_data','fe4',filename
+    data_src=os.path.sep.join(data_src)
+    data=pd.read_csv(data_src)
+    kwargs={
+        'game':'4',
+        'file_match':filename
+        }
+    unit_list=character_list(**kwargs)
+
+    unit_row_loc=unit_list.index(unit)
+    father_column_loc=tuple(data.columns).index('Father')
+    arden=data.iat[unit_row_loc,father_column_loc]
+    unit_stats=data.iloc[unit_row_loc,:]
+    if father == arden:
+        return unit_stats
+    get_pos=False
+    for name in unit_list:
+        if name == father:
+            if not get_pos:
+                continue
+            father_row_loc=unit_list.index(name)
+            break
+        if name == unit:
+            get_pos=True
+    stop=len(data.columns)-father_column_loc
+    stats_slice=data.iloc[father_row_loc,:stop]
+    corrected_stats=unit_stats[:father_column_loc],stats_slice
+    df=pd.concat(corrected_stats)
+    df.index=data.columns
+    return df
+
+
+def load_child_stats(unit,filename,father):
+    df=load_child_attributes(unit,filename,father)
+    num_stats=read_stat_names(game)
+    stat_names=[]
+    for stat in num_stats.keys():
+        if stat not in df.index:
+            continue
+        stat_names+=[stat]
+    data=df.loc[stat_names]
+    new_stat_names=()
+    for stat in stat_names:
+        if num_stats[stat]:
+            x=num_stats[stat]
+        else:
+            x=stat
+        new_stat_names+=(x,)
+    data.columns=new_stat_names
+    return pd.Series(data,dtype='int64')
+
+
+def load_child_bases(unit,father='Arden'):
+    filename='characters_base-stats3.csv'
+    return load_child_stats(unit,filename,father)
+
+
+def load_child_growths(unit,father='Arden'):
+    filename='characters_growth-rates4.csv'
+    return load_child_stats(unit,filename,father)
+
+
+def load_unit_info(game,unit,father='',lyn_mode=False):
     data_dir='.','raw_data','fe'+game
     data_dir=os.path.sep.join(data_dir)
     unit_info={}
-    
+
     unit_info['Game']=game
     unit_info['Name']=unit
+
+    if unit in fe4_child_list() and father:
+        unit_info['Father']=father
 
     if unit == 'Wallace':
         promo_status=not lyn_mode
@@ -55,7 +152,10 @@ def load_unit_info(game,unit,lyn_mode=False):
             suffix='1'
         else:
             suffix='2'
-        lyndis_league=character_list(game,lyn_mode=True)
+        lyndis_league=character_list(
+            game,\
+            file_match='characters_base-stats1.csv'
+            )
         if unit in lyndis_league:
             unit_info['Lyn Mode']=lyn_mode
         file_substr+=suffix
@@ -79,6 +179,8 @@ def load_unit_info(game,unit,lyn_mode=False):
 
 
 def zero_filler(game,file,row_data):
+    if row_data is None:
+        return
     row_data=row_data.to_dict()
     num_stats=read_stat_names(game)
     stats=()
@@ -260,7 +362,10 @@ def load_stats(game,name,file_match,exceptions=()):
                 continue
 
 
-def load_character_bases(game,unit_name,lyn_mode=False):
+def load_character_bases(game,unit_name,lyn_mode=False,father=''):
+    if unit_name in fe4_child_list() and game == '4':
+        data=load_child_bases(unit,father=father)
+        return data
     file_match='characters_base-stats'
     exceptions=()
     if game == '4':
@@ -280,7 +385,10 @@ def load_character_bases(game,unit_name,lyn_mode=False):
     return data
 
 
-def load_character_growths(game,unit_name):
+def load_character_growths(game,unit_name,father=''):
+    if unit_name in fe4_child_list() and game == '4':
+        data=load_child_growths(unit,father=father)
+        return data
     file_match='characters_growth-rates'
     exceptions=()
     if game == '4':
@@ -386,7 +494,7 @@ def load_class_growths(game,unit,class_name='',lyn_mode=False):
     return data
 
 
-def test_stat_retrieval(game='5',unit=''):
+def test_stat_retrieval(game,unit=''):
     lord={
         '4':'Sigurd',
         '5':'Leaf',
@@ -429,8 +537,55 @@ def test_class_promo_dict(game='8',promo_path=1):
         print(stuff)
 
 
+def test_unit_list(game='7',lyn_mode=False):
+    file_match='characters_base-stats'
+    if lyn_mode:
+        y='1'
+    else:
+        y='2'
+    file_match+=y
+    x=character_list(game,file_match=file_match)
+    for unit in x:
+        print(unit)
+
+def test_child_list():
+    x=fe4_child_list()
+    for m in x:
+        print(m)
+
+
+def test_child_hunt(unit='Rana',father='Claude'):
+    args='4',unit
+    test_cases=load_character_bases,\
+                load_character_growths,\
+                load_class_maxes,\
+                load_class_promo,\
+                load_class_growths
+    all_data=()
+    unit_info=load_unit_info(*args,father=father)
+    indices=()
+    for case in test_cases:
+        try:
+            data=case(*args,father=father)
+        except:
+            data=case(*args)
+        if data is None:
+            continue
+        all_data+=(data,)
+        index_copy=tuple(data.index)
+        if index_copy not in indices:
+            indices+=(index_copy,)
+    df=pd.DataFrame(all_data)
+    for item in unit_info.items():
+        print(item)
+    print(df)
+    same_indices=len(indices) == 1
+    message='All columns have identical indices: %s'%same_indices
+    print(message)
+
+
 if __name__=='__main__':
-    k=8
+    k=4
     game=str(k)
     lord={
         '4':'Sigurd',
@@ -440,6 +595,5 @@ if __name__=='__main__':
         '8':'Eirika',
         '9':'Ike'
         }
-    unit=lord[game]
-    test_stat_retrieval(game=game)
-    #test_stat_retrieval()
+    unit='Rana'
+    test_child_hunt()
