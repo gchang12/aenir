@@ -117,29 +117,41 @@ def auto_promo_dict():
             else:
                 promo_dict[game]=(unit,)
     return promo_dict
-            
 
 
-def booster_dict(game):
+def promo_level_dict(game,unit,num_levels):
+    if unit in auto_promo_dict()[game]:
+        x=True
+    elif game == '4':
+        x=num_levels >= 20
+    else:
+        x=num_levels >= 10
+    return x
+
+
+def booster_dict(game,get_bonus=True):
     booster_info='.','metadata',r'boosters.csv'
     booster_info=sep.join(booster_info)
     start_column=1
     bonus_dict={}
     if game == '5':
-        start_column+=2
+        start_column=3
     if game == '9':
-        start_column+=4
+        start_column=5
     with open(booster_info) as r_file:
         for line in r_file.readlines():
             line=line.strip()
             line=line.split(',')
             stat=line[0]
-            item=line[start_column]
             bonus=line[start_column+1]
             if not bonus.isdigit():
                 continue
-            bonus=int(bonus)
-            bonus_dict[item]=(stat,bonus)
+            if get_bonus:
+                bonus=int(bonus)
+                bonus_dict[stat]=bonus
+            else:
+                item=line[start_column]
+                bonus_dict[stat]=item
     return bonus_dict
 
 
@@ -166,6 +178,16 @@ def updated_name_for(game,unit):
     if unit in names.keys():
         unit=names[unit]
     return unit
+
+
+def max_level_dict(game,class_name):
+    scrubs='Journeyman','Recruit','Pupil'
+    if game == '4':
+        return 30
+    elif class_name in scrubs:
+        return 10
+    else:
+        return 20
 
 
 if __name__=='__main__':

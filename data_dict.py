@@ -1,5 +1,5 @@
 from os.path import sep, exists
-import os    
+from os import walk, mkdir
 from aenir2 import save_stats
 from aenir2.gender_dict import gender_dict
 import pandas as pd
@@ -39,7 +39,7 @@ def rows_and_headers_for(game):
     raw_data_path=('.','raw_data','fe'+game)
     raw_data_path=sep.join(raw_data_path)
     headers=[]
-    for root,folders,files in os.walk(raw_data_path):
+    for root,folders,files in walk(raw_data_path):
         if root != raw_data_path:
             continue
         for file in files:
@@ -55,7 +55,7 @@ def save_header_info(game):
     path='.','raw_data','fe'+game,'metadata',filename
     metadata_dir=sep.join(path[:-1])
     if not exists(metadata_dir):
-        os.mkdir(metadata_dir)
+        mkdir(metadata_dir)
     path=sep.join(path)
     with open(path,'w') as w_file:
         header_row=','+','.join(headers)
@@ -124,7 +124,7 @@ def search_tables(game,x,in_filename):
         s=lambda table: name_for_index(table,x,in_filename)
     else:
         return {}
-    for root,folders,files in os.walk(header_path):
+    for root,folders,files in walk(header_path):
         for file in files:
             table=(root,file)
             table=sep.join(table)
@@ -155,7 +155,7 @@ def column_extractor(game,in_filename,index):
     data_folder=('.','raw_data','fe'+game)
     data_folder=sep.join(data_folder)
     names=()
-    for root,folders,files in os.walk(data_folder):
+    for root,folders,files in walk(data_folder):
         for file in files:
             if in_filename not in file:
                 continue
@@ -351,7 +351,7 @@ def write_difference(game,audit_list,match_to_list,difference):
     path=('.','raw_data','fe'+game,'metadata',filename)
     diff_dir=sep.join(path[:-1])
     if not exists(diff_dir):
-        os.mkdir(diff_dir)
+        mkdir(diff_dir)
     path=sep.join(path)
     with open(path,'w') as wFile:
         for name in difference:
