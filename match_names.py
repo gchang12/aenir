@@ -16,11 +16,13 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
             code=categories[substring]
             break
 
+    #print(class_name)
     gender_for=gender_dict(game)
     suffix=gender_for[unit]
     x=read_stat_table(game,filename)
     match_list=x.index
     name_matches=read_class_names2(game,audit,code)
+    #print(match_list)
 
     gendered_class=class_name+suffix
 

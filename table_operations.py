@@ -1,4 +1,3 @@
-from aenir2.data_dict import read_stat_names
 from aenir2.name_lists import *
 import pandas as pd
 from os.path import sep
@@ -7,7 +6,6 @@ def zero_filler(game,file,row_data):
     if row_data is None:
         return
     row_data=row_data.to_dict()
-    num_stats=read_stat_names(game)
     stats=stat_names(game)
     #   Consolidate names here
     for x in stats:

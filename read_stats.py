@@ -5,7 +5,6 @@ from aenir2.stat_table import *
 from aenir2.gender_dict import promo_dict
 from aenir2.match_names import *
 from aenir2.name_lists import *
-from aenir2 import save_stats
 from aenir2.table_operations import *
 from aenir2.child_stats import *
 
@@ -35,13 +34,13 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
             suffix='1'
         else:
             suffix='2'
+        file_substr+=suffix
         lyndis_league=character_list(
             game,\
             file_match='characters_base-stats1.csv'
             )
         if unit in lyndis_league:
             unit_info['Lyn Mode']=lyn_mode
-        file_substr+=suffix
     for root,folders,files in walk(data_dir):
         if root != data_dir:
             continue
@@ -58,7 +57,7 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
                     col='Level'
                 unit_info['Class']=data.at[unit,'Class']
                 unit_info['Level']=data.at[unit,col]
-                #   To tell program to stop searching files once name is found
+                #   Tell program to stop searching files once name is found
                 break
     return unit_info
 
@@ -78,8 +77,6 @@ def load_stats(game,name,file_match,exceptions=()):
     data_dir='.','raw_data','fe'+game
     data_dir=sep.join(data_dir)
 
-    if not exists(data_dir):
-        save_stats(game)
     for root,folders,files in walk(data_dir):
         if root != data_dir:
             continue
@@ -217,8 +214,10 @@ def load_class_promo_dict(game,promo_path=0,unit='',lyn_mode=None,father=''):
 
 
 def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
+    if (game,unit,lyn_mode) == ('7','Wallace',False):
+        return
     check_promo_status=promo_dict(game,is_promo=True)
-    if check_promo_status[unit] and not class_name:
+    if check_promo_status[unit]:
         return
     filename='classes_promotion-gains.csv'
     file='.','raw_data','fe'+game,filename
@@ -232,6 +231,9 @@ def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
     else:
         audit='promo'
     name_in_promo=match_class_name(game,unit,class_name,filename,audit=audit)
+    if name_in_promo is None:
+        return
+    #   Evaluates to None on subsequent promotions
     paths=promo_dict(game)
     class_data=data.loc[name_in_promo,:]
     d={}

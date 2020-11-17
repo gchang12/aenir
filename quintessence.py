@@ -21,12 +21,12 @@ class Morph:
         #   *Not available for some units*
         #   Father: father
         #   Lyn Mode: lyn_mode
-        self.game=self.unit_info['Game']
-        self.unit=self.unit_info['Name']
-        self.unit_class=self.unit_info['Class']
-        self.base_level=self.unit_info['Level']
+        self.game=self.unit_info.pop('Game')
+        self.unit=self.unit_info.pop('Name')
+        self.unit_class=self.unit_info.pop('Class')
+        self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
-        self.growth_rates=load_character_growths(**kwargs).to_numpy()/100
+        self.growth_rates=load_character_growths(**kwargs).to_numpy()
         self.maximum_stats=load_class_maxes(**kwargs).to_numpy()
         self.promotions=load_class_promo_list(**kwargs)
         #   Start mutable attributes here
@@ -41,60 +41,87 @@ class Morph:
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
 
-    def current_level(self,current_class=False):
+    def can_promote(self):
+        trainees='Ross','Amelia','Ewan'
+        lara_promotions=['Thief','Thief Fighter','Dancer','Thief Fighter'],\
+                         ['Thief','Dancer','Thief Fighter']
         if self.my_promotions is None:
+            x=False
+        elif self.unit in trainees:
+            if len(self.my_classes) > 2:
+                x=False
+            else:
+                x=True
+        elif self.unit == 'Lara':
+            if self.my_classes in lara_promotions:
+                x=False
+            else:
+                x=True
+        else:
+            x=True
+        return x
+
+    def current_index(self):
+        if self.can_promote():
+            if self.my_classes[-1] is not None:
+                index=-1
+            else:
+                index=0
+        else:
             index=-1
-        else:
-            index=0
-        if current_class:
-            x=self.my_classes
-        else:
+        return index
+    
+    def current_level(self,get_level=True):
+        if get_level:
             x=self.my_levels
+        else:
+            x=x=self.my_classes
+        index=self.current_index()
         return x[index]
 
     def cap_stats(self):
         capped_array=()
-        for stat in zip(self.my_stats,self.my_maxes):
+        for stat,limit in zip(self.my_stats,self.my_maxes):
             if stat > limit:
                 stat=limit
             capped_array+=(stat,)
         self.my_stats=array(capped_array)
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
-        max_level=max_level_dict(self.game,self.my_class)
-        if current_level() >= max_level:
+        max_level=max_level_dict(self.game,self.current_level(get_level=False))
+        if self.current_level() >= max_level:
             return
-        if current_level() + num_levels > max_level:
-            num_levels=max_level-current_level()
+        if self.current_level() + num_levels > max_level:
+            num_levels=max_level-self.current_level()
         if stat_array is None:
             stat_array=self.growth_rates
         if increase_level:
-            index=(0 if self.my_promotions is not None else -1)
+            index=self.current_index()
             self.my_levels[index]+=num_levels
         if increase_stats:
-            self.my_stats=self.my_stats+stat_array*num_levels
+            self.my_stats=self.my_stats+stat_array*num_levels/100
         self.cap_stats()
 
     def promote(self,promo_path=0):
+        if not self.can_promote():
+            return
+        #   Correcting promotion path here
         promo_indices=tuple(self.my_promotions.keys())
-        if self.my_promotions is None:
-            return
-        #   Checks:
-        #   If unit is in list of units that do not have minimum level for promotion
-        #   If unit level is at least minimum level for promotion
-        elif not promo_level_dict(self.game,self.unit,current_level()):
-            return
-        #   For people who want to promote Lara three times:
-        #   1 Thief
-        #   2 Thief Fighter
-        #   3 Dancer
-        #   4 Thief Fighter
-        elif len(self.my_classes) > 3:
-            return
-        elif len(promo_indices) == 1:
+        if len(promo_indices) == 1:
             promo_path=promo_indices[0]
+        #   Checks if unit can promote at current level
+        #   -if no, automatically levels up unit
+        kwargs0={
+            'game':self.game,\
+            'unit':self.unit,\
+            'unit_class':self.current_level(get_level=False)
+            }
+        min_promo_lv=promo_level_dict(**kwargs0)
+        if self.current_level() < min_promo_lv:
+            num_levels=min_promo_lv-self.current_level()
+            self.level_up(num_levels)
         kwargs1={
-            'class_name':self.current_level(current_class=True),\
+            'class_name':self.current_level(get_level=False),\
             'promo_path':promo_path
             }
         kwargs1.update(self.kwargs)
@@ -115,12 +142,14 @@ class Morph:
         append_upgrade(self.my_classes,self.my_promotions[promo_path])
 
         kwargs2={
-            'class_name':self.current_level(current_class=True)
+            'class_name':self.current_level(get_level=False)
             }
         kwargs2.update(self.kwargs)
         self.my_maxes=load_class_maxes(**kwargs2).to_numpy()
         self.cap_stats()
         self.my_promotions=load_class_promo_list(**kwargs2)
+        if len(self.my_classes) == 4:
+            self.my_promotions=None
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
         class_growths=load_class_growths(**self.kwargs)
@@ -187,13 +216,12 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=8
+    k=4
     game=str(k)
-    unit='Ross'
+    unit='Levin'
     kwargs={}
     kwargs['game']=game
     kwargs['unit']=unit
-    #x=Morph(**kwargs)
-    #print(x.base_stats)
-    y=dir()
-    print(y)
+    x=Morph(**kwargs)
+    print(x.unit_info)
+    print(x.base_stats)

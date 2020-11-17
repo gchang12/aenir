@@ -119,13 +119,16 @@ def auto_promo_dict():
     return promo_dict
 
 
-def promo_level_dict(game,unit,num_levels):
-    if unit in auto_promo_dict()[game]:
-        x=True
+def promo_level_dict(game,unit,unit_class='Dancer'):
+    if game in auto_promo_dict().keys():
+        if unit in auto_promo_dict()[game]:
+            x=1
+            if unit_class == 'Dancer':
+                x=10
     elif game == '4':
-        x=num_levels >= 20
+        x=20
     else:
-        x=num_levels >= 10
+        x=10
     return x
 
 
