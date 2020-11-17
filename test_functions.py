@@ -1,5 +1,5 @@
 from aenir2.read_stats import *
-
+from aenir2.quintessence import Morph
 
 def test_stat_retrieval(game='5',unit=''):
     lord={
@@ -12,7 +12,7 @@ def test_stat_retrieval(game='5',unit=''):
         }
     if not unit:
         unit=lord[game]
-    args=game,unit
+    args=game,unit,lyn_mode
     test_cases=load_character_bases,\
                 load_character_growths,\
                 load_class_maxes,\
@@ -97,14 +97,27 @@ def test_match_name(unit='Ross',\
     print(x)
 
 
+def test_wallace(lyn_mode=True):
+    kwargs={
+        'game':'7',\
+        'unit':'Wallace',\
+        'lyn_mode':lyn_mode
+        }
+    unit_info=load_unit_info(**kwargs)
+    unit_promotions=load_class_promo_list(**kwargs)
+    print(unit_info)
+    print(unit_promotions)
+
+    
 if __name__ == '__main__':
-    k=6
+    k=7
     game=str(k)
-    unit='Roy'
+    unit='Wallace'
     kwargs={}
     kwargs['game']=game
     kwargs['unit']=unit
     #test_child_hunt()
+    test_wallace(lyn_mode=False)
     #test_stat_retrieval(**kwargs)
     #x=load_class_promo_list(**kwargs)
     #print(x)
