@@ -128,10 +128,7 @@ class Morph:
         min_promo_lv=promo_level_dict(**kwargs0)
         #   MUST CHECK load_class_promo IN aenir2.read_stats
         #   -   If bases do not match promo, error
-        if self.unit == 'Gonzales':
-            class_name=''
-        else:
-            class_name=self.current_level(get_level=False)
+        class_name=self.current_level(get_level=False)
         kwargs1={
             'class_name':class_name,\
             'promo_path':promo_path

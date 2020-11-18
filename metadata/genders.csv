@@ -243,7 +243,7 @@ Game,Name,Gender,Promotion
 8,Gilliam,0,
 8,Vanessa,1,
 8,Moulder,0,
-8,Ross,0,
+8,Ross,3,
 8,Garcia,0,
 8,Neimi,1,
 8,Colm,0,
@@ -256,7 +256,7 @@ Game,Name,Gender,Promotion
 8,Kyle,0,
 8,Orson,0,NA
 8,Tana,1,
-8,Amelia,1,
+8,Amelia,3,
 8,Innes,0,NA
 8,Gerik,0,
 8,Tethys,1,NA
@@ -264,7 +264,7 @@ Game,Name,Gender,Promotion
 8,L’Arachel,1,
 8,Dozla,0,NA
 8,Saleh,0,NA
-8,Ewan,0,
+8,Ewan,3,
 8,Cormag,0,
 8,Rennac,0,NA
 8,Duessel,0,NA
