@@ -24,6 +24,8 @@ def character_list(game,file_match='characters_base-stats'):
                     continue
                 if name == 'General':
                     continue
+                if name == 'Nils':
+                    continue
                 compiled_names+=(name,)
     return compiled_names
 

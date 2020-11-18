@@ -1,6 +1,7 @@
 from aenir2.quintessence import Morph
+from aenir2.name_lists import character_list
 
-def test_trainee(unit='Ross'):
+def test_trainee(unit='Ross',test_auto_level=False):
     trainees='Ross','Amelia','Ewan','Lara'
     assert unit in trainees
     kwargs={}
@@ -10,7 +11,15 @@ def test_trainee(unit='Ross'):
     kwargs['game']=game
     kwargs['unit']=unit
     x=Morph(**kwargs)
-    actions=x.level_up,x.promote,x.promote,x.promote
+    if test_auto_level:
+        #   base class -> promote -> promote -> promote (for Lara)
+        actions=x.promote,x.promote,x.promote
+    else:
+        #   Promote at max-level every time
+        actions=[x.level_up,x.promote]
+        actions+=actions
+        if unit == 'Lara':
+            actions+=actions
     attribute_names='levels','classes','stats','maxes','promo'
     message= lambda y,z: ('%8s'%y,z)
     print(x.unit_info)
@@ -24,14 +33,23 @@ def test_trainee(unit='Ross'):
             l=message(name,attribute)
             print(l)
             #print(name,attribute)
+    if unit == 'Ross':
+        url='https://serenesforest.net/the-sacred-stones/characters/average-stats/ross/fighter/warrior/'
+        print(url)
 
 
 def test_hugh(num_times=3):
     args='6','Hugh'
     x=Morph(*args)
     print(x.my_stats)
+    print(x.my_levels)
     x.decline_hugh(num_times)
     print(x.my_stats)
+    x.level_up(5)
+    x.promote()
+    print(x.my_stats)
+    hugh_avg='https://serenesforest.net/binding-blade/characters/average-stats/normal-mode/hugh-5000g/'
+    print(hugh_avg)
 
 
 def test_stat_booster(stat_name='HP'):
@@ -103,8 +121,46 @@ def test_forecast():
     b=y.level_up(20,get_forecast=True)
     c=y.promote(get_forecast=True)
     d=y.use_stat_booster('HP',get_forecast=True)
+    y.promote()
+    print(y.my_maxes)
     print(a,b,c,d)
 
 
+def test_fe7_lord(max_out=False,unit='Eliwood'):
+    fe7_lords='Eliwood','Hector','Lyn'
+    assert unit in fe7_lords
+    args='7',unit
+    x=Morph(*args)
+    print(x.my_levels)
+    print(x.my_stats)
+    if max_out:
+        x.level_up(19)
+    x.promote()
+    print(x.my_stats)
+    url='https://serenesforest.net/blazing-sword/characters/average-stats/eliwood/'
+    print(url)
+
+
+def test_fe7_dancer(unit='Ninian',in_list=False):
+    assert unit in ('Ninian','Nils')
+    if in_list:
+        fe7_unit_list=character_list('7')
+        y=unit in fe7_unit_list
+        for person in fe7_unit_list:
+            print(person)
+        print('\nNils in unit list: %s'%y)
+        return
+    args='7',unit
+    x=Morph(*args)
+    print(x.base_stats)
+    x.level_up(20)
+    print(x.my_stats)
+    print(x.maximum_stats)
+    url='https://serenesforest.net/blazing-sword/characters/average-stats/nils/'
+    print(url)
+
+
 if __name__ == '__main__':
-    test_forecast()
+    test_fe7_dancer('Nils')
+    #test_fe7_lord(True)
+    #test_trainee()

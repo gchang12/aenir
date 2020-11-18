@@ -28,6 +28,8 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
             suffix='1'
         else:
             suffix='2'
+        if unit == 'Nils':
+            unit='Ninian'
         file_substr+=suffix
         lyndis_league=character_list(
             game,\
@@ -44,25 +46,29 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
             data_file=data_dir,file
             data_file=sep.join(data_file)
             data=pd.read_csv(data_file,index_col=0)
-            if unit in data.index:                
+            if unit in data.index:
                 if 'Lv' in data.columns:
                     col='Lv'
                 elif 'Level' in data.columns:
                     col='Level'
                 unit_info['Class']=data.at[unit,'Class']
-                unit_info['Level']=data.at[unit,col]
+                level=data.at[unit,col]
+                if type(level) != int:
+                    unit_info['Level']=int(level)
                 #   Tell program to stop searching files once name is found
                 break
     return unit_info
 
 
-def get_class_name(game,unit,class_name,lyn_mode):
+def get_class_name(game,unit,class_name,lyn_mode,audit_section=None):
     if not class_name:
         unit_info=load_unit_info(game,unit,lyn_mode=lyn_mode)
         class_name=unit_info['Class']
         audit='bases'
     else:
         audit='promo'
+    if audit_section is not None:
+        audit=audit_section
     proper_name=lambda file: match_class_name(game,unit,class_name,file,audit=audit)
     return proper_name
 
@@ -108,6 +114,8 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
     elif game == '7':
         table_num=('1.csv' if not lyn_mode else '2.csv')
         exceptions+=('characters_base-stats'+table_num,)
+        if unit == 'Nils':
+            unit = 'Ninian'
     kwargs={
         'game':game,\
         'name':unit,\
@@ -131,6 +139,9 @@ def load_character_growths(game,unit,father='Arden',lyn_mode=None):
             'characters_growth-rates1.csv',\
             'characters_growth-rates4.csv'
             )
+    if game == '7':
+        if unit in ('Ninian','Nils'):
+            unit='Nils/Ninian'
     kwargs={
         'game':game,\
         'name':unit,\
@@ -160,7 +171,7 @@ def load_class_maxes(game,unit,class_name='',lyn_mode=False,father=''):
 
 def load_class_promo(game,unit,class_name='',promo_path=0,lyn_mode=False,father=''):
     file_match='classes_promotion-gains.csv'
-    proper_name=get_class_name(game,unit,class_name,lyn_mode)
+    proper_name=get_class_name(game,unit,class_name,lyn_mode,audit_section='bases')
     kwargs={
         'game':game,\
         'name':proper_name,\
@@ -225,9 +236,9 @@ def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
     else:
         audit='promo'
     name_in_promo=match_class_name(game,unit,class_name,filename,audit=audit)
+    #   Evaluates to None on last promotion
     if name_in_promo is None:
         return
-    #   Evaluates to None on subsequent promotions
     paths=promo_dict(game)
     class_data=data.loc[name_in_promo,:]
     d={}

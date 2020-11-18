@@ -20,7 +20,10 @@ def zero_filler(game,file,row_data):
     ordered_data={}
     #   Order stats here
     for stat in stats:
-        ordered_data[stat]=row_data[stat]
+        y=row_data[stat]
+        if type(y) != int:
+            y=int(y)
+        ordered_data[stat]=y
     if file == 'classes_maximum-stats.csv':
         if game == '6':
             ordered_data['HP']=60
