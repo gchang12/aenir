@@ -94,5 +94,17 @@ def test_fe8_lord():
     print(new_bonus is bonus)
 
 
+def test_forecast():
+    args='6','Gonzales'
+    y=Morph(*args)
+    #   Need to promote
+    y.add_auto_bonus('10B')
+    a=y.add_hm_bonus(get_forecast=True)
+    b=y.level_up(20,get_forecast=True)
+    c=y.promote(get_forecast=True)
+    d=y.use_stat_booster('HP',get_forecast=True)
+    print(a,b,c,d)
+
+
 if __name__ == '__main__':
-    test_trainee()
+    test_forecast()

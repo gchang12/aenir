@@ -127,6 +127,8 @@ def promo_level_dict(game,unit,unit_class='Dancer'):
             x=1
             if unit_class == 'Dancer':
                 x=10
+        else:
+            x=10
     elif game == '4':
         x=20
     else:
