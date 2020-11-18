@@ -16,16 +16,10 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
 
     unit_info['Game']=game
     unit_info['Name']=unit
+    #unit_info['Game Title']=game_title_dict()[game]
 
     if unit in fe4_child_list():
         unit_info['Father']=father
-
-    if unit == 'Wallace':
-        promo_status=not lyn_mode
-    else:
-        is_promo=promo_dict(game,is_promo=True)
-        promo_status=is_promo[unit]
-    unit_info['Promoted']=promo_status
 
     file_substr='characters_base-stats'
 
@@ -255,7 +249,7 @@ def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
 
 
 def load_class_growths(game,unit,class_name='',lyn_mode=False,father=''):
-    if game not in ('6','7'):
+    if game not in ('6','7','8'):
         return
     file_match='classes_growth-rates'
     proper_name=get_class_name(game,unit,class_name,lyn_mode)

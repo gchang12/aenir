@@ -58,7 +58,7 @@ def stat_names(game,stat_name=None):
             x=stat
         stats+=(x,)
     if stat_name is not None:
-        return stats.index(stat)
+        return stats.index(stat_name)
     return stats
 
 
@@ -87,3 +87,14 @@ def read_class_names2(game,audit_name,match_name):
     else:
         x=dict(s[start+1:stop])
     return x
+
+def game_title_dict():
+    d={
+        '4':'Genealogy of the Holy War',\
+        '5':'Thracia 776',\
+        '6':'Binding Blade',\
+        '7':'Blazing Sword',\
+        '8':'Sacred Stones',\
+        '9':'Path of Radiance'
+        }
+    return d

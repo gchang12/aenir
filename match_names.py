@@ -53,3 +53,14 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
             ungen_class=proper_name[:parenthesis_loc]
             if ungen_class in match_list:
                 return ungen_class
+            else:
+                #   For those FE8 lords whose class names differ in class growths
+                if unit == 'Ephraim':
+                    new_suffix=' (M)'
+                elif unit == 'Eirika':
+                    new_suffix=' (F)'
+                else:
+                    return
+                lord_class=ungen_class+new_suffix
+                if lord_class in match_list:
+                    return lord_class
