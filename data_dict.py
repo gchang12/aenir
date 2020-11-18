@@ -174,7 +174,7 @@ def column_extractor(game,in_filename,index):
                 #   For HM blokes whose rowspan exceeds 1
                 if 'HM' in val:
                     continue
-                #   For FE4 kids
+                #   For FE4 kids whose fathers are listed with them
                 if is_father(val) and column.name == 'Character':
                     continue
                 #   For FE7 Wallace
@@ -236,7 +236,7 @@ def class_promo(game):
 
 
 def class_growths(game):
-    if game not in ('6','7'):
+    if game not in ('6','7','8'):
         return ()
     index=('Name' if game == '7' else 'Class')
     kwargs={
@@ -312,6 +312,12 @@ def bases_class_in_list(game,compare_list):
                 ungen_class=proper_name[:-4]
                 if ungen_class in match_list:
                     return ungen_class
+                else:
+                    lord1=ungen_class+' (M)'
+                    lord2=ungen_class+' (F)'
+                    for name in (lord1,lord2):
+                        if name in match_list:
+                            return name
         else:
             unmatched_items|={class_name,gendered_class}
     write_difference(game,character_bases,compare_list,unmatched_items)

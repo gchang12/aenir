@@ -117,7 +117,7 @@ if __name__ == '__main__':
     kwargs['game']=game
     kwargs['unit']=unit
     #test_child_hunt()
-    test_wallace(lyn_mode=False)
+    test_wallace(lyn_mode=True)
     #test_stat_retrieval(**kwargs)
     #x=load_class_promo_list(**kwargs)
     #print(x)

@@ -105,6 +105,4 @@ def save_stats(game):
 
 
 if __name__=='__main__':
-    for k in range(4,10):
-        game=str(k)
-        save_stats(game)
+    save_stats('8')

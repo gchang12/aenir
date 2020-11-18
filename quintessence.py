@@ -23,7 +23,7 @@ class Morph:
         #   Lyn Mode: lyn_mode
         self.game=self.unit_info.pop('Game')
         self.unit=self.unit_info.pop('Name')
-        self.unit_class=self.unit_info.pop('Class')
+        self.base_class=self.unit_info.pop('Class')
         self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
         self.growth_rates=load_character_growths(**kwargs).to_numpy()
@@ -33,11 +33,11 @@ class Morph:
         if self.promotions is not None:
             self.my_levels=[self.base_level,None]
             self.my_promotions=self.promotions.copy()
-            self.my_classes=[self.unit_class,None]
+            self.my_classes=[self.base_class,None]
         else:
             self.my_levels=[None,self.base_level]
             self.my_promotions=None
-            self.my_classes=[None,self.unit_class]
+            self.my_classes=[None,self.base_class]
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
 
@@ -88,6 +88,7 @@ class Morph:
         self.my_stats=array(capped_array)
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
+        #   Check if valid action - IMPORT TO TKINTER
         max_level=max_level_dict(self.game,self.current_level(get_level=False))
         if self.current_level() >= max_level:
             return
@@ -103,9 +104,10 @@ class Morph:
         self.cap_stats()
 
     def promote(self,promo_path=0):
+        #   Check if valid action - IMPORT TO TKINTER
         if not self.can_promote():
             return
-        #   Correcting promotion path here
+        #   Correcting promotion path here - IMPORT TO TKINTER
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
@@ -148,10 +150,11 @@ class Morph:
         self.my_maxes=load_class_maxes(**kwargs2).to_numpy()
         self.cap_stats()
         self.my_promotions=load_class_promo_list(**kwargs2)
-        if len(self.my_classes) == 4:
+        if not self.can_promote():
             self.my_promotions=None
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
+        #   Check if valid action - IMPORT TO TKINTER
         class_growths=load_class_growths(**self.kwargs)
         if class_growths is None:
             return
@@ -165,6 +168,7 @@ class Morph:
 
     def add_hm_bonus(self,num_levels=None,chapter=''):
         if num_levels is None:
+            #   Check if valid action - IMPORT TO TKINTER
             if self.unit in hard_mode_dict().keys():
                 bonus_by_chapter=hard_mode_dict()[self.unit]
                 num_levels=bonus_by_chapter[chapter]
@@ -177,15 +181,19 @@ class Morph:
             }
         self.class_level_up(**kwargs)
 
-    def add_auto_bonus(self,chapter):
-        if self.unit not in auto_level_dict().keys():
+    def add_auto_bonus(self,chapter=''):
+        #   Check if valid action - IMPORT TO TKINTER
+        if self.unit in auto_level_dict().keys():
+            bonus_by_chapter=auto_level_dict()[self.unit]
+            num_levels=bonus_by_chapter[chapter]
+        elif self.unit in ('Ephraim','Eirika'):
+            num_levels=15-self.current_level()
+        else:
             return
         if self.unit == 'Gonzales':
             increase_stats=False
         else:
             increase_stats=True
-        bonus_by_chapter=auto_level_dict()[self.unit]
-        num_levels=bonus_by_chapter[chapter]
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':increase_stats,\
@@ -206,6 +214,7 @@ class Morph:
         return self.my_stats == self.my_maxes
 
     def decline_hugh(self,num_times):
+        #   Check if valid action - IMPORT TO TKINTER
         if num_times not in range(4):
             return
         elif self.unit != 'Hugh':
