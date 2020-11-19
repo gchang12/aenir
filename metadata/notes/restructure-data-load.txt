@@ -1,6 +1,0 @@
-Load bases, growths, maxes, and promo one at a time!
-Get class and base level information all in one go
--Save the amount of time needed to use pandas
-Use txt files to determine the missing stats
--set to zero
--use to order dict objects
