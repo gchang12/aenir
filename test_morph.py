@@ -38,6 +38,9 @@ def test_trainee(unit='Ross',paths=(2,1,1)):
         for attribute,name in zip(attributes,attribute_names):
             l=message(name,attribute)
             print(l)
+    url='https://serenesforest.net/the-sacred-stones/characters/average-stats/'
+    url+=unit.lower()+'/'
+    print(url)
 
 
 def test_hugh(num_times=3):
@@ -164,5 +167,5 @@ def test_fe7_dancer(unit='Ninian',in_list=False):
 
 if __name__ == '__main__':
     #test_fe7_lord(True)
-    #test_trainee()
-    test_lara()
+    test_trainee()
+    #test_lara()
