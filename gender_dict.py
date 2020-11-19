@@ -125,11 +125,10 @@ def promo_level_dict(game,unit,unit_class='Dancer'):
     if game in auto_promo_dict().keys():
         if unit in auto_promo_dict()[game]:
             x=1
-            lara_classes='Dancer','Thief'
-            if unit_class in lara_classes:
-                x=10
         else:
             x=10
+    if (game,unit,unit_class) == ('5','Lara','Dancer'):
+        x=1
     elif game == '4':
         x=20
     else:

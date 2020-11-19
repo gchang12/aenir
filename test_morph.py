@@ -1,41 +1,43 @@
 from aenir2.quintessence import Morph
 from aenir2.name_lists import character_list
 
-def test_trainee(unit='Ross',test_auto_level=False):
-    trainees='Ross','Amelia','Ewan','Lara'
+def test_lara(path=0):
+    game='5'
+    unit='Lara'
+    args=game,unit
+    x=Morph(*args)
+    names='levels','classes','stats'
+    for i in range(3):
+        if i == 0:
+            x.promote(path)
+        else:
+            x.promote()
+        attributes=x.my_levels,x.my_classes,x.my_stats
+        for name,att in zip(names,attributes):
+            print(att)
+        print()
+
+
+
+def test_trainee(unit='Ross',paths=(2,1,1)):
+    trainees='Ross','Amelia','Ewan'
     assert unit in trainees
     kwargs={}
     game='8'
-    if unit == 'Lara':
-        game='5'
     kwargs['game']=game
     kwargs['unit']=unit
     x=Morph(**kwargs)
-    if test_auto_level:
-        #   base class -> promote -> promote -> promote (for Lara)
-        actions=x.promote,x.promote,x.promote
-    else:
-        #   Promote at max-level every time
-        actions=[x.level_up,x.promote]
-        actions+=actions
-        if unit == 'Lara':
-            actions+=actions
+    def max_out(path):
+        x.level_up(20)
+        x.promote(path)
     attribute_names='levels','classes','stats','maxes','promo'
     message= lambda y,z: ('%8s'%y,z)
-    print(x.unit_info)
-    for action in actions:
-        if action == x.level_up:
-            action(20)
-        else:
-            action()
+    for path in paths:
+        max_out(path)
         attributes=x.my_levels,x.my_classes,x.my_stats,x.my_maxes,x.my_promotions
         for attribute,name in zip(attributes,attribute_names):
             l=message(name,attribute)
             print(l)
-            #print(name,attribute)
-    if unit == 'Ross':
-        url='https://serenesforest.net/the-sacred-stones/characters/average-stats/ross/fighter/warrior/'
-        print(url)
 
 
 def test_hugh(num_times=3):
@@ -161,6 +163,6 @@ def test_fe7_dancer(unit='Ninian',in_list=False):
 
 
 if __name__ == '__main__':
-    test_fe7_dancer('Nils')
     #test_fe7_lord(True)
     #test_trainee()
+    test_lara()
