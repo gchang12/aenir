@@ -2,7 +2,7 @@ from aenir2.gender_dict import gender_dict,promo_dict
 from aenir2.stat_table import *
 from aenir2.name_lists import *
 
-def match_class_name(game,unit,class_name,filename,audit='bases'):
+def match_class_name(game,unit,class_name,filename,audit):
     assert 'classes' in filename
     categories={
         'base-stats':'bases',\
@@ -51,16 +51,34 @@ def match_class_name(game,unit,class_name,filename,audit='bases'):
         elif ' (' in proper_name:
             parenthesis_loc=proper_name.index(' (')
             ungen_class=proper_name[:parenthesis_loc]
+            fe8_lords=('Ephraim','Eirika')
             if ungen_class in match_list:
                 return ungen_class
-            else:
+            elif unit in fe8_lords:
                 #   For those FE8 lords whose class names differ in class growths
                 if unit == 'Ephraim':
                     new_suffix=' (M)'
-                elif unit == 'Eirika':
-                    new_suffix=' (F)'
                 else:
-                    return
+                    new_suffix=' (F)'
                 lord_class=ungen_class+new_suffix
                 if lord_class in match_list:
                     return lord_class
+
+
+def get_class_name(game,unit,class_name,audit):
+    proper_name=lambda filename: match_class_name(game,unit,class_name,filename,audit)
+    return proper_name
+
+if __name__ == '__main__':
+    filenames={
+        'promo':'classes_promotion-gains.csv',\
+        'maxes':'classes_maximum-stats.csv',
+        }
+    game='8'
+    unit='Ross'
+    class_name='Journeyman (2)'
+    game='6'
+    unit='Gonzales'
+    class_name='Bandit'
+    unit='Dayan'
+    class_name='Nomadic Trooper'

@@ -9,7 +9,7 @@ from aenir2.table_operations import *
 from aenir2.child_stats import *
 
 
-def load_unit_info(game,unit,father='Arden',lyn_mode=False):
+def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
     data_dir='.','raw_data','fe'+game
     data_dir=sep.join(data_dir)
     unit_info={}
@@ -55,22 +55,8 @@ def load_unit_info(game,unit,father='Arden',lyn_mode=False):
                 level=data.at[unit,col]
                 if type(level) != int:
                     unit_info['Level']=int(level)
-                #   Tell program to stop searching files once name is found
                 break
     return unit_info
-
-
-def get_class_name(game,unit,class_name,lyn_mode,audit_section=None):
-    if not class_name:
-        unit_info=load_unit_info(game,unit,lyn_mode=lyn_mode)
-        class_name=unit_info['Class']
-        audit='bases'
-    else:
-        audit='promo'
-    if audit_section is not None:
-        audit=audit_section
-    proper_name=lambda file: match_class_name(game,unit,class_name,file,audit=audit)
-    return proper_name
 
 
 def load_stats(game,name,file_match,exceptions=()):
@@ -107,7 +93,6 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
         if unit in fe4_child_list():
             data=load_child_bases(unit,father)
             return data
-        #   Back to main routine
         baldr_family='Celice','Leaf','Altenna'
         if unit not in baldr_family:
             exceptions+=('characters_base-stats3.csv',)
@@ -126,7 +111,7 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
     return data
 
 
-def load_character_growths(game,unit,father='Arden',lyn_mode=None):
+def load_character_growths(game,unit,lyn_mode=None,father='Arden'):
     file_match='characters_growth-rates'
     exceptions=()
     if game == '4':
@@ -134,13 +119,13 @@ def load_character_growths(game,unit,father='Arden',lyn_mode=None):
         if unit in fe4_child_list():
             data=load_child_growths(unit,father)
             return data
-        #   Return to main routine if fails
         exceptions+=(
             'characters_growth-rates1.csv',\
             'characters_growth-rates4.csv'
             )
     if game == '7':
-        if unit in ('Ninian','Nils'):
+        dragon_kids=('Ninian','Nils')
+        if unit in dragon_kids:
             unit='Nils/Ninian'
     kwargs={
         'game':game,\
@@ -152,14 +137,14 @@ def load_character_growths(game,unit,father='Arden',lyn_mode=None):
     return data
 
 
-def load_class_maxes(game,unit,class_name='',lyn_mode=False,father=''):
+def load_class_maxes(game,unit,class_name,audit,lyn_mode=None,father=None):
     if game == '5':
         maxes_data='.','metadata','fe5_maxes.csv'
         maxes_data=sep.join(maxes_data)
         data=pd.read_csv(maxes_data,index_col=0,header=None,squeeze=True)
         return data
     file_match='classes_maximum-stats'
-    proper_name=get_class_name(game,unit,class_name,lyn_mode)
+    proper_name=get_class_name(game,unit,class_name,audit)
     kwargs={
         'game':game,\
         'name':proper_name,\
@@ -169,9 +154,9 @@ def load_class_maxes(game,unit,class_name='',lyn_mode=False,father=''):
     return data
 
 
-def load_class_promo(game,unit,class_name='',promo_path=0,lyn_mode=False,father=''):
+def load_class_promo(game,unit,class_name,audit,promo_path=0,lyn_mode=None,father=None):
     file_match='classes_promotion-gains.csv'
-    proper_name=get_class_name(game,unit,class_name,lyn_mode,audit_section='bases')
+    proper_name=get_class_name(game,unit,class_name,audit)
     kwargs={
         'game':game,\
         'name':proper_name,\
@@ -188,37 +173,7 @@ def load_class_promo(game,unit,class_name='',promo_path=0,lyn_mode=False,father=
     return data
 
 
-def load_class_promo_dict(game,promo_path=0,unit='',lyn_mode=None,father=''):
-    filename='classes_promotion-gains.csv'
-    file='.','raw_data','fe'+game,filename
-    file=sep.join(file)
-    data=pd.read_csv(file,index_col=0)
-    #   Exception for FE7 promo-table; does not have unpromoted classes column
-    if game == '7':
-        promoted=tuple(data.index)
-    else:
-        promoted=tuple(data.iloc[:,0])
-    #   Add unpromoted classes and set as index
-    add_column(game,filename,data)
-    unpromoted=tuple(data.index)
-    d={}
-    count=0
-    exclude_list=()
-    for scrub,elite in zip(unpromoted,promoted):
-        if scrub in exclude_list:
-            continue
-        if scrub in d.keys():
-            count+=1
-            if count == promo_path:
-                d[scrub]=elite
-                exclude_list+=(scrub,)
-                count=0
-        else:
-            d[scrub]=elite
-    return d
-
-
-def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
+def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None):
     if (game,unit,lyn_mode) == ('7','Wallace',False):
         return
     check_promo_status=promo_dict(game,is_promo=True)
@@ -229,13 +184,7 @@ def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
     file=sep.join(file)
     data=pd.read_csv(file,index_col=0)
     add_column(game,filename,data)
-    if not class_name:
-        unit_info=load_unit_info(game,unit,lyn_mode=lyn_mode)
-        class_name=unit_info['Class']
-        audit='bases'
-    else:
-        audit='promo'
-    name_in_promo=match_class_name(game,unit,class_name,filename,audit=audit)
+    name_in_promo=match_class_name(game,unit,class_name,filename,audit)
     #   Evaluates to None on last promotion
     if name_in_promo is None:
         return
@@ -259,11 +208,11 @@ def load_class_promo_list(game,unit,lyn_mode=False,father='',class_name=''):
         return d        
 
 
-def load_class_growths(game,unit,class_name='',lyn_mode=False,father=''):
+def load_class_growths(game,unit,class_name,audit,lyn_mode=None,father=None):
     if game not in ('6','7','8'):
         return
     file_match='classes_growth-rates'
-    proper_name=get_class_name(game,unit,class_name,lyn_mode)
+    proper_name=get_class_name(game,unit,class_name,audit)
     kwargs={
         'game':game,\
         'name':proper_name,\

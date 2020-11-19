@@ -10,7 +10,7 @@ class Morph:
             'father':father,\
             'lyn_mode':lyn_mode
             }
-        self.kwargs=kwargs
+        self.kwargs=kwargs.copy()
         self.unit_info=load_unit_info(**kwargs)
         #   Game: game
         #   Name: unit_name
@@ -27,7 +27,13 @@ class Morph:
         self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
         self.growth_rates=load_character_growths(**kwargs).to_numpy()
+        #   Start update for class attribute loaders here
+        d={}
+        d['audit']='bases'
+        d['class_name']=self.base_class
+        kwargs.update(d)
         self.maximum_stats=load_class_maxes(**kwargs).to_numpy()
+        kwargs.update(d)
         self.promotions=load_class_promo_list(**kwargs)
         #   Start mutable attributes here
         if self.promotions is not None:
@@ -120,18 +126,20 @@ class Morph:
             promo_path=promo_indices[0]
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
+        promo_class=self.my_promotions[promo_path]
         kwargs0={
             'game':self.game,\
             'unit':self.unit,\
-            'unit_class':self.current_level(get_level=False)
+            'unit_class':promo_class
             }
         min_promo_lv=promo_level_dict(**kwargs0)
         #   MUST CHECK load_class_promo IN aenir2.read_stats
         #   -   If bases do not match promo, error
-        class_name=self.current_level(get_level=False)
+        audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
-            'class_name':class_name,\
-            'promo_path':promo_path
+            'class_name':self.current_level(get_level=False),\
+            'promo_path':promo_path,\
+            'audit':audit
             }
         kwargs1.update(self.kwargs)
         promo_bonus=load_class_promo(**kwargs1).to_numpy()
@@ -158,7 +166,8 @@ class Morph:
         append_upgrade(self.my_classes,self.my_promotions[promo_path])
 
         kwargs2={
-            'class_name':self.current_level(get_level=False)
+            'class_name':promo_class,\
+            'audit':'promo'
             }
         kwargs2.update(self.kwargs)
         self.my_maxes=load_class_maxes(**kwargs2).to_numpy()
@@ -169,7 +178,12 @@ class Morph:
 
     def class_level_up(self,num_levels,increase_stats,increase_level,get_forecast):
         #   Check if valid action - IMPORT TO TKINTER
-        class_growths=load_class_growths(**self.kwargs)
+        kwargs={
+            'class_name':self.base_class,\
+            'audit':'bases'
+            }
+        kwargs.update(self.kwargs)
+        class_growths=load_class_growths(**kwargs)
         if class_growths is None:
             return
         kwargs={
