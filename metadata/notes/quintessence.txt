@@ -1,0 +1,522 @@
+class Morph:
+    def __init__(self, game, unit, father='', lyn_mode=False):
+        '''
+        | Generates virtual copy of Fire Emblem unit to be leveled up, promoted, etc.
+        | Web-scrapes https://serenesforest.net/ for all information gathered.
+
+        :param game: Number of game whence unit originates (str(int))
+        :param unit: Name of unit (str)
+        :param father: Name of father if FE4 child (str)
+        :param lyn_mode: Get Lyn Mode stats if unit is in Lyndis League (bool)
+        '''
+        #   Variable attributes here
+        from aenir.patches.game_patches.inheritance4 import true_father
+        from aenir.patches.name_patches.name_translations import translated_name
+        self.name=translated_name(game, unit)
+        self.game=game
+        kwargs = {'game': self.game, 'unit': self.name}
+        self.special={'Father':true_father(child=self.name, father=father),
+                      'Lyn Mode':False}
+        if lyn_mode:
+            from aenir.patches.game_patches.patch7LM import chbases7LM
+            lm_bases = chbases7LM()
+            if self.name in lm_bases.keys():
+                self.special['Lyn Mode']=True
+        #   Create functions to get data here
+        from aenir.data_compiler.statSource import statSource
+        from aenir.data_compiler.statTable import nStatsWV
+        self.get_data=lambda label=False, content=False, daddy=self.special['Father'], hard_mode=False, promo=1,arg=False:\
+            statSource(**kwargs, get_labels=label, get_all=content, HM_bonus=hard_mode, promo_path=promo, father=daddy, arg=arg)
+        self.get_info = lambda daddy=self.special['Father'], hard_mode=False, promo=1, arg=False:\
+            nStatsWV(**kwargs,HM_bonus=hard_mode,promo_path=promo,father=daddy,arg=arg)
+        #   Attributes determined by variables here
+        self.unit_class=self.get_info(arg=self.special['Lyn Mode']).at['Class', 'bases']
+        self.base_lv=float(self.get_info(arg=self.special['Lyn Mode']).at['Lv', 'bases'])
+        self.bases,self.growths,self.maxes,self.promo_gains=self.get_data(content=True,arg=self.special['Lyn Mode'])
+        self.is_promo=not any(self.promo_gains)
+        if not self.is_promo:
+            s={}
+            for i in range(1,4):
+                cs= self.get_info(promo=i,arg=self.special['Lyn Mode']).at['Class', 'promo']
+                if cs not in s.keys():
+                    s[cs]=i
+                else:
+                    break
+            self.promo_list=s
+        else:
+            self.promo_list=None
+        #   Initialize user-created objects here.
+        self.my_lv=([self.base_lv, None] if not self.is_promo else [None, self.base_lv])
+        self.my_stats=self.bases.copy()
+        self.my_promo_gains=self.promo_gains.copy()
+        self.my_class=self.unit_class
+        self.my_maxes=self.maxes.copy()
+        self.my_is_promo=self.is_promo
+        self.my_classes=([None, self.my_class] if self.my_is_promo else [self.my_class, None])
+        self.my_promo_list=(self.promo_list.copy() if not self.my_is_promo else None)
+        self.uncapped_stats = None
+        self.hm_bonus=None
+        self.auto_bonus=None
+        self.boosted_stats=None
+
+    def stat_names(self):
+        '''
+        Returns array of stat names for given character that can change upon level-up or otherwise
+
+        :return: array of str
+        '''
+        return self.get_data(label=True)
+
+    def as_dict(self,array):
+        '''
+        Gets stats as dictionary.
+
+        :param array: unit stats (np.array)
+        :return: {stat name: stat value} (dict)
+        '''
+        d={}
+        for name,num in zip(self.stat_names(),array):
+            d[name]=num
+        return d
+
+    def as_series(self, array, title=''):
+        '''
+        Gets stats as pandas Series.
+
+        :param array: unit stats (np.array)
+        :param title: name of array  (str)
+        :return: pd.Series
+        '''
+        from pandas import Series
+        x=Series(self.as_dict(array))
+        if title:
+            x.name=title
+        return x
+
+    def as_df(self, arrays, titles=tuple()):
+        '''
+        Gets set of stats as pandas DataFrame.
+
+        :param arrays: tuple of stats (array1,array2,...)
+        :param titles: tuple of column names (str1,str2,...)
+        :return: pd.DataFrame
+        '''
+        #   In case user decides to leave titles empty
+        if len(titles)!=len(arrays):
+            titles=range(len(arrays))
+        ls=[]; titles=tuple(titles)
+        from pandas import concat
+        #   attributes: array/list/tuple of arrays/series
+        for arr in arrays:
+            ls+=[self.as_series(arr)]
+        df=concat(ls,axis=1)
+        df.columns=titles
+        return df
+
+    def current_lv(self):
+        '''
+        Gets unit's current level
+
+        :return: unit's current level (int)
+        '''
+        x=self.my_lv[-1] if self.my_is_promo else self.my_lv[0]
+        return int(x)
+
+    def cap_stats(self):
+        '''
+        Sets unit's stats to stat cap if calculated stat exceeds it
+
+        :return: None
+        '''
+        t=tuple()
+        for actual,cap in zip(self.my_stats,self.my_maxes):
+            if actual>cap:
+                actual=cap
+            t+=actual,
+        from numpy import array
+        self.my_stats=array(t)
+
+    def to_promo_lv(self):
+        '''
+        Gets unit up to promotion level
+
+        :return: None
+        '''
+        curlv = self.current_lv()
+        promo_lv=(10 if self.game!='4' else 20)
+        if (self.game,self.name) == ('7','Merlinus'):
+            promo_lv=20
+        if curlv<promo_lv:
+            self.level_up(promo_lv-curlv)
+
+    def stat_loc(self,stat='HP'):
+        '''
+
+        :param stat: name of stat (str)
+        :return: index of stat in .stat_names() (int)
+        '''
+        if stat in self.stat_names():
+            stat_loc=tuple(self.stat_names()).index(stat)
+            return stat_loc
+
+    def level_up(self, levels=20):
+        '''
+
+
+        :param levels: number of levels to increase unit level by (float)
+        :return: None
+        '''
+        from aenir.patches.lv_patches import max_levels
+        max_lv=max_levels(game=self.game,uclass=self.my_class)
+        if (self.game,self.name)==('7','Merlinus'):
+            max_lv=(9 if self.my_is_promo else 20)
+        k=(-1 if self.my_is_promo else 0)
+        if self.current_lv()+levels>max_lv:
+            levels= max_lv - self.current_lv()
+        self.my_stats= self.my_stats + self.growths * levels
+        self.cap_stats()
+        self.my_lv[k]+=levels
+
+    def promote(self,path=1):
+        '''
+        Class changes unit to first promotion; if has multiple, toggle with path variable.
+        It is usually 1 if unit has only one promotion (see .my_promo_path for other codes)
+
+        :param path: int corresponding to promotion path
+        :return: None
+        '''
+        if self.my_is_promo:
+            return self.my_stats
+        from aenir.patches.lv_patches import auto_promo
+        if self.game in auto_promo().keys():
+            cond1 = self.name not in auto_promo()[self.game]
+            cond2=self.name == 'Lara' and path == 1 and self.game == '5'
+            if cond1 or cond2:
+                self.to_promo_lv()
+        else:
+            self.to_promo_lv()
+        self.my_lv[1]=(1 if self.game!='4' else self.my_lv[0])
+        self.my_promo_gains=self.get_data(promo=path, content=True,arg=self.special['Lyn Mode'])[-1]
+        self.my_stats=self.my_stats+self.my_promo_gains
+        #   Reassign class, maxes, and promotion status
+        self.my_class=self.get_info(promo=path,arg=self.special['Lyn Mode']).at['Class', 'promo']
+        from aenir.data_compiler.tblData import tblDataWV
+        from pandas import DataFrame,to_numeric
+        #   'arg3' might be unnecessary; determines promotion path, but already indicated previously [122]
+        df=DataFrame(tblDataWV(self.game,'class','maxes',self.my_class), index=self.stat_names())
+        self.my_maxes=to_numeric(df.iloc[:,0]).to_numpy()
+        if self.game=='9':
+            from numpy import nan_to_num
+            self.my_maxes=nan_to_num(self.my_maxes,nan=100)
+        self.cap_stats()
+        self.my_classes[1]=self.my_class
+        self.my_is_promo=True
+        #   Resetting promo list to none or branched if trainee
+        if self.name not in ('Amelia','Ross','Ewan'):
+            self.my_promo_list=None
+        else:
+            s={}
+            for i in range(1,3):
+                promo2 = DataFrame(tblDataWV('8', 'class', 'promo', row_name=self.my_class, arg3=i)).iloc[:,0].loc['Promotion']
+                if promo2 not in s.values():
+                    s[promo2]=i
+                else:
+                    break
+            self.my_promo_list=s
+
+    def auto_level(self, custom=5, uncommon=False, auto=False, chapter='', hm=False,adef=False):
+        '''
+        Uses class growths in order to level-up unit. Unit level can or cannot change depending on auto option
+
+        :param custom: number of levels to add for level-up with class growths
+        :param uncommon: for FE5 lot whose generic class growths can be uncommon or otherwise
+        :param auto: to switch to default auto-level bonus; 0 if does not actually auto-level
+        :param chapter: chapter encountered in; affects HM/auto-levels gained
+        :param hm: specifies default HM bonuses
+        :param adef: specifies default auto-bonuses
+        :return: None
+        '''
+        #   Modifying custom variable based on defaults
+        from aenir.patches.lv_patches import auto_levels,hm_levels
+        if hm:
+            from aenir.patches.name_patches.name_translations import translated_name
+            custom=0
+            hm_dict=hm_levels()
+            true_name=self.name
+            if self.game == '6':
+                true_name=translated_name(game=self.game,character=self.name,old2new=True)
+            if true_name in hm_dict.keys():
+                chpt_lv=hm_dict[true_name]
+                if chapter in chpt_lv.keys():
+                    custom=chpt_lv[chapter]
+        elif auto:
+            if adef:
+                au_dict = auto_levels()
+                custom = 0
+                if self.name in au_dict.keys():
+                    auto_dir = au_dict[self.name]
+                    if chapter == auto_dir[0][-1]:
+                        custom = int(auto_dir[-1])
+            k = (-1 if self.my_is_promo else 0)
+            self.my_lv[k] += custom
+            self.base_lv=self.my_lv[k]
+        #   Create bonus here; user-specified parameter for hm_bonus used if not hm and not auto
+        bonus= self.get_data(hard_mode=True, arg=uncommon) / 100 * custom
+        #   Assign hm_bonus regardless of if default is specified; ensures user-specified parameters recorded
+        if not auto:
+            self.hm_bonus=bonus
+        else:
+            if (self.game, self.name) == ('6', 'Gonzales'):
+                bonus.fill(0)
+            self.auto_bonus=bonus
+        self.my_stats=self.my_stats+bonus
+        self.cap_stats()
+
+    def add_hm_bonus(self, levels=5, default=False, chapter='',uncommon=False):
+        '''
+        Adds hidden level-ups to unit. Base level does not change. Can use only once. Can specify
+        default bonuses; otherwise, specify number of hidden levels. If former enabled, latter overwritten.
+        Should specify chapter; some default bonuses determined by this.
+        If unit never joins as enemy, switching default = True will set levels = 0
+
+        :param levels: Number of hidden level-ups with class growths; unit level unchanged
+        :param default: sets default bonus; 0 if unit has none and overwrites levels parameter
+        :param chapter: chapter encountered in; affects number of hidden level-ups if default = True
+        :param uncommon: For FE5 class growths
+        :return: None
+        '''
+        """ """
+        if self.hm_bonus is not None:
+            return
+        self.auto_level(custom=levels,uncommon=uncommon,chapter=chapter,hm=default,auto=False)
+
+    def add_auto_bonus(self, levels=5,default=True,chapter='',uncommon=False):
+        '''
+        Adds class level-ups to unit. Base level changes; one-time use method. Can specify if want
+        default bonus; otherwise, specify with levels option. If former specified, latter overwritten.
+        Should specify chapter; all default bonuses determined by this.
+        Uncommon option for FE5 'uncommon' class growths.
+
+        :param levels: number of levels to increase unit level by; stats incremented with class growths
+        :param default: determines whether or not to stick with default options
+        :param chapter: chapter encountered unit in; affects default bonus
+        :param uncommon: for FE5 lot
+        :return: None
+        '''
+        if self.auto_bonus is not None:
+            return
+        self.auto_level(uncommon=uncommon, chapter=chapter, hm=False, auto=True,custom=levels,adef=default)
+
+    def promote2(self, path=1):
+        '''
+        Gives trainee units second promotion (i.e. Ross, Amelia, and Ewan). Specify promotion path with path variable.
+
+        :param path: promotion path for trainee unit's second promotion
+        :return: None
+        '''
+        #   Checks if unit is trainee. If not, exit
+        if self.name not in ('Ross','Amelia','Ewan'):
+            return
+        #   If unit is trainee, check if promoted. If not, exit
+        elif not self.my_is_promo:
+            return
+        #   If unit is at highest-tier class, exit
+        elif len(self.my_classes) == 3:
+            return
+        from aenir.data_compiler.tblData import tblDataWV
+        from pandas import DataFrame,to_numeric
+        cs=self.my_class
+        from aenir.patches.name_patches.all_names import re_director
+        cs=re_director['8']('promo')[cs]
+        #   Series containing promotion info
+        promo2info=tblDataWV('8','class','promo',row_name=cs,arg3=path)
+        #   Series converted to DF form
+        promo2info=DataFrame(promo2info)
+        promo2=DataFrame(promo2info,index=self.stat_names()).iloc[:,0].fillna(value=0)
+        #   Just the numerical promo-gains
+        df=to_numeric(promo2,errors='coerce').dropna()
+        self.my_promo_gains=[self.my_promo_gains.copy(),df.to_numpy()]
+        #   Increment
+        self.to_promo_lv()
+        self.my_stats=self.my_stats+df.to_numpy()
+        #   Reassign current class
+        self.my_class=promo2info.iloc[:,0].loc['Promotion']
+        self.my_classes+=[self.my_class]
+        #   Reassign maxes according to my_class; path redundant here
+        df=DataFrame(tblDataWV('8','class','maxes',row_name=self.my_class),index=self.stat_names()).iloc[:,0]
+        self.my_maxes=to_numeric(df,errors='coerce').dropna().to_numpy()
+        self.cap_stats()
+        #   Adding another tier
+        self.my_lv+=[1]
+        self.my_promo_list=None
+
+    def break_stat_cap(self, stat='HP'):
+        '''
+        Unlimit stat cap for specified stat.
+
+        :param stat: name of stat to break cap for
+        :return: None
+        '''
+        stat_loc=self.stat_loc(stat=stat)
+        original = self.my_stats.copy()[stat_loc]
+        growth=self.growths.copy()[stat_loc]
+        if type(self.my_promo_gains)==list:
+            hp_promo=0.0
+            for arr in self.my_promo_gains:
+                hp_promo=hp_promo+arr[stat_loc]
+        else:
+            hp_promo=(self.my_promo_gains.copy()[stat_loc] if self.my_is_promo else 0)
+        bonus=self.bases.copy()[stat_loc]
+        for n in self.my_lv:
+            if n:
+                if self.game == '4':
+                    diff=self.current_lv()-self.base_lv
+                    bonus+=diff*growth
+                    break
+                #   Handling case for pre-promotes
+                if self.is_promo:
+                    bonus+=growth*(n - self.base_lv)
+                #   For the non-promoted lot
+                else:
+                    if n is self.my_lv[0]:
+                        bonus+=growth*(n - self.base_lv)
+                    else:
+                        bonus += growth * (n - 1)
+        bonus+=hp_promo
+        for boost in (self.hm_bonus,self.auto_bonus):
+            if boost is not None:
+                bonus +=boost[stat_loc]
+        if self.boosted_stats is not None:
+            if stat in self.boosted_stats.keys():
+                bonus+=self.boosted_stats[stat]
+        if self.uncapped_stats is None:
+            self.uncapped_stats={}
+        self.my_stats[stat_loc] = bonus
+        self.uncapped_stats[stat]= [original, bonus]
+
+    def is_capped(self):
+        '''
+        Tells user which stats are capped, which are not, and which have exceeded caps.
+
+        :return: array of bool
+        '''
+        t=tuple()
+        for mystat, maxstat in zip(self.my_stats,self.my_maxes):
+            if mystat > maxstat:
+                t+=None,
+            else:
+                t+=mystat == maxstat,
+        from numpy import array
+        return array(t)
+
+    def boost_stat(self, stat='HP', increase_by=7):
+        '''
+        Boosts stat by some amount to be specified
+
+        :param stat: Name of stat to boost
+        :param increase_by: amount to boost by (float)
+        :return:
+        '''
+        if self.game == '4':
+            return
+        stat_where=self.stat_loc(stat=stat)
+        increase_by=float(increase_by)
+        self.my_stats[stat_where]= self.my_stats[stat_where] + increase_by
+        self.cap_stats()
+        if self.boosted_stats is None:
+            self.boosted_stats={}
+        if stat in self.boosted_stats.keys():
+            self.boosted_stats[stat]+=increase_by
+        else:
+            self.boosted_stats[stat]= increase_by
+
+    def decline_hugh(self,decline_hugh=0):
+        '''
+        Determines Hugh's base stats depending on amount of gold you paid him
+
+        :param decline_hugh: number of times hugh is declined (0<=int<=3)
+        :return: None
+        '''
+        if (self.name, self.game) != ('Hugh', '6'):
+            return
+        if self.auto_bonus is not None:
+            return
+        if decline_hugh < 0:
+            return
+        if self.my_stats[0] - decline_hugh < 23:
+            decline_hugh = self.my_stats[0]-23
+        from numpy import zeros
+        z=zeros(len(self.stat_names()))
+        z[:-2].fill(-decline_hugh)
+        self.auto_bonus=z
+        self.my_stats=self.my_stats+self.auto_bonus
+
+    def promote_lara(self):
+        '''
+        | For people who want to promote Lara three times.
+        | 1.  Thief           ->  Thief Fighter
+        | 2.  Thief Fighter   ->  Dancer
+        | 3.  Dancer          ->  Thief Fighter
+
+        :return: None
+        '''
+        """ For people who want to promote Lara three times.
+            1.  Thief           ->  Thief Fighter
+            2.  Thief Fighter   ->  Dancer
+            3.  Dancer          ->  Thief Fighter"""
+        if (self.game,self.name)!=('5','Lara'):
+            return
+        elif len(self.my_classes) == 4:
+            return
+        unit_cs=self.my_class
+        from numpy import array
+        d={
+            #
+            'Thief':array([0,3,1,2,2,0,2,1,0]),
+            'Thief Fighter':array([0,-3,-1,-3,-7,0,-2,-1,-1]),
+            'Dancer':array([0,3,1,2,2,0,2,1,1])
+        }
+        s={
+            'Thief':'Thief Fighter',
+            'Thief Fighter':'Dancer',
+            'Dancer':'Thief Fighter'
+        }
+        #   Update unit class
+        self.my_class=s[unit_cs]
+        if unit_cs in ('Thief','Dancer'):
+            self.to_promo_lv()
+        self.my_is_promo=True
+        if unit_cs == 'Thief':
+            self.my_lv[-1]=1
+            self.my_classes[1]=self.my_class
+            self.my_promo_list={'Dancer':1}
+            self.my_promo_gains=[d[unit_cs]]
+        else:
+            self.my_lv+=[1]
+            self.my_classes+=[self.my_class]
+            promo_choice='Thief Fighter','Dancer'
+            self.my_promo_gains += [d[unit_cs]]
+            if self.my_class == promo_choice[1]:
+                self.my_promo_list={promo_choice[0]:1}
+            elif len(self.my_classes) == 4:
+                self.my_promo_list=None
+            else:
+                self.my_promo_list={promo_choice[1]:2}
+        #   Update stats
+        self.my_stats=self.my_stats+d[unit_cs]
+        self.cap_stats()
+
+    def copy(self):
+        from copy import copy
+        return copy(self)
+
+
+if __name__=='__main__':
+    game='7'
+    unit='Wallace'
+    x=Morph(game,unit,lyn_mode=True)
+    y=x.copy()
+    y.level_up(20)
+    y.promote()
+    print(x.as_series(x.growths))
+    print(x.as_df((x.my_stats,y.my_stats)))

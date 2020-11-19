@@ -1,0 +1,30 @@
+name_matches=read_class_names2(game,audit,code)
+
+gendered_class=class_name+suffix
+
+#   Check if name without suffix appears in page
+if class_name in match_list:
+    return class_name
+
+#   Check if gendered version of that name appears
+if gendered_class in match_list:
+    return gendered_class
+
+#   Check if name with gender-suffix appears
+if class_name in name_matches.keys():
+    proper_name=name_matches[class_name]
+    if proper_name in match_list:
+        return proper_name
+    gendered_class2=proper_name+suffix
+    if gendered_class2 in match_list:
+        return gendered_class2
+
+#   Check if corrected version of name appears
+if gendered_class in name_matches.keys():
+    proper_name=name_matches[gendered_class]
+    if proper_name in match_list:
+        return proper_name
+    if ' (' in proper_name:
+        ungen_class=proper_name[:-4]
+        if ungen_class in match_list:
+            return ungen_class
