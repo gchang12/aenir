@@ -1,0 +1,5 @@
+Algorithm matches only bases to promo
+-not promo to promo
+-not promo to maxes, either
+
+Promotion problems with FE6 Gonzales and FE8 trainees with super-trainee classes
