@@ -33,7 +33,6 @@ class Morph:
         d['class_name']=self.base_class
         kwargs.update(d)
         self.maximum_stats=load_class_maxes(**kwargs).to_numpy()
-        kwargs.update(d)
         self.promotions=load_class_promo_list(**kwargs)
         #   Start mutable attributes here
         if self.promotions is not None:

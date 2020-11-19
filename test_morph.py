@@ -31,13 +31,14 @@ def test_trainee(unit='Ross',paths=(2,1,1)):
         x.level_up(20)
         x.promote(path)
     attribute_names='levels','classes','stats','maxes','promo'
-    message= lambda y,z: ('%8s'%y,z)
     for path in paths:
         max_out(path)
         attributes=x.my_levels,x.my_classes,x.my_stats,x.my_maxes,x.my_promotions
         for attribute,name in zip(attributes,attribute_names):
-            l=message(name,attribute)
-            print(l)
+            name,attribute
+        print()
+    x.promote()
+    print(x.my_levels)
     url='https://serenesforest.net/the-sacred-stones/characters/average-stats/'
     url+=unit.lower()+'/'
     print(url)
@@ -167,5 +168,5 @@ def test_fe7_dancer(unit='Ninian',in_list=False):
 
 if __name__ == '__main__':
     #test_fe7_lord(True)
-    test_trainee()
-    #test_lara()
+    #test_trainee()
+    test_lara()
