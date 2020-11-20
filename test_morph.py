@@ -97,26 +97,24 @@ def test_gonzales(chapter='10B'):
 
 
 def test_fe8_lord():
-    args='8','Eirika'
-    x=Morph(*args)
-    base_lv=x.my_levels[0]
-    print(*args)
-    print(x.my_stats,x.my_levels.copy())
-    x.add_auto_bonus()
-    print(x.my_stats,x.my_levels)
-    bonus=x.my_stats-x.base_stats
-    bonus/=(15-base_lv)
-    print(bonus)
-    args='8','Ephraim'
-    print(*args)
-    x=Morph(*args)
-    base_lv=x.my_levels[0]
-    print(x.my_stats,x.my_levels.copy())
-    x.add_auto_bonus()
-    print(x.my_stats,x.my_levels)
-    new_bonus=x.my_stats-x.base_stats
-    new_bonus/=(15-base_lv)
-    print(new_bonus is bonus)
+    def print_stats(game,unit):
+        args=game,unit
+        x=Morph(*args)
+        base_lv=x.my_levels[0]
+        print(*args)
+        print(x.my_stats,x.my_levels.copy())
+        x.add_auto_bonus()
+        print(x.my_stats,x.my_levels)
+        bonus=x.my_stats-x.base_stats
+        bonus/=(15-base_lv)
+        print(bonus)
+        print(x.growth_rates/100)
+    game='8'
+    eirika='Eirika'
+    ephraim='Ephraim'
+    print_stats(game,eirika)
+    print_stats(game,ephraim)
+
 
 
 def test_forecast():
@@ -128,9 +126,9 @@ def test_forecast():
     b=y.level_up(20,get_forecast=True)
     c=y.promote(get_forecast=True)
     d=y.use_stat_booster('HP',get_forecast=True)
-    y.promote()
-    print(y.my_maxes)
-    print(a,b,c,d)
+    pairs=a,b,c,d
+    for z,x in pairs:
+        print(z,x)
 
 
 def test_fe7_lord(max_out=False,unit='Eliwood'):
@@ -190,6 +188,7 @@ def test_wallace(lyn_mode):
 if __name__ == '__main__':
     #test_trainee()
     #test_lara()
-    #test_fe7_lord()
+    #test_fe8_lord()
     #test_hugh()
-    test_wallace(True)
+    #test_wallace(True)
+    test_forecast()
