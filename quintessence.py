@@ -12,15 +12,6 @@ class Morph:
             }
         self.kwargs=kwargs.copy()
         self.unit_info=load_unit_info(**kwargs)
-        #   Game: game
-        #   Name: unit_name
-        #   Promoted: is_promoted
-        #   Class: unit_class
-        #   Level: base_level
-
-        #   *Not available for some units*
-        #   Father: father
-        #   Lyn Mode: lyn_mode
         self.game=self.unit_info.pop('Game')
         self.unit=self.unit_info.pop('Name')
         self.base_class=self.unit_info.pop('Class')
@@ -123,8 +114,6 @@ class Morph:
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
-        #   Checks if unit can promote at current level
-        #   -if no, automatically levels up unit
         promo_class=self.my_promotions[promo_path]
         kwargs0={
             'game':self.game,\
@@ -132,8 +121,6 @@ class Morph:
             'unit_class':promo_class
             }
         min_promo_lv=promo_level_dict(**kwargs0)
-        #   MUST CHECK load_class_promo IN aenir2.read_stats
-        #   -   If bases do not match promo, error
         audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
             'class_name':self.current_level(get_level=False),\
@@ -146,6 +133,9 @@ class Morph:
             old_stats=self.my_stats.copy()
             new_stats=old_stats+promo_bonus
             return (old_stats,new_stats)
+        #   Checks if unit can promote at current level
+        #   -if no, automatically levels up unit
+        #   -IMPORT TO TKINTER
         if self.current_level() < min_promo_lv:
             num_levels=min_promo_lv-self.current_level()
             self.level_up(num_levels)
@@ -162,7 +152,7 @@ class Morph:
                 list_var+=[value]
 
         append_upgrade(self.my_levels,reset_level)
-        append_upgrade(self.my_classes,self.my_promotions[promo_path])
+        append_upgrade(self.my_classes,promo_class)
 
         kwargs2={
             'class_name':promo_class,\
@@ -177,6 +167,8 @@ class Morph:
 
     def class_level_up(self,num_levels,increase_stats,increase_level,get_forecast):
         #   Check if valid action - IMPORT TO TKINTER
+        if None not in self.my_classes:
+            return
         kwargs={
             'class_name':self.base_class,\
             'audit':'bases'

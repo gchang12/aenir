@@ -142,7 +142,7 @@ def test_fe7_lord(max_out=False,unit='Eliwood'):
     if max_out:
         x.level_up(19)
     x.promote()
-    print(x.my_stats)
+    print(x.my_levels,x.my_stats)
     url='https://serenesforest.net/blazing-sword/characters/average-stats/eliwood/'
     print(url)
 
@@ -180,4 +180,5 @@ if __name__ == '__main__':
     #test_fe7_lord(True)
     #test_trainee()
     #test_lara()
-    x=6
+    test_fe7_lord()
+    #test_lara()
