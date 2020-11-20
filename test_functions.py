@@ -1,7 +1,7 @@
 from aenir2.read_stats import *
 from aenir2.quintessence import Morph
 
-def test_stat_retrieval(game='5',unit=''):
+def test_stat_retrieval(game='5',unit='Leaf'):
     lord={
         '4':'Sigurd',
         '5':'Leaf',
@@ -12,7 +12,9 @@ def test_stat_retrieval(game='5',unit=''):
         }
     if not unit:
         unit=lord[game]
-    args=game,unit,lyn_mode
+    audit='bases'
+    class_name=load_unit_info(game,unit)['Class']
+    args=game,unit,class_name,audit
     test_cases=load_character_bases,\
                 load_character_growths,\
                 load_class_maxes,\
@@ -22,7 +24,10 @@ def test_stat_retrieval(game='5',unit=''):
     unit_info=load_unit_info(*args)
     indices=()
     for case in test_cases:
-        data=case(*args)
+        try:
+            data=case(*args)
+        except:
+            data=case(*args[:-2])
         if data is None:
             continue
         all_data+=(data,)
@@ -36,12 +41,6 @@ def test_stat_retrieval(game='5',unit=''):
     same_indices=len(indices) == 1
     message='All columns have identical indices: %s'%same_indices
     print(message)
-
-
-def test_class_promo_dict(game='8',promo_path=1):
-    x=load_class_promo_dict(game,promo_path=promo_path)
-    for stuff in x.items():
-        print(stuff)
 
 
 def test_unit_list(game='7',lyn_mode=False):
@@ -97,16 +96,12 @@ def test_match_name(unit='Ross',\
     print(x)
 
 
-def test_wallace(lyn_mode=True):
-    kwargs={
-        'game':'7',\
-        'unit':'Wallace',\
-        'lyn_mode':lyn_mode
-        }
-    unit_info=load_unit_info(**kwargs)
-    unit_promotions=load_class_promo_list(**kwargs)
-    print(unit_info)
-    print(unit_promotions)
+def test_fe7_promo(game='7',unit='Rebecca'):
+    class_name=load_unit_info(game,unit)['Class']
+    audit='bases'
+    args=game,unit,class_name,audit
+    x=load_class_promo(*args)
+    print(x)
 
     
 if __name__ == '__main__':
@@ -116,10 +111,4 @@ if __name__ == '__main__':
     kwargs={}
     kwargs['game']=game
     kwargs['unit']=unit
-    #test_child_hunt()
-    test_wallace(lyn_mode=True)
-    #test_stat_retrieval(**kwargs)
-    #x=load_class_promo_list(**kwargs)
-    #print(x)
-    #x=load_class_promo_list(game,unit)
-    #print(x)
+    test_stat_retrieval()
