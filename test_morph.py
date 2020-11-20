@@ -42,6 +42,7 @@ def test_trainee(unit='Ross',paths=(2,1,1)):
     url='https://serenesforest.net/the-sacred-stones/characters/average-stats/'
     url+=unit.lower()+'/'
     print(url)
+    x.promote()
 
 
 def test_hugh(num_times=3):
@@ -175,10 +176,20 @@ def test_gonzales():
     print(x.my_stats,x.my_classes)
 
 
+def test_wallace(lyn_mode):
+    game='7'
+    unit='Wallace'
+    x=Morph(game,unit,lyn_mode=lyn_mode)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+    x.level_up(8)
+    x.promote()
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+
+
 
 if __name__ == '__main__':
-    #test_fe7_lord(True)
     #test_trainee()
     #test_lara()
-    test_fe7_lord()
-    #test_lara()
+    #test_fe7_lord()
+    #test_hugh()
+    test_wallace(True)

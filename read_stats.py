@@ -223,4 +223,10 @@ def load_class_growths(game,unit,class_name,audit,lyn_mode=None,father=None):
 
 
 if __name__=='__main__':
-    x=4
+    game='7'
+    unit='Rebecca'
+    class_name='Archer'
+    audit='bases'
+    args=game,unit,class_name,audit
+    x=load_class_promo(*args)
+    print(x)

@@ -44,14 +44,12 @@ def add_column(game,filename,data):
         promo_file=sep.join(promo_file)
         unpromoted=()
         with open(promo_file) as r_file:
-            index=0
-            for line in r_file.readlines():
+            for k,line in enumerate(r_file.readlines()):
                 line=line.strip()
                 line=line.split(',')
                 unpromoted+=(line[0],)
                 #   Just to match correct classes to each other
-                assert line[1] == data.index[index]
-                index+=1
+                assert line[1] == data.index[k]
         promoted=tuple(data.index)
         data.index=unpromoted
         data.insert(loc=0,column='Promotion',value=promoted)

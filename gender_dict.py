@@ -197,6 +197,6 @@ def max_level_dict(game,class_name):
 if __name__=='__main__':
     k=5
     game=str(k)
-    d=names_dict(game)
+    d=auto_promo_dict()
     for l in d.items():
         print(l)
