@@ -32,11 +32,11 @@ def test_trainee(unit='Ross',paths=(2,1,1)):
         x.promote(path)
     attribute_names='levels','classes','stats','maxes','promo'
     for path in paths:
-        max_out(path)
         attributes=x.my_levels,x.my_classes,x.my_stats,x.my_maxes,x.my_promotions
         for attribute,name in zip(attributes,attribute_names):
-            name,attribute
+            print(name,attribute)
         print()
+        max_out(path)
     x.promote()
     print(x.my_levels)
     url='https://serenesforest.net/the-sacred-stones/characters/average-stats/'
@@ -125,6 +125,7 @@ def test_forecast():
     a=y.add_hm_bonus(get_forecast=True)
     b=y.level_up(20,get_forecast=True)
     c=y.promote(get_forecast=True)
+    print(y.my_classes,y.my_levels,y.my_maxes)
     d=y.use_stat_booster('HP',get_forecast=True)
     pairs=a,b,c,d
     for z,x in pairs:
@@ -187,8 +188,8 @@ def test_wallace(lyn_mode):
 
 if __name__ == '__main__':
     #test_trainee()
-    #test_lara()
+    test_lara()
     #test_fe8_lord()
     #test_hugh()
     #test_wallace(True)
-    test_forecast()
+    #test_forecast()
