@@ -165,8 +165,19 @@ def test_fe7_dancer(unit='Ninian',in_list=False):
     url='https://serenesforest.net/blazing-sword/characters/average-stats/nils/'
     print(url)
 
+def test_gonzales():
+    game='6'
+    unit='Gonzales'
+    args=game,unit
+    x=Morph(*args)
+    print(x.my_stats,x.my_classes)
+    x.promote()
+    print(x.my_stats,x.my_classes)
+
+
 
 if __name__ == '__main__':
     #test_fe7_lord(True)
     #test_trainee()
-    test_lara()
+    #test_lara()
+    x=6
