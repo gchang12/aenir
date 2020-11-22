@@ -86,16 +86,6 @@ def test_auto_level(chapter='13'):
     print(x.my_stats-x.base_stats)
 
 
-def test_gonzales(chapter='10B'):
-    assert chapter in ('10B','10A')
-    args='6','Gonzales'
-    x=Morph(*args)
-    print(x.my_stats,x.my_levels)
-    x.add_auto_bonus(chapter)
-    print(x.my_stats,x.my_levels)
-    print(x.my_stats == x.base_stats)
-
-
 def test_fe8_lord():
     def print_stats(game,unit):
         args=game,unit
@@ -103,8 +93,6 @@ def test_fe8_lord():
         base_lv=x.my_levels[0]
         print(*args)
         print(x.my_stats,x.my_levels.copy())
-        before,after=x.level_up(15-base_lv,get_forecast=True)
-        print(after)
         x.add_auto_bonus()
         print(x.my_stats,x.my_levels)
         bonus=x.my_stats-x.base_stats
@@ -116,22 +104,6 @@ def test_fe8_lord():
     ephraim='Ephraim'
     print_stats(game,eirika)
     print_stats(game,ephraim)
-
-
-
-def test_forecast(unit='Gonzales'):
-    args='6',unit
-    y=Morph(*args)
-    #   Need to promote
-    y.add_auto_bonus('10B')
-    a=y.add_hm_bonus(get_forecast=True)
-    b,j=y.level_up(20,get_forecast=True)
-    c,x,k=y.promote(get_forecast=True)
-    print(y.my_classes,y.my_levels,y.my_maxes)
-    d=y.use_stat_booster('HP',get_forecast=True)
-    print(c,x,k)
-    url='https://serenesforest.net/binding-blade/characters/average-stats/gonzales-dir/'
-    print(url)
 
 
 def test_fe7_lord(max_out=False,unit='Eliwood'):
@@ -167,14 +139,24 @@ def test_fe7_dancer(unit='Ninian',in_list=False):
     url='https://serenesforest.net/blazing-sword/characters/average-stats/nils/'
     print(url)
 
-def test_gonzales():
+def test_gonzales(test_auto=False,chapter='10B'):
     game='6'
     unit='Gonzales'
     args=game,unit
     x=Morph(*args)
-    print(x.my_stats,x.my_classes)
+    if test_auto:
+        print(x.my_stats,x.my_levels)
+        x.add_auto_bonus(chapter)
+        print(x.my_stats,x.my_levels)
+        print(x.my_stats == x.base_stats)
+        return
+    x.add_hm_bonus()
+    print(x.my_stats,x.my_classes,x.my_levels,x.my_maxes)
+    x.level_up(15)
     x.promote()
-    print(x.my_stats,x.my_classes)
+    print(x.my_stats,x.my_classes,x.my_levels,x.my_maxes)
+    url='https://serenesforest.net/binding-blade/characters/average-stats/gonzales-dir/'
+    print(url)
 
 
 def test_wallace(lyn_mode):
@@ -219,6 +201,7 @@ def test_fe4_kid(male):
         'father':father
         }
     x=Morph(**kwargs)
+    print(kwargs)
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
     x.promote()
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
@@ -238,8 +221,8 @@ if __name__ == '__main__':
     #test_lara()
     #test_fe8_lord()
     #test_hugh()
-    #test_wallace(False)
+    #test_wallace(True)
     #test_fe4_jagen()
     #test_fe4_kid(True)
-    test_forecast('Thany')
     #test_unit('6','Dayan')
+    test_gonzales()
