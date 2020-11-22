@@ -103,6 +103,8 @@ def test_fe8_lord():
         base_lv=x.my_levels[0]
         print(*args)
         print(x.my_stats,x.my_levels.copy())
+        before,after=x.level_up(15-base_lv,get_forecast=True)
+        print(after)
         x.add_auto_bonus()
         print(x.my_stats,x.my_levels)
         bonus=x.my_stats-x.base_stats
@@ -117,19 +119,19 @@ def test_fe8_lord():
 
 
 
-def test_forecast():
-    args='6','Gonzales'
+def test_forecast(unit='Gonzales'):
+    args='6',unit
     y=Morph(*args)
     #   Need to promote
     y.add_auto_bonus('10B')
     a=y.add_hm_bonus(get_forecast=True)
-    b=y.level_up(20,get_forecast=True)
-    c=y.promote(get_forecast=True)
+    b,j=y.level_up(20,get_forecast=True)
+    c,x,k=y.promote(get_forecast=True)
     print(y.my_classes,y.my_levels,y.my_maxes)
     d=y.use_stat_booster('HP',get_forecast=True)
-    pairs=a,b,c,d
-    for z,x in pairs:
-        print(z,x)
+    print(c,x,k)
+    url='https://serenesforest.net/binding-blade/characters/average-stats/gonzales-dir/'
+    print(url)
 
 
 def test_fe7_lord(max_out=False,unit='Eliwood'):
@@ -185,11 +187,59 @@ def test_wallace(lyn_mode):
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
 
 
+def test_fe4_lord():
+    game='4'
+    unit='Celice'
+    args=game,unit
+    x=Morph(*args)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+    x.promote()
+    x.level_up(10)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+
+
+def test_fe4_jagen():
+    game='4'
+    unit='Sigurd'
+    args=game,unit
+    x=Morph(*args)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+    x.promote()
+    x.level_up(10)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+
+
+def test_fe4_kid(male):
+    game='4'
+    unit=('Skasaher' if male else 'Lakche')
+    father='Lex'
+    kwargs={
+        'game':game,\
+        'unit':unit,\
+        'father':father
+        }
+    x=Morph(**kwargs)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+    x.promote()
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+
+
+def test_unit(game,unit,lyn_mode=False,father='Arden'):
+    x=Morph(game,unit,lyn_mode=lyn_mode,father=father)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+    x.level_up(20)
+    x.promote()
+    x.level_up(20)
+    print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
+
 
 if __name__ == '__main__':
     #test_trainee()
-    test_lara()
+    #test_lara()
     #test_fe8_lord()
     #test_hugh()
-    #test_wallace(True)
-    #test_forecast()
+    #test_wallace(False)
+    #test_fe4_jagen()
+    #test_fe4_kid(True)
+    test_forecast('Thany')
+    #test_unit('6','Dayan')
