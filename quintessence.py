@@ -75,13 +75,22 @@ class Morph:
         index=self.current_index()
         return x[index]
 
-    def cap_stats(self):
+    def cap_stats(self,stat_array=None):
         capped_array=()
-        for stat,limit in zip(self.my_stats,self.my_maxes):
+        if stat_array is None:
+            stat_array=self.my_stats
+        for stat,limit in zip(stat_array,self.my_maxes):
             if stat > limit:
                 stat=limit
             capped_array+=(stat,)
-        self.my_stats=array(capped_array)
+        stat_array=array(capped_array)
+        return stat_array
+
+    def stat_forecast(self,increment):
+        old_stats=self.my_stats.copy()
+        new_stats=old_stats+increment
+        new_stats=self.cap_stats(new_stats)
+        return old_stats,new_stats
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True,get_forecast=False):
         #   Check if valid action - IMPORT TO TKINTER
@@ -93,12 +102,15 @@ class Morph:
         if stat_array is None:
             stat_array=self.growth_rates
         if get_forecast:
-            old_stats=self.my_stats.copy()
+            forecast_level=self.current_level()+num_levels
+            level_info={
+                'Level':forecast_level
+                }
             if increase_stats:
-                new_stats=old_stats+stat_array*num_levels/100
+                increment=stat_array*num_levels/100
             else:
-                new_stats=old_stats
-            return (old_stats,new_stats)
+                increment=zeros(len(self.my_stats))
+            return self.stat_forecast(increment),level_info
         if increase_level:
             index=self.current_index()
             self.my_levels[index]+=num_levels
@@ -129,21 +141,30 @@ class Morph:
             }
         kwargs1.update(self.kwargs)
         promo_bonus=load_class_promo(**kwargs1).to_numpy()
-        if get_forecast:
-            old_stats=self.my_stats.copy()
-            new_stats=old_stats+promo_bonus
-            return (old_stats,new_stats)
-        #   Checks if unit can promote at current level
-        #   -if no, automatically levels up unit
-        #   -IMPORT TO TKINTER
-        if self.current_level() < min_promo_lv:
-            num_levels=min_promo_lv-self.current_level()
-            self.level_up(num_levels)
-        self.my_stats=self.my_stats+promo_bonus
         if self.game == '4':
             reset_level=self.current_level()
         else:
             reset_level=1
+        num_levels=min_promo_lv-self.current_level()
+        if get_forecast:
+            if num_levels < 0:
+                num_levels=0
+            forecast=self.stat_forecast(promo_bonus)
+            promoted_info={
+                'Level':reset_level,\
+                'Class':promo_class
+                }
+            unpromoted_info={
+                'Level':self.current_level()+num_levels,\
+                'Class':self.current_level(get_level=False)
+                }
+            return forecast,promoted_info,unpromoted_info
+        #   Checks if unit can promote at current level
+        #   -if no, automatically levels up unit
+        #   -IMPORT TO TKINTER
+        if self.current_level() < min_promo_lv:
+            self.level_up(num_levels)
+        self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
             if list_var[-1] is None:
@@ -230,14 +251,10 @@ class Morph:
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(bonus)
         if get_forecast:
-            old_stats=self.my_stats.copy()
-            new_stats=old_stats+boost_array
-            return (old_stats,new_stats)
+            forecast=self.stat_forecast(boost_array)
+            return forecast
         self.my_stats=self.my_stats+boost_array
         self.cap_stats()
-
-    def is_capped(self):
-        return self.my_stats == self.my_maxes
 
     def decline_hugh(self,num_times,get_forecast=False):
         #   Check if valid action - IMPORT TO TKINTER
@@ -248,9 +265,8 @@ class Morph:
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         if get_forecast:
-            old_stats=self.my_stats.copy()
-            new_stats=old_stats+decrement
-            return (old_stats,new_stats)
+            forecast=self.stat_forecast(decrement)
+            return forecast
         self.my_stats=self.my_stats+decrement
 
 
