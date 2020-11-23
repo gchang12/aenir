@@ -6,15 +6,15 @@ from aenir2.quintessence import Morph
 
 class Limstella:
     def __init__(self):
-        self.unit_parameters={}
-        self.hm_parameters={}
-        self.auto_parameters={}
-        self.misc_parameters={}
+        self.unit_params={}
+        self.hm_params={}
+        self.auto_params={}
+        self.misc_params={}
         self.edit_history={}
-        self.info_variables=self.unit_parameters,\
-                             self.hm_parameters,\
-                             self.auto_parameters,\
-                             self.misc_parameters,\
+        self.info_variables=self.unit_params,\
+                             self.hm_params,\
+                             self.auto_params,\
+                             self.misc_params,\
                              self.edit_history
         self.my_unit=None
 
@@ -24,12 +24,12 @@ class Limstella:
         self.my_unit=None
 
     def __bool__(self):
-        #   Tells user factory-resetted via __del__ call
+        #   Tells user if factory-resetted via __del__ call
         return self.my_unit is None and not any(self.info_variables)
-
-    def __len__(self):
-        return len(self.edit_history)
 
     def __call__(self):
         #   Main routine here; save for very end.
         return
+
+if __name__ == '__main__':
+    x=Limstella()
