@@ -2,6 +2,7 @@ import pandas as pd
 from aenir2.data_dict import read_stat_names
 from os.path import sep
 from os import walk
+from aenir2.gender_dict import updated_name_for
 
 def character_list(game,file_match='characters_base-stats'):
     data_dir='.','raw_data','fe'+game
@@ -28,6 +29,15 @@ def character_list(game,file_match='characters_base-stats'):
                     continue
                 compiled_names+=(name,)
     return compiled_names
+
+
+def translated_character_list(game,file_match='characters_base-stats'):
+    raw_list=character_list(game,file_match=file_match)
+    new_list=()
+    for unit in raw_list:
+        unit=updated_name_for(game,unit)
+        new_list+=(unit,)
+    return new_list
 
 
 def fe4_child_list(get_father=False):
@@ -92,11 +102,18 @@ def read_class_names2(game,audit_name,match_name):
 
 def game_title_dict():
     d={
-        '4':'Genealogy of the Holy War',\
-        '5':'Thracia 776',\
-        '6':'Binding Blade',\
-        '7':'Blazing Sword',\
-        '8':'Sacred Stones',\
-        '9':'Path of Radiance'
+        '4: Genealogy of the Holy War':'4',\
+        '5: Thracia 776':'5',\
+        '6: Binding Blade':'6',\
+        '7: Blazing Sword':'7',\
+        '8: The Sacred Stones':'8',\
+        '9: Path of Radiance':'9'
         }
     return d
+
+if __name__ == '__main__':
+    k=4
+    game=str(k)
+    unit_list=translated_character_list(game)
+    for unit in unit_list:
+        print(unit)
