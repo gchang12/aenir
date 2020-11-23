@@ -39,7 +39,6 @@ class Morph:
             self.my_classes=[None,self.base_class]
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
-        self.length=0
 
     def can_promote(self):
         trainees='Ross','Amelia','Ewan'
@@ -86,7 +85,6 @@ class Morph:
                 stat=limit
             capped_array+=(stat,)
         self.my_stats=array(capped_array)
-        self.length+=1
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         #   Check if valid action - IMPORT TO TKINTER
@@ -233,7 +231,6 @@ class Morph:
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
-        self.cap_stats()
 
     def copy(self):
         return copy(self)
@@ -306,13 +303,18 @@ class Morph:
         df.insert(**kwargs)
         return df
 
-    def __len__(self):
-        #   Number of times user modified stats
-        return self.length
-
-    def __bool__(self):
-        #   Shows if instance modified or not
-        return self.length > 0
+    def __gt__(self,other):
+        #   Copy-paste of __ge__ call
+        df=self.__sub__(other)
+        comparison=df.loc[:,'diff'].to_numpy()>0
+        df.drop(columns='diff',inplace=True)
+        kwargs={
+            'loc':2,\
+            'column':'exceeds',\
+            'value':comparison
+            }
+        df.insert(**kwargs)
+        return df
 
 
 if __name__=='__main__':
