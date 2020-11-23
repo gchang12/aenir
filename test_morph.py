@@ -144,19 +144,26 @@ def test_gonzales(test_auto=False,chapter='10B'):
     unit='Gonzales'
     args=game,unit
     x=Morph(*args)
+    print(args)
     if test_auto:
         print(x.my_stats,x.my_levels)
         x.add_auto_bonus(chapter)
         print(x.my_stats,x.my_levels)
         print(x.my_stats == x.base_stats)
         return
+    print('Hard Mode: True\n')
     x.add_hm_bonus()
-    print(x.my_stats,x.my_classes,x.my_levels,x.my_maxes)
+    l=x.my_stats,x.my_classes,x.my_levels,x.my_maxes
+    for L in l:
+        print(L)
+    print()
     x.level_up(15)
     x.promote()
-    print(x.my_stats,x.my_classes,x.my_levels,x.my_maxes)
+    m=x.my_stats,x.my_classes,x.my_levels,x.my_maxes
+    for M in m:
+        print(M)
     url='https://serenesforest.net/binding-blade/characters/average-stats/gonzales-dir/'
-    print(url)
+    print('\n',url)
 
 
 def test_wallace(lyn_mode):
@@ -223,6 +230,7 @@ if __name__ == '__main__':
     #test_hugh()
     #test_wallace(True)
     #test_fe4_jagen()
+    test_fe7_dancer('Nils')
     #test_fe4_kid(True)
     #test_unit('6','Dayan')
-    test_gonzales()
+    #test_gonzales()

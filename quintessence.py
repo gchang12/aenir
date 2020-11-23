@@ -1,9 +1,12 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
+from aenir2.name_lists import stat_names,character_list
 from numpy import array,zeros
+from copy import copy
 
 class Morph:
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
+        assert unit in character_list(game)
         kwargs={
             'game':game,\
             'unit':unit,\
@@ -36,6 +39,7 @@ class Morph:
             self.my_classes=[None,self.base_class]
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
+        self.length=0
 
     def can_promote(self):
         trainees='Ross','Amelia','Ewan'
@@ -82,6 +86,7 @@ class Morph:
                 stat=limit
             capped_array+=(stat,)
         self.my_stats=array(capped_array)
+        self.length+=1
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         #   Check if valid action - IMPORT TO TKINTER
@@ -228,15 +233,87 @@ class Morph:
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
+        self.cap_stats()
+
+    def copy(self):
+        return copy(self)
+
+    #   Consider removing all below; nothing to do with limstella.py
+
+    def get_display_name(self,d,name):
+        if 'Father' in d.keys():
+            suffix=d['Father']+'!'
+        elif 'Lyn Mode' in d.keys():
+            in_lyn_mode=d['Lyn Mode']
+            suffix=('LM!' if in_lyn_mode else '')
+        else:
+            suffix=''
+        return suffix+name
+
+    def __call__(self):
+        #   Displays stats of Morph object
+        specific_name=self.get_display_name(self.unit_info,self.unit)
+        kwargs={
+            'data':self.my_stats,\
+            'index':stat_names(self.game),\
+            'name':specific_name
+            }
+        return pd.Series(**kwargs)
+
+    def __sub__(self,other):
+        #   Difference of stats between two Morph objects
+        gba_games=('6','7','8')
+        if self.game in gba_games:
+            assert other.game in gba_games
+        else:
+            assert self.game == other.game
+        diff=self.my_stats-other.my_stats
+        self_name=self.get_display_name(self.unit_info,self.unit)
+        other_name=self.get_display_name(other.unit_info,other.unit)
+        columns=self_name,other_name,'diff'
+        data=self.my_stats,other.my_stats,diff
+        index=stat_names(self.game)
+        kwargs={
+            'data':data,\
+            'index':columns,\
+            'columns':index
+            }
+        return pd.DataFrame(**kwargs).transpose()
+
+    def __ge__(self,other):
+        #   Comparison between two Morph objects
+        df=self.__sub__(other)
+        comparison=df.loc[:,'diff'].to_numpy()>=0
+        df.drop(columns='diff',inplace=True)
+        kwargs={
+            'loc':2,\
+            'column':'at least',\
+            'value':comparison
+            }
+        df.insert(**kwargs)
+        return df
+
+    def __eq__(self,other):
+        #   Copy-paste of __ge__ call
+        df=self.__sub__(other)
+        comparison=df.loc[:,'diff'].to_numpy()==0
+        df.drop(columns='diff',inplace=True)
+        kwargs={
+            'loc':2,\
+            'column':'equal',\
+            'value':comparison
+            }
+        df.insert(**kwargs)
+        return df
+
+    def __len__(self):
+        #   Number of times user modified stats
+        return self.length
+
+    def __bool__(self):
+        #   Shows if instance modified or not
+        return self.length > 0
 
 
 if __name__=='__main__':
-    k=4
-    game=str(k)
-    unit='Levin'
-    kwargs={}
-    kwargs['game']=game
-    kwargs['unit']=unit
-    x=Morph(**kwargs)
-    print(x.unit_info)
-    print(x.base_stats)
+    x=4
