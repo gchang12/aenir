@@ -40,6 +40,16 @@ class Morph:
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
 
+    def min_promo_level(self,promo_path=0):
+        promo_class=self.my_promotions[promo_path]
+        kwargs0={
+            'game':self.game,\
+            'unit':self.unit,\
+            'unit_class':promo_class
+            }
+        min_promo_lv=promo_level_dict(**kwargs0)
+        return min_promo_lv
+    
     def can_promote(self):
         trainees='Ross','Amelia','Ewan'
         lara_promotions=['Thief','Thief Fighter','Dancer','Thief Fighter'],\
@@ -126,14 +136,9 @@ class Morph:
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
         #   -IMPORT TO TKINTER
-        kwargs0={
-            'game':self.game,\
-            'unit':self.unit,\
-            'unit_class':promo_class
-            }
-        min_promo_lv=promo_level_dict(**kwargs0)
-        num_levels=min_promo_lv-self.current_level()
+        min_promo_lv=self.min_promo_level(promo_path=promo_path)
         if self.current_level() < min_promo_lv:
+            num_levels=min_promo_lv-self.current_level()
             self.level_up(num_levels)
         self.my_stats=self.my_stats+promo_bonus
 

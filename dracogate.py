@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
-from aenir2.name_lists import game_title_dict
+from aenir2.gui_tools import *
 from aenir2.quintessence import Morph
 
 class Limstella:
@@ -10,11 +10,13 @@ class Limstella:
         self.hm_params={}
         self.auto_params={}
         self.misc_params={}
+        self.display_params={}
         self.edit_history={}
         self.info_variables=self.unit_params,\
                              self.hm_params,\
                              self.auto_params,\
                              self.misc_params,\
+                             self.display_params,\
                              self.edit_history
         self.my_unit=None
 
@@ -33,3 +35,5 @@ class Limstella:
 
 if __name__ == '__main__':
     x=Limstella()
+    y=not x
+    print(y)
