@@ -103,12 +103,19 @@ def save_stats(game):
         data=pd.DataFrame(table)
         data.to_csv(file,index=False,header=False)
 
+def save_all():
+    data_dir='.','raw_data'
+    data_dir=sep.join(data_dir)
+    for k in range(4,10):
+        game=str(k)
+        data_file=data_dir,'fe'+game
+        data_file=sep.join(data_file)
+        if exists(data_file):
+            continue
+        save_stats(game)
+
 from aenir2.dracogate import Limstella
 from aenir2.quintessence import Morph
 
 if __name__=='__main__':
-    def save_all():
-        for k in range(4,10):
-            game=str(k)
-            save_stats(game)
-    #save_all()
+    x=6

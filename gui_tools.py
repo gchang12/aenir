@@ -8,7 +8,7 @@ from aenir2.gender_dict import max_level_dict,\
      hard_mode_dict,\
      auto_level_dict,\
      booster_dict
-
+from aenir2 import save_stats
 
 def max_level(game,class_name):
     args=(game,class_name)
@@ -76,16 +76,12 @@ def get_auto_chapters(unit):
     d=auto_level_dict()[unit]
     return tuple(d.keys())
 
-def get_booster_names(game):
-    d=booster_dict(game,get_bonus=False)
-    return tuple(d.values())
-
 def booster_to_stat_converter(game,booster_name):
     d=booster_dict(game,get_bonus=False)
     t={}
     for stat_name,item in d.items():
-        if item == booster_name:
-            return stat_name
+        t[item]=stat_name
+    return t
 
 #   Checks if certain actions permissible (e.g. level-up, promote)
 
