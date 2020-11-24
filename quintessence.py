@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.name_lists import stat_names,character_list,fe4_child_list,translated_character_list
+from aenir2.name_lists import stat_names,character_list
 from numpy import array,zeros
 from copy import copy
 
@@ -246,19 +246,9 @@ class Morph:
 
     #   Consider removing all below; nothing to do with limstella.py
 
-    def get_display_name(self,d,name):
-        if 'Father' in d.keys():
-            suffix=d['Father']+'!'
-        elif 'Lyn Mode' in d.keys():
-            in_lyn_mode=d['Lyn Mode']
-            suffix=('LM!' if in_lyn_mode else '')
-        else:
-            suffix=''
-        return suffix+name
-
     def __call__(self):
         #   Displays stats of Morph object
-        specific_name=self.get_display_name(self.unit_info,self.unit)
+        specific_name=get_display_name(self.unit_info,self.unit)
         kwargs={
             'data':self.my_stats,\
             'index':stat_names(self.game),\
@@ -274,8 +264,8 @@ class Morph:
         else:
             assert self.game == other.game
         diff=self.my_stats-other.my_stats
-        self_name=self.get_display_name(self.unit_info,self.unit)
-        other_name=self.get_display_name(other.unit_info,other.unit)
+        self_name=get_display_name(self.unit_info,self.unit)
+        other_name=get_display_name(other.unit_info,other.unit)
         columns=self_name,other_name,'diff'
         data=self.my_stats,other.my_stats,diff
         index=stat_names(self.game)
@@ -327,4 +317,9 @@ class Morph:
 
 
 if __name__=='__main__':
-    x=4
+    k=4
+    game=str(k)
+    unit='Lakche'
+    args=game,unit
+    x=Morph(*args)
+    print(x())

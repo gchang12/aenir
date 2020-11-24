@@ -1,5 +1,15 @@
 from os.path import sep
 
+def get_display_name(d,name):
+    if 'Father' in d.keys():
+        suffix=d['Father']+'!'
+    elif 'Lyn Mode' in d.keys():
+        in_lyn_mode=d['Lyn Mode']
+        suffix=('LM!' if in_lyn_mode else '')
+    else:
+        suffix=''
+    return suffix+name
+
 def gender_dict(game):
     path_to_genders=('.','metadata','genders.csv')
     gender_file=sep.join(path_to_genders)
