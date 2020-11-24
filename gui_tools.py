@@ -6,7 +6,8 @@ from aenir2.name_lists import character_list,\
 from aenir2.gender_dict import max_level_dict,\
      updated_name_for,\
      hard_mode_dict,\
-     auto_level_dict
+     auto_level_dict,\
+     booster_dict
 
 
 def max_level(game,class_name):
@@ -63,6 +64,28 @@ def has_hm_bonus(unit):
 
 def has_auto_bonus(unit):
     return unit in auto_level_dict().keys()
+
+def get_hm_chapters(unit):
+    d=hard_mode_dict()[unit]
+    if '' in d.keys():
+        return
+    else:
+        return tuple(d.keys())
+
+def get_auto_chapters(unit):
+    d=auto_level_dict()[unit]
+    return tuple(d.keys())
+
+def get_booster_names(game):
+    d=booster_dict(game,get_bonus=False)
+    return tuple(d.values())
+
+def booster_to_stat_converter(game,booster_name):
+    d=booster_dict(game,get_bonus=False)
+    t={}
+    for stat_name,item in d.items():
+        if item == booster_name:
+            return stat_name
 
 #   Checks if certain actions permissible (e.g. level-up, promote)
 
