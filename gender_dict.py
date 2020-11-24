@@ -159,7 +159,7 @@ def booster_dict(game,get_bonus=True):
     return bonus_dict
 
 
-def names_dict(game):
+def names_dict(game,new_to_old=False):
     name_info='.','metadata',r'updated_names.csv'
     name_info=sep.join(name_info)
     names={}
@@ -173,12 +173,14 @@ def names_dict(game):
                     break
                 else:
                     continue
+            if new_to_old:
+                old_name,new_name=new_name,old_name
             names[old_name]=new_name
     return names
 
 
-def updated_name_for(game,unit):
-    names=names_dict(game)
+def updated_name_for(game,unit,new_to_old=False):
+    names=names_dict(game,new_to_old=new_to_old)
     if unit in names.keys():
         unit=names[unit]
     return unit
@@ -197,6 +199,6 @@ def max_level_dict(game,class_name):
 if __name__=='__main__':
     k=5
     game=str(k)
-    d=auto_promo_dict()
-    for l in d.items():
-        print(l)
+    d=names_dict(game,new_to_old=True)
+    for item in d.items():
+        print(item)
