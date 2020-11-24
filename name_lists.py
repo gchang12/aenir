@@ -31,8 +31,9 @@ def character_list(game,file_match='characters_base-stats'):
     return compiled_names
 
 
-def translated_character_list(game,file_match='characters_base-stats'):
-    raw_list=character_list(game,file_match=file_match)
+def translated_character_list(game,raw_list=None,file_match='characters_base-stats'):
+    if raw_list is None:
+        raw_list=character_list(game,file_match=file_match)
     new_list=()
     for unit in raw_list:
         unit=updated_name_for(game,unit)
@@ -101,19 +102,20 @@ def read_class_names2(game,audit_name,match_name):
     return x
 
 def game_title_dict():
-    d={
-        '4: Genealogy of the Holy War':'4',\
-        '5: Thracia 776':'5',\
-        '6: Binding Blade':'6',\
-        '7: Blazing Sword':'7',\
-        '8: The Sacred Stones':'8',\
-        '9: Path of Radiance':'9'
-        }
+    d={}
+    d['Genealogy of the Holy War']='4'
+    d['Thracia 776']='5'
+    d['Binding Blade']='6'
+    d['Blazing Sword']='7'
+    d['The Sacred Stones']='8'
+    d['Path of Radiance']='9'
     return d
+
 
 if __name__ == '__main__':
     k=4
     game=str(k)
-    unit_list=translated_character_list(game)
+    unit_list=fe4_child_list(True)
+    unit_list=translated_character_list(game,raw_list=unit_list)
     for unit in unit_list:
         print(unit)

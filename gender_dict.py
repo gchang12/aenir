@@ -197,8 +197,13 @@ def max_level_dict(game,class_name):
 
 
 if __name__=='__main__':
-    k=5
+    k=6
     game=str(k)
-    d=names_dict(game,new_to_old=True)
-    for item in d.items():
+    unit='Gonzales'
+    d=booster_dict(game)
+    t=auto_level_dict()[unit]
+    s=hard_mode_dict()[unit]
+    u=hard_mode_dict()['Cath']
+    x=t
+    for item in x.items():
         print(item)
