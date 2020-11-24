@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.name_lists import stat_names,character_list
+from aenir2.name_lists import stat_names,character_list,fe4_child_list,translated_character_list
 from numpy import array,zeros
 from copy import copy
 
@@ -60,6 +60,18 @@ class Morph:
             x=True
         return x
 
+    def min_promo_level(self,promo_path=0):
+        promo_class=self.my_promotions[promo_path]
+        kwargs0={
+            'game':self.game,\
+            'unit':self.unit,\
+            'unit_class':promo_class
+            }
+        min_promo_lv=promo_level_dict(**kwargs0)
+        return min_promo_lv
+
+    #   Methods to help identify correct attribute to update
+
     def current_index(self):
         if self.can_promote():
             if self.my_classes[-1] is not None:
@@ -77,6 +89,8 @@ class Morph:
             x=x=self.my_classes
         index=self.current_index()
         return x[index]
+
+    #   Modify Morph attributes here
 
     def cap_stats(self):
         capped_array=()
@@ -111,12 +125,6 @@ class Morph:
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
         promo_class=self.my_promotions[promo_path]
-        kwargs0={
-            'game':self.game,\
-            'unit':self.unit,\
-            'unit_class':promo_class
-            }
-        min_promo_lv=promo_level_dict(**kwargs0)
         audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
             'class_name':self.current_level(get_level=False),\
@@ -128,6 +136,7 @@ class Morph:
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
         #   -IMPORT TO TKINTER
+        min_promo_lv=self.min_promo_level(promo_path=promo_path)
         num_levels=min_promo_lv-self.current_level()
         if self.current_level() < min_promo_lv:
             self.level_up(num_levels)

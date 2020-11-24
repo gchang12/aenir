@@ -1,0 +1,72 @@
+    #   Convenient to have in one place
+
+    def stat_names(self):
+        return stat_names(self.game)
+
+    def max_level(self):
+        max_level=max_level_dict(self.game,self.current_level(get_level=False))
+        return max_level
+
+    #   Conditions that Limstella class needs to check before initialization
+
+    @staticmethod
+    def is_lyndis_league(game,unit):
+        #   Essential to summoning Lyn Mode dialog box
+        if game != '7':
+            return False
+        kwargs={
+            'game':game,\
+            'file_match':'characters_base-stats1.csv'
+            }
+        lyndis_league=character_list(**kwargs)
+        return unit in lyndis_league
+
+    @staticmethod
+    def is_fe4_child(game,unit):
+        #   Essential to summoning father selection window
+        return unit in fe4_child_list() and game == '4'
+
+    #   Getting lists
+
+    @staticmethod
+    def fe4_father_list():
+        father_list=fe4_child_list(get_father=True)
+        kwargs={
+            'game':'4',\
+            'raw_list':father_list
+            }
+        return translated_character_list(**kwargs)
+
+    @staticmethod
+    def character_list(game):
+        return translated_character_list(game)
+
+    #   For displayed unit names
+
+    @staticmethod
+    def get_old_name(game,unit):
+        return updated_name_for(game,unit,new_to_old=True)
+
+    #   After initialization of Morph object
+
+    def is_hugh(self):
+        #   Use self.decline_hugh method
+        return (self.game,self.unit) == ('6','Hugh')
+
+    def has_hm_bonus(self):
+        return self.unit in hard_mode_dict().keys()
+
+    def has_auto_bonus(self):
+        return self.unit in auto_level_dict().keys()
+
+    #   Checks if certain actions permissible (e.g. level-up, promote)
+
+    def can_auto_level_fe8_lord(self):
+        if self.unit in ('Ephraim','Eirika'):
+            if self.current_level() >= 15:
+                x=False
+            else:
+                x=True
+        else:
+            x=False
+        return x

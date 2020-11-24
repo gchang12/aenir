@@ -18,7 +18,6 @@ def test_lara(path=0):
         print()
 
 
-
 def test_trainee(unit='Ross',paths=(2,1,1)):
     trainees='Ross','Amelia','Ewan'
     assert unit in trainees
@@ -162,14 +161,16 @@ def test_gonzales(test_auto=False,chapter='10B'):
     m=x.my_stats,x.my_classes,x.my_levels,x.my_maxes
     for M in m:
         print(M)
+    print()
     url='https://serenesforest.net/binding-blade/characters/average-stats/gonzales-dir/'
-    print('\n',url)
+    print(url)
 
 
 def test_wallace(lyn_mode):
     game='7'
     unit='Wallace'
     x=Morph(game,unit,lyn_mode=lyn_mode)
+    print(x.unit_info)
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
     x.level_up(8)
     x.promote()
@@ -223,14 +224,28 @@ def test_unit(game,unit,lyn_mode=False,father='Arden'):
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
 
 
+def test_morph_static():
+    def test_child(game,unit):
+        x=Morph.is_fe4_child(game,unit)
+        print(game,unit,x)
+    def test_lm(game,unit):
+        x=Morph.is_lyndis_league(game,unit)
+        print(game,unit,x)
+    test_child('4','Leaf')
+    test_child('4','Lakche')
+    test_lm('7','Sain')
+    test_lm('7','Lowen')
+
+
 if __name__ == '__main__':
     #test_trainee()
     #test_lara()
     #test_fe8_lord()
     #test_hugh()
-    #test_wallace(True)
+    #test_wallace(False)
     #test_fe4_jagen()
-    test_fe7_dancer('Nils')
+    #test_fe7_dancer()
     #test_fe4_kid(True)
     #test_unit('6','Dayan')
-    #test_gonzales()
+    test_gonzales()
+    #test_morph_static()

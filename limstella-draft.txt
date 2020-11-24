@@ -1,0 +1,77 @@
+ask for game
+unit scrollbar active
+ask for unit
+
+check if unit is in lyndis league or is fe4 kid
+-lyn_mode: check-box
+-fe4_kid: select father from list
+
+Morph initialize
+
+Use instance methods to check:
+
+Unit has auto-bonus (method)
+-select chapter from two-item list
+-forecast stats upon focus
+-confirm and apply
+-append choice to auto-level settings dict
+
+Unit has hard-mode bonus (method)
+-use checkbox if # keys == 1
+-have user select from list if chapter-dependent
+--forecast stats upon focus
+-confirm and apply
+-append choice to hard-mode settings dict
+
+Unit is Hugh (method)
+-scrollbox for range(4)
+-have user select decrement from list
+-forecast stats
+-confirm and apply
+
+Confirmation screen displaying every attribute specified
+
+Main menu
+-show stats
+-show name, class-level, game title
+-whitespace next to stats to put forecast stats!
+-list of options or option menu
+--options: level-up, promote, stat-booster, compare, info, class level-up (for FE8 lords)
+--display when applicable
+--grey out if not applicable anymore
+--do not display at all if never applicable
+
+Level-up
+-Use scrollbox to select integer...
+-Forecast stats change during selection
+-confirm and apply changes
+-grey out if max level (method)
+
+Promote
+-If one choice, confirmation screen showing forecast stats
+-If multiple choice, show choices and forecast stats upon focus
+--Confirmation screen and apply changes
+-if unit is not high enough level, ask to auto-level then promote or to come back later (method)
+
+Stat-booster
+-Choose stat-booster from list...
+-Show forecast upon focus...
+-Confirm and apply
+
+Class level-up
+-Disclaimer that it is for Ephraim/Eirika on route convergence
+-grey if level >= 15 (method)
+-auto-level to fifteen
+-forecast stats automatically
+-confirm and apply
+
+Info
+-Show all information during initialization
+-Hugh, auto, HM, father, Lyn Mode, game, unit
+--all applicable info
+-also show edit history
+
+Compare
+-Average stats on left
+-User-input on right
+--stats with 0% growths listed as labels
