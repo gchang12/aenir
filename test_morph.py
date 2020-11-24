@@ -239,7 +239,7 @@ def test_morph_static():
 
 if __name__ == '__main__':
     #test_trainee()
-    #test_lara()
+    test_lara()
     #test_fe8_lord()
     #test_hugh()
     #test_wallace(False)
@@ -247,5 +247,5 @@ if __name__ == '__main__':
     #test_fe7_dancer()
     #test_fe4_kid(True)
     #test_unit('6','Dayan')
-    test_gonzales()
+    #test_gonzales()
     #test_morph_static()

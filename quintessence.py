@@ -60,16 +60,6 @@ class Morph:
             x=True
         return x
 
-    def min_promo_level(self,promo_path=0):
-        promo_class=self.my_promotions[promo_path]
-        kwargs0={
-            'game':self.game,\
-            'unit':self.unit,\
-            'unit_class':promo_class
-            }
-        min_promo_lv=promo_level_dict(**kwargs0)
-        return min_promo_lv
-
     #   Methods to help identify correct attribute to update
 
     def current_index(self):
@@ -136,7 +126,12 @@ class Morph:
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
         #   -IMPORT TO TKINTER
-        min_promo_lv=self.min_promo_level(promo_path=promo_path)
+        kwargs0={
+            'game':self.game,\
+            'unit':self.unit,\
+            'unit_class':promo_class
+            }
+        min_promo_lv=promo_level_dict(**kwargs0)
         num_levels=min_promo_lv-self.current_level()
         if self.current_level() < min_promo_lv:
             self.level_up(num_levels)
