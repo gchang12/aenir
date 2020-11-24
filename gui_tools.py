@@ -1,0 +1,74 @@
+from aenir2.name_lists import character_list,\
+     translated_character_list,\
+     stat_names,\
+     fe4_child_list,\
+     game_title_dict
+from aenir2.gender_dict import max_level_dict,\
+     updated_name_for,\
+     hard_mode_dict,\
+     auto_level_dict
+
+
+def max_level(game,class_name):
+    args=(game,class_name)
+    max_level=max_level_dict(*args)
+    return max_level
+
+#   Conditions that Limstella class needs to check before initialization
+
+def is_lyndis_league(game,unit):
+    #   Essential to summoning Lyn Mode dialog box
+    if game != '7':
+        return False
+    kwargs={
+        'game':game,\
+        'file_match':'characters_base-stats1.csv'
+        }
+    lyndis_league=character_list(**kwargs)
+    return unit in lyndis_league
+
+def is_fe4_child(game,unit):
+    #   Essential to summoning father selection window
+    if game != '4':
+        return False
+    else:
+        return unit in fe4_child_list()
+
+#   Getting lists
+
+def fe4_father_list():
+    father_list=fe4_child_list(get_father=True)
+    kwargs={
+        'game':'4',\
+        'raw_list':father_list
+        }
+    return translated_character_list(**kwargs)
+
+def character_list(game):
+    return translated_character_list(game)
+
+#   For displayed unit names
+
+def get_old_name(game,unit):
+    return updated_name_for(game,unit,new_to_old=True)
+
+#   After initialization of Morph object
+
+def is_hugh(game,unit):
+    #   Use self.decline_hugh method
+    return (game,unit) == ('6','Hugh')
+
+def has_hm_bonus(unit):
+    return unit in hard_mode_dict().keys()
+
+def has_auto_bonus(unit):
+    return unit in auto_level_dict().keys()
+
+#   Checks if certain actions permissible (e.g. level-up, promote)
+
+def can_auto_level_fe8_lord(game,unit,current_level):
+    if game != '8':
+        return False
+    elif unit not in ('Ephraim','Eirika'):
+        return False
+    return current_level >= 15

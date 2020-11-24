@@ -223,23 +223,9 @@ def test_unit(game,unit,lyn_mode=False,father='Arden'):
     x.level_up(20)
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
 
-
-def test_morph_static():
-    def test_child(game,unit):
-        x=Morph.is_fe4_child(game,unit)
-        print(game,unit,x)
-    def test_lm(game,unit):
-        x=Morph.is_lyndis_league(game,unit)
-        print(game,unit,x)
-    test_child('4','Leaf')
-    test_child('4','Lakche')
-    test_lm('7','Sain')
-    test_lm('7','Lowen')
-
-
 if __name__ == '__main__':
-    #test_trainee()
-    test_lara()
+    test_trainee()
+    #test_lara()
     #test_fe8_lord()
     #test_hugh()
     #test_wallace(False)
