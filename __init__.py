@@ -106,12 +106,10 @@ def save_stats(game):
 def save_all():
     data_dir='.','raw_data'
     data_dir=sep.join(data_dir)
+    if exists(data_dir):
+        return
     for k in range(4,10):
         game=str(k)
-        data_file=data_dir,'fe'+game
-        data_file=sep.join(data_file)
-        if exists(data_file):
-            continue
         save_stats(game)
 
 from aenir2.dracogate import Limstella
