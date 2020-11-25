@@ -206,14 +206,33 @@ def max_level_dict(game,class_name):
         return 20
 
 
+def chapter_dict(game):
+    data_loc='.','metadata',r'chapter_names.csv'
+    data_loc=sep.join(data_loc)
+    d={}
+    with open(data_loc) as r_file:
+        for line in r_file.readlines():
+            line=line.strip().split(',')
+            if line[0] != game:
+                if d:
+                    break
+                else:
+                    continue
+            number=line[1]
+            title=number+': '+line[2]
+            d[title]=number
+    return d
+
+
 if __name__=='__main__':
     k=6
     game=str(k)
     unit='Gonzales'
     d=booster_dict(game)
-    t=auto_level_dict()[unit]
-    s=hard_mode_dict()[unit]
+    t=auto_level_dict()#[unit]
+    s=hard_mode_dict()#[unit]
     u=hard_mode_dict()['Cath']
-    x=t
+    q=chapter_dict(game)
+    x=q
     for item in x.items():
         print(item)
