@@ -7,7 +7,8 @@ from aenir2.gender_dict import max_level_dict,\
      updated_name_for,\
      hard_mode_dict,\
      auto_level_dict,\
-     booster_dict
+     booster_dict,\
+     chapter_dict
 from aenir2 import save_stats
 
 def max_level(game,class_name):
@@ -67,9 +68,7 @@ def has_auto_bonus(unit):
 
 def get_hm_chapters(unit):
     d=hard_mode_dict()[unit]
-    if '' in d.keys():
-        return
-    else:
+    if '' not in d.keys():
         return tuple(d.keys())
 
 def get_auto_chapters(unit):
