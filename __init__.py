@@ -103,7 +103,7 @@ def save_stats(game):
         data=pd.DataFrame(table)
         data.to_csv(file,index=False,header=False)
 
-def save_all():
+def save_raw_data():
     data_dir='.','raw_data'
     data_dir=sep.join(data_dir)
     if exists(data_dir):
@@ -112,8 +112,10 @@ def save_all():
         game=str(k)
         save_stats(game)
 
-from aenir2.dracogate import Limstella
+from aenir2.dracogate import Aenir
 from aenir2.quintessence import Morph
+
+save_raw_data()
 
 if __name__=='__main__':
     x=6

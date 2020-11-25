@@ -1,10 +1,9 @@
 from tkinter import *
-from tkinter import ttk
 
 from aenir2.gui_tools import *
 from aenir2.quintessence import Morph
 
-class Limstella:
+class Aenir:
     def __init__(self):
         self.unit_params={}
         self.hm_params={}
