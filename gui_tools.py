@@ -89,3 +89,7 @@ def can_auto_level_fe8_lord(game,unit,current_level):
     elif unit not in ('Ephraim','Eirika'):
         return False
     return current_level >= 15
+
+if __name__ == '__main__':
+    game='5'
+    print(character_list(game))
