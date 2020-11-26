@@ -258,6 +258,7 @@ class Morph:
         #   None: (no color)
         colors={}
         stat_array=zip(stat_names(self.game),self.my_stats,other.my_stats)
+        assert len(stat_names(self.game)) == len(self.my_stats)
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
                 x=None
