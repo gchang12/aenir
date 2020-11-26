@@ -2,7 +2,7 @@ from aenir2.read_stats import *
 from aenir2.gender_dict import *
 from aenir2.name_lists import stat_names,character_list,fe4_child_list
 from numpy import array,zeros
-from copy import copy
+from copy import deepcopy
 
 class Morph:
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
@@ -249,9 +249,9 @@ class Morph:
 
     def copy(self):
         #   For determining forecast
-        return copy(self)
+        return deepcopy(self)
 
-    def __gt__(self,other):
+    def __pow__(self,other):
         #   Indicates which stats to color during forecast
         #   True: blue
         #   False: red
@@ -262,9 +262,9 @@ class Morph:
             if my_stat == other_stat:
                 x=None
             elif my_stat > other_stat:
-                x=True
-            elif my_stat < other_stat:
                 x=False
+            elif my_stat < other_stat:
+                x=True
             colors[name]=x
         def update_colors(key,f1,f2):
             if f1() == f2():
@@ -284,5 +284,7 @@ if __name__=='__main__':
     args=(game,unit)
     x=Morph(*args)
     unit='Skasaher'
-    y=Morph(game,unit)
-    print(y > x)
+    y=x.copy()
+    y.level_up(19)
+    y.promote()
+    print(x**y)
