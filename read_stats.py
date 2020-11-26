@@ -223,8 +223,8 @@ def load_class_growths(game,unit,class_name,audit,lyn_mode=None,father=None):
 
 
 if __name__=='__main__':
-    game='7'
-    unit='Rebecca'
+    game='6'
+    unit='Wolt'
     class_name='Archer'
     audit='bases'
     args=game,unit,class_name,audit

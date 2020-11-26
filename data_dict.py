@@ -1,6 +1,6 @@
 from os.path import sep, exists
 from os import walk, mkdir
-from aenir2 import save_stats
+from aenir2.data_fetcher import save_stats
 from aenir2.gender_dict import gender_dict
 import pandas as pd
 

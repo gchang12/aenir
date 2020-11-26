@@ -69,7 +69,8 @@ def stat_names(game,stat_name=None):
             x=num_stats[stat]
         else:
             x=stat
-        stats+=(x,)
+        if x not in stats:
+            stats+=(x,)
     if stat_name is not None:
         return stats.index(stat_name)
     return stats
@@ -116,6 +117,6 @@ if __name__ == '__main__':
     k=4
     game=str(k)
     unit_list=fe4_child_list(True)
-    unit_list=translated_character_list(game,raw_list=unit_list)
+    #unit_list=translated_character_list(game,raw_list=unit_list)
     for unit in unit_list:
         print(unit)

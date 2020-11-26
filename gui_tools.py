@@ -9,7 +9,6 @@ from aenir2.gender_dict import max_level_dict,\
      auto_level_dict,\
      booster_dict,\
      chapter_dict
-from aenir2 import save_stats
 
 def max_level(game,class_name):
     args=(game,class_name)
