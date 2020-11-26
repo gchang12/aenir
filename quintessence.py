@@ -251,7 +251,7 @@ class Morph:
         #   For determining forecast
         return deepcopy(self)
 
-    def __pow__(self,other):
+    def __gt__(self,other):
         #   Indicates which stats to color during forecast
         #   True: blue
         #   False: red
@@ -262,9 +262,9 @@ class Morph:
             if my_stat == other_stat:
                 x=None
             elif my_stat > other_stat:
-                x=False
-            elif my_stat < other_stat:
                 x=True
+            elif my_stat < other_stat:
+                x=False
             colors[name]=x
         def update_colors(key,f1,f2):
             if f1() == f2():
@@ -278,13 +278,12 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=4
+    k=8
     game=str(k)
-    unit='Lakche'
+    unit='Ross'
     args=(game,unit)
     x=Morph(*args)
-    unit='Skasaher'
+    x.level_up(9)
     y=x.copy()
-    y.level_up(19)
     y.promote()
-    print(x**y)
+    print(x < y)
