@@ -27,11 +27,11 @@ class Aenir:
                              self.session_history
         self.my_unit=None
 
-    def load_menu(self):
+    def load_menu(self,win_width=400,win_height=500):
         self.root=Tk()
         self.root.title('Aenir')
-        self.root.wm_minsize(width=400,height=500)
-        
+        self.root.wm_minsize(width=win_width,height=win_height)
+
         menubar=Menu(self.root,tearoff=0)
 
         guimenu=Menu(menubar,tearoff=0)
