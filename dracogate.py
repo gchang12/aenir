@@ -92,7 +92,7 @@ class Aenir:
         row=0
         column=0
         itemlist=tuple(game_title_dict().keys())
-        height=6
+        height=len(itemlist)
         label='Game Select'
         x=self.select_from_list(row,column,itemlist,height,label)
         return x
@@ -103,6 +103,15 @@ class Aenir:
         height=22
         label='Unit Select'
         itemlist=unit_list(game)
+        x=self.select_from_list(row,column,itemlist,height,label)
+        return x
+
+    def father_select(self):
+        row=0
+        column=0
+        itemlist=fe4_father_list()
+        height=len(itemlist)
+        label='Father Select'
         x=self.select_from_list(row,column,itemlist,height,label)
         return x
 
@@ -140,32 +149,13 @@ class Aenir:
         gs.focus_force()
         gs.select_set(0)
         disable={'state':DISABLED}
-        ib=self.info_box('Please select a Fire Emblem game. Please press Enter in order to confirm your selection.')
+        confirm_msg=' Then press Enter in order to confirm your selection.'
+        gs_msg='Please select a Fire Emblem game.'
+        ib=self.info_box(gs_msg+confirm_msg)
 
         cb=self.config_box()
         Label(cb,text='Game:').grid(row=1,column=0,sticky=W)
-        Label(cb,text='Name:').grid(row=2,column=0,sticky=W)
-
-        def end_init(*args):
-            for child in self.root.winfo_children():
-                if type(child) == Menu:
-                    continue
-                child.destroy()
-
-        ok_frame=Frame(self.root,**kw)
-        ok_frame.grid(row=2,column=1,sticky=S)
-
-        ok_cfg={
-            'text':'OK',\
-            'state':DISABLED,\
-            'command':end_init,\
-            'width':30,\
-            'justify':LEFT
-            }
-
-        ok_button=Button(ok_frame,**ok_cfg)
-        ok_button.grid(sticky=S)
-        ok_button.bind('<Return>',end_init)
+        Label(cb,text='Unit:').grid(row=2,column=0,sticky=W)
 
         def preview_unit_list(*args):
             title=gs.selection_get()
@@ -185,7 +175,8 @@ class Aenir:
             self.unit_params.update({'game':game})
             self.display_params.update({'Game':title})
 
-            ib['text']='Please select a unit from FE%s. Please press Enter in order to confirm your selection.'%game
+            us_msg='Please select a unit from FE%s.'%game
+            ib['text']=us_msg+confirm_msg
             Label(cb,text=title,justify=LEFT).grid(row=1,column=1,sticky=W)
 
             def confirm_selection(*args):
@@ -194,46 +185,50 @@ class Aenir:
                 old_name=get_old_name(self.unit_params['game'],new_name)
                 self.unit_params.update({'unit':old_name})
                 self.display_params.update({'Unit':new_name})
-                Label(cb,text='').grid(row=3)
+
+                Label(cb,text=new_name).grid(row=2,column=1)
+                final_msg='Please press OK button to proceed. Otherwise, press F5 to restart or Esc to quit.'
+                ib['text']=final_msg
+                ok_button['state']=ACTIVE
+                ok_button.focus()
+
+                sf_kw=kw.copy()
+                sf_kw['relief']='sunken'
+                stat_frame=Frame(cb,**sf_kw)
+                stat_frame.grid(row=3,column=0,columnspan=2)
 
                 if self.game_unit_check():
+                    missing_info_msg='Please specify more attribute(s) in order to view stat preview.'
                     label_kw={
-                        'text':'Please specify more attribute(s) in order to view stat preview.',\
+                        'text':missing_info_msg,\
                         'justify':LEFT,\
                         'wraplength':100
                         }
-                    Label(cb,**label_kw).grid(row=4,column=1)
+                    Label(stat_frame,**label_kw).grid(row=0,column=1)
                 else:
-                    Label(cb,text='Level').grid(row=4,column=0)
-                    Label(cb,text='Class').grid(row=5,column=0)
+                    Label(stat_frame,text='Level:').grid(row=0,column=0)
+                    Label(stat_frame,text='Class:').grid(row=1,column=0)
                     
                     y=Morph(**self.unit_params)
                     
                     display_lv=str(y.base_level)
                     display_cls=str(y.current_class())
-                    Label(cb,text=display_lv).grid(row=4,column=1)
-                    Label(cb,text=display_cls).grid(row=5,column=1)
+                    Label(stat_frame,text=display_lv).grid(row=0,column=1)
+                    Label(stat_frame,text=display_cls).grid(row=1,column=1)
 
                     game=self.unit_params['game']
                     stat_labels=stat_names(game)
                     count=0
 
-                    Label(cb,text='').grid(row=6,column=1)
+                    Label(stat_frame,text='').grid(row=2,column=1)
                     
                     for name,stat in zip(stat_labels,y.base_stats):
                         stat=str(stat)
-                        row=count+7
-                        Label(cb,text=name).grid(column=0,row=row)
-                        Label(cb,text=stat).grid(column=1,row=row)
+                        name+=':'
+                        row=count+3
+                        Label(stat_frame,text=name).grid(column=0,row=row)
+                        Label(stat_frame,text=stat).grid(column=1,row=row)
                         count+=1
-
-                #   If conditions met, do not print stats
-                #   Else print stats
-
-                Label(cb,text=new_name).grid(row=2,column=1)
-                ib['text']='Please press OK button to proceed. Otherwise, press F5 to restart or Esc to quit.'
-                ok_button['state']=ACTIVE
-                ok_button.focus()
 
             us.focus()
             us.select_set(0)
@@ -241,7 +236,36 @@ class Aenir:
 
         gs.bind('<<ListboxSelect>>',preview_unit_list)
         gs.bind('<Return>',start_unit_select)
-        #   Main routine here; save for very end.
+
+        def end_init(*args):
+            ok_button['state']=DISABLED
+            ok_button.unbind('<Return>')
+            ib['text']=''
+            for child in self.root.winfo_children():
+                if type(child) == Menu:
+                    continue
+                for grandkid in child.winfo_children():
+                    if type(grandkid) == Listbox:
+                        child.destroy()
+                        break
+                    if len(grandkid.winfo_children()) > 0:
+                        grandkid.destroy()
+                        break
+
+        ok_frame=Frame(self.root,**kw)
+        ok_frame.grid(row=2,column=1,sticky=S)
+
+        ok_cfg={
+            'text':'OK',\
+            'state':DISABLED,\
+            'command':end_init,\
+            'width':30,\
+            'justify':LEFT
+            }
+
+        ok_button=Button(ok_frame,**ok_cfg)
+        ok_button.grid(sticky=S)
+        ok_button.bind('<Return>',end_init)
 
     def __call__(self):
         self.load_menu()
