@@ -4,13 +4,6 @@ from aenir2.gui_tools import *
 from aenir2.quintessence import Morph
 from aenir2.entry_validator import not_my_validator
 
-#   Universal padding for Frame objects
-kw={}
-pad=4
-kw['padx']=pad
-kw['pady']=pad
-kw['borderwidth']=2
-
 class Aenir:
     def __init__(self):
         self.unit_params={}
@@ -26,6 +19,17 @@ class Aenir:
                              self.display_params,\
                              self.session_history
         self.my_unit=None
+        self.padding={}
+        d=self.padding
+        pad=4
+        d['padx']=pad
+        d['pady']=pad
+        d['borderwidth']=2
+        #   Declared in methods
+        self.root=None
+        self.ib=None
+        self.cb=None
+        self.stat_frame=None
 
     def load_menu(self,win_width=400,win_height=500):
         self.root=Tk()
@@ -64,14 +68,18 @@ class Aenir:
         for var in self.info_variables:
             var.clear()
         self.my_unit=None
+        #   Declared in methods
         self.root.destroy()
+        self.root=None
+        self.ib=None
+        self.cb=None
+        self.stat_frame=None
 
     def __bool__(self):
-        #   Tells user if factory-resetted via quit call
         return self.my_unit is None and not any(self.info_variables)
 
     def select_from_list(self,row,column,itemlist,height,label):
-        frame=Frame(self.root,**kw)
+        frame=Frame(self.root,**self.padding)
         frame.grid(row=row,column=column,sticky=N+W+E+S)
 
         list_var=StringVar(value=itemlist)
@@ -86,6 +94,9 @@ class Aenir:
         item_list.grid(row=1,column=0)
 
         item_label=Label(frame,text=label)
+
+        underline_font(item_label)
+        
         item_label.grid(row=0,column=0,sticky=W)
         return item_list
 
@@ -117,33 +128,73 @@ class Aenir:
         return x
 
     def info_box(self,text):
-        info_frame=Frame(self.root,**kw)
+        info_frame=Frame(self.root,**self.padding)
         info_frame.grid(row=0,column=1,sticky=N+E+W+S)
         info_title=Label(info_frame,text='Info')
+
+        underline_font(info_title)
+        
         info_title.grid(sticky=N+W,row=0,column=0)
         info_label=Label(info_frame,text=text,wraplength=200,justify=LEFT)
         info_label.grid(row=1,column=0,sticky=N+W)
         return info_label
 
     def config_box(self):
-        cfg_frame=Frame(self.root,**kw)
+        cfg_frame=Frame(self.root,**self.padding)
         cfg_frame.grid(row=1,column=1,sticky=N+W+E+S)
-        cfg_title=Label(cfg_frame,text='Config')
+        cfg_title=Label(cfg_frame,text='Confirm',underline=True)
+
+        underline_font(cfg_title)
+        
         cfg_title.grid(sticky=N+W,row=0,column=0)
         return cfg_frame
 
     def game_unit_check(self):
-        game=self.unit_params['game']
-        unit=self.unit_params['unit']
-        args=game,unit
+        d=self.unit_params
         conditions=(
-            is_lyndis_league(*args),\
-            is_fe4_child(*args),\
-            is_hugh(*args),\
-            has_hm_bonus(unit),\
-            has_auto_bonus(unit)
+            #   Checkbutton
+            is_lyndis_league(**d),\
+            #  Listbox
+            is_fe4_child(**d),\
+            #   Entry
+            is_hugh(**d),\
+            #   Checkbutton/Listbox
+            has_hm_bonus(**d),\
+            #   Checkbutton/Listbox
+            has_auto_bonus(**d)
             )
         return any(conditions)
+
+    def label_array(self,frame,stat_labels,stat_values,display_cls,display_lv):
+        kw={}
+        kw['relief']='sunken'
+        kw.update(self.padding)
+
+        st={}
+        st['sticky']=N+S+E
+
+        lc_frame=Frame(frame,**kw)
+        lc_frame.grid(row=0,**st)
+        Label(lc_frame,text='Class:').grid(row=0,column=0)
+        Label(lc_frame,text='Level:').grid(row=1,column=0)
+
+        Label(lc_frame,text=display_cls).grid(row=0,column=1)
+        Label(lc_frame,text=display_lv).grid(row=1,column=1)
+
+        game=self.unit_params['game']
+        stat_labels=stat_names(game)
+
+        num_frame=Frame(self.stat_frame,**kw)
+        num_frame.grid(row=1,**st)
+
+        row=0
+
+        for name,stat in zip(stat_labels,stat_values):
+            stat=str(stat)
+            name+=':'
+            Label(num_frame,text=name).grid(column=0,row=row)
+            Label(num_frame,text=stat).grid(column=1,row=row)
+            row+=1
 
     def game_unit_init(self):
         gs=self.game_select()
@@ -152,11 +203,11 @@ class Aenir:
         disable={'state':DISABLED}
         confirm_msg=' Then press Enter in order to confirm your selection.'
         gs_msg='Please select a Fire Emblem game.'
-        ib=self.info_box(gs_msg+confirm_msg)
+        self.ib=self.info_box(gs_msg+confirm_msg)
 
-        cb=self.config_box()
-        Label(cb,text='Game:').grid(row=1,column=0,sticky=W)
-        Label(cb,text='Unit:').grid(row=2,column=0,sticky=W)
+        self.cb=self.config_box()
+        Label(self.cb,text='Game:').grid(row=1,column=0,sticky=W)
+        Label(self.cb,text='Unit:').grid(row=2,column=0,sticky=W)
 
         def preview_unit_list(*args):
             title=gs.selection_get()
@@ -170,15 +221,14 @@ class Aenir:
             title=gs.selection_get()
             game=game_title_dict()[title]
             us=self.unit_select(game)
-            us.grid({'rowspan':2})
             gs.unbind('<<ListboxSelect>>')
             gs.config(disable)
             self.unit_params.update({'game':game})
             self.display_params.update({'Game':title})
 
             us_msg='Please select a unit from FE%s.'%game
-            ib['text']=us_msg+confirm_msg
-            Label(cb,text=title,justify=LEFT).grid(row=1,column=1,sticky=W)
+            self.ib['text']=us_msg+confirm_msg
+            Label(self.cb,text=title,justify=LEFT).grid(row=1,column=1,sticky=W)
 
             def confirm_selection(*args):
                 us.config(disable)
@@ -187,16 +237,23 @@ class Aenir:
                 self.unit_params.update({'unit':old_name})
                 self.display_params.update({'Unit':new_name})
 
-                Label(cb,text=new_name).grid(row=2,column=1)
+                Label(self.cb,text=new_name).grid(row=2,column=1)
                 final_msg='Please press OK button to proceed. Otherwise, press F5 to restart or Esc to quit.'
-                ib['text']=final_msg
+                self.ib['text']=final_msg
                 ok_button['state']=ACTIVE
                 ok_button.focus()
 
-                sf_kw=kw.copy()
-                sf_kw['relief']='sunken'
-                stat_frame=Frame(cb,**sf_kw)
-                stat_frame.grid(row=3,column=0,columnspan=2)
+                
+                self.stat_frame=Frame(self.cb,**self.padding)
+                self.stat_frame.grid(row=3,column=0,columnspan=2)
+
+                y=Morph(**self.unit_params)
+
+                display_lv=str(y.base_level)
+                display_cls=str(y.current_class())
+
+                self.display_params.update({'Class':display_cls})
+                self.display_params.update({'Level':display_lv})
 
                 if self.game_unit_check():
                     missing_info_msg='Please specify more attribute(s) in order to view stat preview.'
@@ -205,35 +262,11 @@ class Aenir:
                         'justify':LEFT,\
                         'wraplength':100
                         }
-                    Label(stat_frame,**label_kw).grid(row=0,column=1)
+                    Label(self.stat_frame,**label_kw).grid(row=0,column=1)
                 else:
-                    Label(stat_frame,text='Level:').grid(row=0,column=0)
-                    Label(stat_frame,text='Class:').grid(row=1,column=0)
-
-                    y=Morph(**self.unit_params)
-
-                    display_lv=str(y.base_level)
-                    display_cls=str(y.current_class())
-
-                    self.display_params.update({'Class':display_cls})
-                    self.display_params.update({'Lv':display_lv})
-                    
-                    Label(stat_frame,text=display_lv).grid(row=0,column=1)
-                    Label(stat_frame,text=display_cls).grid(row=1,column=1)
-
-                    game=self.unit_params['game']
-                    stat_labels=stat_names(game)
-                    count=0
-
-                    Label(stat_frame,text='').grid(row=2,column=1)
-                    
-                    for name,stat in zip(stat_labels,y.base_stats):
-                        stat=str(stat)
-                        name+=':'
-                        row=count+3
-                        Label(stat_frame,text=name).grid(column=0,row=row)
-                        Label(stat_frame,text=stat).grid(column=1,row=row)
-                        count+=1
+                    stat_labels=stat_names(self.unit_params['game'])
+                    stat_values=y.base_stats
+                    self.label_array(self.stat_frame,stat_labels,stat_values,display_cls,display_lv)
 
             us.focus()
             us.select_set(0)
@@ -243,9 +276,9 @@ class Aenir:
         gs.bind('<Return>',start_unit_select)
 
         def end_init(*args):
-            ok_button['state']=DISABLED
             ok_button.unbind('<Return>')
-            ib['text']=''
+            ok_button['command']=lambda: None
+            self.ib['text']=''
             for child in self.root.winfo_children():
                 if type(child) == Menu:
                     continue
@@ -254,10 +287,12 @@ class Aenir:
                         child.destroy()
                         break
                     if len(grandkid.winfo_children()) > 0:
-                        grandkid.destroy()
+                        for descendent in grandkid.winfo_children():
+                            descendent.destroy()
                         break
+            self.final_init()
 
-        ok_frame=Frame(self.root,**kw)
+        ok_frame=Frame(self.root,**self.padding)
         ok_frame.grid(row=2,column=1,sticky=S)
 
         ok_cfg={
@@ -272,9 +307,54 @@ class Aenir:
         ok_button.grid(sticky=S)
         ok_button.bind('<Return>',end_init)
 
+    def stat_preview(self,nergal):
+
+        def show_stats(*args):
+            display_cls=self.display_params['Class']
+            display_lv=self.display_params['Level']
+            stat_labels=stat_names(self.unit_params['game'])
+            stat_values=nergal().my_stats
+            self.label_array(self.stat_frame,stat_labels,stat_values,display_cls,display_lv)
+
+        return show_stats
+
+
+    def final_init(self):
+        if not self.game_unit_check():
+            return
+        nergal=lambda : Morph(**self.unit_params)
+        show_stats=self.stat_preview(nergal)
+        akw={}
+        akw['height']=389
+        akw['width']=196
+        akw.update(self.padding)
+        attr_frame=Frame(self.root,**akw)
+        attr_frame.grid(row=1,column=0)
+
+        fkw={}
+        fkw['height']=133
+        fkw['width']=196
+        fkw.update(self.padding)
+        fill_frame=Frame(self.root,**fkw)
+        fill_frame.grid(row=0,column=0)
+
+        show_stats()
+
+        d=self.unit_params
+
+        #   Create function that specifies attributes and calls 'show_stats'
+
+        #   has_hm_bonus(**d),\         Checkbutton/Listbox
+        #   has_auto_bonus(**d),\       Checkbutton/Listbox
+        #   is_lyndis_league(**d),\     Checkbutton
+        #   is_fe4_child(**d),\         Listbox = (self.father_select)
+        #   is_hugh(**d),\              Entry
+
+
     def __call__(self):
         self.load_menu()
         self.game_unit_init()
+        self.root.mainloop()
 
 if __name__ == '__main__':
     x=Aenir()
