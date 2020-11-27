@@ -25,13 +25,15 @@ if __name__ == '__main__':
     entry_frame=Frame(root,**d)
     entry_frame.grid(row=1,column=0)
 
-    num_lv=IntVar()
+    num_lv=StringVar()
     
     entry=Entry(entry_frame,textvariable=num_lv,validate='key')
     entry['vcmd']=(entry.register(not_my_validator), '%P', '%d')
 
     def get_and_print(*args):
         n=entry.get()
+        if not n.isdigit():
+            return
         print(n,type(n))
         root.destroy()
         exit()
