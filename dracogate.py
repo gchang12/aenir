@@ -154,7 +154,7 @@ class Aenir:
                 child.destroy()
 
         ok_frame=Frame(self.root,**kw)
-        ok_frame.grid(row=2,column=1,sticky=S,columnspan=2)
+        ok_frame.grid(row=2,column=1,sticky=S)
 
         ok_cfg={
             'text':'OK',\
@@ -203,7 +203,7 @@ class Aenir:
                         'justify':LEFT,\
                         'wraplength':100
                         }
-                    Label(cb,**label_kw).grid(row=4,column=1,columnspan=2)
+                    Label(cb,**label_kw).grid(row=4,column=1)
                 else:
                     Label(cb,text='Level').grid(row=4,column=0)
                     Label(cb,text='Class').grid(row=5,column=0)
