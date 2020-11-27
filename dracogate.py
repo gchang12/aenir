@@ -209,11 +209,15 @@ class Aenir:
                 else:
                     Label(stat_frame,text='Level:').grid(row=0,column=0)
                     Label(stat_frame,text='Class:').grid(row=1,column=0)
-                    
+
                     y=Morph(**self.unit_params)
-                    
+
                     display_lv=str(y.base_level)
                     display_cls=str(y.current_class())
+
+                    self.display_params.update({'Class':display_cls})
+                    self.display_params.update({'Lv':display_lv})
+                    
                     Label(stat_frame,text=display_lv).grid(row=0,column=1)
                     Label(stat_frame,text=display_cls).grid(row=1,column=1)
 
