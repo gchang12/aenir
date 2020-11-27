@@ -1,3 +1,5 @@
+from tkinter import font
+
 from aenir2.name_lists import character_list,\
      translated_character_list,\
      stat_names,\
@@ -60,10 +62,10 @@ def is_hugh(game,unit):
     #   Use self.decline_hugh method
     return (game,unit) == ('6','Hugh')
 
-def has_hm_bonus(unit):
+def has_hm_bonus(game,unit):
     return unit in hard_mode_dict().keys()
 
-def has_auto_bonus(unit):
+def has_auto_bonus(game,unit):
     return unit in auto_level_dict().keys()
 
 def get_hm_chapters(unit):
@@ -91,6 +93,11 @@ def can_auto_level_fe8_lord(game,unit,current_level):
         return False
     return current_level >= 15
 
+def underline_font(myLabel):
+    my_font=font.Font(myLabel,myLabel.cget('font'))
+    my_font.configure(underline=True)
+    myLabel.configure(font=my_font)
+
 if __name__ == '__main__':
-    game='5'
-    print(unit_list(game))
+    x=fe4_father_list()
+    print(len(x))
