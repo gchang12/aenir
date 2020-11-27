@@ -136,7 +136,7 @@ class Aenir:
             x=False
         return x
 
-    def __call__(self):
+    def game_unit_init(self):
         self.load_menu()
         gs=self.game_select()
         gs.focus_force()
@@ -153,8 +153,6 @@ class Aenir:
                 if type(child) == Menu:
                     continue
                 child.destroy()
-            print(self.unit_params)
-            print(self.display_params)
 
         ok_frame=Frame(self.root,**kw)
         ok_frame.grid(row=2,column=1,sticky=S,columnspan=2)
@@ -249,4 +247,4 @@ class Aenir:
 
 if __name__ == '__main__':
     x=Aenir()
-    x()
+    x.game_unit_init()
