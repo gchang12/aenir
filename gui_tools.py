@@ -25,7 +25,8 @@ def is_lyndis_league(game,unit):
         'game':game,\
         'file_match':'characters_base-stats1.csv'
         }
-    lyndis_league=character_list(**kwargs)
+    unit_list=character_list
+    lyndis_league=unit_list(**kwargs)
     return unit in lyndis_league
 
 def is_fe4_child(game,unit):
@@ -45,7 +46,7 @@ def fe4_father_list():
         }
     return translated_character_list(**kwargs)
 
-def character_list(game):
+def unit_list(game):
     return translated_character_list(game)
 
 #   For displayed unit names
@@ -92,4 +93,4 @@ def can_auto_level_fe8_lord(game,unit,current_level):
 
 if __name__ == '__main__':
     game='5'
-    print(character_list(game))
+    print(unit_list(game))

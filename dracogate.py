@@ -1,24 +1,14 @@
 from tkinter import *
 
-def show_preview(active_wid,widget_call,value_call):
-    def preview(*args):
-        x=active_wid.selection_get()
-        x=value_call(x)
-        static_wid=widget_call(x)
-        static_wid.config({'state':DISABLED,'takefocus':False})
-    return preview
-
-def next_widget(wid,wid_call,val_call,convert):
-    def to_next(*args):
-        wid.config({'state':DISABLED})
-        val=convert(val_call())
-        next_wid=wid_call(val)
-        next_wid.focus()
-        wid.unbind('<<ListboxSelect>>')
-    return to_next,next_wid
-
 from aenir2.gui_tools import *
 from aenir2.quintessence import Morph
+
+#   Universal padding for Frame objects
+kw={}
+pad=4
+kw['padx']=pad
+kw['pady']=pad
+kw['borderwidth']=2
 
 class Aenir:
     def __init__(self):
@@ -39,17 +29,18 @@ class Aenir:
     def load_menu(self):
         self.root=Tk()
         self.root.title('Aenir')
+        self.root.wm_minsize(width=400,height=500)
         
         menubar=Menu(self.root,tearoff=0)
-        
+
         guimenu=Menu(menubar,tearoff=0)
         guimenu.add_command(label='Reset',command=self.reset)
         guimenu.add_command(label='Quit',command=self.quit)
 
         actionmenu=Menu(menubar,tearoff=0)
-        actionmenu.add_command(label='Level Up')#,command=[level-up sidebar])
-        actionmenu.add_command(label='Promote')#,command=[promote sidebar])
-        actionmenu.add_command(label='Use Item')#,command=[item sidebar])
+        actionmenu.add_command(label='Level Up')
+        actionmenu.add_command(label='Promote')
+        actionmenu.add_command(label='Use Item')
 
         viewmenu=Menu(menubar,tearoff=0)
         viewmenu.add_command(label='History')
@@ -78,101 +69,182 @@ class Aenir:
         #   Tells user if factory-resetted via quit call
         return self.my_unit is None and not any(self.info_variables)
 
-    def select_from_list(self,row,column,itemlist,height):
-        kw={}
-        k=5
-        kw['padx']=k
-        kw['pady']=k
-        kw['borderwidth']=2
+    def select_from_list(self,row,column,itemlist,height,label):
         frame=Frame(self.root,**kw)
-        frame.grid(row=row,column=column)
+        frame.grid(row=row,column=column,sticky=N+W+E+S)
 
         list_var=StringVar(value=itemlist)
 
         kwargs={
             'master':frame,\
             'listvariable':list_var,\
-            'height':height
+            'height':height,\
+            'width':30
             }
         item_list=Listbox(**kwargs)
-        item_list.grid()
+        item_list.grid(row=1,column=0)
+
+        item_label=Label(frame,text=label)
+        item_label.grid(row=0,column=0,sticky=W)
         return item_list
 
-    def append_unit_param(self,val_call,dval_call,key):
-        val=val_call()
-        dval=dval_call(val)
-        self.unit_params.update({key:val})
-        if key == 'lyn_mode':
-            key='Lyn Mode'
-        else:
-            key=key.capitalize()
-        self.display_params.update({key:dval})
-
-    def game_select(self,row,column):
+    def game_select(self):
+        row=0
+        column=0
         itemlist=tuple(game_title_dict().keys())
-        gs_list=self.select_from_list(row,column,itemlist,6)
-        val_call=gs_list.selection_get
-        dval_call=lambda title: game_title_dict()[title]
-        key='game'
-        kw={
-            'wid_call':self.unit_select,\
-            'row':1,\
-            'column':0
-            }
-        self.bind_append(gs_list,val_call,dval_call,key)
-        return gs_list
+        height=6
+        label='Game Select'
+        x=self.select_from_list(row,column,itemlist,height,label)
+        return x
 
-    def bind_append(self,wid,val_call,dval_call,key):
-        f=lambda *args: self.append_unit_param(val_call,dval_call,key)
-        wid.bind('<Return>',f)
+    def unit_select(self,game):
+        row=1
+        column=0
+        height=22
+        label='Unit Select'
+        itemlist=unit_list(game)
+        x=self.select_from_list(row,column,itemlist,height,label)
+        return x
 
-    def unit_select(self,row,column,game):
-        itemlist=character_list(game)
-        us_list=self.select_from_list(row,column,itemlist,10)
-        val_call=us_list.selection_get
-        dval_call=lambda new_name: get_old_name(game,new_name)
-        key='unit'
-        self.bind_append(us_list,val_call,dval_call,key)
-        return us_list
+    def info_box(self,text):
+        info_frame=Frame(self.root,**kw)
+        info_frame.grid(row=0,column=1,sticky=N+E+W+S)
+        info_title=Label(info_frame,text='Info')
+        info_title.grid(sticky=N+W,row=0,column=0)
+        info_label=Label(info_frame,text=text,wraplength=180,justify=LEFT)
+        info_label.grid(row=1,column=0,sticky=N+W)
+        return info_label
 
-    def info_box(self,text=''):
-        kw={
-            'row':0,\
-            'column':1,\
-            'relief':'sunken'
-            }
-        info_frame=Frame(self.root)
-        info_frame.grid(row,**kw)
-        info_label=Label(info_frame,text=text)
-        info_label.grid()
+    def config_box(self):
+        cfg_frame=Frame(self.root,**kw)
+        cfg_frame.grid(row=1,column=1,sticky=N+W+E+S)
+        cfg_title=Label(cfg_frame,text='Config')
+        cfg_title.grid(sticky=N+W,row=0,column=0)
+        return cfg_frame
 
-    def settings_display(self):
-        kw={
-            'row':1,\
-            'column':1,\
-            'relief':'sunken'
-            }
-        opt_frame=Frame(self.root)
-        opt_frame.grid(**kw)
-
-        opt_labels=
+    def game_unit_check(self):
+        game=self.unit_params['game']
+        unit=self.unit_params['unit']
+        args=game,unit
+        if is_lyndis_league(*args):
+            x=True
+        elif is_fe4_child(*args):
+            x=True
+        elif unit == 'Hugh':
+            x=True
+        else:
+            x=False
+        return x
 
     def __call__(self):
         self.load_menu()
-        gs=self.game_select(1,0)
-        gs.focus()
-        us_call=lambda game: self.unit_select(3,0,game)
-        us=us_call('4')
-        us['state']=DISABLED
-        title_to_num=lambda title: game_title_dict()[title]
-        gs.bind('<<ListboxSelect>>',show_preview(gs,us_call,title_to_num))
-        func,us=next_widget(gs,us_call,gs.selection_get,title_to_num)
-        bind_kw={
-            'sequence':'<Return>',\
-            'func':func
+        gs=self.game_select()
+        gs.focus_force()
+        gs.select_set(0)
+        disable={'state':DISABLED}
+        ib=self.info_box('Please select a Fire Emblem game.')
+
+        cb=self.config_box()
+        Label(cb,text='Game').grid(row=1,column=0,sticky=W)
+        Label(cb,text='Name').grid(row=2,column=0,sticky=W)
+
+        def end_init(*args):
+            for child in self.root.winfo_children():
+                if type(child) == Menu:
+                    continue
+                child.destroy()
+            print(self.unit_params)
+            print(self.display_params)
+
+        ok_frame=Frame(self.root,**kw)
+        ok_frame.grid(row=2,column=1,sticky=S,columnspan=2)
+
+        ok_cfg={
+            'text':'OK',\
+            'state':DISABLED,\
+            'command':end_init,\
+            'width':30,\
+            'justify':LEFT
             }
-        gs.bind(**bind_kw)
-        us.bind(sequence='<Return>',func=lambda *args: print(45),add=True)
+
+        ok_button=Button(ok_frame,**ok_cfg)
+        ok_button.grid(sticky=S)
+        ok_button.bind('<Return>',end_init)
+
+        def preview_unit_list(*args):
+            title=gs.selection_get()
+            game=game_title_dict()[title]
+            us=self.unit_select(game)
+            us.config(disable)
+
+        preview_unit_list()
+
+        def start_unit_select(*args):
+            title=gs.selection_get()
+            game=game_title_dict()[title]
+            us=self.unit_select(game)
+            us.grid({'rowspan':2})
+            gs.unbind('<<ListboxSelect>>')
+            gs.config(disable)
+            self.unit_params.update({'game':game})
+            self.display_params.update({'Game':title})
+
+            ib['text']='Please select a unit from FE%s.'%game
+            Label(cb,text=title,justify=LEFT).grid(row=1,column=1,sticky=W)
+
+            def confirm_selection(*args):
+                us.config(disable)
+                new_name=us.selection_get()
+                old_name=get_old_name(self.unit_params['game'],new_name)
+                self.unit_params.update({'unit':old_name})
+                self.display_params.update({'Unit':new_name})
+                Label(cb,text='').grid(row=3)
+
+                if self.game_unit_check():
+                    label_kw={
+                        'text':'Please specify more attribute(s) in order to view stat preview.',\
+                        'justify':LEFT,\
+                        'wraplength':180
+                        }
+                    Label(cb,**label_kw).grid(row=4,column=1,columnspan=2)
+                else:
+                    Label(cb,text='Level').grid(row=4,column=0)
+                    Label(cb,text='Class').grid(row=5,column=0)
+                    
+                    y=Morph(**self.unit_params)
+                    
+                    display_lv=str(y.base_level)
+                    display_cls=str(y.current_class())
+                    Label(cb,text=display_lv).grid(row=4,column=1)
+                    Label(cb,text=display_cls).grid(row=5,column=1)
+
+                    game=self.unit_params['game']
+                    stat_labels=stat_names(game)
+                    count=0
+
+                    Label(cb,text='').grid(row=6,column=1)
+                    
+                    for name,stat in zip(stat_labels,y.base_stats):
+                        stat=str(stat)
+                        row=count+7
+                        Label(cb,text=name).grid(column=0,row=row)
+                        Label(cb,text=stat).grid(column=1,row=row)
+                        count+=1
+
+                #   If conditions met, do not print stats
+                #   Else print stats
+
+                Label(cb,text=new_name,justify=CENTER).grid(row=2,column=1)
+                ib['text']='Please press OK button to proceed. Otherwise, press F5 to restart or Esc to quit.'
+                ok_button['state']=ACTIVE
+                ok_button.focus()
+
+            us.focus()
+            us.select_set(0)
+            us.bind('<Return>',confirm_selection)
+
+        gs.bind('<<ListboxSelect>>',preview_unit_list)
+        gs.bind('<Return>',start_unit_select)
         #   Main routine here; save for very end.
 
 if __name__ == '__main__':
