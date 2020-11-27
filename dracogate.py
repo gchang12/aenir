@@ -2,6 +2,7 @@ from tkinter import *
 
 from aenir2.gui_tools import *
 from aenir2.quintessence import Morph
+from aenir2.entry_validator import not_my_validator
 
 #   Universal padding for Frame objects
 kw={}
