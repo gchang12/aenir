@@ -111,7 +111,7 @@ class Aenir:
         info_frame.grid(row=0,column=1,sticky=N+E+W+S)
         info_title=Label(info_frame,text='Info')
         info_title.grid(sticky=N+W,row=0,column=0)
-        info_label=Label(info_frame,text=text,wraplength=180,justify=LEFT)
+        info_label=Label(info_frame,text=text,wraplength=200,justify=LEFT)
         info_label.grid(row=1,column=0,sticky=N+W)
         return info_label
 
