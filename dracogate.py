@@ -126,15 +126,14 @@ class Aenir:
         game=self.unit_params['game']
         unit=self.unit_params['unit']
         args=game,unit
-        if is_lyndis_league(*args):
-            x=True
-        elif is_fe4_child(*args):
-            x=True
-        elif unit == 'Hugh':
-            x=True
-        else:
-            x=False
-        return x
+        conditions=(
+            is_lyndis_league(*args),\
+            is_fe4_child(*args),\
+            is_hugh(*args),\
+            has_hm_bonus(unit),\
+            has_auto_bonus(unit)
+            )
+        return any(conditions)
 
     def game_unit_init(self):
         self.load_menu()
@@ -145,8 +144,8 @@ class Aenir:
         ib=self.info_box('Please select a Fire Emblem game.')
 
         cb=self.config_box()
-        Label(cb,text='Game').grid(row=1,column=0,sticky=W)
-        Label(cb,text='Name').grid(row=2,column=0,sticky=W)
+        Label(cb,text='Game:').grid(row=1,column=0,sticky=W)
+        Label(cb,text='Name:').grid(row=2,column=0,sticky=W)
 
         def end_init(*args):
             for child in self.root.winfo_children():
@@ -202,7 +201,7 @@ class Aenir:
                     label_kw={
                         'text':'Please specify more attribute(s) in order to view stat preview.',\
                         'justify':LEFT,\
-                        'wraplength':180
+                        'wraplength':100
                         }
                     Label(cb,**label_kw).grid(row=4,column=1,columnspan=2)
                 else:
@@ -232,7 +231,7 @@ class Aenir:
                 #   If conditions met, do not print stats
                 #   Else print stats
 
-                Label(cb,text=new_name,justify=CENTER).grid(row=2,column=1)
+                Label(cb,text=new_name).grid(row=2,column=1)
                 ib['text']='Please press OK button to proceed. Otherwise, press F5 to restart or Esc to quit.'
                 ok_button['state']=ACTIVE
                 ok_button.focus()
@@ -245,6 +244,9 @@ class Aenir:
         gs.bind('<Return>',start_unit_select)
         #   Main routine here; save for very end.
 
+    def __call__(self):
+        self.game_unit_init()
+
 if __name__ == '__main__':
     x=Aenir()
-    x.game_unit_init()
+    x()
