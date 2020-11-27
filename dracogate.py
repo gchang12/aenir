@@ -136,12 +136,11 @@ class Aenir:
         return any(conditions)
 
     def game_unit_init(self):
-        self.load_menu()
         gs=self.game_select()
         gs.focus_force()
         gs.select_set(0)
         disable={'state':DISABLED}
-        ib=self.info_box('Please select a Fire Emblem game.')
+        ib=self.info_box('Please select a Fire Emblem game. Please press Enter in order to confirm your selection.')
 
         cb=self.config_box()
         Label(cb,text='Game:').grid(row=1,column=0,sticky=W)
@@ -186,7 +185,7 @@ class Aenir:
             self.unit_params.update({'game':game})
             self.display_params.update({'Game':title})
 
-            ib['text']='Please select a unit from FE%s.'%game
+            ib['text']='Please select a unit from FE%s. Please press Enter in order to confirm your selection.'%game
             Label(cb,text=title,justify=LEFT).grid(row=1,column=1,sticky=W)
 
             def confirm_selection(*args):
@@ -245,6 +244,7 @@ class Aenir:
         #   Main routine here; save for very end.
 
     def __call__(self):
+        self.load_menu()
         self.game_unit_init()
 
 if __name__ == '__main__':
