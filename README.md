@@ -1,7 +1,7 @@
-How to perform stat comparison
+Performing stat comparison
 ===
-# Example: 20/20 Roy
 
+*Compare to 20/20 Roy from FE6*
 
 from aenir2 import Morph
 
