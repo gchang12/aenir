@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.name_lists import stat_names,character_list,fe4_child_list
+from aenir2.name_lists import stat_names,character_list,fe4_child_list,game_title_dict
 from numpy import array,zeros
 from copy import deepcopy
 
@@ -277,6 +277,36 @@ class Morph:
         update_colors('Level',self.current_level,other.current_level)
         return colors
 
+    def __call__(self):
+        stat_labels=stat_names(self.game)
+        my_stats=()
+        for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
+            if growth == 0:
+                my_stats+=(avg,)
+            else:
+                stat=''
+                while not stat.isdigit():
+                    stat=input(name+': ')
+                my_stats+=(int(stat),)
+        stat_dict={}
+        stat_dict['mine']=array(my_stats)
+        stat_dict['avg']=self.my_stats
+        stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
+        x=pd.DataFrame(stat_dict,index=stat_labels)
+        print('\n')
+        print('Game: %s'%game_title_dict(reverse=True)[self.game])
+        print('Unit: %s'%self.unit)
+        print()
+        for cls,lv in zip(self.my_classes,self.my_levels):
+            if lv is None:
+                continue
+            if cls is None:
+                continue
+            print('Level %d: %s'%(lv,cls))
+        print()
+        print(x)
+        return x
+
 
 if __name__=='__main__':
     k=8
@@ -284,7 +314,4 @@ if __name__=='__main__':
     unit='Ross'
     args=(game,unit)
     x=Morph(*args)
-    x.level_up(9)
-    y=x.copy()
-    y.promote()
-    print(x < y)
+    x()

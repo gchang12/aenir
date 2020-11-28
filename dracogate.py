@@ -19,19 +19,18 @@ class Aenir:
                              self.display_params,\
                              self.session_history
         self.my_unit=None
-        self.padding={}
-        d=self.padding
-        pad=4
-        d['padx']=pad
-        d['pady']=pad
-        d['borderwidth']=2
+        self.padding={
+            'padx':4,\
+            'pady':4,\
+            'borderwidth':2
+            }
         #   Declared in methods
         self.root=None
         self.ib=None
         self.cb=None
         self.stat_frame=None
 
-    def load_menu(self,win_width=400,win_height=500):
+    def load_menu(self,win_width=428,win_height=560):
         self.root=Tk()
         self.root.title('Aenir')
         self.root.wm_minsize(width=win_width,height=win_height)
@@ -142,10 +141,10 @@ class Aenir:
     def config_box(self):
         cfg_frame=Frame(self.root,**self.padding)
         cfg_frame.grid(row=1,column=1,sticky=N+W+E+S)
-        cfg_title=Label(cfg_frame,text='Confirm',underline=True)
+        cfg_title=Label(cfg_frame,text='Confirm')
 
         underline_font(cfg_title)
-        
+
         cfg_title.grid(sticky=N+W,row=0,column=0)
         return cfg_frame
 
@@ -243,7 +242,6 @@ class Aenir:
                 ok_button['state']=ACTIVE
                 ok_button.focus()
 
-                
                 self.stat_frame=Frame(self.cb,**self.padding)
                 self.stat_frame.grid(row=3,column=0,columnspan=2)
 
@@ -307,40 +305,78 @@ class Aenir:
         ok_button.grid(sticky=S)
         ok_button.bind('<Return>',end_init)
 
-    def stat_preview(self,nergal):
+    def stat_preview(self,nergal,frame):
 
         def show_stats(*args):
             display_cls=self.display_params['Class']
             display_lv=self.display_params['Level']
             stat_labels=stat_names(self.unit_params['game'])
             stat_values=nergal().my_stats
-            self.label_array(self.stat_frame,stat_labels,stat_values,display_cls,display_lv)
+            self.label_array(frame,stat_labels,stat_values,display_cls,display_lv)
 
         return show_stats
 
 
+    def get_child_info(self):
+        for child in self.root.winfo_children():
+            print()
+            x=type(child)
+            y=child.winfo_geometry()
+            z=len(child.winfo_children())
+            print(x,y,z)
+            for grandkid in child.winfo_children():
+                t=type(grandkid)
+                g=grandkid.winfo_geometry()
+                l=len(grandkid.winfo_children())
+                print(t,g,l)
+
     def final_init(self):
         if not self.game_unit_check():
             return
-        nergal=lambda : Morph(**self.unit_params)
-        show_stats=self.stat_preview(nergal)
-        akw={}
-        akw['height']=389
-        akw['width']=196
-        akw.update(self.padding)
-        attr_frame=Frame(self.root,**akw)
-        attr_frame.grid(row=1,column=0)
 
         fkw={}
         fkw['height']=133
         fkw['width']=196
         fkw.update(self.padding)
         fill_frame=Frame(self.root,**fkw)
-        fill_frame.grid(row=0,column=0)
+        fill_frame.grid(row=0,column=0,sticky=N+S+E+W)
 
-        show_stats()
+        akw={}
+        akw['width']=196
+        akw['height']=389
+        akw.update(self.padding)
+        attr_frame=Frame(self.root,**akw)
+        attr_frame.grid(row=1,column=0,sticky=N+S+E+W,rowspan=2)
 
-        d=self.unit_params
+        #   Inside attr_frame
+
+        attr_label=Label(attr_frame,text='Default')
+        underline_font(attr_label)
+        attr_label.grid(row=0,sticky=W+N)
+
+        Label(attr_frame,text='').grid(row=1)
+        Label(attr_frame,text='').grid(row=2)
+
+        nums_frame=Frame(attr_frame)
+        nums_frame.grid(row=3,sticky=W+N+S+E)
+
+        get_default=lambda : Morph(**self.unit_params)
+        show_default=self.stat_preview(get_default,nums_frame)
+
+        show_default()
+
+        #   Testing
+
+        l=fill_frame,attr_frame,self.cb
+        n='fill','attr','cfg'
+        
+        for m,name in zip(l,n):
+            d=m.grid_info()
+            s=m.config()
+            row=d['row']
+            column=d['column']
+            message='Name: %s, Row: %d, Column: %d'%(name,row,column)
+            print(s)
 
         #   Create function that specifies attributes and calls 'show_stats'
 
@@ -348,7 +384,7 @@ class Aenir:
         #   has_auto_bonus(**d),\       Checkbutton/Listbox
         #   is_lyndis_league(**d),\     Checkbutton
         #   is_fe4_child(**d),\         Listbox = (self.father_select)
-        #   is_hugh(**d),\              Entry
+        #   is_hugh(**d)                Entry
 
 
     def __call__(self):
