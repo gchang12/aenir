@@ -102,7 +102,7 @@ def read_class_names2(game,audit_name,match_name):
         x=dict(s[start+1:stop])
     return x
 
-def game_title_dict():
+def game_title_dict(reverse=False):
     d={}
     d['Genealogy of the Holy War']='4'
     d['Thracia 776']='5'
@@ -110,6 +110,11 @@ def game_title_dict():
     d['Blazing Sword']='7'
     d['The Sacred Stones']='8'
     d['Path of Radiance']='9'
+    if reverse:
+        t={}
+        for key,val in d.items():
+            t[val]=key
+        return t
     return d
 
 
