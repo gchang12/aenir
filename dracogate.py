@@ -181,7 +181,7 @@ class Aenir:
         Label(lc_frame,text=display_lv).grid(row=1,column=1)
 
         game=self.unit_params['game']
-        stat_labels=stat_names(game)
+        stat_labels=get_stat_names(game)
 
         num_frame=Frame(self.stat_frame,**kw)
         num_frame.grid(row=1,**st)
@@ -262,7 +262,7 @@ class Aenir:
                         }
                     Label(self.stat_frame,**label_kw).grid(row=0,column=1)
                 else:
-                    stat_labels=stat_names(self.unit_params['game'])
+                    stat_labels=get_stat_names(self.unit_params['game'])
                     stat_values=y.base_stats
                     self.label_array(self.stat_frame,stat_labels,stat_values,display_cls,display_lv)
 
@@ -310,7 +310,7 @@ class Aenir:
         def show_stats(*args):
             display_cls=self.display_params['Class']
             display_lv=self.display_params['Level']
-            stat_labels=stat_names(self.unit_params['game'])
+            stat_labels=get_stat_names(self.unit_params['game'])
             stat_values=nergal().my_stats
             self.label_array(frame,stat_labels,stat_values,display_cls,display_lv)
 

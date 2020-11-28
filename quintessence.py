@@ -280,6 +280,11 @@ class Morph:
     def __call__(self):
         stat_labels=stat_names(self.game)
         my_stats=()
+        def print_game_unit(*args):
+            print('Game: %s'%game_title_dict(reverse=True)[self.game])
+            print('Unit: %s'%self.unit)
+            print()
+        print_game_unit()
         for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
             if growth == 0:
                 my_stats+=(avg,)
@@ -292,11 +297,8 @@ class Morph:
         stat_dict['mine']=array(my_stats)
         stat_dict['avg']=self.my_stats
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
-        x=pd.DataFrame(stat_dict,index=stat_labels)
+        comparison=pd.DataFrame(stat_dict,index=stat_labels)
         print('\n')
-        print('Game: %s'%game_title_dict(reverse=True)[self.game])
-        print('Unit: %s'%self.unit)
-        print()
         for cls,lv in zip(self.my_classes,self.my_levels):
             if lv is None:
                 continue
@@ -304,8 +306,7 @@ class Morph:
                 continue
             print('Level %d: %s'%(lv,cls))
         print()
-        print(x)
-        return x
+        print(comparison)
 
 
 if __name__=='__main__':

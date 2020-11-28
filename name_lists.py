@@ -61,7 +61,7 @@ def fe4_child_list(get_father=False):
             yield unit
 
 
-def stat_names(game,stat_name=None):
+def get_stat_names(game,stat_name=None):
     num_stats=read_stat_names(game)
     stats=()
     for stat in num_stats.keys():
