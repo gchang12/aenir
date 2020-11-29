@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.name_lists import stat_names,character_list,fe4_child_list,game_title_dict
+from aenir2.name_lists import get_stat_names,character_list,fe4_child_list,game_title_dict
 from numpy import array,zeros
 from copy import deepcopy
 
@@ -273,8 +273,8 @@ class Morph:
             else:
                 x=True
             colors[key]=x
-        update_colors('Class',self.current_class,other.current_class)
-        update_colors('Level',self.current_level,other.current_level)
+        update_colors('Class:',self.current_class,other.current_class)
+        update_colors('Level:',self.current_level,other.current_level)
         return colors
 
     def __call__(self):
