@@ -11,13 +11,18 @@ class Aenir:
         self.hm_params={}
         self.auto_params={}
         self.my_unit=None
+        self.session_history={}
+
         #   Parameter for displaying info on-screen
         self.display_params={}
+
         #   To clear all variables
         self.info_variables=self.unit_params,\
                              self.hm_params,\
                              self.auto_params,\
-                             self.display_params
+                             self.display_params,\
+                             self.session_history
+
         #   GUI variables to be set later
         self.root=None
 
@@ -101,9 +106,7 @@ class Aenir:
 
         menubar=Menu(self.root,tearoff=0)
 
-        #guimenu=Menu(menubar,tearoff=0)
         menubar.add_command(label='Restart',command=self.restart)
-        #guimenu.add_command(label='Quit',command=self.quit)
 
         actionmenu=Menu(menubar,tearoff=0)
         actionmenu.add_command(label='Level Up')
@@ -116,7 +119,6 @@ class Aenir:
 
         #   Append menus here
 
-        #menubar.add_cascade(label='Main',menu=guimenu)
         menubar.add_cascade(label='Edit',menu=actionmenu,state=DISABLED)
         menubar.add_cascade(label='View',menu=viewmenu,state=DISABLED)
 
@@ -341,15 +343,10 @@ class Aenir:
     def game_unit_check(self):
         d=self.unit_params
         conditions=(
-            #   Checkbutton
             is_lyndis_league(**d),\
-            #  Listbox
             is_fe4_child(**d),\
-            #   Entry
             is_hugh(**d),\
-            #   Checkbutton/Listbox
             has_hm_bonus(**d),\
-            #   Checkbutton/Listbox
             has_auto_bonus(**d)
             )
         return any(conditions)
