@@ -229,7 +229,7 @@ class Morph:
     def use_stat_booster(self,stat_name):
         bonus_dict=booster_dict(self.game,get_bonus=True)
         bonus=bonus_dict[stat_name]
-        stat_loc=stat_names(self.game,stat_name=stat_name)
+        stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(bonus)
         self.my_stats=self.my_stats+boost_array
@@ -257,8 +257,8 @@ class Morph:
         #   False: red
         #   None: (no color)
         colors={}
-        stat_array=zip(stat_names(self.game),self.my_stats,other.my_stats)
-        assert len(stat_names(self.game)) == len(self.my_stats)
+        stat_array=zip(get_stat_names(self.game),self.my_stats,other.my_stats)
+        assert len(get_stat_names(self.game)) == len(self.my_stats)
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
                 x=None
@@ -278,7 +278,7 @@ class Morph:
         return colors
 
     def __call__(self):
-        stat_labels=stat_names(self.game)
+        stat_labels=get_stat_names(self.game)
         my_stats=()
         def print_game_unit(*args):
             print('Game: %s'%game_title_dict(reverse=True)[self.game])
