@@ -317,24 +317,23 @@ class Aenir:
 
     def update_config(self,frame=None,color=None):
         #   ***Must center-justify stats somehow...
-        grid_options1={'sticky':N+S+E+W}
-        grid_options2=grid_options1.copy()
-        
-        label_options={}
-
-        if frame is None:
-            frame=self.nwFrame
-            grid_options1={'sticky':N+W}
-            grid_options2={'sticky':N+E}
-        if color is not None:
-            grid_options2.update({'foreground':color})
 
         display_pairs=list(self.display_params.items())
         label,value=display_pairs[-1]
         row=len(display_pairs)-1
 
+        grid_options1={'sticky':N+S+E+W}
         grid_options1['row']=row
-        grid_options2['row']=row
+        grid_options2=grid_options1.copy()
+
+        label_options={}
+
+        if frame is None:
+            frame=self.nwFrame
+            grid_options1['sticky']=N+W
+            grid_options2['sticky']=N+E
+        if color is not None:
+            grid_options2.update({'foreground':color})
 
         Label(frame,text=label,**label_options).grid(column=0,**grid_options1)
         Label(frame,text=value,**label_options).grid(column=1,**grid_options2)
