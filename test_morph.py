@@ -226,11 +226,11 @@ def test_unit(game,unit,lyn_mode=False,father='Arden'):
 if __name__ == '__main__':
     #test_trainee()
     #test_lara()
-    test_fe7_lord()
+    #test_fe7_lord()
     #test_hugh()
     #test_wallace(False)
     #test_fe4_jagen()
     #test_fe7_dancer()
-    #test_fe4_kid(True)
+    test_fe4_kid(True)
     #test_unit('6','Dayan')
     #test_gonzales()
