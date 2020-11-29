@@ -2,7 +2,7 @@ from tkinter import font
 
 from aenir2.name_lists import character_list,\
      translated_character_list,\
-     stat_names,\
+     get_stat_names,\
      fe4_child_list,\
      game_title_dict
 from aenir2.gender_dict import max_level_dict,\

@@ -1,4 +1,4 @@
-from aenir2.name_lists import fe4_child_list,stat_names
+from aenir2.name_lists import fe4_child_list,get_stat_names
 from os.path import sep
 import pandas as pd
 from aenir2.data_dict import read_stat_names
