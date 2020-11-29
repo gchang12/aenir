@@ -6,7 +6,7 @@ def zero_filler(game,file,row_data):
     if row_data is None:
         return
     row_data=row_data.to_dict()
-    stats=stat_names(game)
+    stats=get_stat_names(game)
     #   Consolidate names here
     for x in stats:
         #   Fill zeros here
