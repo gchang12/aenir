@@ -60,7 +60,7 @@ def load_child_stats(unit,filename,father):
     num_stats=read_stat_names('4')
     old_stat_names=list(num_stats.keys())
     data=df.loc[old_stat_names]
-    new_stat_names=stat_names(game='4')
+    new_stat_names=get_stat_names(game='4')
     data.index=new_stat_names
     return pd.Series(data,dtype='int64')
 
@@ -75,3 +75,6 @@ def load_child_growths(unit,father):
     filename='characters_growth-rates4.csv'
     args=unit,filename,father
     return load_child_stats(*args)
+
+if __name__ == '__main__':
+    x=load_child_bases('Lakche','Lex')
