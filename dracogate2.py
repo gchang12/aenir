@@ -316,19 +316,28 @@ class Aenir:
             show_stat_pair(**kw)
 
     def update_config(self,frame=None,color=None):
-        d1={'sticky':N+S+E+W}
-        d2=d1
+        #   ***Must center-justify stats somehow...
+        grid_options1={'sticky':N+S+E+W}
+        grid_options2=grid_options1.copy()
+        
+        label_options={}
+
         if frame is None:
             frame=self.nwFrame
-            d1={'sticky':N+W}
-            d2={'sticky':N+E}
+            grid_options1={'sticky':N+W}
+            grid_options2={'sticky':N+E}
         if color is not None:
-            d2.update({'foreground':color})
+            grid_options2.update({'foreground':color})
+
         display_pairs=list(self.display_params.items())
         label,value=display_pairs[-1]
         row=len(display_pairs)-1
-        Label(frame,text=label).grid(row=row,column=0,**d1)
-        Label(frame,text=value).grid(row=row,column=1,**d2)
+
+        grid_options1['row']=row
+        grid_options2['row']=row
+
+        Label(frame,text=label,**label_options).grid(column=0,**grid_options1)
+        Label(frame,text=value,**label_options).grid(column=1,**grid_options2)
 
     def game_unit_check(self):
         d=self.unit_params
