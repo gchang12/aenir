@@ -368,8 +368,8 @@ class Aenir:
         dHeight=369
         dHeight+=dy
 
-        dHeight1=2*dHeight/6
-        dHeight2=4*dHeight/6
+        dHeight1=dHeight/3
+        dHeight2=2*dHeight/3
 
         self.dHeight1=dHeight1
         self.dHeight2=dHeight2
