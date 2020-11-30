@@ -259,6 +259,17 @@ class Morph:
         colors={}
         stat_array=zip(get_stat_names(self.game),self.my_stats,other.my_stats)
         assert len(get_stat_names(self.game)) == len(self.my_stats)
+
+        def update_colors(key,f1,f2):
+            if f1() == f2():
+                x=None
+            else:
+                x=True
+            colors[key]=x
+
+        update_colors('Class',self.current_class,other.current_class)
+        update_colors('Level',self.current_level,other.current_level)
+        
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
                 x=None
@@ -267,14 +278,6 @@ class Morph:
             elif my_stat < other_stat:
                 x=False
             colors[name]=x
-        def update_colors(key,f1,f2):
-            if f1() == f2():
-                x=None
-            else:
-                x=True
-            colors[key]=x
-        update_colors('Class',self.current_class,other.current_class)
-        update_colors('Level',self.current_level,other.current_level)
         return colors
 
     def __call__(self):
@@ -315,4 +318,9 @@ if __name__=='__main__':
     unit='Ross'
     args=(game,unit)
     x=Morph(*args)
-    x()
+    unit='Ephraim'
+    y=Morph(game,unit)
+    z= x > y
+    print(x.my_stats)
+    print(y.my_stats)
+    print(z)
