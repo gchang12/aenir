@@ -108,7 +108,6 @@ class Aenir:
         self.gsListbox.bind('<Return>',self.confirm_game)
         self.gsListbox.focus_force()
         self.gsListbox.select_set(0)
-        bind_listbox_shortcuts(self.gsListbox)
 
     def unit_preview(self,*args):
         title=self.gsListbox.selection_get()
