@@ -206,6 +206,39 @@ class Aenir:
         self.usListbox=self.select_from_list(*args)
         self.usListbox['state']=DISABLED
         self.usListbox.bind('<Return>',self.confirm_unit)
+        keys='<End>','<Home>','<Prior>','<Next>'
+        for key in keys:
+            self.usListbox.bind(key,self.jump_in_us)
+
+    def jump_in_us(self,*args):
+        x=args[0].keysym
+        current_index=self.usListbox.curselection()[0]
+        height=self.usListbox['height']
+        length=self.usListbox.size()-1
+        self.usListbox.selection_clear(0,length)
+        if x in ('End','Home'):
+            if x == 'End':
+                target=length
+            else:
+                target=0
+            number=target-current_index
+            self.usListbox.yview_scroll(number,'units')
+        elif x in ('Prior','Next'):
+            number=2
+            if x == 'Prior':
+                target=current_index - height
+                if target < 0:
+                    target=0
+                number=-number
+            else:
+                target=current_index+height
+                if target > length:
+                    target=length
+            self.usListbox.yview_scroll(number,'units')
+        else:
+            return
+        self.usListbox.select_set(target)
+
 
     def anakin(self,frame):
         for child in frame.winfo_children():
@@ -324,7 +357,7 @@ class Aenir:
         label,value=display_pairs[-1]
         row=len(display_pairs)-1
 
-        grid_options1={'sticky':N+S+E+W}
+        grid_options1={}
         grid_options1['row']=row
         grid_options2=grid_options1.copy()
 
