@@ -1,6 +1,7 @@
 from tkinter import *
 
 from aenir2.gui_tools import *
+from aenir2.gui_content import *
 from aenir2.quintessence import Morph
 from aenir2.entry_validator import not_my_validator
 
@@ -224,7 +225,7 @@ class Aenir:
                 'text':'OK',\
                 'width':23,\
                 'height':1,\
-                'command':self.launch_main_menu #   Launch main menu
+                'command':self.launch_main_menu
                 }
 
             notification='Please confirm your selection.\n\nUse any of the shortcut keys in\nthe upper-right pane at any time\nduring the session.'
@@ -303,8 +304,6 @@ class Aenir:
 
         label_options={}
         label_options['master']=frame
-        #label_options['justify']=RIGHT
-        #label_options['anchor']='e'
 
         grid_options1['column']=0
         grid_options2['column']=1
