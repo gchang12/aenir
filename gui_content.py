@@ -70,6 +70,8 @@ def get_hm_chapters(unit):
     d=hard_mode_dict()[unit]
     if '' not in d.keys():
         return tuple(d.keys())
+    else:
+        return ()
 
 def get_auto_chapters(unit):
     d=auto_level_dict()[unit]
@@ -100,6 +102,26 @@ def decline_hugh_dict():
         }
     return d
 
+def chapter_name_dict(game,unit,chapter_function):
+    chapter_list=chapter_function(unit)
+    chapter_names={}
+    for title,chapter in chapter_dict(game).items():
+        if chapter in chapter_list:
+            chapter_names[title]=chapter
+    return chapter_names
+
+def auto_chapter_dict(game,unit):
+    chapter_function=get_auto_chapters
+    args=game,unit,chapter_function
+    return chapter_name_dict(*args)
+
+def hm_chapter_dict(game,unit):
+    chapter_function=get_hm_chapters
+    args=game,unit,chapter_function
+    return chapter_name_dict(*args)
+
 if __name__ == '__main__':
-    x=fe4_father_list()
-    print(len(x))
+    x=hm_chapter_dict('6','Cath')
+    print(x)
+    #x=fe4_father_list()
+    #print(len(x))
