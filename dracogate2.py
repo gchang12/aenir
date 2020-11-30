@@ -55,7 +55,7 @@ class Aenir:
         self.root.title('Aenir')
         self.root.wm_resizable(width=False,height=False)
         
-        x=int(2*self.root.winfo_screenwidth()/3)
+        x=int(3*self.root.winfo_screenwidth()/5)
         y=int(self.root.winfo_screenheight()/8)
         new_geometry='450x620+%d+%d'%(x,y)
         geometry=self.root.wm_geometry(new_geometry)
