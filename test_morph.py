@@ -61,6 +61,7 @@ def test_hugh(num_times=3):
 def test_stat_booster(stat_name='HP'):
     args='6','Thany'
     x=Morph(*args)
+    print(args)
     print(x.my_stats)
     x.use_stat_booster(stat_name)
     print(x.my_stats)
@@ -224,13 +225,14 @@ def test_unit(game,unit,lyn_mode=False,father='Arden'):
     print(x.my_stats,x.my_levels,x.my_classes,x.my_maxes)
 
 if __name__ == '__main__':
-    #test_trainee()
+    test_trainee()
     #test_lara()
     #test_fe7_lord()
     #test_hugh()
     #test_wallace(False)
     #test_fe4_jagen()
     #test_fe7_dancer()
-    test_fe4_kid(True)
+    #test_fe4_kid(True)
     #test_unit('6','Dayan')
     #test_gonzales()
+    #test_stat_booster()
