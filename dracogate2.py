@@ -87,7 +87,7 @@ class Aenir:
         self.root.title('Aenir')
         self.root.wm_resizable(width=False,height=False)
 
-        #   Failed attempt at adjusting window position
+        #   ***Failed attempt at adjusting window position
         #   -   window dimensions inadvertently set to 1x1
         geometry=self.root.wm_geometry()
         #   str:    widthxheight+x+y
