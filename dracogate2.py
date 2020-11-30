@@ -238,11 +238,56 @@ class Aenir:
         else:
             return
         self.usListbox.select_set(target)
+        
+    def option_select(self):
+        #   ***Create widgets for each in swFrame:
+        #   Checkbutton:            LYN MODE
+        #   Listbox:                FE4 KID
+        #   Entry:                  HUGH
+        #   Checkbutton/Listbox:    HARD MODE
+        #   Listbox:                AUTO LEVEL
 
+        #   ***Create stat-preview pane in seFrame2:
+        #   -   bound above methods
+        #   -   Create Label in seFrame1 pointing to seFrame2
+        info_text='Some information is missing.\nPlease specify:\n\n'
+        d=self.unit_params
+        if is_lyndis_league(**d):
+            more_text='Lyn Mode'
+        elif is_fe4_child(**d):
+            more_text='Father'
+        elif is_hugh(**d):
+            more_text='Number of Declines'
+        elif has_hm_bonus(**d) and has_auto_bonus(**d):
+            #   ***seFrame1: for Gonzales and his dual configurations
+            #   -   not activated until Hard Mode specified
+            #   -   Create separate method
+            swText='Hard Mode'
+            seText='Chapter'
+            more_text='\n'.join((swText,seText))
+            self.seLabel['text']=seText
+            self.swLabel['text']=swText
+        elif has_hm_bonus(**d):
+            k=hard_mode_dict()[d['unit']]
+            if '' in k.keys():
+                more_text='Hard Mode'
+            else:
+                more_text='Chapter'
+        elif has_auto_bonus(**d):
+            more_text='Chapter'
+        else:
+            self.quit()
+        info_text+=more_text
+        if self.unit_params['unit'] != 'Gonzales':
+            self.swLabel['text']=more_text
+        return info_text
+        
 
     def anakin(self,frame):
-        for child in frame.winfo_children():
-            child.destroy()
+        assert type(frame) == Frame
+        temple=frame.winfo_children()
+        for youngling in temple:
+            youngling.destroy()
 
     def confirm_unit(self,*args):
         #   ***Create OK button in Game Select
@@ -268,46 +313,7 @@ class Aenir:
             info_text='Please confirm your selection.\n\nF5: Restart session\nEsc: Quit session'
             self.swLabel['text']='Confirm'
         else:
-            #   ***Create widgets for each in swFrame:
-            #   Checkbutton:            LYN MODE
-            #   Listbox:                FE4 KID
-            #   Entry:                  HUGH
-            #   Checkbutton/Listbox:    HARD MODE
-            #   Listbox:                AUTO LEVEL
-
-            #   ***Create stat-preview pane in seFrame2:
-            #   -   bound above methods
-            #   -   Create Label in seFrame1 pointing to seFrame2
-            info_text='Some information is missing.\nPlease specify:\n\n'
-            d=self.unit_params
-            if is_lyndis_league(**d):
-                more_text='Lyn Mode'
-            elif is_fe4_child(**d):
-                more_text='Father'
-            elif is_hugh(**d):
-                more_text='Number of Declines'
-            elif has_hm_bonus(**d) and has_auto_bonus(**d):
-                #   ***seFrame1: for Gonzales and his dual configurations
-                #   -   not activated until Hard Mode specified
-                #   -   Create separate method
-                swText='Hard Mode'
-                seText='Chapter'
-                more_text='\n'.join((swText,seText))
-                self.seLabel['text']=seText
-                self.swLabel['text']=swText
-            elif has_hm_bonus(**d):
-                k=hard_mode_dict()[d['unit']]
-                if '' in k.keys():
-                    more_text='Hard Mode'
-                else:
-                    more_text='Chapter'
-            elif has_auto_bonus(**d):
-                more_text='Chapter'
-            else:
-                self.quit()
-            info_text+=more_text
-            if self.unit_params['unit'] != 'Gonzales':
-                self.swLabel['text']=more_text
+            info_text=self.option_select()
 
         self.infoLabel['text']=info_text
         self.insert_stats()
