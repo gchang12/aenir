@@ -216,13 +216,14 @@ class Aenir:
             more_text=seText
         else:
             self.quit()
+            
         if '\n' in more_text:
             self.seFrame1['text']=seText
             self.swFrame1['text']=swText
         else:
             self.swFrame1['text']=more_text
-        info_text+=more_text
-        return info_text
+            
+        return info_text+more_text
 
     def launch_main_menu(self,*args):
         print('Ctrl+F: def launch_main_menu')
