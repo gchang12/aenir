@@ -153,37 +153,35 @@ class Aenir:
         append_listbox_shortcuts(self.usListbox)
 
     def chapter_select(self,*args):
-        x='Chapter Select still WIP. Please come back later!'
+        d=self.unit_params
+        if not has_auto_bonus(**d):
+            itemlist=hm_chapter_dict(**d)
+        else:
+            itemlist=auto_chapter_dict(**d)
+        x='\nWelcome to Chapter Select! (WIP)'
         print(x)
-        print('args:',args)
+        for item in itemlist:
+            print(item)
+        self.launch_main_menu()
 
-    def append_bonus(self,val_call,val_name,launch_menu=True):
-        val=val_call()
+
+    def append_bonus(self,val_name,launch_menu=True,val_call=None):
+        if val_call is not None:
+            val=val_call()
         if val_name == 'Hard Mode':
             d=self.hm_params
             t={'chapter':''}
         d.update(t)
-        print('Appended %s bonus:'%val_name,d)
+        print('\nAppended %s bonus:'%val_name,d)
         if launch_menu:
             self.launch_main_menu()
 
     def hm_bonus_select(self):
-        #   Ask if HM with Listbox or Radiobutton; preferably latter
-        #       if no:
-        #           button text = 'Confirm'
-        #           self.launch_main_menu
-        #       else:
-        #           if multi-chapter or Gonzales:
-        #               button text = 'Continue'
-        #               self.chapter_select
-        #           else:
-        #               button text = 'Confirm'
-        #               self.launch_main_menu
         d=self.unit_params
         hm_chapters=hard_mode_dict()[d['unit']]
         master=self.swFrame1
 
-        difficulty=StringVar(value='')
+        difficulty=BooleanVar()
 
         btn={
             'row':2,\
@@ -206,33 +204,25 @@ class Aenir:
             'text':'Normal',\
             'command':lambda *args: updateButton(**nmCommand),\
             'variable':difficulty,\
-            'value':'Normal'
+            'value':False
             }
 
         select_nm=Radiobutton(**nm)
-        
-        ab={'val_call':difficulty.get,'val_name':'Hard Mode'}
 
         if has_auto_bonus(**d) or '' not in hm_chapters.keys():
-            #   Use listbox
-            ab.update({'launch_menu':False})
-            boolHM=lambda *args: self.append_bonus(**ab)
             if not has_auto_bonus(**d):
                 command=self.chapter_select
-                itemlist=hm_chapter_dict(**d)
             else:
-                command=boolHM
-                itemlist=auto_chapter_dict(**d)
-            text_cmd={
-                'text':'Continue',\
-                'command':command
-                }
+                command=self.boolHM
+            text='Continue'
         else:
-            boolHM=lambda *args: self.append_bonus(**ab)
-            text_cmd={
-                'text':'Confirm',\
-                'command':boolHM
-                }
+            command=self.boolHM
+            text='Confirm'
+            
+        text_cmd={
+            'text':text,\
+            'command':command
+            }
 
         hmCommand={'button':advButton}
         hmCommand.update(text_cmd)
@@ -242,7 +232,7 @@ class Aenir:
             'text':'Hard',\
             'command':lambda *args: updateButton(**hmCommand),\
             'variable':difficulty,\
-            'value':'Hard'
+            'value':True
             }
 
         select_hm=Radiobutton(**hm)
@@ -255,6 +245,14 @@ class Aenir:
         advButton.grid(row=3,**g)
 
         select_nm.focus()
+
+    def boolHM(self,*args):
+        ab={'val_name':'Hard Mode'}
+        d=self.unit_params
+        if has_auto_bonus(**d):
+            ab.update({'launch_menu':False})
+            self.chapter_select()
+        self.append_bonus(**ab)
         
     def option_select(self):
         #   ***Create widgets for each in swFrame:
@@ -263,10 +261,7 @@ class Aenir:
         #   Radiobutton:            HUGH
         #   Radiobutton/Listbox:    HARD MODE
         #   Radiobutton/Listbox:    AUTO LEVEL
-
-        #   ***Create stat-preview pane in seFrame2:
-        #   -   bound to above methods
-        #   -   Create Label in neFrame explaining preview
+        
         info_text='Some information is missing.\nPlease specify:\n\n'
         d=self.unit_params
         self.seFrame2['text']='Preview'
@@ -302,8 +297,7 @@ class Aenir:
         return info_text+more_text
 
     def launch_main_menu(self,*args):
-        print('Ctrl+F: def launch_main_menu')
-        print('args:',args)
+        print('\nCtrl+F: def launch_main_menu')
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
