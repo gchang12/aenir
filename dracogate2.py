@@ -1,3 +1,10 @@
+#   ***Create widgets for each in swFrame:
+#   Radiobutton:            LYN MODE
+#   Listbox:                FE4 KID
+#   Radiobutton:            HUGH
+#   Radiobutton/Listbox:    HARD MODE
+#   Radiobutton/Listbox:    AUTO LEVEL
+
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
@@ -166,7 +173,7 @@ class Aenir:
 
 
     def append_bonus(self,val_name,launch_menu=True,val_call=None):
-        if val_call is not None:
+        if callable(val_call):
             val=val_call()
         if val_name == 'Hard Mode':
             d=self.hm_params
@@ -255,13 +262,6 @@ class Aenir:
         self.append_bonus(**ab)
         
     def option_select(self):
-        #   ***Create widgets for each in swFrame:
-        #   Radiobutton:            LYN MODE
-        #   Listbox:                FE4 KID
-        #   Radiobutton:            HUGH
-        #   Radiobutton/Listbox:    HARD MODE
-        #   Radiobutton/Listbox:    AUTO LEVEL
-        
         info_text='Some information is missing.\nPlease specify:\n\n'
         d=self.unit_params
         self.seFrame2['text']='Preview'
