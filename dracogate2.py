@@ -52,9 +52,12 @@ class Aenir:
         self.root=Tk()
         self.root.title('Aenir')
         self.root.wm_resizable(width=False,height=False)
-        
-        x=int(3*self.root.winfo_screenwidth()/5)
-        y=int(self.root.winfo_screenheight()/8)
+
+        my_width=450
+        my_width+=9
+
+        x=int(self.root.winfo_screenwidth()-my_width)
+        y=0
         new_geometry='450x620+%d+%d'%(x,y)
         geometry=self.root.wm_geometry(new_geometry)
 
@@ -102,10 +105,10 @@ class Aenir:
         height=len(itemlist)+1
         args=master,itemlist,height
         self.gsListbox=select_from_list(*args)
-        self.gsListbox.bind('<<ListboxSelect>>',self.unit_preview)
         self.gsListbox.bind('<Return>',self.confirm_game)
         self.gsListbox.focus_force()
         self.gsListbox.select_set(0)
+        append_listbox_shortcuts(self.gsListbox,self.unit_preview)
 
     def unit_preview(self,*args):
         title=self.gsListbox.selection_get()
@@ -142,12 +145,27 @@ class Aenir:
         self.usListbox=select_from_list(*args)
         self.usListbox['state']=DISABLED
         self.usListbox.bind('<Return>',self.confirm_unit)
-        bind_listbox_shortcuts(self.usListbox)
+        kw={
+            'val_call':self.usListbox.selection_get,\
+            'val_name':'Unit Select',\
+            'frame':self.swFrame2
+            }
+        append_listbox_shortcuts(self.usListbox)
 
     def chapter_select(self,*args):
         x='Chapter Select still WIP. Please come back later!'
         print(x)
-        print(args)
+        print('args:',args)
+
+    def append_bonus(self,val_call,val_name,launch_menu=True):
+        val=val_call()
+        if val_name == 'Hard Mode':
+            d=self.hm_params
+            t={'chapter':''}
+        d.update(t)
+        print('Appended %s bonus:'%val_name,d)
+        if launch_menu:
+            self.launch_main_menu()
 
     def hm_bonus_select(self):
         #   Ask if HM with Listbox or Radiobutton; preferably latter
@@ -163,19 +181,80 @@ class Aenir:
         #               self.launch_main_menu
         d=self.unit_params
         hm_chapters=hard_mode_dict()[d['unit']]
+        master=self.swFrame1
+
+        difficulty=StringVar(value='')
+
+        btn={
+            'row':2,\
+            'master':master,\
+            'state':DISABLED,\
+            'text':'',\
+            'command':lambda *args: None
+            }
+
+        advButton=wideButton(**btn)
+
+        nmCommand={
+            'button':advButton,\
+            'text':'Confirm',\
+            'command':self.launch_main_menu
+            }
+
+        nm={
+            'master':master,\
+            'text':'Normal',\
+            'command':lambda *args: updateButton(**nmCommand),\
+            'variable':difficulty,\
+            'value':'Normal'
+            }
+
+        select_nm=Radiobutton(**nm)
+        
+        ab={'val_call':difficulty.get,'val_name':'Hard Mode'}
 
         if has_auto_bonus(**d) or '' not in hm_chapters.keys():
             #   Use listbox
+            ab.update({'launch_menu':False})
+            boolHM=lambda *args: self.append_bonus(**ab)
             if not has_auto_bonus(**d):
+                command=self.chapter_select
                 itemlist=hm_chapter_dict(**d)
             else:
+                command=boolHM
                 itemlist=auto_chapter_dict(**d)
-            for item in itemlist:
-                print(item)
+            text_cmd={
+                'text':'Continue',\
+                'command':command
+                }
         else:
-            print('Ask which difficulty.')
-        message='FE'+d['game']+': '+d['unit']+'\n'
-        print(message)
+            boolHM=lambda *args: self.append_bonus(**ab)
+            text_cmd={
+                'text':'Confirm',\
+                'command':boolHM
+                }
+
+        hmCommand={'button':advButton}
+        hmCommand.update(text_cmd)
+
+        hm={
+            'master':master,\
+            'text':'Hard',\
+            'command':lambda *args: updateButton(**hmCommand),\
+            'variable':difficulty,\
+            'value':'Hard'
+            }
+
+        select_hm=Radiobutton(**hm)
+
+        g={'sticky':E+W}
+        
+        select_nm.grid(row=0,**g)
+        select_hm.grid(row=1,**g)
+        Label(master,text='').grid(row=2)
+        advButton.grid(row=3,**g)
+
+        select_nm.focus()
         
     def option_select(self):
         #   ***Create widgets for each in swFrame:
@@ -224,7 +303,7 @@ class Aenir:
 
     def launch_main_menu(self,*args):
         print('Ctrl+F: def launch_main_menu')
-        print('args: ',args)
+        print('args:',args)
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
@@ -266,24 +345,32 @@ class Aenir:
         self.infoLabel['text']=info_text
         self.insert_stats()
 
-    def insert_stats(self,kishuna=None,*args):
+    def insert_stats(self,kishuna=None,show_capped=False,*args):
         if kishuna is None:
             frame=self.swFrame2
             y=Morph(**self.unit_params)
-            kw_list=[{'color':None} for stat in y.my_stats]
+            color_cfg={'color':None}
+            kw_list=[color_cfg for stat in y.my_stats]
         else:
             frame=self.seFrame2
             anakin(self.seFrame2)
-            y=kishuna
-            comparison=y > self.my_unit
             kw_list=[]
+            if not show_capped:
+                y=kishuna
+                comparison=y < self.my_unit
+                color1='cyan'
+                color2='red'
+            else:
+                comparison=self.my_unit.is_capped()
+                color1='green3'
+                color2=None
             for val in comparison.values():
                 if val is None:
                     color=None
                 elif val:
-                    color='cyan'
+                    color=color1
                 else:
-                    color='red'
+                    color=color2
                 kw_list+=[{'color':color}]
         game=self.unit_params['game']
         stat_names=get_stat_names(game)
@@ -319,17 +406,18 @@ class Aenir:
             grid_options1['sticky']=N+W
             grid_options2['sticky']=N+E
 
-        if color is not None:
-            grid_options2.update({'foreground':color})
-
         label_options={}
         label_options['master']=frame
+        label_options2=label_options.copy()
+
+        if color is not None:
+            label_options2.update({'foreground':color})
 
         grid_options1['column']=0
         grid_options2['column']=1
 
         Label(text=label,**label_options).grid(**grid_options1)
-        Label(text=value,**label_options).grid(**grid_options2)
+        Label(text=value,**label_options2).grid(**grid_options2)
 
     def game_unit_check(self):
         d=self.unit_params

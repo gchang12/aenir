@@ -280,6 +280,16 @@ class Morph:
             colors[name]=x
         return colors
 
+    def is_capped(self):
+        capped_stats=self.my_stats == self.my_maxes
+        stat_names=get_stat_names(self.game)
+        d={}
+
+        for name,val in zip(stat_names,capped_stats):
+            d[name]=val
+
+        return d
+
     def __call__(self):
         stat_labels=get_stat_names(self.game)
         my_stats=()
