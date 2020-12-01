@@ -117,12 +117,13 @@ def updateButton(button,text,command,state=NORMAL):
     button.config(cfg)
 
 def append_listbox_shortcuts(listbox,func=None):
-    if func is None:
-        func = lambda *args: None
-    listbox.bind('<<ListboxSelect>>',func)
     keys=bind_listbox_shortcuts(listbox)
-    for key in keys:
-        listbox.bind(key,func,add=True)
+    if not callable(func):
+        return
+    else:
+        listbox.bind('<<ListboxSelect>>',func)
+        for key in keys:
+            listbox.bind(key,func,add=True)
 
 if __name__ == '__main__':
     x=4
