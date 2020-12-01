@@ -47,7 +47,24 @@ def fe4_father_list():
     return translated_character_list(**kwargs)
 
 def unit_list(game):
-    return translated_character_list(game)
+    file_match='characters_growth-rates'
+    kw={
+        'game':game,\
+        'file_match':file_match
+        }
+    from_growths=translated_character_list(**kw)
+    file_match='characters_base-stats'
+    if game == '7':
+        file_match+='2'
+    kw['file_match']=file_match
+    from_bases=translated_character_list(**kw)
+    list_of_units=()
+
+    for name in from_bases:
+        if name in from_growths:
+            list_of_units+=(name,)
+
+    return list_of_units
 
 #   For displayed unit names
 
@@ -121,7 +138,7 @@ def hm_chapter_dict(game,unit):
     return chapter_name_dict(*args)
 
 if __name__ == '__main__':
-    x=hm_chapter_dict('6','Gonzales')
+    x=hm_chapter_dict('6','Cath')
     print(x)
     #x=fe4_father_list()
     #print(len(x))
