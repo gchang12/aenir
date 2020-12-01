@@ -1,4 +1,4 @@
-from tkinter import font,LabelFrame,StringVar,Listbox,N,S,W,E,Scrollbar,Label
+from tkinter import font,LabelFrame,StringVar,Listbox,N,S,W,E,Scrollbar,Label,Button,NORMAL,DISABLED
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -87,6 +87,28 @@ def bind_listbox_shortcuts(listbox):
     bind_to_shortcuts=lambda *args: listbox_jump(listbox,*args)
     for key in keys:
         listbox.bind(key,bind_to_shortcuts)
+
+def wideButton(master,text,command,row,width=23,height=2,column=None,state=NORMAL):
+    d={}
+    d['master']=master
+    d['text']=text
+    d['width']=width
+    d['height']=height
+    d['command']=command
+    d['state']=state
+
+    g={}
+    g['sticky']=N+S+E+W
+    g['ipadx']=10
+    g['ipady']=10
+    g['row']=row
+    if type(column) == int:
+        g['column']=column
+
+    button=Button(**d)
+    button.grid(**g)
+    button.bind('<Return>',command)
+    return button
 
 if __name__ == '__main__':
     x=4
