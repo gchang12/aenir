@@ -64,29 +64,28 @@ def listbox_jump(listbox,*args):
         number=target-current_index
         listbox.yview_scroll(number,'units')
     elif x in ('Prior','Next'):
-        number=2
         if x == 'Prior':
             target=current_index - height
             if target < 0:
                 target=0
-            number=-number
         else:
             target=current_index+height
             if target > length:
                 target=length
-        listbox.yview_scroll(number,'units')
     else:
         return
     listbox.activate(target)
+    listbox.see(target)
     listbox.select_set(target)
-    listbox.select_anchor(target)
     
 
 def bind_listbox_shortcuts(listbox):
-    keys='<End>','<Home>','<Prior>','<Next>'
+    keys='<End>','<Home>'
+    #keys+=('<Prior>','<Next>')
     bind_to_shortcuts=lambda *args: listbox_jump(listbox,*args)
     for key in keys:
         listbox.bind(key,bind_to_shortcuts)
+    return keys
 
 def wideButton(master,text,command,row,width=23,height=2,column=None,state=NORMAL):
     d={}
@@ -107,8 +106,23 @@ def wideButton(master,text,command,row,width=23,height=2,column=None,state=NORMA
 
     button=Button(**d)
     button.grid(**g)
-    button.bind('<Return>',command)
     return button
+
+def updateButton(button,text,command,state=NORMAL):
+    cfg={
+        'text':text,\
+        'command':command,\
+        'state':state
+        }
+    button.config(cfg)
+
+def append_listbox_shortcuts(listbox,func=None):
+    if func is None:
+        func = lambda *args: None
+    listbox.bind('<<ListboxSelect>>',func)
+    keys=bind_listbox_shortcuts(listbox)
+    for key in keys:
+        listbox.bind(key,func,add=True)
 
 if __name__ == '__main__':
     x=4
