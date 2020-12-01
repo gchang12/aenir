@@ -145,14 +145,48 @@ class Aenir:
         self.usListbox['state']=DISABLED
         self.usListbox.bind('<Return>',self.confirm_unit)
         bind_listbox_shortcuts(self.usListbox)
+
+    def chapter_select(self,*args):
+        x='Chapter Select still WIP. Please come back later!'
+        print(x)
+        print(args)
+
+    def hm_bonus_select(self):
+        #   Ask if HM with Listbox or Radiobutton; preferably latter
+        #       if no:
+        #           button text = 'Confirm'
+        #           self.launch_main_menu
+        #       else:
+        #           if multi-chapter or Gonzales:
+        #               button text = 'Continue'
+        #               self.chapter_select
+        #           else:
+        #               button text = 'Confirm'
+        #               self.launch_main_menu
+        d=self.unit_params
+        unit=d['unit']
+        hm_chapters=hard_mode_dict()[unit]
+
+        if has_auto_bonus(**d) or '' not in hm_chapters.keys():
+            #   Use listbox
+            if not has_auto_bonus(**d):
+                itemlist=hm_chapter_dict(**d)
+            else:
+                itemlist=auto_chapter_dict(**d)
+            for item in itemlist:
+                print(item)
+        else:
+            print('Ask which difficulty.')
+        message='FE'+d['game']+': '+unit+'\n'
+        print(message)
         
     def option_select(self):
         #   ***Create widgets for each in swFrame:
-        #   Checkbutton:                LYN MODE
-        #   Listbox:                    FE4 KID
-        #   Radiobutton:                HUGH
-        #   Checkbutton/Radiobutton:    HARD MODE
-        #   Radiobutton:                AUTO LEVEL
+        #   Radiobutton:            LYN MODE
+        #   Listbox:                FE4 KID
+        #   Radiobutton:            HUGH
+        #   Radiobutton/Listbox:    HARD MODE
+        #   Radiobutton/Listbox:    AUTO LEVEL
 
         #   ***Create stat-preview pane in seFrame2:
         #   -   bound to above methods
@@ -161,34 +195,33 @@ class Aenir:
         d=self.unit_params
         self.seFrame2['text']='Preview'
         self.swFrame2['text']='Default'
+        
+        swText='Difficulty'
+        seText='Recruitment Chapter'
+        
         if is_lyndis_league(**d):
-            more_text='Lyn Mode'
+            more_text='Campaign'
         elif is_fe4_child(**d):
             more_text='Father'
         elif is_hugh(**d):
-            more_text='Number of Declines'
-        elif has_hm_bonus(**d) and has_auto_bonus(**d):
-            #   ***seFrame1: for Gonzales and his dual configurations
-            #   -   not activated until Hard Mode specified
-            #   -   Create separate method
-            swText='Hard Mode'
-            seText='Chapter'
-            more_text='\n'.join((swText,seText))
-            self.seFrame1['text']=seText
-            self.swFrame1['text']=swText
+            more_text='Amount of Gold Paid'
         elif has_hm_bonus(**d):
-            k=hard_mode_dict()[d['unit']]
-            if '' in k.keys():
-                more_text='Hard Mode'
+            hm_chapters=hard_mode_dict()[d['unit']]
+            if has_auto_bonus(**d) or '' not in hm_chapters.keys():
+                more_text='\n'.join((swText,seText))
             else:
-                more_text='Chapter'
+                more_text=swText
+            self.hm_bonus_select()
         elif has_auto_bonus(**d):
-            more_text='Chapter'
+            more_text=seText
         else:
             self.quit()
-        info_text+=more_text
-        if self.unit_params['unit'] != 'Gonzales':
+        if '\n' in more_text:
+            self.seFrame1['text']=seText
+            self.swFrame1['text']=swText
+        else:
             self.swFrame1['text']=more_text
+        info_text+=more_text
         return info_text
 
     def launch_main_menu(self,*args):
@@ -215,31 +248,20 @@ class Aenir:
         self.seFrame2=set_mainframe(4,1,self.rWidth,self.dHeight2)
 
         if not self.game_unit_check():
-            info_text='F5: Restart session\n\nEsc: Quit session'
+            info_text='Use any of these shortcut keys at\nany time during the session:\n\nF5: Restart session\nEsc: Quit session'
             self.swFrame1['text']='Confirm'
             self.swFrame2['text']='Current Stats'
-            
-            button_cfg={
-                'master':self.swFrame1,\
-                'text':'OK',\
-                'width':23,\
-                'height':1,\
-                'command':self.launch_main_menu
-                }
 
-            notification='Please confirm your selection.\n\nUse any of the shortcut keys in\nthe upper-right pane at any time\nduring the session.'
+            notification='\nPlease confirm your selection.\n\n'
             Label(self.swFrame1,text=notification,justify=LEFT).grid(row=0,sticky=E+W)
 
-            button_gcfg={
-                'sticky':NSEW,\
-                'ipadx':10,\
-                'ipady':10,\
-                'row':1
-                }
-            ok_button=Button(**button_cfg)
-            ok_button.grid(**button_gcfg)
+            okcfg={}
+            okcfg['master']=self.swFrame1
+            okcfg['text']='OK'
+            okcfg['command']=self.launch_main_menu
+            okcfg['row']=1
+            ok_button=wideButton(**okcfg)
             ok_button.focus()
-            ok_button.bind('<Return>',self.launch_main_menu)
         else:
             info_text=self.option_select()
 
@@ -281,6 +303,7 @@ class Aenir:
             kw_list=kw_list[2:]
 
         for stat,num,kw in zip(stat_names,y.my_stats,kw_list):
+            num=round(num,2)
             self.display_params[stat]=str(num)
             show_stat_pair(**kw)
 
