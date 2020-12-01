@@ -1,5 +1,3 @@
-from tkinter import *
-
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
@@ -164,8 +162,7 @@ class Aenir:
         #               button text = 'Confirm'
         #               self.launch_main_menu
         d=self.unit_params
-        unit=d['unit']
-        hm_chapters=hard_mode_dict()[unit]
+        hm_chapters=hard_mode_dict()[d['unit']]
 
         if has_auto_bonus(**d) or '' not in hm_chapters.keys():
             #   Use listbox
@@ -177,7 +174,7 @@ class Aenir:
                 print(item)
         else:
             print('Ask which difficulty.')
-        message='FE'+d['game']+': '+unit+'\n'
+        message='FE'+d['game']+': '+d['unit']+'\n'
         print(message)
         
     def option_select(self):
