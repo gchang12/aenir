@@ -118,6 +118,7 @@ class Aenir:
         append_listbox_shortcuts(self.gsListbox,self.unit_preview)
 
     def unit_preview(self,*args):
+        anakin(self.seFrame)
         title=self.gsListbox.selection_get()
         game=game_title_dict()[title]
         self.unit_select(game)
