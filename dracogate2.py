@@ -196,7 +196,7 @@ class Aenir:
         self.seFrame2['text']='Preview'
         self.swFrame2['text']='Default'
         
-        swText='Difficulty'
+        swText='Difficulty Mode'
         seText='Recruitment Chapter'
         
         if is_lyndis_league(**d):
