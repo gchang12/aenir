@@ -346,17 +346,17 @@ class Aenir:
         self.insert_stats()
 
     def insert_stats(self,kishuna=None,show_capped=False,*args):
+        color_cfg={'color':None}
         if kishuna is None:
             frame=self.swFrame2
             y=Morph(**self.unit_params)
-            color_cfg={'color':None}
             kw_list=[color_cfg for stat in y.my_stats]
         else:
             frame=self.seFrame2
             anakin(self.seFrame2)
             kw_list=[]
+            y=kishuna
             if not show_capped:
-                y=kishuna
                 comparison=y < self.my_unit
                 color1='cyan'
                 color2='red'
@@ -372,6 +372,10 @@ class Aenir:
                 else:
                     color=color2
                 kw_list+=[{'color':color}]
+
+        while len(kw_list) < len(y.my_stats)+2:
+            kw_list.insert(0,color_cfg)
+
         game=self.unit_params['game']
         stat_names=get_stat_names(game)
 
@@ -384,10 +388,7 @@ class Aenir:
         self.display_params['']=''
         show_stat_pair()
 
-        if len(kw_list) > len(stat_names):
-            kw_list=kw_list[2:]
-
-        for stat,num,kw in zip(stat_names,y.my_stats,kw_list):
+        for stat,num,kw in zip(stat_names,y.my_stats,kw_list[2:]):
             num=round(num,2)
             self.display_params[stat]=str(num)
             show_stat_pair(**kw)
