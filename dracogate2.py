@@ -335,10 +335,10 @@ class Aenir:
     def boolLM(self,*args):
         kw={
             'val_name':'Lyn Mode',\
-            'val_call':self.dummy[1].get
+            'val_call':self.dummy[0].get
             }
         f=lambda *args: self.append_bonus(**kw)
-        wargs=(self.dummy[0],'Confirm',f)
+        wargs=(self.dummy[1],'Confirm',f)
         updateButton(*wargs)
 
     def campaign_select(self):
@@ -357,7 +357,6 @@ class Aenir:
             'command':lambda *args: None
             }
         okButton=wideButton(**btn)
-        self.dummy=(okButton,campaign)
         
         lyn={
             'master':master,\
@@ -378,6 +377,7 @@ class Aenir:
             }
         #eh['value']=str(eh['value'])
         chooseMain=Radiobutton(**eh)
+        self.dummy=(campaign,okButton,chooseLyn,chooseMain)
 
         g={'sticky':W}
 
