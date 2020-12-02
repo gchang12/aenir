@@ -323,15 +323,10 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=8
+    k=6
     game=str(k)
-    unit='Ross'
+    unit='Gonzales'
     args=(game,unit)
     x=Morph(*args)
-    unit='Ephraim'
-    y=Morph(game,unit)
-    z= x > y
-    #print(x.my_stats)
-    #print(y.my_stats)
-    #print(z)
-    print(type(x) == 'Morph')
+    x.add_auto_bonus('10B')
+    print(x.my_levels,x.my_stats)
