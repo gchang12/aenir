@@ -20,7 +20,7 @@ class Aenir:
         self.display_params={}
 
         #   To loop over and generate self.my_unit
-        self.info_variables=self.unit_params,\
+        self.init_variables=self.unit_params,\
                              self.hm_params,\
                              self.auto_params
 
@@ -96,7 +96,7 @@ class Aenir:
         self.root.bind_all('<F5>',self.restart)
 
     def quit(self,*args):
-        for var in self.info_variables:
+        for var in self.init_variables:
             var.clear()
         self.dummy=dummy_message
         self.my_unit=None
@@ -342,7 +342,7 @@ class Aenir:
         updateButton(*wargs)
 
     def campaign_select(self):
-        #   Must fix Radiobutton auto-fill issue here...
+        #   *** Must fix Radiobutton auto-fill issue here...
         #   -   Something to do with campaign Variable?
         #   -   Last time, dependent on if handler was method vs. function
         master=self.swFrame1
@@ -430,7 +430,7 @@ class Aenir:
     def launch_main_menu(self,*args):
         print('Ctrl+F: def launch_main_menu\n')
         names='unit_params','hm_params','auto_params'
-        for name,var in zip(names,self.info_variables):
+        for name,var in zip(names,self.init_variables):
             print(name,var)
         print('\ndisplay_params')
         for item in self.display_params.items():
@@ -487,7 +487,7 @@ class Aenir:
             frame=self.seFrame2
             anakin(self.seFrame2)
             kw_list=[]
-            y=kishuna
+            y=self.dummy
             if not show_capped:
                 comparison=y < self.my_unit
                 color1='cyan'
