@@ -1,7 +1,6 @@
 #   *** Issues
 #   -   Lyn Mode selection seems to fill Main Mode by default
-#   -   No stat preview method yet
-#   -   Still must write method that applies changes...
+#   -   Must reactivate menu-buttons, somehow...
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
@@ -239,9 +238,10 @@ class Aenir:
             d=self.hm_params
             val=hm_chapter_dict(**self.unit_params)[val]
             t={'chapter':val}
-            s={'Difficulty':'Hard Mode'}
-            self.display_params.update(s)
-            self.update_config()
+            if not launch_menu:
+                s={'Difficulty':'Hard Mode'}
+                self.display_params.update(s)
+                self.update_config()
             s={'Chapter':val}
         elif val_name == 'Auto Select':
             d=self.auto_params
@@ -266,6 +266,14 @@ class Aenir:
         if launch_menu:
             self.display_params.update(s)
             self.update_config()
+            if self.unit_params['unit'] == 'Gonzales':
+                d=self.hm_params
+                word='chapter'
+                if word in d.keys():
+                    other_word='Difficulty'
+                    s={other_word:'Hard Mode'}
+                    self.display_params.update(s)
+                    self.update_config()
             self.launch_main_menu()
 
     def hm_bonus_select(self):
