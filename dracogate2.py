@@ -493,7 +493,7 @@ class Aenir:
                 f=y.add_auto_bonus
             f(**self.auto_params)
 
-    def stat_preview(self,*args):
+    def stat_preview(self):
         assert type(self.my_unit) == type(self.dummy)
         frame=self.seFrame2
         anakin(self.seFrame2)
@@ -512,9 +512,10 @@ class Aenir:
             'y':self.dummy,\
             'kw_list':kw_list
             }
+
         self.print_stat_array(**kw)
 
-    def insert_stats(self,show_capped=False,*args):
+    def insert_stats(self,show_capped=False):
         frame=self.swFrame2
         if type(self.my_unit) != Morph:
             y=Morph(**self.unit_params)
