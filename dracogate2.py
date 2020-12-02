@@ -52,6 +52,7 @@ class Aenir:
         #   To handle various events during initialization
 
         self.dummy=dummy_message
+        self.kishuna=None
 
     def load_menu(self):
         #   Set root window and frames here
@@ -163,7 +164,7 @@ class Aenir:
         append_listbox_shortcuts(self.usListbox)
 
     def disableHM(self):        
-        for widget in self.dummy:
+        for widget in self.dummy[:-2]:
             cfg={'state':DISABLED}
             widget.config(cfg)
 
@@ -187,6 +188,18 @@ class Aenir:
         args=(master,val_name,itemlist)
         self.optionListbox(*args)
 
+    def previewFromListbox(self,*args):
+        settings=self.dummy[-3:]
+        settings[0].config({'state':NORMAL})
+        s={
+            'val_name':settings[2],\
+            'launch_menu':False,\
+            'val_call':settings[1].selection_get
+            }
+        self.append_bonus(**s)
+        self.create_morph()
+        self.stat_preview()
+
     def optionListbox(self,master,val_name,itemlist):
         height=4
         add_scrollbar=True
@@ -206,8 +219,13 @@ class Aenir:
             }
         g=lambda *args:self.append_bonus(**kw)
         confirmButton=wideButton(master,'Confirm',g,1,state=DISABLED)
-        f=lambda *args: confirmButton.config({'state':NORMAL})
-        chapterListbox.bind('<<ListboxSelect>>',f)
+        #f=lambda *args: confirmButton.config({'state':NORMAL})
+        chapterListbox.bind('<<ListboxSelect>>',self.previewFromListbox)
+        t=confirmButton,chapterListbox,val_name
+        if type(self.dummy) == tuple:
+            self.dummy+=t
+        else:
+            self.dummy=t
         return chapterListbox
 
     def append_bonus(self,val_name,launch_menu=True,val_call=None):
@@ -245,9 +263,9 @@ class Aenir:
             num_times=decline_hugh_dict()[val]
             t={'num_times':num_times}
         d.update(t)
-        self.display_params.update(s)
-        self.update_config()
         if launch_menu:
+            self.display_params.update(s)
+            self.update_config()
             self.launch_main_menu()
 
     def hm_bonus_select(self):
@@ -276,7 +294,7 @@ class Aenir:
         nm={
             'master':master,\
             'text':'Normal',\
-            'command':lambda *args: updateButton(**nmCommand),\
+            'command':self.radiobuttonNM,\
             'variable':difficulty,\
             'value':False,\
             'justify':LEFT
@@ -307,7 +325,7 @@ class Aenir:
         hm={
             'master':master,\
             'text':'Hard',\
-            'command':lambda *args: updateButton(**hmCommand),\
+            'command':self.radiobuttonHM,\
             'variable':difficulty,\
             'value':True
             }
@@ -322,7 +340,29 @@ class Aenir:
 
         select_nm.focus()
 
-        self.dummy=(select_nm,select_hm,advButton)
+        self.dummy=(select_nm,select_hm,advButton,hmCommand,nmCommand)
+
+    def radiobuttonNM(self,*args):
+        updateButton(**self.dummy[4])
+        k=self.display_params
+        self.hm_params.clear()
+        self.create_morph()
+        self.stat_preview()
+
+    def radiobuttonHM(self,*args):
+        updateButton(**self.dummy[3])
+        d=self.unit_params
+        k=self.display_params
+        hm_chapters=hard_mode_dict()[d['unit']]
+        if '' in hm_chapters.keys():
+            val_name='Hard Mode'
+            s={
+                'launch_menu':False,\
+                'val_name':val_name,\
+                }
+            self.append_bonus(**s)
+            self.create_morph()
+            self.stat_preview()
 
     def boolHM(self,*args):
         ab={'val_name':'Hard Mode'}
@@ -338,6 +378,11 @@ class Aenir:
             'val_call':self.dummy[0].get
             }
         f=lambda *args: self.append_bonus(**kw)
+        kw2=kw.copy()
+        kw2['launch_menu']=False
+        self.append_bonus(**kw2)
+        self.create_morph()
+        self.stat_preview()
         wargs=(self.dummy[1],'Confirm',f)
         updateButton(*wargs)
 
@@ -424,7 +469,10 @@ class Aenir:
             self.swFrame1['text']=swText
         else:
             self.swFrame1['text']=more_text
-            
+
+        if more_text == 'Father':
+            more_text+='\n\n(default father is Arden)'
+
         return info_text+more_text
 
     def launch_main_menu(self,*args):
@@ -436,6 +484,34 @@ class Aenir:
         for item in self.display_params.items():
             print(item)
         print('\n')
+        ##
+        self.create_morph(make_dummy=False)
+        y=self.my_unit
+        ##
+        unit_attr=y.my_stats,y.my_levels,y.my_classes
+        for attr in unit_attr:
+            print(attr,'\n')
+        ##
+        frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
+        for n,frame in enumerate(frames_to_clear):
+            if n == 1:
+                s={'text':'Current Stats'}
+            else:
+                s={'text':' '}
+            anakin(frame)
+            frame.config(s)
+
+        self.clear_stats()
+        self.insert_stats(show_capped=True)
+        self.infoLabel['text']='Welcome to the Main Menu!'
+
+        for widget in self.root.winfo_children():
+            if type(widget) != Menu:
+                continue
+            for mini_wid in widget.winfo_children():
+                for n in range(len(mini_wid.winfo_children())):
+                    mini_wid.activate(n)
+
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
@@ -446,6 +522,8 @@ class Aenir:
 
         self.display_params['Unit']=new_name
         self.unit_params['unit']=old_name
+
+        self.create_morph(make_dummy=False)
 
         self.update_config()
 
@@ -479,8 +557,8 @@ class Aenir:
 
     def create_morph(self,make_dummy=True):
         if make_dummy:
-            self.dummy=Morph(**self.unit_params)
-            y=self.dummy
+            self.kishuna=Morph(**self.unit_params)
+            y=self.kishuna
         else:
             self.my_unit=Morph(**self.unit_params)
             y=self.my_unit
@@ -493,27 +571,36 @@ class Aenir:
                 f=y.add_auto_bonus
             f(**self.auto_params)
 
+    def clear_stats(self):
+        keys='','Class','Level'
+        keys+=get_stat_names(self.unit_params['game'])
+
+        for key in keys:
+            self.display_params.pop(key)
+
     def stat_preview(self):
-        assert type(self.my_unit) == type(self.dummy)
+        assert type(self.my_unit) == type(self.kishuna)
         frame=self.seFrame2
         anakin(self.seFrame2)
         kw_list=[]
-        comparison=self.my_unit < self.dummy
+        comparison=self.my_unit < self.kishuna
         for val in comparison.values():
             if val is None:
                 color=None
             elif val:
-                color='cyan'
+                color='cyan4'
             else:
                 color='red'
             kw_list+=[{'color':color}]
         kw={
             'frame':self.seFrame2,\
-            'y':self.dummy,\
+            'y':self.kishuna,\
             'kw_list':kw_list
             }
 
-        self.print_stat_array(**kw)
+        self.clear_stats()
+
+        self.show_stat_array(**kw)
 
     def insert_stats(self,show_capped=False):
         frame=self.swFrame2
@@ -539,9 +626,9 @@ class Aenir:
                     color='green3'
                 kw_list+=[{'color':color}]
 
-        self.print_stat_array(frame,y,kw_list)
+        self.show_stat_array(frame,y,kw_list)
 
-    def print_stat_array(self,frame,y,kw_list):
+    def show_stat_array(self,frame,y,kw_list):
         assert len(kw_list) == len(y.my_stats) + 2
         stat_names=get_stat_names(self.unit_params['game'])
 
