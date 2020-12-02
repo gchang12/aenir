@@ -54,9 +54,9 @@ class Aenir:
         self.dHeight2=0
         self.rWidth=0
 
-        #   To handle Gonzales
+        #   To handle various events during initialization
 
-        self.dummy=None
+        self.dummy='\n\nEnter: Confirm selection.'
 
     def load_menu(self):
         #   Set root window and frames here
@@ -148,6 +148,7 @@ class Aenir:
         self.update_config()
 
         self.infoLabel['text']='Please select a unit from FE%s.'%game
+        self.infoLabel['text']+=self.dummy
 
     def unit_select(self,game='4'):
         master=self.seFrame
@@ -192,7 +193,7 @@ class Aenir:
     def optionListbox(self,master,val_name,itemlist):
         height=4
         add_scrollbar=True
-        width=27
+        width=28
         args={
             'master':master,\
             'itemlist':itemlist,\
@@ -599,7 +600,8 @@ class Aenir:
         self.nwFrame=set_mainframe(1,0,lWidth,uHeight,text='Config')
 
         self.neFrame=set_mainframe(1,1,rWidth,uHeight,text='Info')
-        self.infoLabel=Label(self.neFrame,text='Please select a game.',justify=LEFT)
+        text='Please select a game.'+self.dummy
+        self.infoLabel=Label(self.neFrame,text=text,justify=LEFT)
         self.infoLabel.grid(sticky=N+W)
 
         self.swFrame1=set_mainframe(3,0,lWidth,dHeight1,text='Game Select')
