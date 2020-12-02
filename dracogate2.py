@@ -1,6 +1,6 @@
 #   *** Issues
 #   -   Lyn Mode selection seems to fill Main Mode by default
-#   -   Must reactivate menu-buttons, somehow...
+#   -   Must conditionally activate submenu items, somehow...
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
@@ -71,7 +71,11 @@ class Aenir:
 
         menubar=Menu(self.root,tearoff=0)
 
-        menubar.add_command(label='Restart',command=self.restart)
+        s={'state':DISABLED}
+
+        mainmenu=Menu(menubar,tearoff=0)
+        mainmenu.add_command(label='Restart',command=self.restart)
+        mainmenu.add_command(label='Quit',command=self.quit)
 
         actionmenu=Menu(menubar,tearoff=0)
         actionmenu.add_command(label='Level Up')
@@ -84,7 +88,8 @@ class Aenir:
 
         #   Append menus here
 
-        menubar.add_cascade(label='Edit',menu=actionmenu,state=DISABLED)
+        menubar.add_cascade(label='Main',menu=mainmenu)
+        menubar.add_cascade(label='Modify',menu=actionmenu,state=DISABLED)
         menubar.add_cascade(label='View',menu=viewmenu,state=DISABLED)
 
         self.root.config(menu=menubar)
@@ -228,6 +233,7 @@ class Aenir:
         return chapterListbox
 
     def append_bonus(self,val_name,launch_menu=True,val_call=None):
+        other_word='Difficulty'
         if callable(val_call):
             val=val_call()
         if val_name == 'Hard Mode':
@@ -239,9 +245,10 @@ class Aenir:
             val=hm_chapter_dict(**self.unit_params)[val]
             t={'chapter':val}
             if not launch_menu:
-                s={'Difficulty':'Hard Mode'}
-                self.display_params.update(s)
-                self.update_config()
+                if other_word not in self.display_params.keys():
+                    s={other_word:'Hard Mode'}
+                    self.display_params.update(s)
+                    self.update_config()
             s={'Chapter':val}
         elif val_name == 'Auto Select':
             d=self.auto_params
@@ -270,7 +277,6 @@ class Aenir:
                 d=self.hm_params
                 word='chapter'
                 if word in d.keys():
-                    other_word='Difficulty'
                     s={other_word:'Hard Mode'}
                     self.display_params.update(s)
                     self.update_config()
@@ -484,6 +490,10 @@ class Aenir:
         return info_text+more_text
 
     def launch_main_menu(self,*args):
+        self.create_morph(make_dummy=False)
+        y=self.my_unit
+        
+        ### FOR DEBUGGING PURPOSES
         print('Ctrl+F: def launch_main_menu\n')
         names='unit_params','hm_params','auto_params'
         for name,var in zip(names,self.init_variables):
@@ -492,14 +502,11 @@ class Aenir:
         for item in self.display_params.items():
             print(item)
         print('\n')
-        ##
-        self.create_morph(make_dummy=False)
-        y=self.my_unit
-        ##
         unit_attr=y.my_stats,y.my_levels,y.my_classes
         for attr in unit_attr:
             print(attr,'\n')
-        ##
+        ###
+            
         frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
         for n,frame in enumerate(frames_to_clear):
             if n == 1:
@@ -513,13 +520,29 @@ class Aenir:
         self.insert_stats(show_capped=True)
         self.infoLabel['text']='Welcome to the Main Menu!'
 
+        self.dummy=()
+
         for widget in self.root.winfo_children():
             if type(widget) != Menu:
                 continue
-            for mini_wid in widget.winfo_children():
-                for n in range(len(mini_wid.winfo_children())):
-                    mini_wid.activate(n)
+            widget.entryconfig('Modify',state=NORMAL)
+            widget.entryconfig('View',state=NORMAL)
+            for submenu in widget.winfo_children():
+                self.dummy+=(submenu,)
 
+        ### FOR DEBUGGING PURPOSES
+        print(self.dummy)
+        ###
+
+        s={'state':DISABLED}
+
+        editmenu=self.dummy[1]
+
+        if y.current_level() == y.max_level():
+            editmenu.entryconfig(index='Level Up',**s)
+
+        if not y.can_promote():
+            editmenu.entryconfig(index='Promote',**s)
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
