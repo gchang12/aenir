@@ -331,6 +331,7 @@ if __name__=='__main__':
     unit='Ephraim'
     y=Morph(game,unit)
     z= x > y
-    print(x.my_stats)
-    print(y.my_stats)
-    print(z)
+    #print(x.my_stats)
+    #print(y.my_stats)
+    #print(z)
+    print(type(x) == 'Morph')

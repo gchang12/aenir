@@ -1,9 +1,7 @@
-#   ***Create widgets for each in swFrame:
-#   Radiobutton:            LYN MODE
-#   Listbox:                FE4 KID
-#   Radiobutton:            HUGH
-#   Radiobutton/Listbox:    HARD MODE
-#   Radiobutton/Listbox:    AUTO LEVEL
+#   *** Issues
+#   -   Lyn Mode selection seems to fill Main Mode by default
+#   -   No stat preview method yet
+#   -   Still must write method that applies changes...
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
@@ -17,17 +15,14 @@ class Aenir:
         self.hm_params={}
         self.auto_params={}
         self.my_unit=None
-        self.session_history={}
 
         #   Parameter for displaying info on-screen
         self.display_params={}
 
-        #   To clear all variables
+        #   To loop over and generate self.my_unit
         self.info_variables=self.unit_params,\
                              self.hm_params,\
-                             self.auto_params,\
-                             self.display_params,\
-                             self.session_history
+                             self.auto_params
 
         #   GUI variables to be set later
         self.root=None
@@ -56,7 +51,7 @@ class Aenir:
 
         #   To handle various events during initialization
 
-        self.dummy='\n\nEnter: Confirm selection.'
+        self.dummy=dummy_message
 
     def load_menu(self):
         #   Set root window and frames here
@@ -103,7 +98,9 @@ class Aenir:
     def quit(self,*args):
         for var in self.info_variables:
             var.clear()
+        self.dummy=dummy_message
         self.my_unit=None
+        self.display_params.clear()
         self.root.destroy()
 
     def restart(self,*args):
@@ -224,6 +221,9 @@ class Aenir:
             d=self.hm_params
             val=hm_chapter_dict(**self.unit_params)[val]
             t={'chapter':val}
+            s={'Difficulty':'Hard Mode'}
+            self.display_params.update(s)
+            self.update_config()
             s={'Chapter':val}
         elif val_name == 'Auto Select':
             d=self.auto_params
@@ -258,7 +258,7 @@ class Aenir:
         difficulty=BooleanVar()
 
         btn={
-            'row':2,\
+            'row':3,\
             'master':master,\
             'state':DISABLED,\
             'text':'',\
@@ -282,13 +282,13 @@ class Aenir:
             'justify':LEFT
             }
 
-        select_nm=Radiobutton(**nm)
-
         if has_auto_bonus(**d) or '' not in hm_chapters.keys():
             if not has_auto_bonus(**d):
                 command=self.chapter_select
             else:
                 command=self.boolHM
+                nmCommand['command']=self.chapter_select
+                nmCommand['text']='Continue'
             text='Continue'
         else:
             command=self.boolHM
@@ -298,6 +298,8 @@ class Aenir:
             'text':text,\
             'command':command
             }
+
+        select_nm=Radiobutton(**nm)
 
         hmCommand={'button':advButton}
         hmCommand.update(text_cmd)
@@ -317,7 +319,6 @@ class Aenir:
         select_nm.grid(row=0,**g)
         select_hm.grid(row=1,**g)
         Label(master,text='').grid(row=2)
-        advButton.grid(row=3,**g)
 
         select_nm.focus()
 
@@ -334,15 +335,19 @@ class Aenir:
     def boolLM(self,*args):
         kw={
             'val_name':'Lyn Mode',\
-            'val_call':self.dummy[1]
+            'val_call':self.dummy[1].get
             }
         f=lambda *args: self.append_bonus(**kw)
         wargs=(self.dummy[0],'Confirm',f)
         updateButton(*wargs)
 
     def campaign_select(self):
+        #   Must fix Radiobutton auto-fill issue here...
+        #   -   Something to do with campaign Variable?
+        #   -   Last time, dependent on if handler was method vs. function
         master=self.swFrame1
-        campaign=BooleanVar(value=None)
+        campaign=BooleanVar()
+        #campaign=StringVar()
 
         btn={
             'row':3,\
@@ -352,7 +357,7 @@ class Aenir:
             'command':lambda *args: None
             }
         okButton=wideButton(**btn)
-        self.dummy=(okButton,campaign.get)
+        self.dummy=(okButton,campaign)
         
         lyn={
             'master':master,\
@@ -361,6 +366,7 @@ class Aenir:
             'value':True,\
             'variable':campaign
             }
+        #lyn['value']=str(lyn['value'])
         chooseLyn=Radiobutton(**lyn)
 
         eh={
@@ -370,6 +376,7 @@ class Aenir:
             'value':False,\
             'variable':campaign
             }
+        #eh['value']=str(eh['value'])
         chooseMain=Radiobutton(**eh)
 
         g={'sticky':W}
@@ -379,6 +386,7 @@ class Aenir:
         Label(master,text='').grid(row=2)
 
         chooseLyn.focus()
+        chooseMain.deselect()
         
     def option_select(self):
         info_text='Some information is missing.\nPlease specify:\n\n'
@@ -420,7 +428,14 @@ class Aenir:
         return info_text+more_text
 
     def launch_main_menu(self,*args):
-        print('\nCtrl+F: def launch_main_menu')
+        print('Ctrl+F: def launch_main_menu\n')
+        names='unit_params','hm_params','auto_params'
+        for name,var in zip(names,self.info_variables):
+            print(name,var)
+        print('\ndisplay_params')
+        for item in self.display_params.items():
+            print(item)
+        print('\n')
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
@@ -462,9 +477,9 @@ class Aenir:
         self.infoLabel['text']=info_text
         self.insert_stats()
 
-    def insert_stats(self,kishuna=None,show_capped=False,*args):
+    def insert_stats(self,show_capped=False,*args):
         color_cfg={'color':None}
-        if kishuna is None:
+        if type(self.dummy) != Morph:
             frame=self.swFrame2
             y=Morph(**self.unit_params)
             kw_list=[color_cfg for stat in y.my_stats]
