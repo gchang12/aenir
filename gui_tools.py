@@ -24,21 +24,21 @@ def set_mainframe(row,column,width,height,rowspan=1,text=' '):
     frame.grid(row=row,column=column,rowspan=rowspan,**grid_kw)
     return frame
 
-def select_from_list(master,itemlist,height,add_scrollbar=False):
+def select_from_list(master,itemlist,height,add_scrollbar=False,width=30):
     list_var=StringVar(value=itemlist)
 
     kwargs={
         'master':master,\
         'listvariable':list_var,\
         'height':height,\
-        'width':30
+        'width':width
         }
     item_list=Listbox(**kwargs)
     item_list.grid(column=0,sticky=N+W+S,row=0)
 
     if add_scrollbar:
         scrollbar=Scrollbar(master)
-        scrollbar.grid(column=1,sticky=N+S,rowspan=2,row=0)
+        scrollbar.grid(column=1,sticky=N+S,row=0)
         scrollbar.config(command=item_list.yview)
         item_list['yscrollcommand']=scrollbar.set
 
@@ -87,7 +87,7 @@ def bind_listbox_shortcuts(listbox):
         listbox.bind(key,bind_to_shortcuts)
     return keys
 
-def wideButton(master,text,command,row,width=23,height=2,column=None,state=NORMAL):
+def wideButton(master,text,command,row,width=23,height=2,column=0,state=NORMAL):
     d={}
     d['master']=master
     d['text']=text
@@ -101,8 +101,8 @@ def wideButton(master,text,command,row,width=23,height=2,column=None,state=NORMA
     g['ipadx']=10
     g['ipady']=10
     g['row']=row
-    if type(column) == int:
-        g['column']=column
+    g['columnspan']=2
+    g['column']=column
 
     button=Button(**d)
     button.grid(**g)

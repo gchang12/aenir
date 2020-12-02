@@ -138,7 +138,7 @@ def hm_chapter_dict(game,unit):
     return chapter_name_dict(*args)
 
 if __name__ == '__main__':
-    x=hm_chapter_dict('6','Cath')
-    print(x)
-    #x=fe4_father_list()
+    x=fe4_father_list()
     #print(len(x))
+    for m in x:
+        print(m)

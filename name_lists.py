@@ -34,8 +34,9 @@ def character_list(game,file_match='characters_base-stats'):
     return compiled_names
 
 
-def translated_character_list(game,file_match='characters_base-stats'):
-    raw_list=character_list(game,file_match=file_match)
+def translated_character_list(game,raw_list=None,file_match='characters_base-stats'):
+    if raw_list is None:
+        raw_list=character_list(game,file_match=file_match)
     new_list=()
     for unit in raw_list:
         unit=updated_name_for(game,unit)
