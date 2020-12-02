@@ -477,39 +477,72 @@ class Aenir:
         self.infoLabel['text']=info_text
         self.insert_stats()
 
-    def insert_stats(self,show_capped=False,*args):
-        color_cfg={'color':None}
-        if type(self.dummy) != Morph:
-            frame=self.swFrame2
-            y=Morph(**self.unit_params)
-            kw_list=[color_cfg for stat in y.my_stats]
-        else:
-            frame=self.seFrame2
-            anakin(self.seFrame2)
-            kw_list=[]
+    def create_morph(self,make_dummy=True):
+        if make_dummy:
+            self.dummy=Morph(**self.unit_params)
             y=self.dummy
-            if not show_capped:
-                comparison=y < self.my_unit
-                color1='cyan'
-                color2='red'
+        else:
+            self.my_unit=Morph(**self.unit_params)
+            y=self.my_unit
+        if self.hm_params:
+            y.add_hm_bonus(**self.hm_params)
+        if self.auto_params:
+            if self.unit_params['unit'] == 'Hugh':
+                f=y.decline_hugh
             else:
-                comparison=self.my_unit.is_capped()
-                color1='green3'
-                color2=None
+                f=y.add_auto_bonus
+            f(**self.auto_params)
+
+    def stat_preview(self,*args):
+        assert type(self.my_unit) == type(self.dummy)
+        frame=self.seFrame2
+        anakin(self.seFrame2)
+        kw_list=[]
+        comparison=self.my_unit < self.dummy
+        for val in comparison.values():
+            if val is None:
+                color=None
+            elif val:
+                color='cyan'
+            else:
+                color='red'
+            kw_list+=[{'color':color}]
+        kw={
+            'frame':self.seFrame2,\
+            'y':self.dummy,\
+            'kw_list':kw_list
+            }
+        self.print_stat_array(**kw)
+
+    def insert_stats(self,show_capped=False,*args):
+        frame=self.swFrame2
+        if type(self.my_unit) != Morph:
+            y=Morph(**self.unit_params)
+        else:
+            y=self.my_unit
+
+        color_cfg={'color':None}
+        kw_list=[]
+
+        while len(kw_list) < 2:
+            kw_list+=[color_cfg]
+
+        if not show_capped:
+            kw_list+=[color_cfg for stat in y.my_stats]
+        else:
+            comparison=self.my_unit.is_capped()
             for val in comparison.values():
-                if val is None:
+                if not val:
                     color=None
-                elif val:
-                    color=color1
                 else:
-                    color=color2
+                    color='green3'
                 kw_list+=[{'color':color}]
 
-        while len(kw_list) < len(y.my_stats)+2:
-            kw_list.insert(0,color_cfg)
+        self.print_stat_array(frame,y,kw_list)
 
-        game=self.unit_params['game']
-        stat_names=get_stat_names(game)
+    def print_stat_array(self,frame,y,kw_list):
+        assert len(kw_list) == len(y.my_stats) + 2
+        stat_names=get_stat_names(self.unit_params['game'])
 
         show_stat_pair=lambda **kw:self.update_config(frame=frame,**kw)
 

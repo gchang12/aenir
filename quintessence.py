@@ -327,6 +327,9 @@ if __name__=='__main__':
     game=str(k)
     unit='Gonzales'
     args=(game,unit)
+    x=None
+    y=x
     x=Morph(*args)
     x.add_auto_bonus('10B')
     print(x.my_levels,x.my_stats)
+    
