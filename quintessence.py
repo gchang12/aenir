@@ -321,15 +321,22 @@ class Morph:
         print()
         print(comparison)
 
+    def max_level(self):
+        args=(self.game,self.current_class())
+        max_level=max_level_dict(*args)
+        return max_level
+
 
 if __name__=='__main__':
-    k=6
+    k=4
     game=str(k)
-    unit='Gonzales'
+    unit='Sigurd'
     args=(game,unit)
     x=None
     y=x
     x=Morph(*args)
     x.add_auto_bonus('10B')
     print(x.my_levels,x.my_stats)
-    
+    print(x.max_level())
+
+
