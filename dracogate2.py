@@ -489,6 +489,17 @@ class Aenir:
 
         return info_text+more_text
 
+    def write_unit_history(self,text_pair=None):
+        frame=self.swFrame1
+        if text_pair is None:
+            Label(frame,text='Level').grid(row=0,column=0)
+            Label(frame,text='Class').grid(row=0,column=1)
+        else:
+            level=text_pair[0]
+            unit_class=text_pair[1]
+            Label(frame,text=level).grid(column=0)
+            Label(frame,text=unit_class).grid(column=1)
+
     def launch_main_menu(self,*args):
         self.create_morph(make_dummy=False)
         y=self.my_unit
@@ -508,11 +519,10 @@ class Aenir:
         ###
             
         frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
-        for n,frame in enumerate(frames_to_clear):
-            if n == 1:
-                s={'text':'Current Stats'}
-            else:
-                s={'text':' '}
+        new_labels='Unit History','Current Stats',' ',' '
+
+        for frame,text in zip(frames_to_clear,new_labels):
+            s={'text':text}
             anakin(frame)
             frame.config(s)
 
