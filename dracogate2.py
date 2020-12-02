@@ -54,6 +54,10 @@ class Aenir:
         self.dHeight2=0
         self.rWidth=0
 
+        #   To handle Gonzales
+
+        self.dummy=None
+
     def load_menu(self):
         #   Set root window and frames here
         self.root=Tk()
@@ -65,7 +69,7 @@ class Aenir:
 
         x=int(self.root.winfo_screenwidth()-my_width)
         y=0
-        new_geometry='450x620+%d+%d'%(x,y)
+        new_geometry='450x640+%d+%d'%(x,y)
         geometry=self.root.wm_geometry(new_geometry)
 
         #   Create menus here
@@ -110,7 +114,7 @@ class Aenir:
         master=self.swFrame1
         itemlist=tuple(game_title_dict().keys())
         height=len(itemlist)+1
-        args=master,itemlist,height
+        args=master,itemlist,height,True
         self.gsListbox=select_from_list(*args)
         self.gsListbox.bind('<Return>',self.confirm_game)
         self.gsListbox.focus_force()
@@ -136,11 +140,11 @@ class Aenir:
         self.usListbox.focus()
         self.usListbox.select_set(0)
 
-        self.display_params['Game:']='FE'+game
+        self.display_params['Game']='FE'+game
         self.unit_params['game']=game
         self.update_config()
 
-        self.display_params['Title:']=title
+        self.display_params['Title']=title
         self.update_config()
 
         self.infoLabel['text']='Please select a unit from FE%s.'%game
@@ -160,18 +164,53 @@ class Aenir:
             }
         append_listbox_shortcuts(self.usListbox)
 
+    def disableHM(self):        
+        for widget in self.dummy:
+            cfg={'state':DISABLED}
+            widget.config(cfg)
+
     def chapter_select(self,*args):
         d=self.unit_params
-        if not has_auto_bonus(**d):
-            itemlist=hm_chapter_dict(**d)
+        if d['unit'] == 'Gonzales':
+            itemdict=auto_chapter_dict(**d)
+            master=self.seFrame1
+            self.disableHM()
+            val_name='Auto Select'
+        elif not has_auto_bonus(**d):
+            itemdict=hm_chapter_dict(**d)
+            master=self.seFrame1
+            self.disableHM()
+            val_name='HM Select'
         else:
-            itemlist=auto_chapter_dict(**d)
-        x='\nWelcome to Chapter Select! (WIP)'
-        print(x)
-        for item in itemlist:
-            print(item)
-        self.launch_main_menu()
+            itemdict=auto_chapter_dict(**d)
+            master=self.swFrame1
+            val_name='Auto Select'
+        itemlist=tuple(itemdict.keys())
+        args=(master,val_name,itemlist)
+        self.optionListbox(*args)
 
+    def optionListbox(self,master,val_name,itemlist):
+        height=4
+        add_scrollbar=True
+        width=27
+        args={
+            'master':master,\
+            'itemlist':itemlist,\
+            'height':height,\
+            'width':width,
+            'add_scrollbar':add_scrollbar
+            }
+        chapterListbox=select_from_list(**args)
+        chapterListbox.focus()
+        kw={
+            'val_name':val_name,\
+            'val_call':chapterListbox.selection_get
+            }
+        g=lambda *args:self.append_bonus(**kw)
+        confirmButton=wideButton(master,'Confirm',g,1,state=DISABLED)
+        f=lambda *args: confirmButton.config({'state':NORMAL})
+        chapterListbox.bind('<<ListboxSelect>>',f)
+        return chapterListbox
 
     def append_bonus(self,val_name,launch_menu=True,val_call=None):
         if callable(val_call):
@@ -179,8 +218,34 @@ class Aenir:
         if val_name == 'Hard Mode':
             d=self.hm_params
             t={'chapter':''}
+            s={'Difficulty':'Hard Mode'}
+        elif val_name == 'HM Select':
+            d=self.hm_params
+            val=hm_chapter_dict(**self.unit_params)[val]
+            t={'chapter':val}
+            s={'Chapter':val}
+        elif val_name == 'Auto Select':
+            d=self.auto_params
+            val=auto_chapter_dict(**self.unit_params)[val]
+            t={'chapter':val}
+            s={'Chapter':val}
+        elif val_name == 'Lyn Mode':
+            d=self.unit_params
+            t={'lyn_mode':val}
+            s={'Campaign':('Lyn\'s Story' if val else 'Main Story')}
+        elif val_name == 'Father':
+            d=self.unit_params
+            old_name=get_old_name(d['game'],val)
+            t={'father':old_name}
+            s={'Father':val}
+        elif val_name == 'Gold Given':
+            d=self.auto_params
+            s={val_name:val}
+            num_times=decline_hugh_dict()[val]
+            t={'num_times':num_times}
         d.update(t)
-        print('\nAppended %s bonus:'%val_name,d)
+        self.display_params.update(s)
+        self.update_config()
         if launch_menu:
             self.launch_main_menu()
 
@@ -212,7 +277,8 @@ class Aenir:
             'text':'Normal',\
             'command':lambda *args: updateButton(**nmCommand),\
             'variable':difficulty,\
-            'value':False
+            'value':False,\
+            'justify':LEFT
             }
 
         select_nm=Radiobutton(**nm)
@@ -226,7 +292,7 @@ class Aenir:
         else:
             command=self.boolHM
             text='Confirm'
-            
+
         text_cmd={
             'text':text,\
             'command':command
@@ -245,14 +311,16 @@ class Aenir:
 
         select_hm=Radiobutton(**hm)
 
-        g={'sticky':E+W}
-        
+        g={'sticky':W}
+
         select_nm.grid(row=0,**g)
         select_hm.grid(row=1,**g)
         Label(master,text='').grid(row=2)
         advButton.grid(row=3,**g)
 
         select_nm.focus()
+
+        self.dummy=(select_nm,select_hm,advButton)
 
     def boolHM(self,*args):
         ab={'val_name':'Hard Mode'}
@@ -261,6 +329,55 @@ class Aenir:
             ab.update({'launch_menu':False})
             self.chapter_select()
         self.append_bonus(**ab)
+
+    def boolLM(self,*args):
+        kw={
+            'val_name':'Lyn Mode',\
+            'val_call':self.dummy[1]
+            }
+        f=lambda *args: self.append_bonus(**kw)
+        wargs=(self.dummy[0],'Confirm',f)
+        updateButton(*wargs)
+
+    def campaign_select(self):
+        master=self.swFrame1
+        campaign=BooleanVar(value=None)
+
+        btn={
+            'row':3,\
+            'master':master,\
+            'state':DISABLED,\
+            'text':'Confirm',\
+            'command':lambda *args: None
+            }
+        okButton=wideButton(**btn)
+        self.dummy=(okButton,campaign.get)
+        
+        lyn={
+            'master':master,\
+            'text':'Lyn Mode',\
+            'command':self.boolLM,\
+            'value':True,\
+            'variable':campaign
+            }
+        chooseLyn=Radiobutton(**lyn)
+
+        eh={
+            'master':master,\
+            'text':'Eliwood/Hector Mode',\
+            'command':self.boolLM,\
+            'value':False,\
+            'variable':campaign
+            }
+        chooseMain=Radiobutton(**eh)
+
+        g={'sticky':W}
+
+        chooseLyn.grid(row=0,**g)
+        chooseMain.grid(row=1,**g)
+        Label(master,text='').grid(row=2)
+
+        chooseLyn.focus()
         
     def option_select(self):
         info_text='Some information is missing.\nPlease specify:\n\n'
@@ -273,10 +390,13 @@ class Aenir:
         
         if is_lyndis_league(**d):
             more_text='Campaign'
+            self.campaign_select()
         elif is_fe4_child(**d):
             more_text='Father'
+            self.father_select()
         elif is_hugh(**d):
             more_text='Amount of Gold Paid'
+            self.gold_select()
         elif has_hm_bonus(**d):
             hm_chapters=hard_mode_dict()[d['unit']]
             if has_auto_bonus(**d) or '' not in hm_chapters.keys():
@@ -286,6 +406,7 @@ class Aenir:
             self.hm_bonus_select()
         elif has_auto_bonus(**d):
             more_text=seText
+            self.chapter_select()
         else:
             self.quit()
             
@@ -307,7 +428,7 @@ class Aenir:
         new_name=self.usListbox.selection_get()
         old_name=get_old_name(self.unit_params['game'],new_name)
 
-        self.display_params['Unit:']=new_name
+        self.display_params['Unit']=new_name
         self.unit_params['unit']=old_name
 
         self.update_config()
@@ -376,9 +497,9 @@ class Aenir:
 
         show_stat_pair=lambda **kw:self.update_config(frame=frame,**kw)
 
-        self.display_params['Class:']=y.current_class()
+        self.display_params['Class']=y.current_class()
         show_stat_pair(**kw_list[0])
-        self.display_params['Level:']=str(y.current_level())
+        self.display_params['Level']=str(y.current_level())
         show_stat_pair(**kw_list[1])
         self.display_params['']=''
         show_stat_pair()
@@ -412,6 +533,9 @@ class Aenir:
         grid_options1['column']=0
         grid_options2['column']=1
 
+        if label:
+            label+=':'
+
         Label(text=label,**label_options).grid(**grid_options1)
         Label(text=value,**label_options2).grid(**grid_options2)
 
@@ -426,6 +550,31 @@ class Aenir:
             )
         return any(conditions)
 
+    def father_select(self):
+        master=self.swFrame1
+        itemlist=fe4_father_list()
+        add_scrollbar=True
+        val_name='Father'
+        kwargs={
+            'master':master,\
+            'val_name':val_name,\
+            'itemlist':itemlist
+            }
+        self.optionListbox(**kwargs)
+
+    def gold_select(self):
+        master=self.swFrame1
+        itemlist=decline_hugh_dict().keys()
+        itemlist=tuple(itemlist)
+        val_name='Gold Given'
+
+        kwargs={
+            'master':master,\
+            'val_name':val_name,\
+            'itemlist':itemlist
+            }
+        self.optionListbox(**kwargs)
+
     def __call__(self):
         self.load_menu()
 
@@ -434,7 +583,7 @@ class Aenir:
         lWidth=200
         rWidth=210
 
-        uHeight=120
+        uHeight=140
         dHeight=369
         dHeight+=dy
 
