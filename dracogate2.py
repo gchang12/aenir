@@ -1,6 +1,10 @@
 #   *** Issues
 #   -   Lyn Mode selection seems to fill Main Mode by default
-#   -   Must conditionally activate submenu items, somehow...
+#   -   Must provide widgets for:
+#       1   Boost       -   Listbox
+#       2   Level Up    -   Entry
+#       3   Promotion   -   Button/Listbox
+#       4   Comparison  -   array of Entry objects
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
@@ -314,6 +318,8 @@ class Aenir:
             'justify':LEFT
             }
 
+        select_nm=Radiobutton(**nm)
+
         if has_auto_bonus(**d) or '' not in hm_chapters.keys():
             if not has_auto_bonus(**d):
                 command=self.chapter_select
@@ -330,8 +336,6 @@ class Aenir:
             'text':text,\
             'command':command
             }
-
-        select_nm=Radiobutton(**nm)
 
         hmCommand={'button':advButton}
         hmCommand.update(text_cmd)
@@ -489,21 +493,21 @@ class Aenir:
 
         return info_text+more_text
 
-    def write_unit_history(self,text_pair=None):
+    def write_unit_history(self):
         frame=self.swFrame1
-        if text_pair is None:
+        if not frame.winfo_children():
             Label(frame,text='Level').grid(row=0,column=0)
             Label(frame,text='Class').grid(row=0,column=1)
-        else:
-            level=text_pair[0]
-            unit_class=text_pair[1]
-            Label(frame,text=level).grid(column=0)
-            Label(frame,text=unit_class).grid(column=1)
+        level=self.my_unit.current_level()
+        level=str(level)
+        unit_class=self.my_unit.current_class()
+        Label(frame,text=level).grid(column=0)
+        Label(frame,text=unit_class).grid(column=1)
 
     def launch_main_menu(self,*args):
         self.create_morph(make_dummy=False)
         y=self.my_unit
-        
+
         ### FOR DEBUGGING PURPOSES
         print('Ctrl+F: def launch_main_menu\n')
         names='unit_params','hm_params','auto_params'
@@ -537,6 +541,7 @@ class Aenir:
                 continue
             widget.entryconfig('Modify',state=NORMAL)
             widget.entryconfig('View',state=NORMAL)
+            self.dummy+=(widget,)
             for submenu in widget.winfo_children():
                 self.dummy+=(submenu,)
 
@@ -546,13 +551,19 @@ class Aenir:
 
         s={'state':DISABLED}
 
-        editmenu=self.dummy[1]
+        editmenu=self.dummy[2]
 
         if y.current_level() == y.max_level():
             editmenu.entryconfig(index='Level Up',**s)
 
         if not y.can_promote():
             editmenu.entryconfig(index='Promote',**s)
+
+    def disable_menus(self):
+        mainmenu=self.dummy[0]
+        s={'state':DISABLED}
+        mainmenu.entryconfig(index='Modify',**s)
+        mainmenu.entryconfig(index='View',**s)
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
