@@ -789,7 +789,9 @@ class Aenir:
 
         Label(master,text='').grid(row=0,column=0)
         Label(master,text='avg').grid(row=0,column=1)
-        Label(master,text='user').grid(row=0,column=2)
+        Label(master,text='').grid(row=0,column=2)
+        Label(master,text='user').grid(row=0,column=3)
+        Label(master,text='').grid(row=0,column=4)
 
         w={'width':5,'justify':CENTER}
 
@@ -804,7 +806,9 @@ class Aenir:
             num_ent=numericalEntry(master)
             num_ent[1].bind('<Return>',self.show_comparison)
             num_ent[1].config(w)
-            num_ent[1].grid(row=n,column=2)
+            Label(master,text=' - ').grid(row=n,column=2)
+            num_ent[1].grid(row=n,column=3,columnspan=1)
+            Label(master,text=' = ').grid(row=n,column=4)
             self.dummy+=(num_ent,)
 
         widget_list=tuple(y for x,y in self.dummy)
@@ -836,7 +840,7 @@ class Aenir:
             stat=int(x.get())
             user_stats+=(stat,)
 
-        Label(master,text='diff').grid(row=0,column=4)
+        Label(master,text='diff').grid(row=0,column=5)
         csum=0
 
         for n,(mystat,avgstat) in enumerate(zip(user_stats,self.my_unit.my_stats),start=1):
@@ -845,8 +849,8 @@ class Aenir:
             csum+=diff
             color=('cyan4' if diff >= 0 else 'red')
             diff=str(diff)
-            Label(master,text='').grid(row=n,column=3)
-            Label(master,text=diff,foreground=color).grid(row=n,column=4)
+            Label(master,text='').grid(row=n,column=5)
+            Label(master,text=diff,foreground=color).grid(row=n,column=5)
 
         self.seFrame1['text']='Analysis'
         csum=round(csum,2)
