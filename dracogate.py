@@ -807,7 +807,7 @@ class Aenir:
         stat_values=tuple(self.my_unit.my_stats)
         self.dummy=()
 
-        wideButton(self.seFrame1,'Cancel',self.launch_main_menu,0)
+        wideButton(self.seFrame1,'Return to Main Menu',self.launch_main_menu,0)
 
         Label(master,text='').grid(row=0,column=0)
         Label(master,text='avg').grid(row=0,column=3)
