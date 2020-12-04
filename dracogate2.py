@@ -689,6 +689,7 @@ class Aenir:
         self.launch_main_menu()
 
     def launch_main_menu(self,*args):
+        self.root.unbind('<Key>')
         if not self.initialized:
             self.create_morph(make_dummy=False)
         y=self.my_unit
@@ -768,8 +769,81 @@ class Aenir:
 
     def compare_stats(self,*args):
         self.clear_mod_frames()
-        x=44
-        print(x)
+        master=self.seFrame2
+        stat_names=get_stat_names(self.unit_params['game'])
+        stat_names=stat_names
+        stat_values=tuple(self.my_unit.my_stats)
+        self.dummy=()
+
+        Label(master,text='').grid(row=0,column=0)
+        Label(master,text='avg').grid(row=0,column=1)
+        Label(master,text='user').grid(row=0,column=2)
+
+        w={'width':5,'justify':CENTER}
+
+        for n,(name,value,other_stat) in enumerate(zip(stat_names,stat_values,self.my_unit.growth_rates),start=1):
+            if other_stat == 0:
+                continue
+            value=float(value)
+            value=round(value,2)
+            value=str(value)
+            Label(master,text=name).grid(row=n,column=0)
+            Label(master,text=value).grid(row=n,column=1)
+            num_ent=numericalEntry(master)
+            num_ent[1].bind('<Return>',self.show_comparison)
+            num_ent[1].config(w)
+            num_ent[1].grid(row=n,column=2)
+            self.dummy+=(num_ent,)
+
+        widget_list=tuple(y for x,y in self.dummy)
+        self.seFrame2['text']='Comparison'
+        self.infoLabel['text']='Please input your stats here and\npress Enter to show comparison.'
+
+        for n in range(len(widget_list)):
+            wid=widget_list[n]
+            def make_lambda(x):
+                return lambda *args: widget_list[x].focus()            
+            if n > 0:
+                wid.bind('<Up>', make_lambda(n-1))
+                wid.bind('<Prior>', make_lambda(0))
+            if n < len(widget_list)-1:
+                wid.bind('<Down>', make_lambda(n+1))
+                wid.bind('<Next>', make_lambda(-1))
+            else:
+                break
+            wid.bind('<Return>',make_lambda(n+1),add=True)
+
+    def show_comparison(self,*args):
+        master=self.seFrame2
+        for x,y in self.dummy:
+            if not x.get().isdigit():
+                return
+        user_stats=()
+        for x,y in self.dummy:
+            y.config({'state':DISABLED})
+            stat=int(x.get())
+            user_stats+=(stat,)
+
+        Label(master,text='diff').grid(row=0,column=4)
+        csum=0
+
+        for n,(mystat,avgstat) in enumerate(zip(user_stats,self.my_unit.my_stats),start=1):
+            diff=mystat-float(avgstat)
+            diff=round(diff,2)
+            csum+=diff
+            color=('cyan4' if diff >= 0 else 'red')
+            diff=str(diff)
+            Label(master,text='').grid(row=n,column=3)
+            Label(master,text=diff).grid(row=n,column=4)
+
+        self.seFrame1['text']='Analysis'
+        csum=round(csum,2)
+        unit_name=self.display_params['Unit']
+        adj=('above' if csum >= 0 else 'below')
+        message='Your %s is %s average by:\n\n%g points'%(unit_name,adj,csum)
+        Label(self.seFrame1,text=message).grid()
+        self.infoLabel['text']='Press any key to return to\nthe main menu.'
+        self.root.bind('<Key>',self.launch_main_menu)
 
     def map_shortcut_keys(self,key,index,command,condition):
         editmenu=self.dummy[2]
