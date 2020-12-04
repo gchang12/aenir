@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import font
 from aenir2.entry_validator import not_my_validator
 
 def underline_font(myLabel):

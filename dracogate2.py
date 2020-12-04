@@ -81,8 +81,8 @@ class Aenir:
         actionmenu.add_command(label='Use Item')
 
         viewmenu=Menu(menubar,tearoff=0)
-        #viewmenu.add_command(label='Session Log')
         #   ***Not high priority
+        #viewmenu.add_command(label='Session Log')
         viewmenu.add_command(label='Comparison')
 
         #   Append menus here
@@ -493,8 +493,12 @@ class Aenir:
         frame=self.swFrame1
         y=self.my_unit
         if not frame.winfo_children():
-            Label(frame,text='Level').grid(row=0,column=0)
-            Label(frame,text='Class').grid(row=0,column=1)
+            l1=Label(frame,text='Level')
+            l1.grid(row=0,column=0)
+            l2=Label(frame,text='Class')
+            l2.grid(row=0,column=1)
+            underline_font(l1)
+            underline_font(l2)
         level=y.current_level()
         minimum_level=y.min_promo_level(path)
         if level < minimum_level:
@@ -596,10 +600,16 @@ class Aenir:
             promoListbox,promoVar=select_from_list(**pkw)
             promoListbox.grid(row=0,columnspan=2)
             promoListbox.focus()
+            b1['text']='Confirm'
+            b2['text']='Cancel'
             promoListbox.bind('<<ListboxSelect>>',self.promo_preview)
             self.dummy=[b1,promoListbox,promo_to_index,0]
             action='select'
-        message='Please %s promotion or\npress Cancel to return to the\nmain menu.'%action
+        message=(
+            'Please %s promotion or'%action,\
+            'press Cancel to return to the',\
+            'main menu.')
+        message='\n'.join(message)
         self.infoLabel['text']=message
         master['text']=title
         self.seFrame2['text']='Preview'
