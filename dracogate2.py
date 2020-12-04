@@ -71,18 +71,18 @@ class Aenir:
         s={'state':DISABLED}
 
         mainmenu=Menu(menubar,tearoff=0)
-        mainmenu.add_command(label='Restart',command=self.restart)
-        mainmenu.add_command(label='Quit',command=self.quit)
+        mainmenu.add_command(label='Restart',command=self.restart,accelerator='F5')
+        mainmenu.add_command(label='Quit',command=self.quit,accelerator='Esc')
 
         actionmenu=Menu(menubar,tearoff=0)
-        actionmenu.add_command(label='Level Up')
-        actionmenu.add_command(label='Promote')
-        actionmenu.add_command(label='Use Item')
+        actionmenu.add_command(label='Level Up',accelerator='Ctrl+L')
+        actionmenu.add_command(label='Promote',accelerator='Ctrl+P')
+        actionmenu.add_command(label='Use Item',accelerator='Ctrl+I')
 
         viewmenu=Menu(menubar,tearoff=0)
         #   ***Not high priority
         #viewmenu.add_command(label='Session Log')
-        viewmenu.add_command(label='Comparison')
+        viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
         #   Append menus here
 
