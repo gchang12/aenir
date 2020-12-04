@@ -581,7 +581,7 @@ class Aenir:
         if len(promo_to_index) == 1:
             title='Promotion'
             promo_class=promo_list[0]
-            message='Promote to: %s?'%promo_class
+            message='%s will be promoted to:\n\n%s\n'%(self.display_params['Unit'],promo_class)
             Label(master,text=message).grid(row=0,columnspan=2)
             b1.config({'state':NORMAL})
             b1.focus()
