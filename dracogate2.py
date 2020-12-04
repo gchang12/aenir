@@ -1,5 +1,3 @@
-#   Comparison  -   array of Entry objects
-
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
@@ -788,9 +786,9 @@ class Aenir:
         self.dummy=()
 
         Label(master,text='').grid(row=0,column=0)
-        Label(master,text='avg').grid(row=0,column=1)
+        Label(master,text='avg').grid(row=0,column=3)
         Label(master,text='').grid(row=0,column=2)
-        Label(master,text='user').grid(row=0,column=3)
+        Label(master,text='user').grid(row=0,column=1)
         Label(master,text='').grid(row=0,column=4)
 
         w={'width':5,'justify':CENTER}
@@ -802,12 +800,12 @@ class Aenir:
             value=round(value,2)
             value=str(value)
             Label(master,text=name).grid(row=n,column=0)
-            Label(master,text=value).grid(row=n,column=1)
+            Label(master,text=value).grid(row=n,column=3)
             num_ent=numericalEntry(master)
             num_ent[1].bind('<Return>',self.show_comparison)
             num_ent[1].config(w)
             Label(master,text=' - ').grid(row=n,column=2)
-            num_ent[1].grid(row=n,column=3,columnspan=1)
+            num_ent[1].grid(row=n,column=1,columnspan=1)
             Label(master,text=' = ').grid(row=n,column=4)
             self.dummy+=(num_ent,)
 
