@@ -137,8 +137,9 @@ def hm_chapter_dict(game,unit):
     args=game,unit,chapter_function
     return chapter_name_dict(*args)
 
+dummy_message='\n\nEnter: Confirm selection.'
+
 if __name__ == '__main__':
-    x=fe4_father_list()
-    #print(len(x))
-    for m in x:
-        print(m)
+    x=unit_list('5')
+    for l in x:
+        print(l)

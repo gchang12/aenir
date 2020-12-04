@@ -25,6 +25,8 @@ if __name__ == '__main__':
     entry_frame=Frame(root,**d)
     entry_frame.grid(row=1,column=0)
 
+    #   Copy from here onwards
+
     num_lv=StringVar()
     
     entry=Entry(entry_frame,textvariable=num_lv,validate='key')

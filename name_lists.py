@@ -122,9 +122,13 @@ def game_title_dict(reverse=False):
 
 
 if __name__ == '__main__':
-    k=4
+    k=9
     game=str(k)
-    unit_list=fe4_child_list(True)
-    #unit_list=translated_character_list(game,raw_list=unit_list)
-    for unit in unit_list:
-        print(unit)
+    unit_list=character_list(game)
+    other_list=character_list(game,file_match='characters_growth-rates')
+    set1=set(unit_list)
+    set2=set(other_list)
+    setx=set1.difference(set2)
+    sety=set2.difference(set1)
+    print(setx)
+    print(sety)

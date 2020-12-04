@@ -113,8 +113,12 @@ class Aenir:
         master=self.swFrame1
         itemlist=tuple(game_title_dict().keys())
         height=len(itemlist)+1
-        args=master,itemlist,height,True
-        self.gsListbox=select_from_list(*args)
+        args={'master':master,\
+              'itemlist':itemlist,\
+              'height':height,\
+              'add_scrollbar':True
+              }
+        self.gsListbox=select_from_list(**args)
         self.gsListbox.bind('<Return>',self.confirm_game)
         self.gsListbox.focus_force()
         self.gsListbox.select_set(0)
@@ -153,8 +157,12 @@ class Aenir:
         master=self.seFrame
         itemlist=unit_list(game)
         height=28
-        args=master,itemlist,height,True
-        self.usListbox=select_from_list(*args)
+        args={'master':master,\
+              'itemlist':itemlist,\
+              'height':height,\
+              'add_scrollbar':True
+              }
+        self.usListbox=select_from_list(**args)
         self.usListbox['state']=DISABLED
         self.usListbox.bind('<Return>',self.confirm_unit)
         kw={
@@ -525,7 +533,7 @@ class Aenir:
         command2=self.launch_main_menu
         okButton,cancelButton=buttonPair(master,command1,command2)
         levels,levelInput=numericalEntry(master)
-        levelInput.config({'justify':CENTER})
+        levelInput.config({'justify':CENTER,'width':10})
         self.dummy=okButton,levels,levelInput
         levelInput.bind('<Return>',self.level_up_preview)
         self.seFrame2['text']='Preview'

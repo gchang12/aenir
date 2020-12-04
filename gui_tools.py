@@ -175,5 +175,5 @@ if __name__ == '__main__':
     g=lambda : print('Cancel')
     yes,no=buttonPair(root,f,g)
     h=lambda *args: yes.config({'state':NORMAL})
-    k=numericalEntry(root,h)
+    k=numericalEntry(root)
     root.mainloop()
