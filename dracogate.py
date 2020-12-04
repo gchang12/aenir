@@ -525,9 +525,15 @@ class Aenir:
         command2=self.launch_main_menu
         okButton,cancelButton=buttonPair(master,command1,command2)
         levels,levelInput=numericalEntry(master)
+        levelInput.config({'justify':CENTER})
         self.dummy=okButton,levels,levelInput
         levelInput.bind('<Return>',self.level_up_preview)
         self.seFrame2['text']='Preview'
+        Label(master,text='').grid(row=0)
+        levelInput.grid(row=1,columnspan=2,column=0)
+        Label(master,text='').grid(row=2)
+        okButton.grid(row=3,column=0)
+        cancelButton.grid(row=3,column=1)
 
     def level_up_confirm(self,*args):
         num_levels=self.fix_level(get_increment=True)
