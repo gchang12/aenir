@@ -338,6 +338,41 @@ class Morph:
     def __neq__(self,other):
         return not self.__eq__(other)
 
+    def get_display_name(self):
+        display_name=[self.game,self.unit]
+        if 'Father' in self.unit_info.keys():
+            key='Father'
+        elif 'Lyn Mode' in self.unit_info.keys():
+            key='Lyn Mode'
+        else:
+            key=''
+        if key:
+            x=self.unit_info[key]
+            display_name.insert(1,x)
+        return '!'.join(display_name)
+
+    def __sub__(self,other):
+        gba_games=('6','7','8')
+        if self.game in gba_games:
+            assert other.game in gba_games
+        else:
+            assert self.game == other.game
+        diff=self.my_stats-other.my_stats
+        first=self.my_stats
+        second=other.my_stats
+        first_name=self.get_display_name()
+        second_name=other.get_display_name()
+        if first_name == second_name:
+            first_name+='-1'
+            second_name+='-2'
+        d={
+            first_name:first,\
+            second_name:second,\
+            'diff':diff
+            }
+        index_labels=get_stat_names(self.game)
+        return pd.DataFrame(d,index=index_labels)
+
 
 if __name__=='__main__':
     k=5
@@ -346,3 +381,5 @@ if __name__=='__main__':
     x=Morph(game,unit)
     y=x.copy()
     y.level_up(20)
+    z=y-x
+    print(z)
