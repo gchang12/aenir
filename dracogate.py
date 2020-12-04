@@ -1034,6 +1034,8 @@ class Aenir:
 
         for stat,num,kw in zip(stat_names,y.my_stats,kw_list[2:]):
             num=round(num,2)
+            if num < 0 and abs(num) > 0.05:
+                num=0
             self.display_params[stat]=str(num)
             show_stat_pair(**kw)
 
