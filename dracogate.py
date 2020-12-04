@@ -871,7 +871,12 @@ class Aenir:
             diff=mystat-float(avgstat)
             diff=round(diff,2)
             csum+=diff
-            color=('cyan4' if diff >= 0 else 'red')
+            if diff > 0:
+                color='cyan4'
+            elif diff < 0:
+                color='red'
+            else:
+                color=None
             diff=str(diff)
             Label(master,text='').grid(row=n,column=5)
             Label(master,text=diff,foreground=color).grid(row=n,column=5)
