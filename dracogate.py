@@ -194,8 +194,12 @@ class Aenir:
             master=self.swFrame1
             val_name='Auto Select'
         itemlist=tuple(itemdict.keys())
-        args=(master,val_name,itemlist)
-        self.optionListbox(*args)
+        args={
+            'master':master,\
+            'val_name':val_name,\
+            'itemlist':itemlist
+            }
+        self.optionListbox(**args)
 
     def previewFromListbox(self,*args):
         settings=self.dummy[-3:]
@@ -401,8 +405,12 @@ class Aenir:
         self.append_bonus(**kw2)
         self.create_morph()
         self.stat_preview()
-        wargs=(self.dummy[1],'Confirm',f)
-        updateButton(*wargs)
+        wargs={
+            'button':self.dummy[1],\
+            'text':'Confirm',\
+            'command':f
+            }
+        updateButton(**wargs)
 
     def campaign_select(self):
         #   *** Must fix Radiobutton auto-fill issue here...
