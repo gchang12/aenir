@@ -57,8 +57,7 @@ class Aenir:
         self.root.title('Aenir')
         self.root.wm_resizable(width=False,height=False)
 
-        my_width=450
-        my_width+=9
+        my_width=459
 
         x=int(self.root.winfo_screenwidth()-my_width)
         y=0
@@ -223,7 +222,6 @@ class Aenir:
             }
         g=lambda *args:self.append_bonus(**kw)
         confirmButton=wideButton(master,'Confirm',g,1,state=DISABLED)
-        #f=lambda *args: confirmButton.config({'state':NORMAL})
         chapterListbox.bind('<<ListboxSelect>>',self.previewFromListbox)
         t=confirmButton,chapterListbox,val_name
         if type(self.dummy) == tuple:
@@ -510,6 +508,10 @@ class Aenir:
         Label(frame,text=level).grid(row=row_num,column=0)
         Label(frame,text=unit_class).grid(row=row_num,column=1)
 
+    def clear_labelframes(self):
+        self.seFrame1['text']=' '
+        self.seFrame2['text']=' '
+
     def level_up_menu(self,*args):
         self.clear_mod_frames()
         self.seFrame1['text']='Target Level'
@@ -656,9 +658,9 @@ class Aenir:
         return x
 
     def item_menu(self,*args):
-        self.seFrame2['text']='Preview'
         master=self.seFrame1
         self.clear_mod_frames()
+        self.seFrame2['text']='Preview'
         kw={
             'game':self.unit_params['game'],\
             'get_bonus':False
@@ -687,7 +689,11 @@ class Aenir:
         self.dummy=[b1,itemListbox,item_to_stat,'HP']
         title='Stat Booster'
         self.seFrame1['text']=title
-        self.infoLabel['text']='Please select a stat booster\nto use on %s.'%self.display_params['Unit']
+        message=(
+            'Please select a stat booster',\
+            'to use on %s.'%self.display_params['Unit']
+            )
+        self.infoLabel['text']='\n'.join(message)
 
     def item_confirm(self,*args):
         self.my_unit.use_stat_booster(self.dummy[3])
@@ -771,6 +777,7 @@ class Aenir:
     def clear_mod_frames(self):
         anakin(self.seFrame1)
         anakin(self.seFrame2)
+        self.clear_labelframes()
 
     def compare_stats(self,*args):
         self.clear_mod_frames()
@@ -839,7 +846,7 @@ class Aenir:
             color=('cyan4' if diff >= 0 else 'red')
             diff=str(diff)
             Label(master,text='').grid(row=n,column=3)
-            Label(master,text=diff).grid(row=n,column=4)
+            Label(master,text=diff,foreground=color).grid(row=n,column=4)
 
         self.seFrame1['text']='Analysis'
         csum=round(csum,2)
@@ -884,7 +891,14 @@ class Aenir:
         self.seFrame2=set_mainframe(4,1,self.rWidth,self.dHeight2)
 
         if not self.game_unit_check():
-            info_text='Use any of these shortcut keys at\nany time during the session:\n\nF5: Restart session\nEsc: Quit session'
+            message=(
+                'Use any of these shortcut keys at',\
+                'any time during the session:',\
+                '',\
+                'F5: Restart session',\
+                'Esc: Quit session'
+                )
+            info_text='\n'.join(message)
             self.swFrame1['text']='Confirm'
             self.swFrame2['text']='Current Stats'
 
