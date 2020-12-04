@@ -114,6 +114,10 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
 def load_character_growths(game,unit,lyn_mode=None,father='Arden'):
     file_match='characters_growth-rates'
     exceptions=()
+    if unit == 'Rifis':
+        unit='Lifis'
+    if unit == 'Safy':
+        unit='Saphy'
     if game == '4':
         #   For FE4 kids
         if unit in fe4_child_list():
@@ -145,6 +149,8 @@ def load_class_maxes(game,unit,class_name,audit,lyn_mode=None,father=None):
         return data
     file_match='classes_maximum-stats'
     proper_name=get_class_name(game,unit,class_name,audit)
+    if class_name == 'Transporter (Wagon)':
+        proper_name='Transporter'
     kwargs={
         'game':game,\
         'name':proper_name,\
@@ -155,6 +161,15 @@ def load_class_maxes(game,unit,class_name,audit,lyn_mode=None,father=None):
 
 
 def load_class_promo(game,unit,class_name,audit,promo_path=0,lyn_mode=None,father=None):
+    if (game,unit) == ('7','Merlinus'):
+        stat_names=get_stat_names(game)
+        stats={}
+        for stat in stat_names:
+            if stat == 'Mov':
+                stats[stat]=5
+            else:
+                stats[stat]=0
+        return pd.Series(stats)
     file_match='classes_promotion-gains.csv'
     proper_name=get_class_name(game,unit,class_name,audit)
     kwargs={
@@ -186,6 +201,8 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     add_column(game,filename,data)
     name_in_promo=match_class_name(game,unit,class_name,filename,audit)
     #   Evaluates to None on last promotion
+    if (game,unit) == ('7','Merlinus'):
+        return {0:'Transporter (Wagon)'}
     if name_in_promo is None:
         return
     paths=promo_dict(game)

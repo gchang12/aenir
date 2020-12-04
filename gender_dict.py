@@ -31,9 +31,7 @@ def gender_dict(game):
             elif gender == 1:
                 x=' (F)'
             elif gender == 2:
-                x=' (Tent)'
-            elif gender == 3:
-                x=' (all)'
+                x=' (Wagon)'
             else:
                 suffix=' ('+unit+')'
                 x=suffix
