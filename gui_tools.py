@@ -1,4 +1,5 @@
 from tkinter import *
+from aenir2.entry_validator import not_my_validator
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -24,7 +25,7 @@ def set_mainframe(row,column,width,height,rowspan=1,text=' '):
     frame.grid(row=row,column=column,rowspan=rowspan,**grid_kw)
     return frame
 
-def select_from_list(master,itemlist,height,add_scrollbar=False,width=30):
+def select_from_list(master,itemlist,height,add_scrollbar=False,width=30,get_var=False,scroll_col=1):
     list_var=StringVar(value=itemlist)
 
     kwargs={
@@ -38,10 +39,11 @@ def select_from_list(master,itemlist,height,add_scrollbar=False,width=30):
 
     if add_scrollbar:
         scrollbar=Scrollbar(master)
-        scrollbar.grid(column=1,sticky=N+S,row=0)
+        scrollbar.grid(column=scroll_col,sticky=N+S,row=0)
         scrollbar.config(command=item_list.yview)
         item_list['yscrollcommand']=scrollbar.set
-
+    if get_var:
+        return item_list,list_var
     return item_list
 
 def anakin(frame):
@@ -125,5 +127,52 @@ def append_listbox_shortcuts(listbox,func=None):
         for key in keys:
             listbox.bind(key,func,add=True)
 
+def buttonPair(master,command1,command2,width=10,height=0,pad=10,text1='Confirm',text2='Cancel'):
+    b={}
+    b['master']=master
+    b['width']=width
+    b['height']=height
+
+    b1=b.copy()
+
+    b1['text']=text1
+    b1['state']=DISABLED
+    b1['command']=command1
+
+    okButton=Button(**b1)
+
+    b2=b.copy()
+
+    b2['text']=text2
+    b2['state']=NORMAL
+    b2['command']=command2
+    
+    rtnButton=Button(**b2)
+
+    bg={}
+
+    bg['sticky']=E+W
+    bg['ipadx']=pad
+    bg['ipady']=pad
+
+    okButton.grid(row=1,column=0,**bg)
+    rtnButton.grid(row=1,column=1,**bg)
+
+    return okButton,rtnButton
+
+def numericalEntry(master):
+    number=StringVar()
+    entry=Entry(master,textvariable=number,validate='key')
+    entry['vcmd']=(entry.register(not_my_validator), '%P', '%d')
+    entry.grid(row=0,column=0,columnspan=2)
+    entry.focus()
+    return number,entry
+
 if __name__ == '__main__':
-    x=4
+    root=Tk()
+    f=lambda : print('OK')
+    g=lambda : print('Cancel')
+    yes,no=buttonPair(root,f,g)
+    h=lambda *args: yes.config({'state':NORMAL})
+    k=numericalEntry(root,h)
+    root.mainloop()

@@ -1,15 +1,8 @@
-#   *** Issues
-#   -   Lyn Mode selection seems to fill Main Mode by default
-#   -   Must provide widgets for:
-#       1   Boost       -   Listbox
-#       2   Level Up    -   Entry
-#       3   Promotion   -   Button/Listbox
-#       4   Comparison  -   array of Entry objects
+#   Comparison  -   array of Entry objects
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
-from aenir2.entry_validator import not_my_validator
 
 class Aenir:
     def __init__(self):
@@ -56,6 +49,7 @@ class Aenir:
 
         self.dummy=dummy_message
         self.kishuna=None
+        self.initialized=False
 
     def load_menu(self):
         #   Set root window and frames here
@@ -87,7 +81,8 @@ class Aenir:
         actionmenu.add_command(label='Use Item')
 
         viewmenu=Menu(menubar,tearoff=0)
-        viewmenu.add_command(label='Session Log')
+        #viewmenu.add_command(label='Session Log')
+        #   ***Not high priority
         viewmenu.add_command(label='Comparison')
 
         #   Append menus here
@@ -109,6 +104,7 @@ class Aenir:
             var.clear()
         self.dummy=dummy_message
         self.my_unit=None
+        self.initialized=False
         self.display_params.clear()
         self.root.destroy()
 
@@ -493,42 +489,215 @@ class Aenir:
 
         return info_text+more_text
 
-    def write_unit_history(self):
+    def write_unit_history(self,path):
         frame=self.swFrame1
+        y=self.my_unit
         if not frame.winfo_children():
             Label(frame,text='Level').grid(row=0,column=0)
             Label(frame,text='Class').grid(row=0,column=1)
-        level=self.my_unit.current_level()
+        level=y.current_level()
+        minimum_level=y.min_promo_level(path)
+        if level < minimum_level:
+            level=minimum_level
         level=str(level)
-        unit_class=self.my_unit.current_class()
-        Label(frame,text=level).grid(column=0)
-        Label(frame,text=unit_class).grid(column=1)
+        unit_class=y.current_class()
+        row_num=len(frame.winfo_children())/2
+        row_num=int(row_num)
+        Label(frame,text=level).grid(row=row_num,column=0)
+        Label(frame,text=unit_class).grid(row=row_num,column=1)
+
+    def level_up_menu(self,*args):
+        self.clear_mod_frames()
+        self.seFrame1['text']='Target Level'
+        message=(
+            'Please specify the desired level',\
+            'for %s.'%self.display_params['Unit'],\
+            '',\
+            'Press Enter in order to preview stats.'
+            )
+        self.infoLabel['text']='\n'.join(message)
+        master=self.seFrame1
+        command1=self.level_up_confirm
+        command2=self.launch_main_menu
+        okButton,cancelButton=buttonPair(master,command1,command2)
+        levels,levelInput=numericalEntry(master)
+        self.dummy=okButton,levels,levelInput
+        levelInput.bind('<Return>',self.level_up_preview)
+        self.seFrame2['text']='Preview'
+
+    def level_up_confirm(self,*args):
+        num_levels=self.fix_level(get_increment=True)
+        self.my_unit.level_up(num_levels)
+        self.launch_main_menu()
+
+    def level_up_preview(self,*args):
+        if not self.dummy[1].get().isdigit():
+            return
+        message=(
+            'Stat preview is in the lower-right.',\
+            '',\
+            'Press the Confirm button in order',\
+            'to apply changes.'
+            )
+        self.infoLabel['text']='\n'.join(message)
+        self.dummy[0].config({'state':NORMAL})
+        self.dummy[0].focus()
+        self.dummy[1].set(str(self.fix_level()))
+        self.dummy[2].config({'state':DISABLED})
+        self.kishuna.level_up(self.fix_level(get_increment=True))
+        self.stat_preview()
+        self.kishuna=self.my_unit.copy()
+
+    def promote_confirm(self,*args):
+        if len(self.my_unit.my_promotions) == 1:
+            path=0
+        else:
+            path=self.dummy[3]
+        self.write_unit_history(path)
+        self.my_unit.promote(path)
+        self.launch_main_menu()
+
+    def promote_menu(self,*args):
+        self.clear_mod_frames()
+        master=self.seFrame1
+        promo_to_index={val:key for key,val in self.my_unit.my_promotions.items()}
+        promo_list=tuple(promo_to_index.keys())
+        command1=self.promote_confirm
+        command2=self.launch_main_menu
+        text1='Yes'
+        text2='No'
+        bkw={
+            'master':master,\
+            'command1':command1,\
+            'command2':command2,\
+            'text1':text1,\
+            'text2':text2
+            }
+        b1,b2=buttonPair(**bkw)
+        if len(promo_to_index) == 1:
+            title='Promotion'
+            promo_class=promo_list[0]
+            message='Promote to: %s?'%promo_class
+            Label(master,text=message).grid(row=0,columnspan=2)
+            b1.config({'state':NORMAL})
+            b1.focus()
+            self.kishuna=self.my_unit.copy()
+            self.kishuna.promote()
+            self.stat_preview()
+            action='confirm'
+        else:
+            title='Promotion Select'
+            pkw={
+                'master':master,\
+                'itemlist':promo_list,\
+                'height':4,\
+                'get_var':True
+                }
+            promoListbox,promoVar=select_from_list(**pkw)
+            promoListbox.grid(row=0,columnspan=2)
+            promoListbox.focus()
+            promoListbox.bind('<<ListboxSelect>>',self.promo_preview)
+            self.dummy=[b1,promoListbox,promo_to_index,0]
+            action='select'
+        message='Please %s promotion or\npress Cancel to return to the\nmain menu.'%action
+        self.infoLabel['text']=message
+        master['text']=title
+        self.seFrame2['text']='Preview'
+
+    def promo_preview(self,*args):
+        self.dummy[0].config({'state':NORMAL})
+        self.kishuna=self.my_unit.copy()
+        selected_item=self.dummy[1].selection_get()
+        path=self.dummy[2][selected_item]
+        self.dummy[3]=path
+        if type(path) == int:
+            f=self.kishuna.promote
+        elif type(path) == str:
+            f=self.kishuna.use_stat_booster
+            boosters=booster_dict(self.unit_params['game'],True)
+            text_list=(selected_item,path,boosters[path])
+            message='%s: Boosts %s by %d.'%text_list
+            self.infoLabel['text']=message
+        f(path)
+        self.stat_preview()
+        self.kishuna=self.my_unit.copy()
+
+    def fix_level(self,get_increment=False,fixed=False):
+        num_levels=int(self.dummy[1].get())
+        y=self.my_unit
+        flag=False
+        if num_levels > y.max_level():
+            num_levels=y.max_level()
+            flag=True
+        elif num_levels < y.current_level():
+            num_levels=y.current_level()
+            flag=True
+        if fixed:
+            return flag
+        if get_increment:
+            x=num_levels-y.current_level()
+        else:
+            x=num_levels
+        return x
+
+    def item_menu(self,*args):
+        self.seFrame2['text']='Preview'
+        master=self.seFrame1
+        self.clear_mod_frames()
+        kw={
+            'game':self.unit_params['game'],\
+            'get_bonus':False
+            }
+        itemlist=booster_dict(**kw)
+        item_to_stat={val:key for key,val in itemlist.items()}
+        height=5
+        gw={
+            'master':master,\
+            'itemlist':tuple(itemlist.values()),\
+            'height':5,\
+            'add_scrollbar':True,\
+            'get_var':True,\
+            'scroll_col':2
+            }
+        itemListbox,itemVar=select_from_list(**gw)
+        itemListbox.grid(row=0,columnspan=2)
+        itemListbox.focus()
+        itemListbox.bind('<<ListboxSelect>>',self.promo_preview)
+        bw={
+            'master':master,\
+            'command1':self.item_confirm,\
+            'command2':self.launch_main_menu,\
+            }
+        b1,b2=buttonPair(**bw)
+        self.dummy=[b1,itemListbox,item_to_stat,'HP']
+        title='Stat Booster'
+        self.seFrame1['text']=title
+        self.infoLabel['text']='Please select a stat booster\nto use on %s.'%self.display_params['Unit']
+
+    def item_confirm(self,*args):
+        self.my_unit.use_stat_booster(self.dummy[3])
+        self.launch_main_menu()
 
     def launch_main_menu(self,*args):
-        self.create_morph(make_dummy=False)
+        if not self.initialized:
+            self.create_morph(make_dummy=False)
         y=self.my_unit
 
-        ### FOR DEBUGGING PURPOSES
-        print('Ctrl+F: def launch_main_menu\n')
-        names='unit_params','hm_params','auto_params'
-        for name,var in zip(names,self.init_variables):
-            print(name,var)
-        print('\ndisplay_params')
-        for item in self.display_params.items():
-            print(item)
-        print('\n')
-        unit_attr=y.my_stats,y.my_levels,y.my_classes
-        for attr in unit_attr:
-            print(attr,'\n')
-        ###
-            
         frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
         new_labels='Unit History','Current Stats',' ',' '
 
         for frame,text in zip(frames_to_clear,new_labels):
             s={'text':text}
-            anakin(frame)
             frame.config(s)
+            if text == 'Unit History':
+                contents=frame.winfo_children()
+                labels=[]
+                for content in contents:
+                    if type(content) == Label:
+                        labels+=[content]
+                if labels == contents:
+                    continue
+            anakin(frame)
 
         self.clear_stats()
         self.insert_stats(show_capped=True)
@@ -545,25 +714,64 @@ class Aenir:
             for submenu in widget.winfo_children():
                 self.dummy+=(submenu,)
 
-        ### FOR DEBUGGING PURPOSES
-        print(self.dummy)
-        ###
-
         s={'state':DISABLED}
 
         editmenu=self.dummy[2]
 
-        if y.current_level() == y.max_level():
-            editmenu.entryconfig(index='Level Up',**s)
+        m1={
+            'key':'<Control-l>',\
+            'index':'Level Up',\
+            'command':self.level_up_menu,\
+            'condition':y.current_level() == y.max_level()
+            }
 
-        if not y.can_promote():
-            editmenu.entryconfig(index='Promote',**s)
+        m2={
+            'key':'<Control-p>',\
+            'index':'Promote',\
+            'command':self.promote_menu,\
+            'condition':not y.can_promote()
+            }
 
-    def disable_menus(self):
-        mainmenu=self.dummy[0]
-        s={'state':DISABLED}
-        mainmenu.entryconfig(index='Modify',**s)
-        mainmenu.entryconfig(index='View',**s)
+        m3={
+            'key':'<Control-i>',\
+            'index':'Use Item',\
+            'command':self.item_menu,\
+            'condition':self.unit_params['game'] == '4'
+            }
+
+        self.map_shortcut_keys(**m1)
+        self.map_shortcut_keys(**m2)
+        self.map_shortcut_keys(**m3)
+
+        viewmenu=self.dummy[3]
+
+        viewmenu.entryconfig('Comparison',command=self.compare_stats)
+        self.root.bind_all('<Control-c>',self.compare_stats)
+
+        self.kishuna=self.my_unit.copy()
+
+        self.initialized=True
+
+    def clear_mod_frames(self):
+        anakin(self.seFrame1)
+        anakin(self.seFrame2)
+
+    def compare_stats(self,*args):
+        self.clear_mod_frames()
+        x=44
+        print(x)
+
+    def map_shortcut_keys(self,key,index,command,condition):
+        editmenu=self.dummy[2]
+
+        if condition:
+            s={'state':DISABLED}
+            self.root.unbind_all(key)
+        else:
+            s={'command':command,'state':NORMAL}
+            self.root.bind_all(key,command)
+
+        editmenu.entryconfig(index=index,**s)
 
     def confirm_unit(self,*args):
         self.usListbox.unbind('<Return>')
@@ -656,7 +864,7 @@ class Aenir:
 
     def insert_stats(self,show_capped=False):
         frame=self.swFrame2
-        if type(self.my_unit) != Morph:
+        if self.my_unit is None:
             y=Morph(**self.unit_params)
         else:
             y=self.my_unit
