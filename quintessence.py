@@ -326,14 +326,23 @@ class Morph:
         max_level=max_level_dict(*args)
         return max_level
 
+    def __eq__(self,other):
+        conditions=(
+            all(self.my_stats == other.my_stats),\
+            self.my_levels == other.my_levels,\
+            self.my_classes == other.my_classes,\
+            self.kwargs == other.kwargs
+            )
+        return all(conditions)
+
+    def __neq__(self,other):
+        return not self.__eq__(other)
+
 
 if __name__=='__main__':
     k=5
     game=str(k)
     unit='Rifis'
     x=Morph(game,unit)
-    y=x.my_promotions
-    x.promote(1)
-    print(x.my_classes)
-    print(len(y))
-    
+    y=x.copy()
+    y.level_up(20)
