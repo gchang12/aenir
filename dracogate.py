@@ -52,7 +52,7 @@ class Aenir:
     def load_menu(self):
         #   Set root window and frames here
         self.root=Tk()
-        self.root.title('Aenir')
+        self.root.title('Aenir - a Fire Emblem average stats calculator')
         self.root.wm_resizable(width=False,height=False)
 
         my_width=459
