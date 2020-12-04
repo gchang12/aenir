@@ -16,7 +16,6 @@ def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
 
     unit_info['Game']=game
     unit_info['Name']=unit
-    #unit_info['Game Title']=game_title_dict()[game]
 
     if unit in fe4_child_list():
         unit_info['Father']=father
@@ -202,7 +201,10 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     name_in_promo=match_class_name(game,unit,class_name,filename,audit)
     #   Evaluates to None on last promotion
     if (game,unit) == ('7','Merlinus'):
-        return {0:'Transporter (Wagon)'}
+        if class_name == 'Transporter (Wagon)':
+            return
+        else:
+            return {0:'Transporter (Wagon)'}
     if name_in_promo is None:
         return
     paths=promo_dict(game)
