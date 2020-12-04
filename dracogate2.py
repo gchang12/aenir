@@ -608,7 +608,12 @@ class Aenir:
         message=(
             'Please %s promotion or'%action,\
             'press Cancel to return to the',\
-            'main menu.')
+            'main menu.',\
+            '',\
+            'Units who are not high enough a',\
+            'level to promote will be automatically',\
+            'leveled-up until such is the case.'
+            )
         message='\n'.join(message)
         self.infoLabel['text']=message
         master['text']=title
