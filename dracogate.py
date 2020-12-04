@@ -832,6 +832,7 @@ class Aenir:
             self.dummy+=(num_ent,)
 
         widget_list=tuple(y for x,y in self.dummy)
+        widget_list[0].focus()
         self.seFrame2['text']='Comparison'
         self.infoLabel['text']='Please input your stats here and\npress Enter to show comparison.'
 
