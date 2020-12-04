@@ -341,13 +341,15 @@ class Morph:
     def get_display_name(self):
         display_name=[self.game,self.unit]
         if 'Father' in self.unit_info.keys():
-            key='Father'
+            x=self.kwargs['father']
         elif 'Lyn Mode' in self.unit_info.keys():
-            key='Lyn Mode'
+            if self.kwargs['lyn_mode']:
+                x='LM'
+            else:
+                x=''
         else:
-            key=''
-        if key:
-            x=self.unit_info[key]
+            x=''
+        if x:
             display_name.insert(1,x)
         return '!'.join(display_name)
 
@@ -375,11 +377,10 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=5
+    k=7
     game=str(k)
-    unit='Rifis'
+    unit='Lyn'
     x=Morph(game,unit)
-    y=x.copy()
-    y.level_up(20)
+    y=Morph(game,unit,lyn_mode=True)
     z=y-x
     print(z)
