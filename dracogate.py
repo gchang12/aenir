@@ -807,6 +807,8 @@ class Aenir:
         stat_values=tuple(self.my_unit.my_stats)
         self.dummy=()
 
+        wideButton(self.seFrame1,'Cancel',self.launch_main_menu,0)
+
         Label(master,text='').grid(row=0,column=0)
         Label(master,text='avg').grid(row=0,column=3)
         Label(master,text='').grid(row=0,column=2)
@@ -842,16 +844,17 @@ class Aenir:
                 return lambda *args: widget_list[x].focus()            
             if n > 0:
                 wid.bind('<Up>', make_lambda(n-1))
-                wid.bind('<Prior>', make_lambda(0))
+                wid.bind('<Home>', make_lambda(0))
             if n < len(widget_list)-1:
                 wid.bind('<Down>', make_lambda(n+1))
-                wid.bind('<Next>', make_lambda(-1))
+                wid.bind('<End>', make_lambda(-1))
             else:
                 break
             wid.bind('<Return>',make_lambda(n+1),add=True)
 
     def show_comparison(self,*args):
         master=self.seFrame2
+        anakin(self.seFrame1)
         for x,y in self.dummy:
             if not x.get().isdigit():
                 return
