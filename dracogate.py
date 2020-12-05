@@ -113,10 +113,11 @@ class Aenir:
         master=self.swFrame1
         itemlist=tuple(game_title_dict().keys())
         height=len(itemlist)+1
-        args={'master':master,\
-              'itemlist':itemlist,\
-              'height':height,\
-              'add_scrollbar':True
+        args={
+            'master':master,\
+            'itemlist':itemlist,\
+            'height':height,\
+            'add_scrollbar':True
               }
         self.gsListbox=select_from_list(**args)
         self.gsListbox.bind('<Return>',self.confirm_game)
@@ -157,10 +158,11 @@ class Aenir:
         master=self.seFrame
         itemlist=unit_list(game)
         height=28
-        args={'master':master,\
-              'itemlist':itemlist,\
-              'height':height,\
-              'add_scrollbar':True
+        args={
+            'master':master,\
+            'itemlist':itemlist,\
+            'height':height,\
+            'add_scrollbar':True
               }
         self.usListbox=select_from_list(**args)
         self.usListbox['state']=DISABLED
@@ -755,6 +757,7 @@ class Aenir:
             self.dummy+=(widget,)
             for submenu in widget.winfo_children():
                 self.dummy+=(submenu,)
+            break
 
         s={'state':DISABLED}
 
