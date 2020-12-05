@@ -853,11 +853,11 @@ class Aenir:
             wid.bind('<Return>',make_lambda(n+1),add=True)
 
     def show_comparison(self,*args):
-        master=self.seFrame2
-        anakin(self.seFrame1)
         for x,y in self.dummy:
             if not x.get().isdigit():
                 return
+        master=self.seFrame2
+        anakin(self.seFrame1)
         user_stats=()
         for x,y in self.dummy:
             y.config({'state':DISABLED})
