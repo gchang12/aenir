@@ -878,7 +878,6 @@ class Aenir:
             else:
                 color=None
             diff=str(diff)
-            Label(master,text='').grid(row=n,column=5)
             Label(master,text=diff,foreground=color).grid(row=n,column=5)
 
         self.seFrame1['text']='Analysis'
