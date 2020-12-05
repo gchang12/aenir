@@ -106,11 +106,9 @@ def save_stats(game):
 def save_raw_data():
     data_dir='.','raw_data'
     data_dir=sep.join(data_dir)
-    #   .\\raw_data
     for k in range(4,10):
         game=str(k)
         game_dir=sep.join([data_dir,'fe'+game])
-        #   .\\raw_data\\fe-
         if exists(game_dir):
             continue
         save_stats(game)
