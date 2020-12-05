@@ -872,7 +872,7 @@ class Aenir:
             diff=round(diff,2)
             csum+=diff
             if diff > 0:
-                color='cyan4'
+                color='deep sky blue'
             elif diff < 0:
                 color='red'
             else:
@@ -984,7 +984,7 @@ class Aenir:
             if val is None:
                 color=None
             elif val:
-                color='cyan4'
+                color='deep sky blue'
             else:
                 color='red'
             kw_list+=[{'color':color}]
