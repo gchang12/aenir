@@ -1,0 +1,25 @@
+Class,Promotion,Str,Mag,Skl,Spd,Def,Mdf
+Social Knight,Paladin (M),+2,+5,+3,+3,+3,+5
+Lance Knight,Duke Knight,+5,+0,+1,+1,+2,+3
+Arch Knight,Bow Knight,+3,+0,+2,+2,+2,+3
+Axe Knight,Great Knight,+5,+0,+1,+1,+4,+3
+Free Knight,Forrest Knight,+1,+0,+9,+6,+2,+3
+Troubadour,Paladin (F),+6,+2,+3,+3,+6,+2
+Pegasus Knight,Falcon Knight,+0,+7,+3,+3,+1,+5
+Dragon Knight,Dragon Master,+2,+0,+2,+1,+3,+0
+Bow Fighter,Sniper,+5,+0,+2,+2,+2,+3
+Swordfighter,Forrest,+5,+3,+2,+2,+2,+3
+Swordfighter,Swordmaster,+5,+0,+5,+5,+2,+3
+Sword Armour,General,+1,+0,+1,+2,+2,+3
+Axe Fighter,Warrior,+3,+0,+2,+2,+2,+3
+Junior Lord,Lord Knight,+5,+0,+2,+2,+2,+3
+Prince,Master Knight,+4,+4,+5,+6,+5,+4
+Princess,Master Knight,+7,+0,+7,+4,+7,+0
+Priest,High Priest,+0,+5,+3,+2,+2,+1
+Mage,Mage Knight,+5,+3,+1,+1,+4,+2
+Mage,Mage Fighter (F),+3,+5,+3,+6,+4,+5
+Thunder Mage,Mage Fighter (F),+3,+5,+0,+6,+4,+5
+Wind Mage,Mage Fighter (M),+5,+5,+4,+4,+6,+3
+Bard,Sage,+0,+8,+5,+5,+0,+5
+Shaman,Sage,+0,+7,+5,+8,+0,+2
+Thief,Thief Fighter,+4,+3,+4,+5,+4,+3
