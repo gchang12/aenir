@@ -1,8 +1,11 @@
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
+from aenir2.file_check import exists, metadata_dir, raw_data_dir
 
 class Aenir:
+    assert exists(metadata_dir)
+    assert exists(raw_data_dir)
     def __init__(self):
         #   Parameters to initalize Morph here
         self.unit_params={}
