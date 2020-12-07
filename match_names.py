@@ -22,7 +22,10 @@ def match_class_name(game,unit,class_name,filename,audit):
     match_list=x.index
     name_matches=read_class_names2(game,audit,code)
 
-    gendered_class=class_name+suffix
+    if ' (' not in class_name:
+        gendered_class=class_name+suffix
+    else:
+        gendered_class=class_name[:class_name.index(' (')]
 
     #   Check if name without suffix appears in page
     if class_name in match_list:
