@@ -377,10 +377,12 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=7
+    k=8
     game=str(k)
-    unit='Lyn'
+    unit='Ephraim'
     x=Morph(game,unit)
-    y=Morph(game,unit,lyn_mode=True)
-    z=y-x
-    print(z)
+    y=x.copy()
+    x.add_auto_bonus()
+    print(x.my_levels,x.my_stats)
+    y.level_up(15-y.current_level())
+    print(y.my_levels,y.my_stats)
