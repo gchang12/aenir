@@ -379,10 +379,7 @@ class Morph:
 if __name__=='__main__':
     k=8
     game=str(k)
-    unit='Ephraim'
+    unit='Amelia'
     x=Morph(game,unit)
-    y=x.copy()
-    x.add_auto_bonus()
-    print(x.my_levels,x.my_stats)
-    y.level_up(15-y.current_level())
-    print(y.my_levels,y.my_stats)
+    #x.add_auto_bonus('13')
+    x.promote()
