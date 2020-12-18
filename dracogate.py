@@ -1,3 +1,4 @@
+#   ***Need to ask user where to save data files...
 from aenir2.file_check import exists, metadata_dir, raw_data_dir
 
 from aenir2.gui_tools import *
@@ -82,8 +83,8 @@ class Aenir:
         actionmenu.add_command(label='Use Item',accelerator='Ctrl+I')
 
         viewmenu=Menu(menubar,tearoff=0)
-        #   ***Not high priority
-        #viewmenu.add_command(label='Session Log')
+        #   In progress...
+        viewmenu.add_command(label='Session Log',state=DISABLED)
         viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
         #   Append menus here
@@ -271,6 +272,7 @@ class Aenir:
             s={'Chapter':val}
         elif val_name == 'Lyn Mode':
             d=self.unit_params
+            val=bool(val)
             t={'lyn_mode':val}
             s={'Campaign':('Lyn\'s Story' if val else 'Main Story')}
         elif val_name == 'Father':
@@ -419,12 +421,8 @@ class Aenir:
         updateButton(**wargs)
 
     def campaign_select(self):
-        #   *** Must fix Radiobutton auto-fill issue here...
-        #   -   Something to do with campaign Variable?
-        #   -   Last time, dependent on if handler was method vs. function
         master=self.swFrame1
-        campaign=BooleanVar()
-        #campaign=StringVar()
+        campaign=IntVar(value=-1)
 
         btn={
             'row':3,\
@@ -439,20 +437,18 @@ class Aenir:
             'master':master,\
             'text':'Lyn Mode',\
             'command':self.boolLM,\
-            'value':True,\
+            'value':1,\
             'variable':campaign
             }
-        #lyn['value']=str(lyn['value'])
         chooseLyn=Radiobutton(**lyn)
 
         eh={
             'master':master,\
             'text':'Eliwood/Hector Mode',\
             'command':self.boolLM,\
-            'value':False,\
+            'value':0,\
             'variable':campaign
             }
-        #eh['value']=str(eh['value'])
         chooseMain=Radiobutton(**eh)
         self.dummy=(campaign,okButton,chooseLyn,chooseMain)
 
