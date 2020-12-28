@@ -5,3 +5,6 @@ from aenir2.quintessence import Morph
 
 if __name__ == '__main__':
     Aenir()()
+    
+    #   Download package from:
+    #   'https://test.pypi.org/project/aenir2/'
