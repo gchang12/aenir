@@ -78,7 +78,6 @@ class Aenir:
         actionmenu.add_command(label='Use Item',accelerator='Ctrl+I')
 
         viewmenu=Menu(menubar,tearoff=0)
-        #   ***In progress...
         viewmenu.add_command(label='Session Log',state=DISABLED)
         viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
