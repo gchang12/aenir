@@ -16,7 +16,7 @@ def character_list(game,file_match='characters_base-stats'):
                 continue
             filename=data_dir,file
             filename=sep.join(filename)
-            table=pd.read_csv(filename,index_col=0)
+            table=pd.read_csv(filename,index_col=0,memory_map=True)
             name_list=table.index
             for name in name_list:
                 if name in compiled_names:
