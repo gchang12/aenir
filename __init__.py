@@ -7,4 +7,4 @@ if __name__ == '__main__':
     Aenir()()
     
     #   Download package from:
-    #   'https://test.pypi.org/project/aenir2/'
+    #   https://test.pypi.org/project/aenir2/
