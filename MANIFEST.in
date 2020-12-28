@@ -1,3 +1,0 @@
-recursive-include raw_data *
-recursive-include metadata *
-include data-locations.txt
