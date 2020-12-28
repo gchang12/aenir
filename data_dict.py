@@ -145,7 +145,7 @@ def search_all_tables(x,in_filename):
 def is_father(unit):
     file=('.','raw_data','fe4','characters_base-stats1.csv')
     file=sep.join(file)
-    gen1_bases=pd.read_csv(file)
+    gen1_bases=pd.read_csv(file,memory_map=True)
     parent_list=gen1_bases['Name'].values
     return unit in parent_list
 
@@ -161,7 +161,7 @@ def column_extractor(game,in_filename,index):
                 continue
             data_file=(data_folder,file)
             data_file=sep.join(data_file)
-            data=pd.read_csv(data_file)
+            data=pd.read_csv(data_file,memory_map=True)
             if type(index) == int:
                 column=data.iloc[:,index]
             else:
@@ -219,7 +219,7 @@ def class_promo(game):
     if game == '7':
         file=('.','metadata','fe7_promo.csv')
         file=sep.join(file)
-        columns=pd.read_csv(file,header=None)
+        columns=pd.read_csv(file,header=None,memory_map=True)
         unpromoted=columns.iloc[:,0].values
         promoted=columns.iloc[:,1].values
         all_classes+=tuple(unpromoted)+tuple(promoted)

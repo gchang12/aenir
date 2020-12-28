@@ -17,7 +17,7 @@ def load_child_attributes(unit,filename,father):
         return
     data_src='.','raw_data','fe4',filename
     data_src=sep.join(data_src)
-    data=pd.read_csv(data_src)
+    data=pd.read_csv(data_src,memory_map=True)
     kwargs={
         'game':'4',
         'file_match':filename

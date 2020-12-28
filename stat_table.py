@@ -6,7 +6,7 @@ from aenir2.table_operations import add_column
 def read_stat_table(game,filename):
     file='.','raw_data','fe'+game,filename
     file=sep.join(file)
-    df=pd.read_csv(file,index_col=0)
+    df=pd.read_csv(file,index_col=0,memory_map=True)
     num_stats=read_stat_names(game)
     stat_names=()
     for stat in num_stats.keys():

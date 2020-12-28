@@ -44,7 +44,7 @@ def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
                 continue
             data_file=data_dir,file
             data_file=sep.join(data_file)
-            data=pd.read_csv(data_file,index_col=0)
+            data=pd.read_csv(data_file,index_col=0,memory_map=True)
             if unit in data.index:
                 if 'Lv' in data.columns:
                     col='Lv'
@@ -144,7 +144,13 @@ def load_class_maxes(game,unit,class_name,audit,lyn_mode=None,father=None):
     if game == '5':
         maxes_data='.','metadata','fe5_maxes.csv'
         maxes_data=sep.join(maxes_data)
-        data=pd.read_csv(maxes_data,index_col=0,header=None,squeeze=True)
+        kw={
+            'index_col':0,\
+            'header':None,\
+            'squeeze':True,\
+            'memory_map':True
+            }
+        data=pd.read_csv(maxes_data,**kw)
         return data
     file_match='classes_maximum-stats'
     proper_name=get_class_name(game,unit,class_name,audit)
@@ -196,7 +202,7 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     filename='classes_promotion-gains.csv'
     file='.','raw_data','fe'+game,filename
     file=sep.join(file)
-    data=pd.read_csv(file,index_col=0)
+    data=pd.read_csv(file,index_col=0,memory_map=True)
     add_column(game,filename,data)
     name_in_promo=match_class_name(game,unit,class_name,filename,audit)
     #   Evaluates to None on last promotion

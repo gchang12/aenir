@@ -1,5 +1,5 @@
 #   ***Need to ask user where to save data files...
-from aenir2.file_check import exists, metadata_dir, raw_data_dir
+#from aenir2.setup import exists, metadata_dir, raw_data_dir
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
@@ -8,8 +8,8 @@ from aenir2.quintessence import Morph
 class Aenir:
     def __init__(self):
         #   Parameters to initalize Morph here
-        assert exists(metadata_dir)
-        assert exists(raw_data_dir)
+        #assert exists(metadata_dir)
+        #assert exists(raw_data_dir)
         self.unit_params={}
         self.hm_params={}
         self.auto_params={}
@@ -83,7 +83,7 @@ class Aenir:
         actionmenu.add_command(label='Use Item',accelerator='Ctrl+I')
 
         viewmenu=Menu(menubar,tearoff=0)
-        #   In progress...
+        #   ***In progress...
         viewmenu.add_command(label='Session Log',state=DISABLED)
         viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
