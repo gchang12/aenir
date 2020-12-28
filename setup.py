@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from os.path import sep
 
 py_modules=(
     'child_stats',\
