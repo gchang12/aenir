@@ -105,7 +105,6 @@ class Morph:
         self.my_stats=array(capped_array)
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
-        #   Check if valid action - IMPORT TO TKINTER
         max_level=max_level_dict(self.game,self.current_class())
         if self.current_level() >= max_level:
             return
@@ -121,10 +120,8 @@ class Morph:
         self.cap_stats()
 
     def promote(self,promo_path=0):
-        #   Check if valid action - IMPORT TO TKINTER
         if not self.can_promote():
             return
-        #   Correcting promotion path here - IMPORT TO TKINTER
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
@@ -139,7 +136,6 @@ class Morph:
         promo_bonus=load_class_promo(**kwargs1).to_numpy()
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
-        #   -IMPORT TO TKINTER
         min_promo_lv=self.min_promo_level(promo_path=promo_path)
         if self.current_level() < min_promo_lv:
             num_levels=min_promo_lv-self.current_level()
@@ -172,7 +168,6 @@ class Morph:
             self.my_promotions=None
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
-        #   Check if valid action - IMPORT TO TKINTER
         if None not in self.my_classes:
             return
         kwargs={
@@ -193,7 +188,6 @@ class Morph:
 
     def add_hm_bonus(self,num_levels=None,chapter=''):
         if num_levels is None:
-            #   Check if valid action - IMPORT TO TKINTER
             if self.unit in hard_mode_dict().keys():
                 bonus_by_chapter=hard_mode_dict()[self.unit]
                 num_levels=bonus_by_chapter[chapter]
@@ -207,7 +201,6 @@ class Morph:
         return self.class_level_up(**kwargs)
 
     def add_auto_bonus(self,chapter=''):
-        #   Check if valid action - IMPORT TO TKINTER
         if self.unit in auto_level_dict().keys():
             bonus_by_chapter=auto_level_dict()[self.unit]
             num_levels=bonus_by_chapter[chapter]
@@ -236,7 +229,6 @@ class Morph:
         self.cap_stats()
 
     def decline_hugh(self,num_times):
-        #   Check if valid action - IMPORT TO TKINTER
         if num_times not in range(4):
             return
         elif self.unit != 'Hugh':
@@ -269,14 +261,12 @@ class Morph:
 
         update_colors('Class',self.current_class,other.current_class)
         update_colors('Level',self.current_level,other.current_level)
-        
+
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
                 x=None
-            elif my_stat > other_stat:
-                x=True
-            elif my_stat < other_stat:
-                x=False
+            else:
+                x=my_stat > other_stat
             colors[name]=x
         return colors
 
@@ -290,36 +280,18 @@ class Morph:
 
         return d
 
-    def __call__(self):
+    def __repr__(self):
         stat_labels=get_stat_names(self.game)
-        my_stats=()
-        def print_game_unit(*args):
-            print('Game: %s'%game_title_dict(reverse=True)[self.game])
-            print('Unit: %s'%self.unit)
-            print()
-        print_game_unit()
-        for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
-            if growth == 0:
-                my_stats+=(avg,)
-            else:
-                stat=''
-                while not stat.isdigit():
-                    stat=input(name+': ')
-                my_stats+=(int(stat),)
-        stat_dict={}
-        stat_dict['mine']=array(my_stats)
-        stat_dict['avg']=self.my_stats
-        stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
-        comparison=pd.DataFrame(stat_dict,index=stat_labels)
-        print('\n')
-        for cls,lv in zip(self.my_classes,self.my_levels):
-            if lv is None:
-                continue
-            if cls is None:
-                continue
-            print('Level %d: %s'%(lv,cls))
-        print()
-        print(comparison)
+        stat_values=self.my_stats
+        data={
+            'Name':self.get_display_name(),\
+            'Class':self.current_class(),\
+            'Level':self.current_level(),\
+            '':''
+            }
+        for label,value in zip(stat_labels,stat_values):
+            data[label]=value
+        return pd.Series(data).to_string()
 
     def max_level(self):
         args=(self.game,self.current_class())
@@ -375,11 +347,36 @@ class Morph:
         index_labels=get_stat_names(self.game)
         return pd.DataFrame(d,index=index_labels)
 
+    def __call__(self):
+        stat_labels=get_stat_names(self.game)
+        my_stats=()
+        print('%s\n'%self.get_display_name())
+        for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
+            if growth == 0:
+                my_stats+=(avg,)
+            else:
+                stat=''
+                while not stat.isdigit():
+                    stat=input(name+': ')
+                my_stats+=(int(stat),)
+        stat_dict={}
+        stat_dict['mine']=array(my_stats)
+        stat_dict['avg']=self.my_stats
+        stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
+        comparison=pd.DataFrame(stat_dict,index=stat_labels)
+        print('\n')
+        for cls,lv in zip(self.my_classes,self.my_levels):
+            if lv is None:
+                continue
+            if cls is None:
+                continue
+            print('Level %d: %s\n'%(lv,cls))
+        print(comparison)
+
 
 if __name__=='__main__':
     k=8
     game=str(k)
     unit='Amelia'
     x=Morph(game,unit)
-    #x.add_auto_bonus('13')
-    x.promote()
+    x()

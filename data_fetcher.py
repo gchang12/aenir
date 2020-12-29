@@ -4,20 +4,8 @@ import pandas as pd
 from requests import get
 from bs4 import BeautifulSoup
 
-url='https://serenesforest.net'
-
-def path_to_directory(name):
-    return '.'+sep+name
-
-cache_folder=path_to_directory('raw_data')
-metadata=path_to_directory('metadata')
-
-if not exists(cache_folder):
-    mkdir(cache_folder)
-
-
 def paths_for(game):
-    global url
+    url='https://serenesforest.net'
     path_list=sep.join(['.',r'data-locations.txt'])
     with open(path_list) as r_file:
         for line in r_file.readlines():
@@ -94,10 +82,17 @@ def tables_for(game):
 
 def save_stats(game):
     tables=tables_for(game)
-    folder='fe'+game
+    folder='fe'+game    
+
+    cache_folder='.'+sep+'raw_data'
     full_dir=cache_folder+sep+folder
-    if not exists(full_dir):
-        mkdir(full_dir)
+
+    directories=cache_folder,full_dir
+
+    for directory in directories:
+        if not exists(directory):
+            mkdir(directory)
+
     for name,table in tables.items():
         file=sep.join([cache_folder,folder,name+'.csv'])
         data=pd.DataFrame(table)
@@ -115,4 +110,10 @@ def save_raw_data():
 
 
 if __name__=='__main__':
-    x=6
+    from time import time
+    t0=time()
+    save_raw_data()
+    tf=time()
+    dt=tf-t0
+    print(dt)
+    #   ~35 seconds

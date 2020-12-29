@@ -1,3 +1,5 @@
+#   *** Must figure out how to read metadata and raw_data folders
+#   -   Hint:   Environment variables
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
