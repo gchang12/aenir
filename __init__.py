@@ -3,13 +3,16 @@
 from aenir2.dracogate import Aenir
 from aenir2.quintessence import Morph
 
+from importlib import machinery
+
 #   Must change cwd to module directory
 
-from os import chdir, getcwd
+from os import chdir
 from os.path import sep
-import aenir2
 
-aenir_loc=aenir2.__file__
+aenir_loc=machinery.PathFinder()
+aenir_loc=aenir_loc.find_spec('aenir2')
+aenir_loc=aenir_loc.origin
 aenir_loc=aenir_loc.split(sep)
 aenir_loc=sep.join(aenir_loc[:-1])
 
