@@ -1,4 +1,4 @@
-from os.path import sep,exists
+from os.path import sep
 from os import walk
 import pandas as pd
 from aenir2.stat_table import read_stat_table

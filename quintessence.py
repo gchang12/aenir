@@ -1,7 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.name_lists import get_stat_names,character_list,fe4_child_list,game_title_dict
-from numpy import array,zeros
+from numpy import array, zeros
 from copy import deepcopy
 
 class Morph:
