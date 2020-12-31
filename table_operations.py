@@ -1,4 +1,4 @@
-from aenir2.name_lists import *
+from aenir2.name_lists import get_stat_names
 import pandas as pd
 from os.path import sep
 
