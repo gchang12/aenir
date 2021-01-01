@@ -1,8 +1,8 @@
-#   *** Must figure out how to read metadata and raw_data folders
-#   -   Hint:   Environment variables
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 from aenir2.quintessence import Morph
+
+from aenir2.dir_manager import dir_switcher, getcwd, chdir
 
 class Aenir:
     def __init__(self):
@@ -50,6 +50,7 @@ class Aenir:
         self.dummy=dummy_message
         self.kishuna=None
         self.initialized=False
+        self.owd=getcwd()
 
     def load_menu(self):
         #   Set root window and frames here
@@ -106,6 +107,7 @@ class Aenir:
         self.initialized=False
         self.display_params.clear()
         self.root.destroy()
+        chdir(self.owd)
 
     def restart(self,*args):
         self.quit()
@@ -1110,6 +1112,8 @@ class Aenir:
         self.optionListbox(**kwargs)
 
     def __call__(self):
+        dir_switcher('chdir')
+        
         self.load_menu()
 
         dy=120
