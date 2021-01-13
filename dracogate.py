@@ -818,10 +818,14 @@ class Aenir:
         Label(master,text='').grid(row=0,column=4)
 
         w={'width':5,'justify':CENTER}
+        has_zero_growth=False
 
         for n,(name,value,other_stat) in enumerate(zip(stat_names,stat_values,self.my_unit.growth_rates),start=1):
             if other_stat == 0:
+                has_zero_growth=True
                 continue
+            if has_zero_growth:
+                n-=1
             value=float(value)
             value=round(value,2)
             value=str(value)
@@ -869,7 +873,14 @@ class Aenir:
         Label(master,text='diff').grid(row=0,column=5)
         csum=0
 
-        for n,(mystat,avgstat) in enumerate(zip(user_stats,self.my_unit.my_stats),start=1):
+        averages=self.my_unit.my_stats
+        growths=self.my_unit.growth_rates
+
+        if 0 in growths:
+            zero_loc=tuple(growths).index(0)
+            averages=list(averages[:zero_loc])+list(averages[zero_loc+1:])
+
+        for n,(mystat,avgstat) in enumerate(zip(user_stats,averages),start=1):
             diff=mystat-float(avgstat)
             diff=round(diff,2)
             csum+=diff
