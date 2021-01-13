@@ -6,10 +6,11 @@ from numpy import array, zeros
 from copy import deepcopy
 
 class Morph:
-    def __init__(self,game,unit,lyn_mode=False,father='Arden'):
+    def __init__(self,game,unit,lyn_mode=False,father='Arden',check_dir=False):
+        if check_dir:
+            dir_switcher('assert')
         assert unit in character_list(game)
         assert father in fe4_child_list(get_father=True)
-        dir_switcher('assert')
         kwargs={
             'game':game,\
             'unit':unit,\
