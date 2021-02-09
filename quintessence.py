@@ -6,9 +6,8 @@ from numpy import array, zeros
 from copy import deepcopy
 
 class Morph:
-    def __init__(self,game,unit,lyn_mode=False,father='Arden',check_dir=False):
-        if check_dir:
-            dir_switcher('assert')
+    def __init__(self,game,unit,lyn_mode=False,father='Arden'):
+        dir_switcher('chdir')
         assert unit in character_list(game)
         assert father in fe4_child_list(get_father=True)
         kwargs={
@@ -45,7 +44,11 @@ class Morph:
         self.my_stats=self.base_stats.copy()
 
     def min_promo_level(self,promo_path=0):
-        promo_class=self.my_promotions[promo_path]
+        promo_dict=self.my_promotions
+        if len(promo_dict) > 1:
+            promo_class=promo_dict[promo_path]
+        else:
+            promo_class=tuple(promo_dict.values())[0]
         kwargs0={
             'game':self.game,\
             'unit':self.unit,\
@@ -378,8 +381,10 @@ class Morph:
 
 
 if __name__=='__main__':
-    k=8
+    k=4
     game=str(k)
-    unit='Amelia'
+    unit='Tinny'
     x=Morph(game,unit)
-    x()
+    print(x.my_promotions)
+    x.promote(1)
+    print(x)
