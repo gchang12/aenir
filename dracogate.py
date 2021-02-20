@@ -79,6 +79,7 @@ class Aenir:
         actionmenu.add_command(label='Level Up',accelerator='Ctrl+L')
         actionmenu.add_command(label='Promote',accelerator='Ctrl+P')
         actionmenu.add_command(label='Use Item',accelerator='Ctrl+I')
+        actionmenu.add_command(label='Initial Info',accelerator='Home')
 
         viewmenu=Menu(menubar,tearoff=0)
         #   ***To be appended later
@@ -744,7 +745,14 @@ class Aenir:
 
         self.clear_stats()
         self.insert_stats(show_capped=True)
-        self.infoLabel['text']='Welcome to the Main Menu!'
+        controls=(
+            'Ctrl-C: Comparison',\
+            'Ctrl-L: Level-Up',\
+            'Ctrl-P: Promote',\
+            'Ctrl-I: Stat-Booster'
+            )
+        mainMenu_text='\n'.join(controls)
+        self.infoLabel['text']=mainMenu_text
 
         self.dummy=()
 
@@ -783,9 +791,17 @@ class Aenir:
             'condition':self.unit_params['game'] == '4'
             }
 
+        m4={
+            'key':'<Home>',\
+            'index':'Initial Info',\
+            'command':self.show_innate_stats,\
+            'condition':False
+            }
+
         self.map_shortcut_keys(**m1)
         self.map_shortcut_keys(**m2)
         self.map_shortcut_keys(**m3)
+        self.map_shortcut_keys(**m4)
 
         viewmenu=self.dummy[3]
 
@@ -796,6 +812,43 @@ class Aenir:
 
         self.initialized=True
 
+    def show_innate_stats(self,*args):
+        self.infoLabel['text']='Press any key to return\nto the main menu.'
+        self.root.bind('<Key>',self.launch_main_menu)
+        self.clear_mod_frames()
+        mu=self.my_unit
+
+        master2=self.seFrame1
+        master2['text']='Unit Details'
+
+        labels='Level','Class','Promoted'
+        values=mu.base_level,mu.base_class,mu.promotions is None
+
+        for l,v in zip(labels,values):
+            row_num=labels.index(l)
+            l+=':'
+            kw={
+                'row':row_num,\
+                'sticky':W
+                }
+            Label(master2,text=l).grid(**kw,column=0)
+            Label(master2,text=str(v)).grid(**kw,column=1)
+       
+        master=self.seFrame2
+        master['text']='Innate Stats'
+        column_names='','Bases','Growths'
+        for name in column_names:
+            Label(master,text=name).grid(row=0,column=column_names.index(name))
+        stat_names=get_stat_names(self.unit_params['game'])
+        for stat,base,growth in zip(stat_names,mu.base_stats,mu.growth_rates):
+            growth=str(int(growth))+'%'
+            base=str(int(base))
+            row_num=stat_names.index(stat)+1
+            stat+=':'
+            Label(master,text=stat).grid(row=row_num,column=0)
+            Label(master,text=base).grid(row=row_num,column=1)
+            Label(master,text=growth).grid(row=row_num,column=2)
+
     def clear_mod_frames(self):
         anakin(self.seFrame1)
         anakin(self.seFrame2)
@@ -805,7 +858,6 @@ class Aenir:
         self.clear_mod_frames()
         master=self.seFrame2
         stat_names=get_stat_names(self.unit_params['game'])
-        stat_names=stat_names
         stat_values=tuple(self.my_unit.my_stats)
         self.dummy=()
 

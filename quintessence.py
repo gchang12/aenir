@@ -7,7 +7,7 @@ from copy import deepcopy
 
 class Morph:
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
-        dir_switcher('chdir')
+        dir_switcher('assert')
         assert unit in character_list(game)
         assert father in fe4_child_list(get_father=True)
         kwargs={

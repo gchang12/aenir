@@ -16,4 +16,9 @@ def dir_switcher(mode):
         chdir(aenir_loc)
 
     elif mode == 'assert':
-        assert getcwd() == aenir_loc
+        error_message='\n\nData files inaccessible. Please change directory to:\n\n%s'%aenir_loc
+        class CwdError(Exception):
+            def __init__(self,message):
+                self.message=message
+        if getcwd() != aenir_loc:
+            raise CwdError(error_message)
