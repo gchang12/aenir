@@ -7,6 +7,7 @@ from os.path import exists, sep
 
 from PIL import ImageGrab; from win32gui import *#GetWindowRect
 from pyscreenshot import grab
+from pyautogui import screenshot
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -197,6 +198,9 @@ def save_image(root):
     #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
     if not exists('screenshots'):
         mkdir('screenshots')
+    new_geometry='400x400+400+200'
+    root.geometry(new_geometry)
+    root.update()
     HWND = root.winfo_id()  # get the handle of the canvas
     rect = GetWindowRect(HWND)  # get the coordinate of the canvas
     im = ImageGrab.grab(rect)  # get image of the current location
@@ -206,8 +210,30 @@ def save_image(root):
     else:
         im.save(filename,format='png')
 
-def save_image2(geometry):
-    im=grab(bbox=geometry)
+def save_image2(root):
+    geometry=root.wm_geometry()
+    location=geometry.split('+')
+    dimension=location[0].split('x')
+    xpos=int(location[1])+8
+    ypos=int(location[2])+4
+    xlen=int(dimension[0])+2
+    ylen=int(dimension[1])+60
+    #root.update()
+    bbox=(xpos,ypos,xpos+xlen,ypos+ylen)
+    im=grab(bbox=bbox)
+    filename=find_img_loc()
+    if not filename:
+        return
+    else:
+        im.save(filename,format='png')
+
+
+def save_image3(root):
+    new_geometry='400x400+400+200'
+    root.geometry(new_geometry)
+    root.update()
+    HWND = root.winfo_id()  # get the handle of the canvas
+    im=screenshot(region=(800,600,400,200))
     filename=find_img_loc()
     if not filename:
         return
@@ -217,5 +243,11 @@ def save_image2(geometry):
 
 if __name__ == '__main__':
     root=Tk()
-    Label(root,text='Yabba dabba doo').grid()
-    save_image(root)
+    root.geometry('400x400+400+200')
+    #root.update()
+    print(root.wm_geometry())
+    Label(root,text='Sample text here').grid(row=1)
+    Label(root,text='More sample text...').grid(row=2)
+    Label(root,text='One more for the road.').grid(row=3)
+    save_image2(root)
+    root.destroy()
