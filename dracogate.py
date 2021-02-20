@@ -52,8 +52,6 @@ class Aenir:
         self.initialized=False
         self.owd=getcwd()
 
-        self.dimensions=None
-
     def load_menu(self):
         #   Set root window and frames here
         self.root=Tk()
@@ -66,15 +64,6 @@ class Aenir:
         y=0
         new_geometry='450x640+%d+%d'%(x,y)
         self.root.wm_geometry(new_geometry)
-
-        self.dimensions=(
-            x,\
-            self.root.winfo_y(),\
-            x+450,\
-            self.root.winfo_y()+640
-            )
-
-        #   ***Need to screenshot
 
         #   Create menus here
 
@@ -95,7 +84,8 @@ class Aenir:
         viewmenu=Menu(menubar,tearoff=0)
         viewmenu.add_command(label='Details',accelerator='Home')
         #   ***To be appended later
-        viewmenu.add_command(label='Session Log',state=DISABLED)
+        #   -   should learn how to log stuff in Python
+        #viewmenu.add_command(label='Session Log',state=DISABLED)
         viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
         #   Append menus here
@@ -835,8 +825,8 @@ class Aenir:
         self.initialized=True
 
     def save_image(self,*args):
-        #save_image(self.root)
-        save_image2(self.dimensions)
+        save_image(self.root)
+        #save_image2(self.root)
 
     def show_innate_stats(self,*args):
         self.infoLabel['text']='Press any key to return\nto the main menu.'
