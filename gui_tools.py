@@ -1,6 +1,12 @@
 from tkinter import *
-from tkinter import font
+from tkinter import font, filedialog
 from aenir2.entry_validator import not_my_validator
+
+from os import mkdir, getcwd
+from os.path import exists, sep
+
+from PIL import ImageGrab; from win32gui import *#GetWindowRect
+from pyscreenshot import grab
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -169,11 +175,47 @@ def numericalEntry(master):
     entry.focus()
     return number,entry
 
+def find_img_loc():
+    k=1
+    folder=sep.join((getcwd(),'screenshots'))
+    initial_file='screenshot'+str(k)
+    filename=lambda x: sep.join((folder,x+'.png'))
+    while exists(filename(initial_file)):
+        k+=1
+        n=len(str(k-1))
+        initial_file=initial_file[:-n]+str(k)
+    kw={
+        'initialfile':initial_file,\
+        'defaultextension':'png',\
+        'initialdir':folder,\
+        'filetypes':[('.png files only','*.png')]
+        }
+    filename=filedialog.asksaveasfilename(**kw)
+    return filename
+
+def save_image(root):
+    #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
+    if not exists('screenshots'):
+        mkdir('screenshots')
+    HWND = root.winfo_id()  # get the handle of the canvas
+    rect = GetWindowRect(HWND)  # get the coordinate of the canvas
+    im = ImageGrab.grab(rect)  # get image of the current location
+    filename=find_img_loc()
+    if not filename:
+        return
+    else:
+        im.save(filename,format='png')
+
+def save_image2(geometry):
+    im=grab(bbox=geometry)
+    filename=find_img_loc()
+    if not filename:
+        return
+    else:
+        im.save(filename,format='png')
+
+
 if __name__ == '__main__':
     root=Tk()
-    f=lambda : print('OK')
-    g=lambda : print('Cancel')
-    yes,no=buttonPair(root,f,g)
-    h=lambda *args: yes.config({'state':NORMAL})
-    k=numericalEntry(root)
-    root.mainloop()
+    Label(root,text='Yabba dabba doo').grid()
+    save_image(root)
