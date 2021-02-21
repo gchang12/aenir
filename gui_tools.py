@@ -5,7 +5,7 @@ from aenir2.entry_validator import not_my_validator
 from os import mkdir, getcwd
 from os.path import exists, sep
 
-from PIL import ImageGrab; from win32gui import *#GetWindowRect
+#from PIL import ImageGrab; from win32gui import *#GetWindowRect
 from pyscreenshot import grab
 
 def underline_font(myLabel):
@@ -194,6 +194,8 @@ def find_img_loc():
     return filename
 
 def save_image(im):
+    if not exists('screenshots'):
+        mkdir('screenshots')
     filename=find_img_loc()
     if not filename:
         return
@@ -202,8 +204,6 @@ def save_image(im):
 
 def save_image1(root):
     #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
-    if not exists('screenshots'):
-        mkdir('screenshots')
     root.update()
     HWND = root.winfo_id()  # get the handle of the canvas
     rect = GetWindowRect(HWND)  # get the coordinate of the canvas
