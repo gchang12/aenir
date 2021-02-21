@@ -7,7 +7,6 @@ from os.path import exists, sep
 
 from PIL import ImageGrab; from win32gui import *#GetWindowRect
 from pyscreenshot import grab
-from pyautogui import screenshot
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -194,60 +193,55 @@ def find_img_loc():
     filename=filedialog.asksaveasfilename(**kw)
     return filename
 
-def save_image(root):
+def save_image(im):
+    filename=find_img_loc()
+    if not filename:
+        return
+    else:
+        im.save(filename,format='png')
+
+def save_image1(root):
     #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
     if not exists('screenshots'):
         mkdir('screenshots')
-    new_geometry='400x400+400+200'
-    root.geometry(new_geometry)
     root.update()
     HWND = root.winfo_id()  # get the handle of the canvas
     rect = GetWindowRect(HWND)  # get the coordinate of the canvas
     im = ImageGrab.grab(rect)  # get image of the current location
-    filename=find_img_loc()
-    if not filename:
-        return
-    else:
-        im.save(filename,format='png')
+    save_image(im)
 
 def save_image2(root):
-    geometry=root.wm_geometry()
-    location=geometry.split('+')
-    dimension=location[0].split('x')
-    xpos=int(location[1])+8
-    ypos=int(location[2])+4
-    xlen=int(dimension[0])+2
-    ylen=int(dimension[1])+60
-    #root.update()
-    bbox=(xpos,ypos,xpos+xlen,ypos+ylen)
-    im=grab(bbox=bbox)
-    filename=find_img_loc()
-    if not filename:
-        return
-    else:
-        im.save(filename,format='png')
-
-
-def save_image3(root):
-    new_geometry='400x400+400+200'
-    root.geometry(new_geometry)
     root.update()
-    HWND = root.winfo_id()  # get the handle of the canvas
-    im=screenshot(region=(800,600,400,200))
-    filename=find_img_loc()
-    if not filename:
-        return
-    else:
-        im.save(filename,format='png')
-
+    geometry=root.winfo_geometry()
+    position=geometry.split('+')
+    dimension=position[0].split('x')
+    xlen=dimension[0]
+    ylen=dimension[1]
+    xpos=position[1]
+    ypos=position[2]
+    geo_list=(xpos,ypos,xlen,ylen)
+    geometry=()
+    k=1.25
+    for n,g in enumerate(geo_list):
+        g=int(g)
+        g=k*g
+        if n == 0:
+            g+=10
+        g=int(g)
+        if n>1:
+            h=geo_list[n-2]
+            h=int(h)
+            h=k*h
+            k*=1.075
+            h=int(h)
+            geometry+=(g+h,)
+        else:
+            geometry+=(g,)
+    im=grab(bbox=geometry)
+    save_image(im)
 
 if __name__ == '__main__':
     root=Tk()
-    root.geometry('400x400+400+200')
-    #root.update()
-    print(root.wm_geometry())
-    Label(root,text='Sample text here').grid(row=1)
-    Label(root,text='More sample text...').grid(row=2)
-    Label(root,text='One more for the road.').grid(row=3)
+    root.geometry('400x200+400+0')
+    Label(root,text='Yabba dabba doo').grid()
     save_image2(root)
-    root.destroy()
