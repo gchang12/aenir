@@ -733,7 +733,7 @@ class Aenir:
         self.launch_main_menu()
 
     def launch_main_menu(self,*args):
-        self.root.unbind('<Key>')
+        self.root.unbind('<Return>')
         if not self.initialized:
             self.create_morph(make_dummy=False)
         y=self.my_unit
@@ -836,8 +836,8 @@ class Aenir:
         save_image2(self.root)
 
     def show_innate_stats(self,*args):
-        self.infoLabel['text']='Press any key to return\nto the main menu.'
-        self.root.bind('<Key>',self.launch_main_menu)
+        self.infoLabel['text']='Press any Return to return\nto the main menu.'
+        self.root.bind('<Return>',self.launch_main_menu)
         self.clear_mod_frames()
         mu=self.my_unit
 
@@ -974,9 +974,8 @@ class Aenir:
         adj=('above' if csum >= 0 else 'below')
         message='Your %s is %s average by:\n\n%g points'%(unit_name,adj,csum)
         Label(self.seFrame1,text=message).grid()
-        self.infoLabel['text']='Press any key to return to\nthe main menu.'
-        self.root.bind('<Key>',self.launch_main_menu)
-        self.root.unbind('<Control-s>')
+        self.infoLabel['text']='Press Return to return to\nthe main menu.'
+        self.root.bind('<Return>',self.launch_main_menu)
 
     def map_shortcut_keys(self,key,index,command,condition,code=2):
         editmenu=self.dummy[code]
