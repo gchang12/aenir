@@ -81,7 +81,7 @@ class Aenir:
         s={'state':DISABLED}
 
         mainmenu=Menu(menubar,tearoff=0)
-        mainmenu.add_command(label='Print Screen',command=self.save_image,accelerator='Print')
+        mainmenu.add_command(label='Print Screen',command=self.save_image,accelerator='Ctrl+S')
         mainmenu.add_command(label='Restart',command=self.restart,accelerator='F5')
         mainmenu.add_command(label='Quit',command=self.quit,accelerator='Esc')
 
@@ -976,6 +976,7 @@ class Aenir:
         Label(self.seFrame1,text=message).grid()
         self.infoLabel['text']='Press any key to return to\nthe main menu.'
         self.root.bind('<Key>',self.launch_main_menu)
+        self.root.unbind('<Control-s>')
 
     def map_shortcut_keys(self,key,index,command,condition,code=2):
         editmenu=self.dummy[code]

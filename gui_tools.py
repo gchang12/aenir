@@ -5,8 +5,8 @@ from aenir2.entry_validator import not_my_validator
 from os import mkdir, getcwd
 from os.path import exists, sep
 
-#from PIL import ImageGrab; from win32gui import *#GetWindowRect
-from pyscreenshot import grab
+from PIL import ImageGrab; from win32gui import GetWindowRect
+#from pyscreenshot import grab
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -202,12 +202,41 @@ def save_image(im):
     else:
         im.save(filename,format='png')
 
+def get_geometry(root):
+    geometry=root.winfo_geometry()
+    position=geometry.split('+')
+    dimension=position[0].split('x')
+    xlen=dimension[0]
+    ylen=dimension[1]
+    xpos=position[1]
+    ypos=position[2]
+    geo_list=(xpos,ypos,xlen,ylen)
+    geometry=()
+    for n,g in enumerate(geo_list):
+        g=int(g)
+        if n > 1:
+            h=int(geo_list[n-2])
+            if n == 2:
+                add=175
+            elif n == 3:
+                add=105
+            g+=h+add
+        else:
+            if n == 0:
+                add=105
+            elif n == 1:
+                add=35
+            g+=add
+        geometry+=(g,)
+    return geometry
+
 def save_image1(root):
     #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
     root.update()
+    geometry=get_geometry(root)
     HWND = root.winfo_id()  # get the handle of the canvas
     rect = GetWindowRect(HWND)  # get the coordinate of the canvas
-    im = ImageGrab.grab(rect)  # get image of the current location
+    im = ImageGrab.grab(bbox=geometry)  # get image of the current location
     save_image(im)
 
 def save_image2(root):
@@ -242,6 +271,6 @@ def save_image2(root):
 
 if __name__ == '__main__':
     root=Tk()
-    root.geometry('400x200+400+0')
+    root.geometry('300x200+400+100')
     Label(root,text='Yabba dabba doo').grid()
-    save_image2(root)
+    save_image1(root)
