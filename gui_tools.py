@@ -5,8 +5,8 @@ from aenir2.entry_validator import not_my_validator
 from os import mkdir, getcwd
 from os.path import exists, sep
 
-from PIL import ImageGrab; from win32gui import GetWindowRect
-#from pyscreenshot import grab
+#from PIL import ImageGrab; from win32gui import GetWindowRect
+from pyscreenshot import grab
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
