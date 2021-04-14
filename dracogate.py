@@ -53,6 +53,7 @@ class Aenir:
         self.owd=getcwd()
 
         self.dimensions=None
+        self.true_bases=None
 
     def load_menu(self):
         #   Set root window and frames here
@@ -736,6 +737,7 @@ class Aenir:
         self.root.unbind('<Return>')
         if not self.initialized:
             self.create_morph(make_dummy=False)
+            self.true_bases=self.my_unit.my_stats.copy()
         y=self.my_unit
 
         frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
@@ -833,7 +835,7 @@ class Aenir:
         self.initialized=True
 
     def save_image(self,*args):
-        save_image2(self.root)
+        save_image2(self.root,dt=True)
 
     def show_innate_stats(self,*args):
         self.infoLabel['text']='Press any Return to return\nto the main menu.'
@@ -863,9 +865,9 @@ class Aenir:
         for name in column_names:
             Label(master,text=name).grid(row=0,column=column_names.index(name))
         stat_names=get_stat_names(self.unit_params['game'])
-        for stat,base,growth in zip(stat_names,mu.base_stats,mu.growth_rates):
+        for stat,base,growth in zip(stat_names,self.true_bases,mu.growth_rates):
             growth=str(int(growth))+'%'
-            base=str(int(base))
+            base=str(round(base,2))
             row_num=stat_names.index(stat)+1
             stat+=':'
             Label(master,text=stat).grid(row=row_num,column=0)
