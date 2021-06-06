@@ -1,5 +1,3 @@
-#   Must change cwd to module directory
-
 from importlib.machinery import PathFinder
 
 from os import chdir, getcwd
@@ -16,9 +14,21 @@ def dir_switcher(mode):
         chdir(aenir_loc)
 
     elif mode == 'assert':
-        error_message='\n\nData files inaccessible. Please change directory to:\n\n%s'%aenir_loc
-        class CwdError(Exception):
-            def __init__(self,message):
-                self.message=message
-        if getcwd() != aenir_loc:
-            raise CwdError(error_message)
+        if aenir_loc == getcwd():
+            return
+        error_message=(
+            '',
+            'Data files inaccessible. Change directory to:',\
+            aenir_loc,\
+            '? (Y/N)',\
+            ''
+            )
+        error_message='\n\n'.join(error_message)
+        answer=''
+        while answer not in ('y','n'):
+            answer=input(error_message)
+            answer=answer.lower()
+        if answer == 'y':
+            chdir(aenir_loc)
+        elif answer == 'n':
+            raise Exception
