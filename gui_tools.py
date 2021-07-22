@@ -5,8 +5,9 @@ from aenir2.entry_validator import not_my_validator
 from os import mkdir, getcwd
 from os.path import exists, sep
 
-#from PIL import ImageGrab; from win32gui import GetWindowRect
 from pyscreenshot import grab
+
+from datetime import datetime
 
 def underline_font(myLabel):
     my_font=font.Font(myLabel,myLabel.cget('font'))
@@ -175,15 +176,29 @@ def numericalEntry(master):
     entry.focus()
     return number,entry
 
-def find_img_loc():
+def datetime_name():
+    now=datetime.now()
+    today=now.date()
+    time=now.time()
+    today=str(today)
+    time=str(time)
+    time=time.replace(':','')
+    time=time.replace('.','_')
+    return today,time
+
+def find_img_loc(dt=False):
     k=1
     folder=sep.join((getcwd(),'screenshots'))
-    initial_file='screenshot'+str(k)
-    filename=lambda x: sep.join((folder,x+'.png'))
-    while exists(filename(initial_file)):
-        k+=1
-        n=len(str(k-1))
-        initial_file=initial_file[:-n]+str(k)
+    if dt:
+        today,time=datetime_name()
+        initial_file='_'.join((today,time))
+    else:
+        initial_file='screenshot'+str(k)
+        filename=lambda x: sep.join((folder,x+'.png'))
+        while exists(filename(initial_file)):
+            k+=1
+            n=len(str(k-1))
+            initial_file=initial_file[:-n]+str(k)
     kw={
         'initialfile':initial_file,\
         'defaultextension':'png',\
@@ -193,10 +208,10 @@ def find_img_loc():
     filename=filedialog.asksaveasfilename(**kw)
     return filename
 
-def save_image(im):
+def save_image(im,dt=False):
     if not exists('screenshots'):
         mkdir('screenshots')
-    filename=find_img_loc()
+    filename=find_img_loc(dt=dt)
     if not filename:
         return
     else:
@@ -230,16 +245,7 @@ def get_geometry(root):
         geometry+=(g,)
     return geometry
 
-def save_image1(root):
-    #   https://stackoverflow.com/questions/9886274/how-can-i-convert-canvas-content-to-an-image
-    root.update()
-    geometry=get_geometry(root)
-    HWND = root.winfo_id()  # get the handle of the canvas
-    rect = GetWindowRect(HWND)  # get the coordinate of the canvas
-    im = ImageGrab.grab(bbox=geometry)  # get image of the current location
-    save_image(im)
-
-def save_image2(root):
+def save_image_plus(root,dt=False):
     root.update()
     geometry=root.winfo_geometry()
     position=geometry.split('+')
@@ -267,7 +273,7 @@ def save_image2(root):
         else:
             geometry+=(g,)
     im=grab(bbox=geometry)
-    save_image(im)
+    save_image(im,dt=dt)
 
 if __name__ == '__main__':
     root=Tk()
