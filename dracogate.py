@@ -1,6 +1,7 @@
+from aenir2.quintessence import Morph
+
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
-from aenir2.quintessence import Morph
 
 from aenir2.dir_manager import dir_switcher, getcwd, chdir
 
@@ -82,7 +83,7 @@ class Aenir:
         s={'state':DISABLED}
 
         mainmenu=Menu(menubar,tearoff=0)
-        mainmenu.add_command(label='Print Screen',command=self.save_image,accelerator='Ctrl+S')
+        mainmenu.add_command(label='Screenshot',command=self.save_image,accelerator='Ctrl+S')
         mainmenu.add_command(label='Restart',command=self.restart,accelerator='F5')
         mainmenu.add_command(label='Quit',command=self.quit,accelerator='Esc')
 
@@ -93,14 +94,12 @@ class Aenir:
 
         viewmenu=Menu(menubar,tearoff=0)
         viewmenu.add_command(label='Details',accelerator='Home')
-        #   ***Create session logging system and stuff...
-        viewmenu.add_command(label='Session Log',state=DISABLED)
         viewmenu.add_command(label='Comparison',accelerator='Ctrl+C')
 
         #   Append menus here
 
         menubar.add_cascade(label='Main',menu=mainmenu)
-        menubar.add_cascade(label='Modify',menu=actionmenu,state=DISABLED)
+        menubar.add_cascade(label='Edit',menu=actionmenu,state=DISABLED)
         menubar.add_cascade(label='View',menu=viewmenu,state=DISABLED)
 
         self.root.config(menu=menubar)
@@ -741,12 +740,12 @@ class Aenir:
         y=self.my_unit
 
         frames_to_clear=self.swFrame1,self.swFrame2,self.seFrame1,self.seFrame2
-        new_labels='Unit History','Current Stats',' ',' '
+        new_labels='History','Current Stats',' ',' '
 
         for frame,text in zip(frames_to_clear,new_labels):
             s={'text':text}
             frame.config(s)
-            if text == 'Unit History':
+            if text == 'History':
                 contents=frame.winfo_children()
                 labels=[]
                 for content in contents:
@@ -771,7 +770,7 @@ class Aenir:
         for widget in self.root.winfo_children():
             if type(widget) != Menu:
                 continue
-            widget.entryconfig('Modify',state=NORMAL)
+            widget.entryconfig('Edit',state=NORMAL)
             widget.entryconfig('View',state=NORMAL)
             self.dummy+=(widget,)
             for submenu in widget.winfo_children():
@@ -813,7 +812,7 @@ class Aenir:
 
         m5={
             'key':'<Control-s>',\
-            'index':'Print Screen',\
+            'index':'Screenshot',\
             'command':self.save_image,\
             'condition':False,\
             'code':1
@@ -835,7 +834,7 @@ class Aenir:
         self.initialized=True
 
     def save_image(self,*args):
-        save_image2(self.root,dt=True)
+        save_image_plus(self.root,dt=True)
 
     def show_innate_stats(self,*args):
         self.infoLabel['text']='Press any Return to return\nto the main menu.'
@@ -856,14 +855,16 @@ class Aenir:
                 'row':row_num,\
                 'sticky':W
                 }
-            Label(master2,text=l).grid(**kw,column=0)
-            Label(master2,text=str(v)).grid(**kw,column=1)
+            Label(master2,text=l).grid(column=0,**kw)
+            Label(master2,text=str(v)).grid(column=1,**kw)
        
         master=self.seFrame2
         master['text']='Innate Stats'
         column_names='','Bases','Growths'
         for name in column_names:
-            Label(master,text=name).grid(row=0,column=column_names.index(name))
+            column=Label(master,text=name)
+            underline_font(column)
+            column.grid(row=0,column=column_names.index(name))
         stat_names=get_stat_names(self.unit_params['game'])
         for stat,base,growth in zip(stat_names,self.true_bases,mu.growth_rates):
             growth=str(int(growth))+'%'
