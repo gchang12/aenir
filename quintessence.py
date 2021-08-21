@@ -399,8 +399,13 @@ class Morph:
         gba_games=('6','7','8')
         if self.game in gba_games:
             assert other.game in gba_games
+            zero_growth_stat='Con'
         else:
             assert self.game == other.game
+            if self.game == '9':
+                zero_growth_stat='Mov'
+            else:
+                zero_growth_stat=None
         diff=self.my_stats-other.my_stats
         first=self.my_stats
         second=other.my_stats
@@ -415,7 +420,12 @@ class Morph:
             'diff':diff
             }
         index_labels=get_stat_names(self.game)
-        return pd.DataFrame(d,index=index_labels)
+        stat_comparison=pd.DataFrame(d,index=index_labels)
+        if zero_growth_stat is not None:
+            cutoff_row=tuple(stat_comparison.index).index(zero_growth_stat)
+            stat_comparison=stat_comparison.iloc[:cutoff_row,:]
+        csum=sum(n for n in stat_comparison.loc[:,'diff'])
+        return stat_comparison,csum
 
     def __call__(self):
         stat_labels=get_stat_names(self.game)
