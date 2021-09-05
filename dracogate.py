@@ -1,3 +1,6 @@
+# Must fix geometry
+# Should put lyn_mode and father in same option
+
 from aenir2.quintessence import Morph
 
 from aenir2.gui_tools import *
