@@ -1,0 +1,6 @@
+4,genealogy-of-the-holy-war,characters,base-stats,growth-rates,classes,maximum-stats,promotion-gains
+5,thracia-776,characters,base-stats,growth-rates,classes,promotion-gains
+6,binding-blade,characters,base-stats,growth-rates,classes,maximum-stats,promotion-gains,growth-rates
+7,blazing-sword,characters,base-stats,growth-rates,classes,maximum-stats,promotion-gains,growth-rates
+8,the-sacred-stones,characters,base-stats,growth-rates,classes,maximum-stats,promotion-gains,growth-rates
+9,path-of-radiance,characters,base-stats,growth-rates,classes,maximum-stats,promotion-gains
