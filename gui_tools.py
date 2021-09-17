@@ -1,3 +1,5 @@
+# ***Internal window geometry adjustments here
+
 from tkinter import *
 from tkinter import font, filedialog
 from aenir2.entry_validator import not_my_validator
@@ -97,7 +99,7 @@ def bind_listbox_shortcuts(listbox):
         listbox.bind(key,bind_to_shortcuts)
     return keys
 
-def wideButton(master,text,command,row,width=23,height=2,column=0,state=NORMAL):
+def wideButton(master,text,command,row,width=10,height=2,column=0,state=NORMAL):
     d={}
     d['master']=master
     d['text']=text
@@ -108,8 +110,8 @@ def wideButton(master,text,command,row,width=23,height=2,column=0,state=NORMAL):
 
     g={}
     g['sticky']=N+S+E+W
-    g['ipadx']=10
-    g['ipady']=10
+    g['ipadx']=5
+    g['ipady']=5
     g['row']=row
     g['columnspan']=2
     g['column']=column
@@ -279,4 +281,3 @@ if __name__ == '__main__':
     root=Tk()
     root.geometry('300x200+400+100')
     Label(root,text='Yabba dabba doo').grid()
-    save_image1(root)

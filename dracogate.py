@@ -1,12 +1,11 @@
-# Must fix geometry
-# Should put lyn_mode and father in same option
-
 from aenir2.quintessence import Morph
 
 from aenir2.gui_tools import *
 from aenir2.gui_content import *
 
-from aenir2.dir_manager import dir_switcher, getcwd, chdir
+from dir_manager import dir_switcher
+
+from os import getcwd, chdir
 
 class Aenir:
     def __init__(self):
@@ -69,7 +68,7 @@ class Aenir:
 
         x=int(self.root.winfo_screenwidth()-my_width)
         y=0
-        new_geometry='450x640+%d+%d'%(x,y)
+        new_geometry='500x640+%d+%d'%(x,y)
         self.root.wm_geometry(new_geometry)
 
         self.dimensions=(
@@ -1204,9 +1203,11 @@ class Aenir:
         self.optionListbox(**kwargs)
 
     def __call__(self):
-        dir_switcher('chdir')
+        dir_switcher('aenir2')
         
         self.load_menu()
+
+        # ***External window geometry adjustments here
 
         dy=120
 
