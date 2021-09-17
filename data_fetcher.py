@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 def paths_for(game):
     url='https://serenesforest.net'
-    path_list=sep.join(['.',r'data-locations.txt'])
+    path_list=sep.join(['.','metadata',r'data-locations.txt'])
     with open(path_list) as r_file:
         for line in r_file.readlines():
             line=line.strip()
