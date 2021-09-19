@@ -69,7 +69,7 @@ class Aenir:
         x=int(self.root.winfo_screenwidth()-my_width)
         y=0
         new_geometry='500x640+%d+%d'%(x,y)
-        self.root.wm_geometry(new_geometry)
+#        self.root.wm_geometry(new_geometry)
 
         self.dimensions=(
             x,\
