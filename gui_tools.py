@@ -21,13 +21,13 @@ def set_mainframe(row,column,width,height,rowspan=1,text=' '):
         'padx':4,\
         'pady':4,\
         'borderwidth':2,\
-        'width':width,\
-        'height':height,\
+#        'width':width,\
+#        'height':height,\
         'relief':'sunken',\
         'text':text
         }
     frame=LabelFrame(**kw)
-    frame.grid_propagate(0)
+#    frame.grid_propagate(0)
     grid_kw={
         'padx':10,\
         'pady':0
