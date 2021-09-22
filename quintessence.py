@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.dir_manager import dir_switcher
+from dir_manager import dir_switcher
 
 from numpy import array, zeros
 from copy import deepcopy
@@ -18,7 +18,7 @@ class Morph:
     our_boy=Morph(game,unit)
     """
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
-        dir_switcher('assert')
+        dir_switcher('aenir2')
         assert unit in character_list(game)
         assert father in fe4_child_list(get_father=True)
         kwargs={
