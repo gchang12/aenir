@@ -45,3 +45,5 @@ Rewrote somethings in call method
 Dummy-proofed the add_hm_bonus and add_auto_bonus methods with new is_clean method
 
 Fixed the use_stat_booster method to take item-names as arguments, instead of stat names
+
+Added Knoll's "HM" bonuses.
