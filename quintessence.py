@@ -19,10 +19,9 @@ class Morph:
     """
     def __init__(self,game,unit,lyn_mode=None,father=None):
         dir_switcher('aenir2')
-        unit_list=character_list(game)
-        unit=get_true_name(game,unit)
         if game == '4':
-            if unit in fe4_name_dict('child').keys():
+            kids=fe4_name_dict('child')
+            if unit in kids.keys() or unit in kids.values():
                 father=get_true_name(game,father,fe4family='father')
         if game == '7' and lyn_mode is None:
             lyndis_league=character_list(game,file_match='characters_base-stats1')
@@ -30,6 +29,7 @@ class Morph:
                 message='\n\nPlease choose a Boolean value for the \'lyn_mode\' option.\n\n'
                 print(message)
                 raise Exception
+        unit=get_true_name(game,unit)
         kwargs={
             'game':game,\
             'unit':unit,\
