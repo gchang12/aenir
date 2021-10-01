@@ -8,11 +8,11 @@ rutger.add_hm_bonus(chapter='')
 
 rutger.level_up(6)
 
-rutger.promote()
+rutger.promote(promo_path=0)
 
-rutger.is_capped()
+rutger.is_capped(show_series=True)
 
-rutger.use_stat_booser('S/M')
+rutger.use_stat_booster('Energy Ring')
 
 rutger.level_up(18)
 
