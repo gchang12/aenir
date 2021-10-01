@@ -59,3 +59,5 @@ New assertions added in place of if statements
 No more auto-level up for promote method
 
 Cleaned code for more conciseness
+
+Allowed user to input updated names for units
