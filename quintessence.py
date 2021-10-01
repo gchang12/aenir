@@ -27,7 +27,7 @@ class Morph:
         if game == '7' and lyn_mode is None:
             lyndis_league=character_list(game,file_match='characters_base-stats1')
             if unit in lyndis_league:
-                message='\n\nPlease choose a Boolean value for the \'lyn_mode\' option.\n\n'
+                message='\nPlease choose a Boolean value for the \'lyn_mode\' option.\n'
                 print(message)
                 raise Exception
         unit=get_true_name(game,unit)
