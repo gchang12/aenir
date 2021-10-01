@@ -148,8 +148,10 @@ def booster_dict(game):
     bonus_dict={}
     if game == '5':
         start_column=3
-    if game == '9':
+    elif game == '9':
         start_column=5
+    elif game == '4':
+        return
     with open(booster_info) as r_file:
         for line in r_file.readlines():
             line=line.strip()
