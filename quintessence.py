@@ -20,16 +20,10 @@ class Morph:
     def __init__(self,game,unit,lyn_mode=None,father=None):
         dir_switcher('aenir2')
         unit_list=character_list(game)
-        if unit not in unit_list:
-            for blue_unit in unit_list:
-                print(blue_unit)
-            raise Exception
-        if game == '4' and unit in fe4_child_list():
-            father_list=tuple(fe4_child_list(get_father=True))
-            if father not in father_list:
-                for dad in father_list:
-                    print(dad)
-                raise Exception
+        unit=get_true_name(game,unit)
+        if game == '4':
+            if unit in fe4_name_dict('child').keys():
+                father=get_true_name(game,father,fe4family='father')
         if game == '7' and lyn_mode is None:
             lyndis_league=character_list(game,file_match='characters_base-stats1')
             if unit in lyndis_league:
@@ -527,3 +521,4 @@ if __name__=='__main__':
     print(x.my_promotions)
     x.promote(1)
     print(x)
+
