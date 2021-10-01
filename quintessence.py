@@ -17,7 +17,7 @@ class Morph:
     unit='Roy'
     our_boy=Morph(game,unit)
     """
-    def __init__(self,game,unit,lyn_mode=False,father=None):
+    def __init__(self,game,unit,lyn_mode=None,father=None):
         dir_switcher('aenir2')
         unit_list=character_list(game)
         if unit not in unit_list:
@@ -29,6 +29,12 @@ class Morph:
             if father not in father_list:
                 for dad in father_list:
                     print(dad)
+                raise Exception
+        if game == '7' and lyn_mode is None:
+            lyndis_league=character_list(game,file_match='characters_base-stats1')
+            if unit in lyndis_league:
+                message='\n\nPlease choose a Boolean value for the \'lyn_mode\' option.\n\n'
+                print(message)
                 raise Exception
         kwargs={
             'game':game,\
