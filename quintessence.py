@@ -234,7 +234,6 @@ class Morph:
         return self.cap_stats()
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
-        assert None in self.my_classes
         kwargs={
             'class_name':self.base_class,\
             'audit':'bases'
