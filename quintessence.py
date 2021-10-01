@@ -19,14 +19,17 @@ class Morph:
     """
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
         dir_switcher('aenir2')
-        if unit not in character_list(game):
-            for blue_unit in character_list(game):
+        unit_list=character_list(game)
+        if unit not in unit_list:
+            for blue_unit in unit_list:
                 print(blue_unit)
             raise Exception
-        if father not in fe4_child_list(get_father=True):
-            for blue_unit in fe4_child_list(get_father=True):
-                print(blue_unit)
-            raise Exception
+        if game == '4' and unit in fe4_child_list():
+            father_list=fe4_child_list(get_father=True)
+            if father not in father_list:
+                for dad in father_list:
+                    print(dad)
+                raise Exception
         kwargs={
             'game':game,\
             'unit':unit,\
