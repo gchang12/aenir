@@ -73,11 +73,11 @@ class Morph:
 
     def is_clean(self):
         conditions=(
-                self.base_stats == self.my_stats,\
+                all(self.base_stats == self.my_stats),\
                 self.base_classes == self.my_classes,\
                 self.base_levels == self.my_levels
                 )
-        if self.name == 'Hugh':
+        if (self.game,self.unit) == ('6','Hugh'):
             conditions=conditions[1:]
         return all(conditions)
 
@@ -162,10 +162,9 @@ class Morph:
         our_boy.level_up(num_levels)
         """
         assert type(num_levels) == int
-        assert num_levels > 0
+        assert num_levels >= 0
         max_level=max_level_dict(self.game,self.current_class())
         assert self.current_level()+num_levels <= max_level
-        num_levels=max_level-self.current_level()
         if stat_array is None:
             stat_array=self.growth_rates
         if increase_level:
@@ -175,7 +174,7 @@ class Morph:
             self.my_stats=self.my_stats+stat_array*num_levels/100
         return self.cap_stats()
 
-    def promote(self,promo_path=0):
+    def promote(self,promo_path=None):
         """
         Levels up unit to promotion level if necessary and upgrades unit class.
         :param promo_path: The code for the class the unit upgrades to. See ``promotions'' attribute.
@@ -190,10 +189,9 @@ class Morph:
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
-        if promo_path not in self.my_promotions.keys():
+        elif promo_path not in self.my_promotions.keys():
             return self.my_promotions
-        else:
-            promo_class=self.my_promotions[promo_path]
+        promo_class=self.my_promotions[promo_path]
         audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
             'class_name':self.current_class(),\
@@ -205,9 +203,9 @@ class Morph:
         #   Checks if unit can promote at current level
         #   -if no, automatically levels up unit
         min_promo_lv=self.min_promo_level(promo_path=promo_path)
-        if self.current_level() < min_promo_lv:
-            num_levels=min_promo_lv-self.current_level()
-            self.level_up(num_levels)
+        assert self.current_level() >= min_promo_lv
+        num_levels=min_promo_lv-self.current_level()
+        self.level_up(num_levels)
         self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
@@ -252,28 +250,28 @@ class Morph:
             }
         return self.level_up(**kwargs)
 
-    def add_hm_bonus(self,num_levels=None,chapter=''):
+    def add_hm_bonus(self,chapter='',num_levels=None):
         """
         Appends hard-mode bonus to applicable characters.
         :param num_levels: Specify number of hidden level-ups manually; overrides ``chapter'' parameter.
         :param chapter: Specify chapter character is recruited on, if it affects bonuses.
-
         game='6'
         unit='Cath'
         chapter='16'
         cath=Morph(game,unit)
         cath.add_hm_bonus(chapter=chapter)
         """
-        assert self.is_clean()
+        if (self.game,self.unit) == ('6','Gonzales'):
+            assert all(self.my_stats == self.base_stats)
+        else:
+            assert self.is_clean()
         if num_levels is None:
-            if self.unit in hard_mode_dict().keys():
-                bonus_by_chapter=hard_mode_dict()[self.unit]
-                if chapter in bonus_by_chapter.keys():
-                    num_levels=bonus_by_chapter[chapter]
-                else:
-                    return bonus_by_chapter
+            assert self.unit in hard_mode_dict().keys()
+            bonus_by_chapter=hard_mode_dict()[self.unit]
+            if chapter in bonus_by_chapter.keys():
+                num_levels=bonus_by_chapter[chapter]
             else:
-                raise Exception
+                return bonus_by_chapter
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':True,\
@@ -292,21 +290,21 @@ class Morph:
         bad_in_general=Morph(game,unit)
         bad_in_general.add_auto_bonus(chapter)
         """
-        if self.unit in auto_level_dict().keys():
-            bonus_by_chapter=auto_level_dict()[self.unit]
-            if chapter in bonus_by_chapter.keys():
-                num_levels=bonus_by_chapter[chapter]
-            else:
-                return bonus_by_chapter
-        elif self.unit in ('Ephraim','Eirika'):
-            num_levels=15-self.current_level()
-        else:
-            raise Exception
-        if self.unit == 'Gonzales':
+        increase_stats=True
+        if (self.game,self.unit) == ('8','Knoll'):
+            # Not sure how many hidden levels are added; assumed it was just one
+            return self.add_hm_bonus(chapter=chapter)
+        if (self.game,self.unit) == ('6','Gonzales'):
+            assert self.my_levels == [5,None]
             increase_stats=False
         else:
             assert self.is_clean()
-            increase_stats=True
+        assert self.unit in auto_level_dict().keys()
+        bonus_by_chapter=auto_level_dict()[self.unit]
+        if chapter in bonus_by_chapter.keys():
+            num_levels=bonus_by_chapter[chapter]
+        else:
+            return bonus_by_chapter
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':increase_stats,\
@@ -341,7 +339,7 @@ class Morph:
         """
         assert type(num_times) == int
         assert num_times > 0
-        assert self.unit == 'Hugh'
+        assert (self.game,self.unit) == ('6','Hugh')
         assert self.is_clean()
         assert self.my_stats[0]-num_times >= 23
         decrement=zeros(len(self.my_stats))
