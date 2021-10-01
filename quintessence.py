@@ -57,8 +57,20 @@ class Morph:
             self.my_levels=[None,self.base_level]
             self.my_promotions=None
             self.my_classes=[None,self.base_class]
+        self.base_levels=self.my_levels.copy()
+        self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
+
+    def is_clean(self):
+        conditions=(
+                self.base_stats == self.my_stats,\
+                self.base_classes == self.my_classes,\
+                self.base_levels == self.my_levels
+                )
+        if self.name == 'Hugh':
+            conditions=conditions[1:]
+        return all(conditions)
 
     def min_promo_level(self,promo_path=0):
         promo_dict=self.my_promotions
@@ -243,6 +255,7 @@ class Morph:
         cath=Morph(game,unit)
         cath.add_hm_bonus(chapter=chapter)
         """
+        assert self.is_clean()
         if num_levels is None:
             if self.unit in hard_mode_dict().keys():
                 bonus_by_chapter=hard_mode_dict()[self.unit]
@@ -283,6 +296,7 @@ class Morph:
         if self.unit == 'Gonzales':
             increase_stats=False
         else:
+            assert self.is_clean()
             increase_stats=True
         kwargs={
             'num_levels':num_levels,\
@@ -314,6 +328,7 @@ class Morph:
         :param num_times: Number of times you decline to hire him in FE6.
         """
         assert self.unit == 'Hugh'
+        assert self.is_clean()
         assert self.my_stats[0]-num_times >= 23
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
