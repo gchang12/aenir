@@ -25,7 +25,7 @@ class Morph:
                 print(blue_unit)
             raise Exception
         if game == '4' and unit in fe4_child_list():
-            father_list=fe4_child_list(get_father=True)
+            father_list=tuple(fe4_child_list(get_father=True))
             if father not in father_list:
                 for dad in father_list:
                     print(dad)
