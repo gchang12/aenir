@@ -314,7 +314,6 @@ class Morph:
         if stat_name in bonus_dict.keys():
             bonus=bonus_dict[stat_name]
         else:
-            bonus_dict=booster_dict(self.game,get_bonus=False)
             return bonus_dict
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
