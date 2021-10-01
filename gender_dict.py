@@ -141,7 +141,7 @@ def promo_level_dict(game,unit,unit_class='Dancer'):
     return x
 
 
-def booster_dict(game,get_bonus=True):
+def booster_dict(game):
     booster_info='.','metadata',r'boosters.csv'
     booster_info=sep.join(booster_info)
     start_column=1
@@ -158,12 +158,9 @@ def booster_dict(game,get_bonus=True):
             bonus=line[start_column+1]
             if not bonus.isdigit():
                 continue
-            if get_bonus:
-                bonus=int(bonus)
-                bonus_dict[stat]=bonus
-            else:
-                item=line[start_column]
-                bonus_dict[stat]=item
+            bonus=int(bonus)
+            item=line[start_column]
+            bonus_dict[item]=(stat,bonus)
     return bonus_dict
 
 
