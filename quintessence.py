@@ -2,7 +2,7 @@ from aenir2.read_stats import *
 from aenir2.gender_dict import *
 from dir_manager import dir_switcher
 
-from numpy import array, zeros
+from numpy import array, zeros, NaN
 from copy import deepcopy
 
 class Morph:
@@ -19,8 +19,14 @@ class Morph:
     """
     def __init__(self,game,unit,lyn_mode=False,father='Arden'):
         dir_switcher('aenir2')
-        assert unit in character_list(game)
-        assert father in fe4_child_list(get_father=True)
+        if unit not in character_list(game):
+            for blue_unit in character_list(game):
+                print(blue_unit)
+            raise Exception
+        if father not in fe4_child_list(get_father=True):
+            for blue_unit in fe4_child_list(get_father=True):
+                print(blue_unit)
+            raise Exception
         kwargs={
             'game':game,\
             'unit':unit,\
@@ -120,6 +126,7 @@ class Morph:
                 stat=limit
             capped_array+=(stat,)
         self.my_stats=array(capped_array)
+        return self
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         """
@@ -133,11 +140,11 @@ class Morph:
         num_levels=19
         our_boy.level_up(num_levels)
         """
+        assert type(num_levels) == int
+        assert num_levels > 0
         max_level=max_level_dict(self.game,self.current_class())
-        if self.current_level() >= max_level:
-            return
-        if self.current_level() + num_levels > max_level:
-            num_levels=max_level-self.current_level()
+        assert self.current_level()+num_levels <= max_level
+        num_levels=max_level-self.current_level()
         if stat_array is None:
             stat_array=self.growth_rates
         if increase_level:
@@ -145,7 +152,7 @@ class Morph:
             self.my_levels[index]+=num_levels
         if increase_stats:
             self.my_stats=self.my_stats+stat_array*num_levels/100
-        self.cap_stats()
+        return self.cap_stats()
 
     def promote(self,promo_path=0):
         """
@@ -158,12 +165,14 @@ class Morph:
 
         our_boy.promote()
         """
-        if not self.can_promote():
-            return
+        assert self.can_promote()
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
-        promo_class=self.my_promotions[promo_path]
+        if promo_path not in self.my_promotions.keys():
+            return self.my_promotions
+        else:
+            promo_class=self.my_promotions[promo_path]
         audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
             'class_name':self.current_class(),\
@@ -200,22 +209,20 @@ class Morph:
             }
         kwargs2.update(self.kwargs)
         self.my_maxes=load_class_maxes(**kwargs2).to_numpy()
-        self.cap_stats()
         self.my_promotions=load_class_promo_list(**kwargs2)
         if not self.can_promote():
             self.my_promotions=None
+        return self.cap_stats()
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
-        if None not in self.my_classes:
-            return
+        assert None in self.my_classes
         kwargs={
             'class_name':self.base_class,\
             'audit':'bases'
             }
         kwargs.update(self.kwargs)
         class_growths=load_class_growths(**kwargs)
-        if class_growths is None:
-            return
+        assert class_growths is not None
         kwargs={
             'num_levels':num_levels,\
             'stat_array':class_growths.to_numpy(),\
@@ -239,9 +246,12 @@ class Morph:
         if num_levels is None:
             if self.unit in hard_mode_dict().keys():
                 bonus_by_chapter=hard_mode_dict()[self.unit]
-                num_levels=bonus_by_chapter[chapter]
+                if chapter in bonus_by_chapter.keys():
+                    num_levels=bonus_by_chapter[chapter]
+                else:
+                    return bonus_by_chapter
             else:
-                return
+                raise Exception
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':True,\
@@ -262,11 +272,14 @@ class Morph:
         """
         if self.unit in auto_level_dict().keys():
             bonus_by_chapter=auto_level_dict()[self.unit]
-            num_levels=bonus_by_chapter[chapter]
+            if chapter in bonus_by_chapter.keys():
+                num_levels=bonus_by_chapter[chapter]
+            else:
+                return bonus_by_chapter
         elif self.unit in ('Ephraim','Eirika'):
             num_levels=15-self.current_level()
         else:
-            return
+            raise Exception
         if self.unit == 'Gonzales':
             increase_stats=False
         else:
@@ -284,25 +297,27 @@ class Morph:
         :param stat_name: The name of the stat to boost.
         """
         bonus_dict=booster_dict(self.game,get_bonus=True)
-        bonus=bonus_dict[stat_name]
+        if stat_name in bonus_dict.keys():
+            bonus=bonus_dict[stat_name]
+        else:
+            return bonus_dict
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(bonus)
         self.my_stats=self.my_stats+boost_array
-        self.cap_stats()
+        return self.cap_stats()
 
     def decline_hugh(self,num_times):
         """
         Decrements Hugh's stats according to the number of times you decline him.
         :param num_times: Number of times you decline to hire him in FE6.
         """
-        if num_times not in range(4):
-            return
-        elif self.unit != 'Hugh':
-            return
+        assert num_times in range(4)
+        assert self.unit == 'Hugh'
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
+        return self
 
     #   For Aenir class
 
@@ -337,7 +352,7 @@ class Morph:
             colors[name]=x
         return colors
 
-    def is_capped(self):
+    def is_capped(self,show_series=False):
         """
         Returns dictionary of which stats the unit has capped.
         """
@@ -347,8 +362,20 @@ class Morph:
 
         for name,val in zip(stat_names,capped_stats):
             d[name]=val
-
-        return d
+        if show_series:
+            maxes={}
+            current={}
+            for name,my_stat,cap in zip(stat_names,self.my_stats,self.my_maxes):
+                current[name]=my_stat
+                maxes[name]=cap
+            stat_data={
+                    'capped':d,\
+                    'current':current,\
+                    'maximum':maxes
+                    }
+            return pd.DataFrame.from_dict(stat_data)
+        else:
+            return d
 
     def __repr__(self):
         stat_labels=get_stat_names(self.game)
@@ -425,7 +452,13 @@ class Morph:
             cutoff_row=tuple(stat_comparison.index).index(zero_growth_stat)
             stat_comparison=stat_comparison.iloc[:cutoff_row,:]
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
-        return stat_comparison,csum
+        summary={
+                first_name:NaN,\
+                second_name:NaN,\
+                'diff':csum
+                }
+        stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
+        return stat_comparison
 
     def __call__(self):
         stat_labels=get_stat_names(self.game)
@@ -439,10 +472,12 @@ class Morph:
                 while not stat.isdigit():
                     stat=input(name+': ')
                 my_stats+=(int(stat),)
-        stat_dict={}
-        stat_dict['mine']=array(my_stats)
-        stat_dict['avg']=self.my_stats
+        stat_dict={
+                    'mine':array(my_stats),\
+                    'avg':self.my_stats
+                    }
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
+        csum=sum(val for val in stat_dict['diff'])
         comparison=pd.DataFrame(stat_dict,index=stat_labels)
         print('\n')
         for cls,lv in zip(self.my_classes,self.my_levels):
@@ -452,7 +487,9 @@ class Morph:
                 continue
             print('Level %d: %s\n'%(lv,cls))
         print(comparison)
-
+        message=self.get_display_name(),('better' if csum >= 0 else 'worse'),abs(csum)
+        message='\n\nYour %s is %s than average by %.2f points.'%message
+        print(message)
 
 if __name__=='__main__':
     k=4
