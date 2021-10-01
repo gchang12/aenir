@@ -309,6 +309,7 @@ class Morph:
         Appends stat bonus to argument as specified by by item; varies from game to game.
         :param stat_name: The name of the stat to boost.
         """
+        assert self.game != '4'
         bonus_dict=booster_dict(self.game)
         if booster_name is None:
             return bonus_dict
