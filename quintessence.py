@@ -300,6 +300,7 @@ class Morph:
         if stat_name in bonus_dict.keys():
             bonus=bonus_dict[stat_name]
         else:
+            bonus_dict=booster_dict(self.game,get_bonus=False)
             return bonus_dict
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
@@ -312,8 +313,8 @@ class Morph:
         Decrements Hugh's stats according to the number of times you decline him.
         :param num_times: Number of times you decline to hire him in FE6.
         """
-        assert num_times in range(4)
         assert self.unit == 'Hugh'
+        assert self.my_stats[0]-num_times >= 23
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
