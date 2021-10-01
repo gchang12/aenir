@@ -18,6 +18,7 @@ class Morph:
     our_boy=Morph(game,unit)
     """
     def __init__(self,game,unit,lyn_mode=None,father=None):
+        assert game in (str(n) for n in range(4,10))
         dir_switcher('aenir2')
         if game == '4':
             kids=fe4_name_dict('child')
