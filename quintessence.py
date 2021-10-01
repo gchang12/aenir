@@ -198,8 +198,6 @@ class Morph:
         #   -if no, automatically levels up unit
         min_promo_lv=self.min_promo_level(promo_path=promo_path)
         assert self.current_level() >= min_promo_lv
-        num_levels=min_promo_lv-self.current_level()
-        self.level_up(num_levels)
         self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
