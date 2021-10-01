@@ -63,6 +63,46 @@ def fe4_child_list(get_father=False):
         if condition(unit):
             yield unit
 
+def dict_generator(key_list,val_list):
+    key_list=tuple(key_list)
+    val_list=tuple(val_list)
+    assert len(key_list) == len(val_list)
+    my_dict=dict()
+    for key,val in zip(key_list,val_list):
+        my_dict[key]=val
+    return my_dict
+
+def unit_name_dict(game):
+    val_list=character_list(game)
+    key_list=translated_character_list(game)
+    return dict_generator(key_list,val_list)
+
+def fe4_name_dict(fe4family):
+    assert fe4family in ('child','father')
+    if fe4family == 'child':
+        get_father=False
+    else:
+        get_father=True
+    val_list=tuple(fe4_child_list(get_father=get_father))
+    key_list=list()
+    for val in val_list:
+        new_name=updated_name_for('4',val)
+        key_list.append(new_name)
+    return dict_generator(key_list,val_list)
+
+def get_true_name(game,unit,fe4family=None):
+    if fe4family is not None:
+        my_dict=fe4_name_dict(fe4family)
+    else:
+        my_dict=unit_name_dict(game)
+    if unit in my_dict.keys():
+        return my_dict[unit]
+    elif unit in my_dict.values():
+        return unit
+    else:
+        for key in my_dict.keys():
+            print(key)
+        raise Exception
 
 def get_stat_names(game,stat_name=None):
     num_stats=read_stat_names(game)
@@ -77,8 +117,6 @@ def get_stat_names(game,stat_name=None):
     if stat_name is not None:
         return stats.index(stat_name)
     return stats
-
-
 
 def read_class_names2(game,audit_name,match_name):
     name_file=r'fe'+game+'.csv'
@@ -132,3 +170,4 @@ if __name__ == '__main__':
     sety=set2.difference(set1)
     print(setx)
     print(sety)
+
