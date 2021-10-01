@@ -335,6 +335,8 @@ class Morph:
         Decrements Hugh's stats according to the number of times you decline him.
         :param num_times: Number of times you decline to hire him in FE6.
         """
+        assert type(num_times) == int
+        assert num_times > 0
         assert self.unit == 'Hugh'
         assert self.is_clean()
         assert self.my_stats[0]-num_times >= 23
