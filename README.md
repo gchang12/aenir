@@ -26,3 +26,5 @@ Added Series option to is_capped method
 Subtraction method has an extra line containing csum
 
 Rewrote somethings in call method
+
+Dummy-proofed the add_hm_bonus and add_auto_bonus methods with new is_clean method
