@@ -61,3 +61,5 @@ No more auto-level up for promote method
 Cleaned code for more conciseness
 
 Allowed user to input updated names for units
+
+Dummy-proofed declaration of game variable
