@@ -314,19 +314,23 @@ class Morph:
             }
         return self.class_level_up(**kwargs)
 
-    def use_stat_booster(self,stat_name):
+    def use_stat_booster(self,booster_name=None):
         """
         Appends stat bonus to argument as specified by by item; varies from game to game.
         :param stat_name: The name of the stat to boost.
         """
-        bonus_dict=booster_dict(self.game,get_bonus=True)
-        if stat_name in bonus_dict.keys():
-            bonus=bonus_dict[stat_name]
+        bonus_dict=booster_dict(self.game)
+        if booster_name is None:
+            return bonus_dict
+        elif booster_name in bonus_dict.keys():
+            bonus=bonus_dict[booster_name]
+            stat_name=bonus[0]
+            increment=bonus[1]
         else:
             return bonus_dict
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
-        boost_array[stat_loc:stat_loc+1].fill(bonus)
+        boost_array[stat_loc:stat_loc+1].fill(increment)
         self.my_stats=self.my_stats+boost_array
         return self.cap_stats()
 
