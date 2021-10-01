@@ -3,9 +3,9 @@ from importlib.machinery import PathFinder
 from os import chdir, getcwd
 from os.path import sep
 
-def dir_switcher(mode):
+def dir_switcher(name,mode='chdir'):
     aenir_loc=PathFinder()
-    aenir_loc=aenir_loc.find_spec('aenir2')
+    aenir_loc=aenir_loc.find_spec(name)
     aenir_loc=aenir_loc.origin
     aenir_loc=aenir_loc.split(sep)
     aenir_loc=sep.join(aenir_loc[:-1])
@@ -17,11 +17,9 @@ def dir_switcher(mode):
         if aenir_loc == getcwd():
             return
         error_message=(
-            '',
             'Data files inaccessible. Change directory to:',\
-            aenir_loc,\
-            '? (Y/N)',\
-            ''
+            '['+aenir_loc+']?',\
+            '(Y/N) '
             )
         error_message='\n\n'.join(error_message)
         answer=''
