@@ -479,6 +479,7 @@ class Morph:
         index_labels=get_stat_names(self.game)
         stat_comparison=pd.DataFrame(d,index=index_labels)
         if zero_growth_stat is not None:
+            # This block was based off the assumption that no character has more than one zero growth rate
             cutoff_row=tuple(stat_comparison.index).index(zero_growth_stat)
             stat_comparison=stat_comparison.iloc[:cutoff_row,:]
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
