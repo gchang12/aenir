@@ -368,7 +368,7 @@ class Morph:
             colors[name]=x
         return colors
 
-    def is_capped(self,show_series=False):
+    def is_capped(self,show_series=True):
         """
         Returns dictionary of which stats the unit has capped.
         """
