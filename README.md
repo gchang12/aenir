@@ -47,3 +47,15 @@ Dummy-proofed the add_hm_bonus and add_auto_bonus methods with new is_clean meth
 Fixed the use_stat_booster method to take item-names as arguments, instead of stat names
 
 Added Knoll's "HM" bonuses.
+
+Syntax corrections for conditioning on numpy arrays
+
+Method \'decline_hugh\' corrected so that Hugh does not have negative stats
+
+Methds add_hm_bonus and add_auto_bonus corrected for Gonzales
+
+New assertions added in place of if statements
+
+No more auto-level up for promote method
+
+Cleaned code for more conciseness
