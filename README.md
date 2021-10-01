@@ -1,13 +1,28 @@
 HOW TO USE
 ===
-ourboy='6','Roy'
+rutger='6','Rutger'
 
+rutger=Morph(\*rutger)
 
-ourboy=Morph(\*ourboy)
+rutger.add_hm_bonus(chapter='')
 
-ourboy.level_up(19)
+rutger.level_up(6)
 
-outboy.promote()
+rutger.promote()
+
+rutger.is_capped()
+
+rutger.use_stat_booser('S/M')
+
+rutger.level_up(18)
+
+karel='6','Karel'
+
+karel=Morph(\*karel)
+
+comparison=rutger - karel
+
+rutger()
 
 REVISION NOTES
 ===
