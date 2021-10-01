@@ -17,7 +17,7 @@ class Morph:
     unit='Roy'
     our_boy=Morph(game,unit)
     """
-    def __init__(self,game,unit,lyn_mode=False,father='Arden'):
+    def __init__(self,game,unit,lyn_mode=False,father=None):
         dir_switcher('aenir2')
         unit_list=character_list(game)
         if unit not in unit_list:
