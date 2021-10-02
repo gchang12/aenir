@@ -93,13 +93,16 @@ def fe4_name_dict(fe4family):
 def get_true_name(game,unit,fe4family=None):
     if fe4family is not None:
         my_dict=fe4_name_dict(fe4family)
+	    message='Please specify a choice for the \'father\' option.'
     else:
         my_dict=unit_name_dict(game)
+	    message='The character %s is not in FE%s.\nPlease choose someone from this list below.'%(unit,game)
     if unit in my_dict.keys():
         return my_dict[unit]
     elif unit in my_dict.values():
         return unit
     else:
+	    print(message)
         for key in my_dict.keys():
             print(key)
         raise Exception
