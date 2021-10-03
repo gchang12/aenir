@@ -428,9 +428,10 @@ class Morph:
         return not self.__eq__(other)
 
     def get_display_name(self):
-        display_name=[self.game,self.unit]
+        display_name=[self.game,updated_name_for(self.game,self.unit)]
         if 'Father' in self.unit_info.keys():
             x=self.kwargs['father']
+            x=updated_name_for(self.game,x)
         elif 'Lyn Mode' in self.unit_info.keys():
             if self.kwargs['lyn_mode']:
                 x='LM'
