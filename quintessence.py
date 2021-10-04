@@ -318,6 +318,13 @@ class Morph:
             increment=bonus[1]
         else:
             return bonus_dict
+        if 'Augments' not in self.unit_info.keys():
+            self.unit_info['Augments']={}
+        augments=self.unit_info['Augments']
+        if booster_name not in augments.keys():
+            augments[booster_name]=1
+        else:
+            augments[booster_name]=+1
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(increment)
@@ -333,7 +340,12 @@ class Morph:
         assert num_times > 0
         assert (self.game,self.unit) == ('6','Hugh')
         assert self.is_clean()
-        assert self.my_stats[0]-num_times >= 23
+        assert all(self.my_stats-num_times >= self.base_stats-3)
+        assert 'Augments' not in self.unit_info.keys()
+        if 'Declines' not in self.unit_info.keys():
+            self.unit_info['Declines']=num_times
+        else:
+            self.unit_info['Declines']+=num_times
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
