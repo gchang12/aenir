@@ -4,7 +4,6 @@ from aenir2.data_fetcher import save_stats
 from aenir2.gender_dict import gender_dict
 import pandas as pd
 
-
 def read_stat_names(game):
     data_source=r'fe'+game+'.csv'
     file=('.','metadata','stat_names',data_source)
@@ -16,7 +15,6 @@ def read_stat_names(game):
             line=line.split(',')
             stat_names[line[0]]=line[1]
     return stat_names
-
 
 def collect_table(table,headers,rows,files):
     with open(table,'r') as r_file:
@@ -33,7 +31,6 @@ def collect_table(table,headers,rows,files):
                 rows[stat][column_num]=str(stat_loc)
             break
 
-
 def rows_and_headers_for(game):
     rows={}
     raw_data_path=('.','raw_data','fe'+game)
@@ -47,7 +44,6 @@ def rows_and_headers_for(game):
             table=sep.join(table)
             collect_table(table,headers,rows,files)
     return rows,headers
-
 
 def save_header_info(game):
     rows,headers=rows_and_headers_for(game)
@@ -65,7 +61,6 @@ def save_header_info(game):
             for cell in cells:
                 y=(cell+',' if cell else ',')
                 w_file.write(y)
-
 
 def index_for_name(table,in_filename,stat_name):
     d={}
@@ -87,7 +82,6 @@ def index_for_name(table,in_filename,stat_name):
                             d[headers[col_num]]=int(cell)
     return d
 
-
 def name_for_index(table,index,find_in):
     headers={}
     names={}
@@ -108,7 +102,6 @@ def name_for_index(table,index,find_in):
                     if int(cell) == index:
                         names[headers[col_num]]=stat
     return names
-
 
 def search_tables(game,x,in_filename):
     header_path='.','raw_data','fe'+game
@@ -133,7 +126,6 @@ def search_tables(game,x,in_filename):
         for key,val in result.items():
             print(key,val)
 
-
 def search_all_tables(x,in_filename):
     for k in range(4,10):
         game=str(k)
@@ -141,14 +133,12 @@ def search_all_tables(x,in_filename):
         search_tables(*args)
         print('\n')
 
-
 def is_father(unit):
     file=('.','raw_data','fe4','characters_base-stats1.csv')
     file=sep.join(file)
     gen1_bases=pd.read_csv(file,memory_map=True)
     parent_list=gen1_bases['Name'].values
     return unit in parent_list
-
 
 def column_extractor(game,in_filename,index):
     assert type(index) in (str,int)
@@ -188,7 +178,6 @@ def column_extractor(game,in_filename,index):
                 names+=(val,)
     return names
 
-
 def character_bases(game):
     kwargs={
         'game':game,
@@ -202,7 +191,6 @@ def character_bases(game):
         char_to_class[char]=cls
     return char_to_class
     
-
 def class_maxes(game):
     if game == '5':
         return ()
@@ -212,7 +200,6 @@ def class_maxes(game):
         'index':'Class'}
     class_list=column_extractor(**kwargs)
     return class_list
-
 
 def class_promo(game):
     all_classes=()
@@ -234,7 +221,6 @@ def class_promo(game):
         all_classes+=class_list
     return all_classes
 
-
 def class_growths(game):
     if game not in ('6','7','8'):
         return ()
@@ -245,10 +231,6 @@ def class_growths(game):
         'index':index}
     class_list=column_extractor(**kwargs)
     return class_list
-
-
-from aenir2.gender_dict import gender_dict
-
 
 def read_class_names(game,audit_list,match_list):
     if game == '5':
