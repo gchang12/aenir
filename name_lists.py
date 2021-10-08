@@ -4,6 +4,24 @@ from os.path import sep
 from os import walk
 from aenir2.gender_dict import updated_name_for
 
+def game_title_dict(reverse=False):
+    title_file='.','metadata',r'game-titles.csv'
+    title_file=sep.join(title_file)
+    titles={}
+    with open(title_file) as rfile:
+        for line in rfile.readlines():
+            line=line.strip()
+            line=line.split(',')
+            name=line[0]
+            num=line[1]
+            titles[name]=num
+    if reverse:
+        t={}
+        for key,val in titles.items():
+            t[val]=key
+        return t
+    return d
+
 def character_list(game,file_match='characters_base-stats'):
     data_dir='.','raw_data','fe'+game
     data_dir=sep.join(data_dir)
@@ -96,7 +114,8 @@ def get_true_name(game,unit,fe4family=None):
         message='Please specify a choice for the \'father\' option.'
     else:
         my_dict=unit_name_dict(game)
-        message='The character %s is not in FE%s.\nPlease choose someone from the list below.'%(unit,game)
+        game_title=game_title_dict(reverse=True)[game]
+        message='%s is not in FE%s: %s.\nPlease choose someone from the list below.'%(unit,game,game_title)
     if unit in my_dict.keys():
         return my_dict[unit]
     elif unit in my_dict.values():
@@ -145,21 +164,6 @@ def read_class_names2(game,audit_name,match_name):
     else:
         x=dict(s[start+1:stop])
     return x
-
-def game_title_dict(reverse=False):
-    d={}
-    d['Genealogy of the Holy War']='4'
-    d['Thracia 776']='5'
-    d['Binding Blade']='6'
-    d['Blazing Sword']='7'
-    d['The Sacred Stones']='8'
-    d['Path of Radiance']='9'
-    if reverse:
-        t={}
-        for key,val in d.items():
-            t[val]=key
-        return t
-    return d
 
 
 if __name__ == '__main__':

@@ -3,7 +3,6 @@ from aenir2.gender_dict import *
 from dir_manager import dir_switcher
 
 from numpy import array, zeros, NaN
-from copy import deepcopy
 
 class Morph:
     """
@@ -350,12 +349,6 @@ class Morph:
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
         return self
-
-    #   For Aenir class
-
-    def copy(self):
-        #   For determining forecast
-        return deepcopy(self)
 
     def __gt__(self,other):
         #   Indicates which stats to color during forecast
