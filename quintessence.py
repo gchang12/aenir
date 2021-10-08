@@ -1,6 +1,5 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.dir_manager import dir_switcher
 
 from numpy import array, zeros, NaN
 
@@ -18,7 +17,6 @@ class Morph:
     """
     def __init__(self,game,unit,lyn_mode=None,father=None):
         assert game in (str(n) for n in range(4,10))
-        dir_switcher('aenir2')
         if game == '4':
             kids=fe4_name_dict('child')
             if unit in kids.keys() or unit in kids.values():
