@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from dir_manager import dir_switcher
+from aenir2.dir_manager import dir_switcher
 
 from numpy import array, zeros, NaN
 
