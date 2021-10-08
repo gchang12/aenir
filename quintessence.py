@@ -526,4 +526,3 @@ if __name__=='__main__':
     print(x.my_promotions)
     x.promote(1)
     print(x)
-
