@@ -1,4 +1,5 @@
 from os.path import sep
+import pandas as pd
 
 def get_display_name(d,name):
     if 'Father' in d.keys():
@@ -38,7 +39,6 @@ def gender_dict(game):
             d[unit]=x
     return d
 
-
 def promo_dict(game,is_promo=False):
     promo_file=('.','metadata',r'genders.csv')
     promo_file=sep.join(promo_file)
@@ -67,6 +67,34 @@ def promo_dict(game,is_promo=False):
                 d[unit]=promo_path
     return d
 
+def chapter_dict(game):
+    data_loc='.','metadata',r'chapter_names.csv'
+    data_loc=sep.join(data_loc)
+    d={}
+    with open(data_loc) as r_file:
+        for line in r_file.readlines():
+            line=line.strip().split(',')
+            if line[0] != game:
+                if d:
+                    break
+                else:
+                    continue
+            number=line[1]
+            title=line[2]
+            d[number]=title
+    return d
+
+def display_chapter_list(game,bonus_by_chapter):
+    s=chapter_dict(game)
+    column_names='Argument (as str)','Chapter Title','Levels'
+    rows=list()
+    for key,val in bonus_by_chapter.items():
+        title=s[key]
+        t=key,title,val
+        rows.append(list(t))
+    df=pd.DataFrame(rows)
+    df.columns=column_names
+    print(df)
 
 def hard_mode_dict():
     elibe_hm='.','metadata',r'elibe_hm.csv'
@@ -142,16 +170,17 @@ def promo_level_dict(game,unit,unit_class='Dancer'):
 
 
 def booster_dict(game):
+    if game == '4':
+        return {}
+    else:
+        bonus_dict={}
     booster_info='.','metadata',r'boosters.csv'
     booster_info=sep.join(booster_info)
     start_column=1
-    bonus_dict={}
     if game == '5':
         start_column=3
     elif game == '9':
         start_column=5
-    elif game == '4':
-        return {}
     with open(booster_info) as r_file:
         for line in r_file.readlines():
             line=line.strip()
@@ -201,24 +230,6 @@ def max_level_dict(game,class_name):
         return 10
     else:
         return 20
-
-
-def chapter_dict(game):
-    data_loc='.','metadata',r'chapter_names.csv'
-    data_loc=sep.join(data_loc)
-    d={}
-    with open(data_loc) as r_file:
-        for line in r_file.readlines():
-            line=line.strip().split(',')
-            if line[0] != game:
-                if d:
-                    break
-                else:
-                    continue
-            number=line[1]
-            title=number+': '+line[2]
-            d[title]=number
-    return d
 
 
 if __name__=='__main__':
