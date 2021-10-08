@@ -1,7 +1,7 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
 
-from numpy import array, zeros, NaN
+from numpy import array, zeros
 
 class Morph:
     """
@@ -478,8 +478,8 @@ class Morph:
             stat_comparison=stat_comparison.iloc[:cutoff_row,:]
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
         summary={
-                first_name:NaN,\
-                second_name:NaN,\
+                first_name:'-',\
+                second_name:'-',\
                 'diff':csum
                 }
         stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
