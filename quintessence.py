@@ -157,7 +157,8 @@ class Morph:
         if num_levels == 'max':
             num_levels=max_level-self.current_level()
         assert num_levels >= 0
-        assert self.current_level()+num_levels <= max_level
+        if increase_level:
+            assert self.current_level()+num_levels <= max_level
         if stat_array is None:
             stat_array=self.growth_rates
         if increase_level:
@@ -284,7 +285,6 @@ class Morph:
         bad_in_general=Morph(game,unit)
         bad_in_general.add_auto_bonus(chapter)
         """
-        increase_stats=True
         if (self.game,self.unit) == ('8','Knoll'):
             # Not sure how many hidden levels are added; assumed it was just one
             return self.add_hm_bonus(chapter=chapter)
@@ -293,6 +293,7 @@ class Morph:
             increase_stats=False
         else:
             assert self.is_clean()
+            increase_stats=True
         assert self.unit in auto_level_dict().keys()
         bonus_by_chapter=auto_level_dict()[self.unit]
         if chapter in bonus_by_chapter.keys():
