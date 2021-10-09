@@ -232,16 +232,33 @@ def max_level_dict(game,class_name):
     else:
         return 20
 
+def crusader_name(name):
+    file='.','metadata',r'crusader-names.csv'
+    file=sep.join(file)
+    crusaders=dict()
+    with open(file) as rfile:
+        for line in rfile.readlines():
+            line=line.strip()
+            line=line.split(',')
+            old=line[0]
+            new=line[1]
+            crusaders[old]=new
+    if name in crusaders.keys():
+        return crusaders[name]
+    elif name in crusaders.values():
+        return name
+
+def scroll_equipper():
+    file='.','metadata',r'fe5-scrolls.csv'
+    file=sep.join(file)
+    scroll_df=pd.read_csv(file,index_col=0)
+    new_names=list()
+    for col in scroll_df.index:
+        new_name=crusader_name(col)
+        new_names.append(new_name)
+    scroll_df.index=new_names
+    return scroll_df
 
 if __name__=='__main__':
-    k=6
-    game=str(k)
-    unit='Gonzales'
-    d=booster_dict(game)
-    t=auto_level_dict()#[unit]
-    s=hard_mode_dict()#[unit]
-    u=hard_mode_dict()['Cath']
-    q=chapter_dict(game)
-    x=q
-    for item in x.items():
-        print(item)
+    x=scroll_equipper()
+    print(x)
