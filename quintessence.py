@@ -42,6 +42,9 @@ class Morph:
         self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
         self.growth_rates=load_character_growths(**kwargs).to_numpy()
+        if self.game == '5':
+            self.unit_info['Base Growths']=self.growth_rates.copy()
+            self.unit_info['Scrolls']=list()
         #   Start update for class attribute loaders here
         d={}
         d['audit']='bases'
@@ -62,6 +65,33 @@ class Morph:
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
+
+    def equip_scroll(self,scroll_name=None):
+        assert self.game == '5'
+        scrolls=scroll_equipper()
+        new_names=get_stat_names(self.game)
+        scrolls.columns=new_names
+        if scroll_name is None:
+            base_growths=self.unit_info['Base Growths']
+            enhanced_growths=self.growth_rates
+            if not all(base_growths == enhanced_growths):
+                self.growth_rates=base_growths
+                self.unit_info['Scrolls']=list()
+                return self.growth_rates
+            else:
+                return scrolls
+        assert type(scroll_name) == str
+        scroll_name=crusader_name(scroll_name)
+        if scroll_name is None:
+            return scrolls
+        elif scroll_name in self.unit_info['Scrolls']:
+            for name in self.unit_info['Scrolls']:
+                scrolls.drop(axis=0,labels=name,inplace=True)
+            return scrolls
+        augmented_growths=scrolls.loc[scroll_name].to_numpy()
+        self.growth_rates=self.growth_rates+augmented_growths
+        self.unit_info['Scrolls'].append(scroll_name)
+        return self.growth_rates
 
     def is_clean(self):
         conditions=(
@@ -523,10 +553,15 @@ class Morph:
         print(message)
 
 if __name__=='__main__':
-    k=4
+    k=5
     game=str(k)
-    unit='Tinny'
+    unit='Leif'
     x=Morph(game,unit)
-    print(x.my_promotions)
-    x.promote(1)
-    print(x)
+    old_growths=x.growth_rates.copy()
+
+    x.equip_scroll('Odo')
+    x.equip_scroll('Baldr')
+    z=x.equip_scroll('Baldr')
+
+    print(x.unit_info)
+    print(z)
