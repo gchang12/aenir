@@ -153,9 +153,10 @@ class Morph:
         num_levels=19
         our_boy.level_up(num_levels)
         """
-        assert type(num_levels) == int
-        assert num_levels >= 0
         max_level=max_level_dict(self.game,self.current_class())
+        if num_levels == 'max':
+            num_levels=max_level-self.current_level()
+        assert num_levels >= 0
         assert self.current_level()+num_levels <= max_level
         if stat_array is None:
             stat_array=self.growth_rates
@@ -239,7 +240,7 @@ class Morph:
             }
         return self.level_up(**kwargs)
 
-    def add_hm_bonus(self,chapter='',num_levels=None):
+    def add_hm_bonus(self,chapter=''):
         """
         Appends hard-mode bonus to applicable characters.
         :param num_levels: Specify number of hidden level-ups manually; overrides ``chapter'' parameter.
@@ -254,13 +255,17 @@ class Morph:
             assert all(self.my_stats == self.base_stats)
         else:
             assert self.is_clean()
-        if num_levels is None:
+        if type(chapter) == str:
             assert self.unit in hard_mode_dict().keys()
             bonus_by_chapter=hard_mode_dict()[self.unit]
             if chapter in bonus_by_chapter.keys():
                 num_levels=bonus_by_chapter[chapter]
             else:
                 return bonus_by_chapter
+        else:
+            assert type(chapter) == int
+            assert chapter >= 0
+            num_levels=chapter
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':True,\

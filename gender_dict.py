@@ -176,11 +176,12 @@ def booster_dict(game):
         bonus_dict={}
     booster_info='.','metadata',r'boosters.csv'
     booster_info=sep.join(booster_info)
-    start_column=1
     if game == '5':
         start_column=3
     elif game == '9':
         start_column=5
+    else:
+        start_column=1
     with open(booster_info) as r_file:
         for line in r_file.readlines():
             line=line.strip()
