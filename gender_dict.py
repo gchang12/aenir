@@ -229,6 +229,8 @@ def max_level_dict(game,class_name):
         return 30
     elif class_name in scrubs:
         return 10
+    elif class_name == 'Transporter (Wagon)':
+        return 9
     else:
         return 20
 
