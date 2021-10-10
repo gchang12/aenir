@@ -1,0 +1,18 @@
+Class,HP,Str,Mag,Skl,Spd,Lck,Def,Con,Mov
+"Lance Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Duke Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Axe Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Great Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Social Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Paladin (M)",0,-1,0,-1,-1,0,-2,0,-3
+"Arch Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Bow Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Pegasus Rider",0,-1,0,-1,-1,0,-2,0,-3
+"Pegasus Knight",0,-1,0,-1,-1,0,-2,0,-3
+"Dragon Rider",0,-3,0,-2,-2,0,-5,0,-3
+"Dragon Knight",0,-3,0,-2,-2,0,-5,0,-3
+Troubadour,0,-1,0,0,-1,0,-1,0,-3
+"Paladin (F)",0,-1,0,0,-1,0,-1,0,-3
+"Free Knight",0,-1,0,0,0,0,-1,0,-3
+"Forrest Knight",0,0,0,0,0,0,-1,0,-3
+"Mage Knight",0,-1,0,-1,-1,0,-1,0,-3
