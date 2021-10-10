@@ -16,6 +16,9 @@ class Morph:
     our_boy=Morph(game,unit)
     """
     def __init__(self,game,unit,lyn_mode=None,father=None):
+        assert type(game) in (str,int)
+        if type(game) == int:
+            game=str(game)
         assert game in (str(n) for n in range(4,10))
         if game == '4':
             kids=fe4_name_dict('child')
@@ -67,6 +70,11 @@ class Morph:
         self.my_stats=self.base_stats.copy()
 
     def equip_scroll(self,scroll_name=None):
+        '''
+        For FE5 units only. Use this method to modify growths with Crusader Scrolls.
+        :param scroll_name: Name of Crusader Scroll
+        Leaving the scroll_name as None while a scroll is applied unequips all scrolls
+        '''
         assert self.game == '5'
         scrolls=scroll_equipper()
         new_names=get_stat_names(self.game)
