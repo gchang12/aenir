@@ -9,11 +9,11 @@ import pandas as pd
 from aenir2.data_fetcher import get_nickname
 
 class Angelo:
-    def __init__(self,game,dirname='weapon_data'):
+    def __init__(self,game):
         self.root='https://serenesforest.net'
         self.game=game
         self.title=get_nickname(game)
-        self.main_dir=sep.join(['.',dirname])
+        self.main_dir=sep.join(['.','weapon_data'])
         pathPointer=lambda x: sep.join([self.main_dir,x])
         self.game_dir=pathPointer('fe'+game)
         self.data_file=pathPointer('data-locations.txt')
@@ -24,12 +24,12 @@ class Angelo:
             if not exists(d):
                 mkdir(d)
 
-    def joinUrl(self,section=None,supsection='inventory'):
+    def joinUrl(self,section=None):
         url=[self.root,self.title]
         if section is None:
             url.append('')
         else:
-            portals=supsection,section
+            portals='inventory',section
             for portal in portals:
                 url.append(portal)
         return '/'.join(url)
@@ -151,10 +151,6 @@ class Angelo:
         url_list=self.retrieveUrl()
         for url in url_list:
             self.recordPage(url)
-
-class RankFetcher(Angelo):
-    def __init__(self):
-        x=4
 
 if __name__ == '__main__':
     for game in range(6,10):
