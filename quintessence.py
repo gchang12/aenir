@@ -1,5 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
+from aenir2.dismount_names import DataDict3
 
 from numpy import array, zeros
 
@@ -49,6 +50,7 @@ class Morph:
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
+            self.unit_info['Mounted']=self.can_mount()
         #   Start update for class attribute loaders here
         d={}
         d['audit']='bases'
@@ -100,6 +102,19 @@ class Morph:
         self.growth_rates=self.growth_rates+augmented_growths
         self.unit_info['Scrolls'].append(scroll_name)
         return self.growth_rates
+
+    def dismount(self):
+        assert self.can_mount()
+        dd3=DataDict3()
+        decrement=dd3.getBonus(self.current_class())
+        if self.unit_info['Mounted']:
+            x=False
+        else:
+            decrement=-decrement
+            x=True
+        self.my_stats=self.my_stats+decrement
+        self.unit_info['Mounted']=x
+        return self.cap_stats()
 
     def is_clean(self):
         conditions=(
@@ -206,6 +221,13 @@ class Morph:
             self.my_stats=self.my_stats+stat_array*num_levels/100
         return self.cap_stats()
 
+    def can_mount(self):
+        if self.game == '5':
+            dd3=DataDict3()
+            return dd3.isMounted(self.current_class())
+        else:
+            return False
+
     def promote(self,promo_path=None):
         """
         Levels up unit to promotion level if necessary and upgrades unit class.
@@ -236,6 +258,9 @@ class Morph:
         #   -if no, automatically levels up unit
         min_promo_lv=self.min_promo_level(promo_path=promo_path)
         assert self.current_level() >= min_promo_lv
+        if self.can_mount():
+            if not self.unit_info['Mounted']:
+                self.dismount()
         self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
@@ -261,6 +286,19 @@ class Morph:
         self.my_promotions=load_class_promo_list(**kwargs2)
         if not self.can_promote():
             self.my_promotions=None
+        if self.game == '5':
+            can_mount=self.unit_info['Mounted']
+            self.unit_info['Mounted']=self.can_mount()
+            if type(can_mount) == bool and self.unit_info['Mounted'] is None:
+                message=(
+                    'The mounted class:',\
+                    self.my_classes[0],\
+                    'has promoted to an unmounted class:',\
+                    self.current_class()
+                    )
+                message='\n'.join(message)
+                print(message)
+                raise Exception
         return self.cap_stats()
 
     def class_level_up(self,num_levels,increase_stats,increase_level):

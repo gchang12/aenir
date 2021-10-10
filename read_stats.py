@@ -2,7 +2,7 @@ from os.path import sep
 from os import walk
 import pandas as pd
 from aenir2.stat_table import read_stat_table
-from aenir2.gender_dict import promo_dict
+from aenir2.gender_dict import promo_dict, gender_dict
 from aenir2.match_names import match_class_name,get_class_name
 from aenir2.name_lists import *
 from aenir2.table_operations import zero_filler,add_column
@@ -233,6 +233,9 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     else:
         d[0]=class_data['Promotion']
     if d:
+        if game == '5' and 'Paladin' in d.values():
+            gender=gender_dict(game)[unit]
+            d[0]='Paladin'+gender
         return d        
 
 
