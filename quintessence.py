@@ -85,7 +85,7 @@ class Morph:
             if not all(base_growths == enhanced_growths):
                 self.growth_rates=base_growths
                 self.unit_info['Scrolls']=list()
-                return self.growth_rates
+                return self.unit_info
             else:
                 return scrolls
         assert type(scroll_name) == str
