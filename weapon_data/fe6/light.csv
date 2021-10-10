@@ -1,0 +1,5 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,Effects
+Lightning,E,1~2,1,5,75,0,30,540,–
+Divine,C,1~2,3,8,65,0,25,1250,–
+Purge,A,3~10,8,10,70,0,5,3500,–
+Aureola,S,1~2,9,15,90,5,20,–,"Resistance +5, effective against Wyvern Riders, Wyvern Lords and Mamkutes"

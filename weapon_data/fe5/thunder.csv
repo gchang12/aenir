@@ -1,0 +1,6 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Thunder,E,3200,7,60,5,1~2,5,30,–
+Thoron,A,2200,18,70,20,1~2,9,10,–
+Thunderstorm,A,2200,10,70,20,3~10,20,5,–
+Dime Thunder,*,–,15,70,10,1~2,12,60,"Olwen only, allows 2 consecutive hits"
+Thorhammer,*,–,20,90,30,1~2,15,50,"Unused, Ishtar only"

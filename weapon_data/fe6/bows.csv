@@ -1,0 +1,13 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,Effects
+Iron Bow,E,2,5,6,80,0,45,540,–
+Steel Bow,D,2,9,9,65,0,30,720,–
+Silver Bow,A,2,6,13,70,0,20,1600,–
+Poison Bow,D,2,5,4,65,0,40,–,Poisons on contact (cannot be obtained)
+Killer Bow,C,2,7,9,80,30,20,1400,–
+Brave Bow,B,2,12,10,75,0,30,3600,Allows 2 consecutive hits
+Short Bow,D,2,3,5,80,10,22,1760,–
+Long Bow,D,2~3,10,5,55,0,20,2000,–
+Murgleis,S,2,9,16,80,0,20,–,"Speed +5, effective against Mamkutes"
+Ballista,E,3~10,20,8,70,0,5,–,Archer/Sniper only
+Long Ballista,E,3~15,20,13,60,0,5,–,Archer/Sniper only
+Killer Ballista,E,3~10,20,12,65,10,5,–,Archer/Sniper only

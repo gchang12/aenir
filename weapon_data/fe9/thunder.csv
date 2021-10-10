@@ -1,0 +1,6 @@
+Name,Rank,Mt,Hit,Crt,Wt,Rng,Uses,Worth,WEx,Note
+Thunder,E,4,85,5,3,1~2,40,600,1,Effective against dragon Laguz
+Elthunder,D,7,75,10,6,1~2,30,1950,2,Effective against dragon Laguz
+Bolting,C,13,65,5,13,3~10,5,800,3,Effective against dragon Laguz
+Thoron,A,10,85,5,7,1~2,20,2200,2,Effective against dragon Laguz
+Rexbolt,S,15,75,10,14,1~2,20,–,2,"Effective against dragon Laguz, Skill +3"

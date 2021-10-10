@@ -1,0 +1,31 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Short Sword,E,1000,6,75,0,1,8,40,–
+Iron Sword,E,2200,6,70,0,1,6,40,–
+Poison Sword,E,–,3,60,0,1,6,40,"Poisons on contact, becomes Iron Sword when stolen"
+Slim Sword,E,2600,3,100,5,1,2,30,–
+Elite Sword,E,5800,9,65,0,1,9,40,"Defence +5, gives Elite skill"
+Long Sword,D,1400,10,65,0,1,12,30,–
+Steel Sword,D,2900,9,65,0,1,11,30,–
+Iron Blade,C,2000,12,55,0,1,15,30,–
+Rapier,C,1000,4,90,10,1,3,20,Effective against Armoured and Horseback units
+Kill Sword,C,3800,9,80,30,1,7,30,–
+King Sword,C,–,13,70,20,1,10,60,"Allows 2 consecutive hits, gives Charisma skill"
+Great Sword,B,2000,15,55,0,1,16,20,–
+Silver Sword,B,4200,14,75,0,1,8,20,–
+Armour Killer,B,4400,10,60,0,1,12,30,Effective against Armoured units
+Hero Sword,B,–,15,75,0,1,14,60,Allows 2 consecutive hits
+Flame Sword,B,8200,9,70,0,1~2,9,40,"Casts Fire from afar, Mag +5"
+Thunder Sword,B,8200,9,70,0,1~2,9,40,"Casts Thunder from afar, Skl +5"
+Wind Sword,B,8200,9,70,0,1~2,9,40,"Casts Wind from afar (no effective bonus against flying units), Spd +5"
+Master Sword,A,4200,14,60,10,1,15,20,Allows 2 consecutive hits
+Sleep Sword,A,2000,8,55,0,1,20,10,Sends the enemy to sleep on contact
+Berserk Sword,A,3000,8,55,0,1,20,10,Berserks enemy on contact
+Light Sword,*,–,12,80,0,1~2,10,60,"Leaf only, casts Lightning from afar, Luck +10, can be used to recover all HP"
+Earth Sword,*,–,12,80,0,1~2,9,60,"Nanna only, casts Resire from afar, saps HP from enemy"
+Darkness Sword,*,–,11,70,20,1,6,60,"Mareeta only, allows 2 consecutive hits, gives Awareness skill"
+Mareeta’s Sword,*,–,11,70,20,1,6,60,"Mareeta only, allows 2 consecutive hits, gives Awareness skill"
+Beo Sword,*,–,16,70,30,1,13,60,"Delmud and Fergus only, gives Ambush and Wrath skills"
+Holy Sword,*,–,17,65,20,1,11,60,"Olwen only, allows 2 consecutive hits, effective against Horseback units, Mag +10, gives Prayer skill"
+Blaggi Sword,*,–,15,70,0,1,12,60,"Leaf, Nanna, Delmud, Fergus only, effective against Armoured units, negates the effect of Loputo Sword and gives Prayer skill"
+Loputo Sword,*,–,15,70,0,1,20,60,"Halves enemy’s attack power, Mag +20"
+Broken Sword,E,200,0,0,0,1,20,–,–

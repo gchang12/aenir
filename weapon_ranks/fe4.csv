@@ -1,0 +1,64 @@
+Class,Swd,Lnce,Axe,Bow,Fire,Thdr,Wind,Light,Dark,Staff
+"Social Knight",B,C,,,,,,,,
+"Lance Knight",,B,,,,,,,,
+"Arch Knight",,,,B,,,,,,
+"Axe Knight",,,B,,,,,,,
+"Free Knight",B,,,,,,,,,
+Troubadour,B,,,,,,,,,C
+"Lord Knight",A,B,,,,,,,,
+"Duke Knight",,A,,,,,,,,
+"Master Knight",A,A,A,A,A,A,A,C,,A
+"Paladin (M)",B,B,,,,,,,,
+"Paladin (F)",B,C,,,,,,,,C
+"Bow Knight",,,,A,,,,,,
+"Forrest Knight",A,,,,,,,,,
+"Mage Knight",B,,,,B,B,B,,,
+"Great Knight",,,A,,,,,,,
+"Pegasus Knight",B,B,,,,,,,,
+"Falcon Knight",A,A,,,,,,,,C
+"Dragon Rider",C,C,,,,,,,,
+"Dragon Knight",B,B,,,,,,,,
+"Dragon Master",A,A,,,,,,,,
+"Bow Fighter",,,,A,,,,,,
+Swordfighter,A,,,,,,,,,
+Swordmaster,A,,,,,,,,,
+Sniper,,,,A,,,,,,
+Forrest,A,,,,,,,,,
+General,A,A,B,B,,,,,,
+Emperor,A,A,A,A,A,A,A,,,A
+Baron,A,A,A,A,A,A,A,,,A
+Armour,,B,,,,,,,,
+"Axe Armour",,,B,,,,,,,
+"Bow Armour",,,,B,,,,,,
+"Sword Armour",B,,,,,,,,,
+Barbarian,,,B,,,,,,,
+"Axe Fighter",,,A,,,,,,,
+"Mountain Thief",,,B,,,,,,,
+Warrior,,,A,B,,,,,,
+Hunter,,,,A,,,,,,
+Pirate,,,B,,,,,,,
+"Junior Lord",B,,,,,,,,,
+"Mage Fighter (M)",C,,,,B,B,B,,,
+Prince,A,,,,,,,,,
+Princess,B,,,,,,,,,C
+"Mage Fighter (F)",C,,,,B,B,B,,,B
+Queen,,,,,A,A,A,,,A
+Dancer,C,,,,,,,,,
+Priest,,,,,,,,,,B
+Mage,,,,,C,C,C,,,
+"Fire Mage",,,,,B,,,,,
+"Thunder Mage",,,,,,B,,,,
+"Wind Mage",,,,,,,B,,,
+"High Priest",,,,,C,C,C,,,A
+Bishop,,,,,B,B,B,,,A
+Sage,,,,,B,B,B,B,,B
+Bard,,,,,C,C,C,C,,
+Shaman,,,,,,,,A,,B
+"Dark Mage",,,,,,,,,B,B
+"Dark Bishop",,,,,A,A,A,,A,A
+Thief,C,,,,,,,,,
+"Thief Fighter",A,,,,,,,,,
+"Long Arch",,,,A,,,,,,
+"Iron Arch",,,,A,,,,,,
+"Killer Arch",,,,A,,,,,,
+"Dark Prince",,,,,A,A,A,,A,

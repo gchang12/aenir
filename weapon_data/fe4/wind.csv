@@ -1,0 +1,10 @@
+Name,Mt,Wt,Hit,Rng,Rank,Worth,Uses,Effects
+Wind,8,2,90,1~2,C,3000,50,–
+Elwind,14,2,80,1~2,B,5000,50,–
+Tornado,20,2,70,1~2,A,12000,50,–
+Holsety,30,5,90,1~2,*,50000,50,"Skl +10, Spd +20"
+Blizzard,15,30,60,3~10,C,65535,50,"User cannot be countered, reduces user’s Move to 0"
+Empty Book,0,0,0,0,*,1000,0,–
+Empty Book,0,0,0,0,A,1000,0,–
+Empty Book,0,0,0,0,B,1000,0,–
+Empty Book,0,0,0,0,C,1000,0,–

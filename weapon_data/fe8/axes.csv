@@ -1,0 +1,19 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,WEx,Worth,Effects
+Iron Axe,E,1,10,8,75,0,45,1,270,–
+Steel Axe,E,1,15,11,65,0,30,2,360,–
+Silver Axe,A,1,12,15,70,0,20,1,1000,–
+Poison Axe,D,1,10,4,60,0,40,1,–,Poisons on contact
+Brave Axe,B,1,16,10,65,0,30,1,7500,Allows 2 consecutive hits
+Killer Axe,C,1,11,11,65,30,20,1,1000,–
+Halberd,D,1,15,10,60,0,18,1,810,Effective against horseback units
+Hammer,D,1,15,10,55,0,20,2,800,Effective against armoured units
+Devil Axe,E,1,18,18,55,0,20,8,880,User may damage themselves
+Hand Axe,E,1~2,12,7,60,0,20,1,300,–
+Tomahawk,A,1~2,14,13,65,0,15,1,3000,–
+Swordreaver,C,1,13,11,65,5,15,2,2100,"Good against swords, bad against lances"
+Swordslayer,C,1,13,11,80,5,20,1,2000,"Good against swords, bad against lances Effective against sword fighting units"
+Hatchet,E,1~2,5,4,85,0,50,1,–,–
+Dragon Axe,C,1,11,12,60,0,30,1,4500,Effective against dragon units
+Fiendcleaver,E,1,10,8,75,5,60,1,–,Effective against monsters (Cannot be obtained without codes.)
+Battle Axe,B,1,15,13,60,5,20,1,1000,–
+Garm,S,1,13,20,75,0,30,1,–,"Speed +5, effective against monsters"

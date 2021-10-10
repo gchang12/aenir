@@ -1,0 +1,6 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Fire,E,2200,5,70,0,1~2,4,20,–
+Elfire,C,3200,11,60,0,1~2,7,20,–
+Bolganone,A,2200,20,90,0,1~2,18,10,Unused
+Meteor,A,2200,9,70,0,3~10,20,5,–
+Falaflame,*,–,20,90,20,1~2,15,50,"Unused, nobody can equip"

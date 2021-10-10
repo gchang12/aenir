@@ -1,0 +1,5 @@
+Name,Mt,Wt,Hit,Rng,Rank,Worth,Uses,Effects
+Yotsmungand,20,12,90,1~2,C,65535,50,–
+Fenrir,14,20,70,3~10,B,65535,50,"User cannot be countered, reduces user’s Move to 0"
+Hell,—,28,60,1~2,B,65535,50,Reduces enemy HP to 1
+Loputousu,30,12,80,1~2,*,65535,50,"Mdf +5, halves enemy’s attack power"

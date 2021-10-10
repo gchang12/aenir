@@ -1,0 +1,16 @@
+Name,Rank,Mt,Hit,Crt,Wt,Rng,Uses,Worth,WEx,Note
+Iron Lance,E,7,80,0,8,1,45,360,1,–
+Slim Lance,E,4,85,5,6,1,35,525,1,–
+Javelin,E,6,60,0,11,1~2,25,500,1,–
+Venin Lance,E,4,65,0,9,1,40,440,1,Poisons on contact
+Steel Lance,D,10,70,0,13,1,35,560,2,–
+Knight Killer,D,7,70,0,16,1,18,1170,2,Effective against horseback units
+Heavy Spear,D,8,80,0,18,1,18,1260,1,Effective against armoured units
+Short Spear,C,9,70,0,12,1~2,15,1950,2,–
+Killer Lance,C,10,70,30,10,1,20,1200,2,–
+Laguz Lance,C,12,75,0,17,1,15,1620,2,Effective against Laguz units
+Flame Lance,B,10,70,0,12,1~2,25,7500,2,"Does Fire-based magical damage, effective against beast Laguz"
+Brave Lance,B,11,70,0,17,1,30,5700,1,Allows 2 consecutive hits
+Spear,B,12,70,5,15,1~2,15,5700,2,–
+Silver Lance,A,15,75,0,12,1,25,1500,2,–
+Wishblade,S,16,80,5,15,1~2,20,–,1,Luck +3
