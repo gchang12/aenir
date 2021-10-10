@@ -20,6 +20,7 @@ class Morph:
         if type(game) == int:
             game=str(game)
         assert game in (str(n) for n in range(4,10))
+        unit=unit.capitalize()
         if game == '4':
             kids=fe4_name_dict('child')
             if unit in kids.keys() or unit in kids.values():
@@ -76,10 +77,10 @@ class Morph:
         Leaving the scroll_name as None while a scroll is applied unequips all scrolls
         '''
         assert self.game == '5'
-        assert len(self.unit_info['Scrolls']) <= 7
         scrolls=scroll_equipper()
         new_names=get_stat_names(self.game)
         scrolls.columns=new_names
+        scroll_name=crusader_name(scroll_name)
         if scroll_name is None:
             base_growths=self.unit_info['Base Growths']
             enhanced_growths=self.growth_rates
@@ -90,13 +91,11 @@ class Morph:
             else:
                 return scrolls
         assert type(scroll_name) == str
-        scroll_name=crusader_name(scroll_name)
-        if scroll_name is None:
-            return scrolls
-        elif scroll_name in self.unit_info['Scrolls']:
+        if scroll_name in self.unit_info['Scrolls']:
             for name in self.unit_info['Scrolls']:
                 scrolls.drop(axis=0,labels=name,inplace=True)
             return scrolls
+        assert len(self.unit_info['Scrolls']) <= 7
         augmented_growths=scrolls.loc[scroll_name].to_numpy()
         self.growth_rates=self.growth_rates+augmented_growths
         self.unit_info['Scrolls'].append(scroll_name)
@@ -444,6 +443,22 @@ class Morph:
             return pd.DataFrame.from_dict(stat_data)
         else:
             return d
+
+    def show_stats(self,stat_name=None):
+        assert stat_name in ('bases','growths','maxes')
+        stat_labels=get_stat_names(self.game)
+        if stat_name == 'bases':
+            stats=self.base_stats
+        elif stat_name == 'growths':
+            stats=self.growth_rates
+        elif stat_name == 'maxes':
+            stats=self.my_maxes
+        kw={
+            'data':stats,\
+            'index':stat_labels,\
+            'name':stat_name
+            }
+        return pd.Series(**kw)
 
     def __repr__(self):
         stat_labels=get_stat_names(self.game)
