@@ -108,6 +108,16 @@ def save_raw_data():
             continue
         save_stats(game)
 
+def get_nickname(game):
+    assert game in (str(n) for n in range(4,10))
+    file='.','metadata',r'data-locations.txt'
+    file=sep.join(file)
+    with open(file) as rfile:
+        for line in rfile.readlines():
+            line=line.split(',')
+            if game != line[0]:
+                continue
+            return line[1]
 
 if __name__=='__main__':
     from time import time
