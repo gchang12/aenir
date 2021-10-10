@@ -76,6 +76,7 @@ class Morph:
         Leaving the scroll_name as None while a scroll is applied unequips all scrolls
         '''
         assert self.game == '5'
+        assert len(self.unit_info['Scrolls']) <= 7
         scrolls=scroll_equipper()
         new_names=get_stat_names(self.game)
         scrolls.columns=new_names
