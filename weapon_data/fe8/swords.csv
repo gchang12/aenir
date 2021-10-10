@@ -1,0 +1,23 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,WEx,Worth,Effects
+Iron Sword,E,1,5,5,90,0,46,1,460,–
+Slim Sword,E,1,2,3,100,5,30,1,480,–
+Steel Sword,D,1,10,8,75,0,30,1,600,–
+Silver Sword,A,1,8,13,80,0,20,1,1500,–
+Iron Blade,D,1,12,9,70,0,35,2,980,–
+Steel Blade,C,1,14,11,65,0,25,2,980,–
+Silver Blade,A,1,13,14,60,0,15,2,1800,–
+Poison Sword,D,1,6,3,70,0,40,1,–,Poisons on contact
+Rapier,*,1,5,7,95,10,40,2,–,"Eirika only, effective against horseback and armoured units"
+Brave Sword,B,1,12,9,75,0,30,1,7500,Allows 2 consecutive hits
+Shamshir,D,1,5,8,75,35,20,1,1200,"Myrmidons/Swordmasters/Assassins, Eirika, Bonewalkers/Wights only"
+Killing Edge,C,1,7,9,75,30,20,1,1300,–
+Armourslayer,D,1,11,8,80,0,18,1,1260,Effective against armoured units
+Wyrmslayer,C,1,5,8,75,0,30,1,4500,Effective against dragon units
+Light Brand,C,1~2,9,9,70,0,25,1,1250,Magic Sword (Light) at range
+Runesword,A,1~2,11,12,65,0,15,1,3300,"Magic Sword (Dark), drains HP from enemy"
+Lancereaver,C,1,9,9,75,5,15,2,1800,"Good against Lances, bad against Axes"
+Zanbato,D,1,11,6,85,0,18,1,1260,Effective against horseback units
+Shadowkiller,E,1,5,5,90,5,60,1,–,Effective against monsters (Cannot be obtained without codes.)
+Sieglinde,*,1,9,16,90,0,30,1,–,"Eirika only, Strength +5, effective against monsters"
+Audhulma,S,1,9,18,85,0,30,1,–,"Resistance +5, effective against monsters"
+Wind Sword,B,1~2,9,9,70,0,40,1,8000,Magic Sword (Anima). Effective against flying units

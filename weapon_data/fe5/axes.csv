@@ -1,0 +1,15 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Iron Axe,E,1100,9,65,0,1,10,30,–
+Poison Axe,E,–,6,65,0,1,10,30,"Poisons on contact, becomes Iron Axe when stolen"
+Devil Axe,E,1200,20,50,0,1,20,20,May damage user instead
+Steel Axe,D,1700,13,55,0,1,15,25,–
+Hand Axe,D,1000,6,45,0,1~2,12,20,–
+Hero Axe,D,–,14,70,0,1,12,60,Allows 2 consecutive hits
+Hammer,C,1200,12,50,0,1,18,20,Effective against armoured units
+Killer Axe,C,2000,12,75,30,1,10,20,–
+Pole Axe,C,2200,15,60,0,1,17,20,Effective against horseback units
+Silver Axe,B,4200,18,65,0,1,12,20,–
+Battle Axe,B,1000,13,60,10,1,14,20,–
+Master Axe,B,3200,15,55,0,1~2,16,20,Allows 2 consecutive hits
+Pugi,*,–,10,80,30,1~2,9,60,Othin only
+Broken Axe,E,200,0,0,0,1,20,–,–

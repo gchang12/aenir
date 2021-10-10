@@ -1,0 +1,20 @@
+Name,Rng,Rank,Worth,Uses,EXP,Effects
+Live Staff,1,C,5000,50,15,Restores ally’s HP by [10 + caster’s Mag]
+Relive Staff,1,C,10000,50,20,Restores ally’s HP by [(10 + caster’s Mag) x2]
+Recover Staff,1,B,15000,50,25,Fully restores ally’s HP
+Reblow Staff,1~10,B,5000,10,35,Restores ally’s HP by [10 + caster’s Mag]
+Reserve Staff,1~10,A,15000,10,85,Restores all allies’ HP within casting radius by [10 + caster’s Mag]
+Return Staff,1,C,5000,10,35,Returns an ally to the main castle
+Warp Staff,1,B,10000,10,60,Transports an ally to any allied castle
+Rescue Staff,1~10,A,15000,10,85,Brings an ally next to the caster
+Charm Staff,1~10,A,0,0,10,"No effect (glitches when used), unused"
+Rest Staff,1~10,B,10000,10,60,Restores an ally’s status
+Valkyrie Staff,0,*,30000,1,100,"At the main castle, revives a fallen ally"
+Silence Staff,1~10,B,30000,3,100,"Seals enemy’s magic, if caster’s Mag is higher than the enemy’s Mdf"
+Sleep Staff,1~10,B,30000,1,100,"Sends enemy to sleep, if caster’s Mag is higher than the enemy’s Mdf"
+Berserk Staff,1~10,B,30000,1,100,"Berserks an enemy, if caster’s Mag is higher than the enemy’s Mdf"
+Thief Staff,1~10,B,0,0,10,"Steals gold from enemy (glitches unless Map animation is on), unused"
+Broken Staff,1,A,1000,0,–,–
+Broken Staff,1,B,1000,0,–,–
+Broken Staff,1,C,1000,0,–,–
+Broken Staff,1,*,1000,0,–,–

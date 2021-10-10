@@ -1,0 +1,9 @@
+Name,Mt,Wt,Hit,Rng,Rank,Worth,Uses,Effects
+Thunder,8,7,90,1~2,C,3000,50,–
+Elthunder,14,7,80,1~2,B,5000,50,–
+Thoron,20,7,70,1~2,A,12000,50,–
+Thorhammer,30,10,90,1~2,*,50000,50,"Skl +20, Spd +10"
+Thunderstorm,15,30,60,3~10,C,65535,50,"User cannot be countered, reduces user’s Move to 0"
+Empty Book,0,0,0,0,A,1000,0,–
+Empty Book,0,0,0,0,B,1000,0,–
+Empty Book,0,0,0,0,C,1000,0,–

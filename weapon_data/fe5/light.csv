@@ -1,0 +1,4 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Lightning,E,3200,9,75,20,1~2,6,20,–
+Resire,B,5200,12,65,0,1~2,12,60,Restores HP equal to damage done to enemy
+Aura,A,200,20,100,0,1~2,12,80,Unused

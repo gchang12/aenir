@@ -1,0 +1,9 @@
+Name,Mt,Wt,Hit,Rng,Rank,Worth,Uses,Effects
+Lightning,14,5,90,1~2,C,5000,50,–
+Resire,14,12,70,1~2,A,10000,50,"Saps HP from enemy, negates Big Shield"
+Aura,20,20,80,1~2,A,15000,50,–
+Narga,30,12,80,1~2,*,50000,50,"Skl +20, Spd +20, Def +20, Mdf +20, negates the special effect of Loputousu"
+Empty Book,0,0,0,0,*,1000,0,–
+Empty Book,0,0,0,0,A,1000,0,–
+Empty Book,0,0,0,0,B,1000,0,Unused
+Empty Book,0,0,0,0,C,1000,0,–

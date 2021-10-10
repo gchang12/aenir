@@ -1,0 +1,7 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Yotsmungand,C,2200,14,70,10,1~2,12,20,Poisons on contact (only for enemy users)
+Fenrir,A,2200,18,80,0,3~10,20,5,–
+Poison,A,3200,8,70,0,3~10,20,3,"Poisons on contact, becomes Fenrir if stolen"
+Stone,A,–,1,100,0,3~10,20,5,"Petrifies enemy on contact, becomes Fenrir if stolen"
+Hel,*,–,–,60,0,1~2,20,3,"Enemy only, brings HP down to 1 (or 0 if already at 1)"
+Loputousu,*,–,0,60,0,1~2,15,3,"Unused, nobody can equip"

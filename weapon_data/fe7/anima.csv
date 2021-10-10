@@ -1,0 +1,8 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,WEx,Effects
+Fire,E,1~2,4,5,90,0,40,560,1,–
+Thunder,D,1~2,6,8,80,5,35,700,1,–
+Elfire,C,1~2,10,10,85,0,30,1200,2,–
+Bolting,B,3~10,20,12,60,0,5,2500,1,Cannot be countered
+Fimbulvetr,A,1~2,12,13,80,0,20,6000,1,–
+Excalibur,S,1~2,13,18,90,10,25,25000,3,–
+Forblaze,Prf,1~2,11,14,85,5,20,–,1,"Athos only, Luck +5, effective against dragon units"

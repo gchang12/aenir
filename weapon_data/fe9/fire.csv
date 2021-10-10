@@ -1,0 +1,6 @@
+Name,Rank,Mt,Hit,Crt,Wt,Rng,Uses,Worth,WEx,Note
+Fire,E,3,95,0,3,1~2,40,560,1,Effective against beasts
+Elfire,D,5,85,0,5,1~2,30,1800,2,Effective against beasts
+Meteor,C,11,70,0,11,3~10,5,750,3,Effective against beasts
+Bolganone,A,9,85,0,9,1~2,20,2000,2,Effective against beasts
+Rexflame,S,14,85,0,12,1~2,20,–,2,"Effective against beasts, Speed +3 (Cannot be obtained without codes)"

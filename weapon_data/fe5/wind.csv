@@ -1,0 +1,6 @@
+Name,Rank,Worth,Mt,Hit,Crt,Rng,Wt,Use,Notes
+Wind,D,2200,6,90,10,1~2,1,20,Effective against flying units
+Tornado,A,2200,18,80,0,1~2,10,10,Effective against flying units
+Blizzard,A,2200,9,70,0,3~10,20,5,Sends enemy to Sleep
+Grafcalibur,*,–,13,100,40,1~2,3,40,"Asvel only, effective against flying units"
+Holsety,*,–,20,90,30,1~2,6,50,"Sety only, effective against flying units, Skl +20, Spd +20"

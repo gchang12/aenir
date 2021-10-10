@@ -1,0 +1,8 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,WEx,Effects
+Lightning,E,1~2,6,4,95,5,35,630,1,–
+Shine,D,1~2,8,6,90,8,30,900,2,–
+Divine,C,1~2,12,8,85,10,25,2500,1,–
+Purge,B,3~10,20,10,75,5,5,3000,3,Cannot be countered
+Aura,A,1~2,15,12,85,15,20,8000,1,–
+Aureola,S,1~2,14,15,90,5,20,–,0,"Res +5, effective against dragon units and Dark Druids"
+Luce,S,1~2,16,16,95,25,25,30000,3,–

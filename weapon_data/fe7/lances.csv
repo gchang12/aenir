@@ -1,0 +1,17 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,WEx,Effects
+Iron Lance,E,1,8,7,80,0,45,360,1,–
+Slim Lance,E,1,4,4,85,5,30,450,1,–
+Javelin,E,1~2,11,6,65,0,20,400,1,–
+Emblem Lance,E,1,8,7,80,0,60,–,1,(Mario Kart: Double Dash!! bonus disk only)
+Poison Lance,E,1,8,4,65,0,40,–,1,Poisons on contact
+Steel Lance,D,1,13,10,70,0,30,480,2,–
+Heavy Spear,D,1,14,9,70,0,16,1200,1,Effective against armoured units
+Horseslayer,D,1,13,7,70,0,16,1040,1,Effective against horseback units
+Short Spear,C,1~2,12,9,60,0,18,900,1,–
+Killer Lance,C,1,9,10,70,30,20,1200,1,–
+Axereaver,C,1,11,10,70,5,15,1950,2,"Good against axes, bad against swords"
+Brave Lance,B,1,14,10,70,0,30,7500,1,Allows 2 consecutive hits
+Spear,B,1~2,10,12,70,5,15,9000,1,–
+Spear (Vaida’s),B,1~2,10,12,70,5,15,1500,1,"Max HP +17, Str +5, Skl +4, Spd +9, Def +4, Res +14"
+Silver Lance,A,1,10,14,75,0,20,1200,1,–
+Rex Hasta,S,1,11,21,80,0,25,15000,1,–

@@ -1,0 +1,17 @@
+Name,Rank,Wt,Hit,Rng,Uses,Worth,WEx,EXP,Note
+Heal,E,2,100,1,40,800,3,11,Restores an ally’s HP by user’s Magic +10
+Mend,D,4,100,1,20,1000,3,12,Restores an ally’s HP by user’s Magic +20
+Unlock,D,7,100,1~2,10,1500,5,17,Opens a door (Cannot be obtained without codes)
+Torch,D,5,100,0,10,1000,5,15,"Increases user’s sight in fog of war, effect decreases after each turn"
+Ward,C,4,100,1,15,2250,4,17,"Raises an ally’s Resistance, effect decreases after each turn"
+Restore,C,4,100,1,10,2000,3,20,Cures ally’s status condition
+Physic,C,5,100,1~M/2,15,3750,4,22,Restores ally’s HP by user’s Magic +10
+Hammerne,C,7,100,1,3,1800,8,40,Repairs an ally’s weapon to full uses
+Silence,B,7,70,1~M/2,3,1200,5,30,Seals the enemy’s ability to use magic
+Sleep,B,8,65,1~M/2,3,1500,5,35,Sends the enemy to sleep
+Berserk,B,8,60,1~M/2,3,1800,5,40,Induces berserk on the enemy (Cannot be obtained without codes)
+Rescue,B,6,100,1~M/2,3,1800,5,40,Brings an allied unit next to the user
+Recover,B,6,100,1,15,2250,4,17,Fully restores an ally’s HP
+Warp,A,5,100,1,5,7500,7,85,Teleports an ally to a traversable square (Cannot be obtained without codes)
+Fortify,A,7,100,1~M/2,8,8000,5,60,Restores HP of all allies within range
+Ashera Staff,S,4,100,All,3,–,4,100%,Fully restores HP and status condition of all allies

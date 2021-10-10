@@ -1,0 +1,19 @@
+Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,WEx,Effects
+Hand Axe,E,1~2,12,7,60,0,20,300,1,–
+Iron Axe,E,1,10,8,75,0,45,270,1,–
+Emblem Axe,E,1,10,8,75,0,60,–,1,(Mario Kart: Double Dash!! bonus disk only)
+Steel Axe,E,1,15,11,65,0,30,360,2,–
+Devil Axe,E,1,18,18,55,0,20,900,8,May damage user
+Poison Axe,D,1,10,4,60,0,40,–,1,Poisons on contact
+Halberd,D,1,15,10,60,0,18,810,1,Effective against horseback units
+Hammer,D,1,15,10,55,0,20,800,2,Effective against armoured units
+Dragon Axe,C,1,11,10,60,0,40,6000,1,Effective against dragon units (Mario Kart: Double Dash!! bonus disk only)
+Killer Axe,C,1,11,11,65,30,20,1000,1,–
+Swordreaver,C,1,13,11,65,5,15,2100,2,"Good against swords, bad against lances"
+Swordslayer,C,1,13,11,80,5,20,2000,1,"Good against swords, bad against lances, effective against Mercenaries, Heroes, Myrmidons, Swordmasters and Blade Lords"
+Brave Axe,B,1,16,10,65,0,30,2250,1,Allows 2 consecutive hits
+Tomahawk,A,1~2,14,13,65,0,15,3000,1,–
+Silver Axe,A,1,12,15,70,0,20,1000,1,–
+Basilikos,S,1,13,22,75,0,25,15000,1,–
+Wolf Beil,Prf,1,10,10,75,5,30,6000,1,"Hector only, effective against armoured and horseback units"
+Armads,Prf,1,18,18,85,0,25,–,1,"Hector only, Def +5, effective against dragon units"
