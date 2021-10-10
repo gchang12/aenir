@@ -36,6 +36,9 @@ def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
             )
         if unit in lyndis_league:
             unit_info['Lyn Mode']=lyn_mode
+    if game == '4':
+        if unit in fe4_child_list(get_father=True):
+            file_substr+='1'
     for root,folders,files in walk(data_dir):
         if root != data_dir:
             continue
