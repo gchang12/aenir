@@ -133,8 +133,12 @@ class Angelo:
             page_dict[title]=content
         return page_dict
 
+    def outputFile(self,filename):
+        return sep.join([self.game_dir,filename])
+
     def recordPage(self,section):
         page_dict=self.scrapePage(section)
+        kw={'index':False,'header':False}
         for label,data in page_dict.items():
             if label is None:
                 if '-tomes' in section:
@@ -145,8 +149,8 @@ class Angelo:
                 filename=section+'.csv'
             else:
                 filename=label+'.csv'
-            file=sep.join([self.game_dir,filename])
-            data.to_csv(file,index=False,header=False)
+            file=self.outputFile(filename)
+            data.to_csv(file,**kw)
 
     def recordAllPages(self):
         url_list=self.retrieveUrl()
