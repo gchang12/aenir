@@ -6,7 +6,7 @@ from os.path import sep
 import pandas as pd
 
 class DataDict3:
-    def __init__(self,game):
+    def __init__(self):
         self.stat_dir=sep.join(['.','raw_data','fe5'])
         filePointer=lambda x: sep.join([self.stat_dir,x+'.csv'])
         self.promo_file=filePointer('classes_promotion-gains')

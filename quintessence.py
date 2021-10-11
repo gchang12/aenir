@@ -47,10 +47,6 @@ class Morph:
         self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
         self.growth_rates=load_character_growths(**kwargs).to_numpy()
-        if self.game == '5':
-            self.unit_info['Base Growths']=self.growth_rates.copy()
-            self.unit_info['Scrolls']=list()
-            self.unit_info['Mounted']=self.can_mount()
         #   Start update for class attribute loaders here
         d={}
         d['audit']='bases'
@@ -71,6 +67,10 @@ class Morph:
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
+        if self.game == '5':
+            self.unit_info['Base Growths']=self.growth_rates.copy()
+            self.unit_info['Scrolls']=list()
+            self.unit_info['Mounted']=self.can_mount()
 
     def equip_scroll(self,scroll_name=None):
         '''
@@ -92,7 +92,6 @@ class Morph:
                 return self.unit_info
             else:
                 return scrolls
-        assert type(scroll_name) == str
         if scroll_name in self.unit_info['Scrolls']:
             for name in self.unit_info['Scrolls']:
                 scrolls.drop(axis=0,labels=name,inplace=True)
@@ -176,7 +175,7 @@ class Morph:
         if get_level:
             x=self.my_levels
         else:
-            x=x=self.my_classes
+            x=self.my_classes
         index=self.current_index()
         return x[index]
 
