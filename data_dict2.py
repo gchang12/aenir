@@ -74,6 +74,9 @@ class DataDict2:
             diff.extend(self.inverseAudit(section))
         return diff
 
+    def outputFile(self,filename):
+        return sep.join([self.game_dir,filename])
+
     def saveAsJSON(self,iterable,filename):
         if '.' not in filename:
             filename=filename+'.json'
@@ -81,7 +84,7 @@ class DataDict2:
             N=filename.index('.')
             if filename[N:] != '.json':
                 filename=filename[:N]+'.json'
-        filename=sep.join([self.game_dir,filename])
+        filename=self.outputFile(filename)
         with open(filename,'w') as wfile:
             json.dump(iterable,wfile)
 
@@ -94,7 +97,7 @@ class DataDict2:
             self.saveAsJSON(iterable,name)
 
     def writeText(self,list_name,iterable):
-        list_name=sep.join([self.game_dir,list_name+'.txt'])
+        list_name=self.outputFile(list_name+'.txt')
         with open(list_name,'w') as wfile:
             for x in iterable:
                 wfile.write(x+'\n')
@@ -102,7 +105,7 @@ class DataDict2:
     def convertToText(self):
         for name in self.filenames:
             json_file=name+'.json'
-            json_file=sep.join([self.game_dir,json_file])
+            json_file=self.outputFile(json_file)
             with open(json_file,'r') as rfile:
                 json_list=json.load(rfile)
             self.writeText(name,json_list)
