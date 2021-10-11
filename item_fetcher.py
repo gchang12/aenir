@@ -81,15 +81,16 @@ class Angelo:
         for tr in table.find_all('tr'):
             headers=list()
             for th in tr.find_all('th'):
-                header=th.text
-                header=header.strip()
-                if header not in headers:
-                    headers.append(header)
+                if not data_list:
+                    header=th.text
+                    header=header.strip()
+                    if header not in headers:
+                        headers.append(header)
+                    else:
+                        data_list.append(headers)
+                        break
                 else:
                     break
-            break
-        data_list.append(headers)
-        for tr in table.find_all('tr'):
             row=list()
             for td in tr.find_all('td'):
                 cell=td.text
@@ -153,7 +154,7 @@ class Angelo:
             self.recordPage(url)
 
 if __name__ == '__main__':
-    for game in range(6,10):
-        game=str(game)
-        dog=Angelo(game)
-        dog.recordAllPages()
+    game='8'
+    section='axes'
+    x=Angelo(game)
+    x.scrapePage(section)
