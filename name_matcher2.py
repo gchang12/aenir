@@ -34,6 +34,7 @@ class NameMatcher:
         unit_classG=unit_class+self.gender
         ranks=self.rank_dict.keys()
         if type(self.mounted) == bool and self.game == '5':
+            # .json dict objects do not actually have correct weapons for dismounted lot
             if not self.mounted:
                 dismounted=True
         if dismounted:
