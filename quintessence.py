@@ -94,14 +94,15 @@ class Morph:
                 return self.unit_info
             else:
                 return scrolls
-        if scroll_name in self.unit_info['Scrolls']:
-            for name in self.unit_info['Scrolls']:
-                scrolls.drop(axis=0,labels=name,inplace=True)
-            return scrolls
         assert len(self.unit_info['Scrolls']) <= 7
         augmented_growths=scrolls.loc[scroll_name].to_numpy()
+        if scroll_name in self.unit_info['Scrolls']:
+            augmented_growths=-augmented_growths
+            func=self.unit_info['Scrolls'].remove
+        else:
+            func=self.unit_info['Scrolls'].append
         self.growth_rates=self.growth_rates+augmented_growths
-        self.unit_info['Scrolls'].append(scroll_name)
+        func(scroll_name)
         return self.growth_rates
 
     def dismount(self):
