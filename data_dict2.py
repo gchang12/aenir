@@ -10,7 +10,7 @@ class DataDict2:
         self.game=game
         self.stat_dir=sep.join(['.','raw_data','fe%s'%game])
         self.promo_file=sep.join([self.stat_dir,'classes_promotion-gains.csv'])
-        self.item_file=sep.join(['.','weapon_ranks','fe%s.json'%game])
+        self.item_file=sep.join(['.','weapon_data','fe%s'%game,'weapon-ranks.json'])
         self.audit_dir=sep.join(['.','audit'])
         self.game_dir=sep.join([self.audit_dir,'fe%s'%game])
         directories=self.audit_dir,self.game_dir
@@ -112,9 +112,21 @@ class DataDict2:
                 json_list=json.load(rfile)
             self.writeText(name,json_list)
 
-if __name__ == '__main__':
+    def __call__(self):
+        self.saveAll()
+        self.convertToText()
+
+
+def compile_data(n):
+    game=str(n)
+    x=DataDict2(game)
+    x()
+    
+def compile_all():
     for n in range(4,10):
-        game=str(n)
-        x=DataDict2(game)
-        x.saveAll()
-        x.convertToText()
+        compile_data(n)
+
+if __name__ == '__main__':
+    n=4
+    #compile_data(n)
+    compile_all()
