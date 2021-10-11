@@ -72,6 +72,8 @@ class DataDict2:
         sections=('promo','bases')
         for section in sections:
             diff.extend(self.inverseAudit(section))
+        diff=set(diff)
+        diff=list(diff)
         return diff
 
     def outputFile(self,filename):
@@ -114,4 +116,5 @@ if __name__ == '__main__':
     for n in range(4,10):
         game=str(n)
         x=DataDict2(game)
+        x.saveAll()
         x.convertToText()
