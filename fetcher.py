@@ -76,7 +76,7 @@ class Fetcher:
     def recordPage(self,section):
         page_dict=self.scrapePage(section)
         filename=section+'.csv'
-        file=sep.join([self.game_dir,filename])
+        file=self.outputFile(filename)
         kw={'index':False,'header':False}
         for data in page_list:
             data.to_csv(file,**kw)
