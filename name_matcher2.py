@@ -26,12 +26,14 @@ class NameMatcher:
         if self.game == '7':
             if 'Wagon' in self.gender:
                 return
-        gender=self.gender
-        unit_classG=unit_class+gender
+        unit_classG=unit_class+self.gender
+        is_mounted=False
         if type(mounted) == bool and game == '5':
             if mounted:
-                unit_classG=unit_classG[:-1]+', D)'
-                unit_class=unit_class+' (D)'
+                is_mounted=True
+        if is_mounted:
+            unit_classG=unit_classG[:-1]+', D)'
+            unit_class=unit_class+' (D)'
         ranks=self.rank_dict.keys()
         if self.game in ('7','8'):
             lord_list='Eliwood','Hector','Lyn','Ephraim','Eirika'
@@ -44,8 +46,14 @@ class NameMatcher:
         else:
             if unit_class not in self.name_dict.keys():
                 return
+            if ' (D)' in unit_class:
+                N=unit_class.index(' (D)')
+                unit_class=unit_class[:N]
             new_class=self.name_dict[unit_class]
-            new_classG=new_class+gender
+            new_classG=new_class+self.gender
+            if is_mounted:
+                new_class=new_class+' (D)'
+                new_classG=new_classG[:-1]+', D)'
             if new_class in ranks:
                 return new_class
             elif newclassG in ranks:
