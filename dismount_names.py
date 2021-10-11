@@ -1,5 +1,6 @@
 from aenir2.name_lists import get_stat_names
 from aenir2.data_dict import read_stat_names
+from aenir2.zero_filler2 import ZeroFiller
 
 from os.path import sep
 
@@ -37,10 +38,10 @@ class DataDict3:
             return None
 
     def getBonus(self,unit_class):
-        filename=self.file_dict['dismount']
-        data=pd.read_csv(filename,index_col=0)
-        row=data.loc[unit_class,:]
-        return row.to_numpy()
+        filename='fe5-dismount.csv'
+        zf=ZeroFiller('5','metadata')
+        bonus=zf.fromCSV(unit_class,filename,valtype='array')
+        return bonus
 
     def dismountDiff(self):
         dismount_list=self.getNameList('dismount')
@@ -58,7 +59,6 @@ class DataDict3:
 
 if __name__ == '__main__':
     x=DataDict3()
-    file='dismount'
     unit_class='Lance Knight'
     y=x.getBonus(unit_class)
     print(y)
