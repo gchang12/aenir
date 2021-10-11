@@ -10,7 +10,6 @@ class NameMatcher:
         filePointer=lambda x: sep.join([folder,'fe%s'%game,x])
         dict_file=filePointer('class_dict.json')
         rank_file=filePointer('weapon-ranks.json')
-
         self.game=game
         self.unit=unit
         self.gender=gender_dict(game)[unit]
@@ -23,8 +22,9 @@ class NameMatcher:
         return d
 
     def fetchName(self,unit_class):
-        if 'Wagon' in self.gender:
-            return
+        if self.game == '7':
+            if 'Wagon' in self.gender:
+                return
         unit_classG=unit_class+self.gender
         ranks=self.rank_dict.keys()
         if self.game in ('7','8'):
@@ -55,7 +55,7 @@ class NameMatcher:
                 }
             for key in weapon_dict.keys():
                 if key in unit_class:
-                    return [key]
+                    return [weapon_dict[key]]
         ranks=self.rank_dict.keys()
         proper_name=self.fetchName(unit_class)
         if proper_name is None:
@@ -63,3 +63,11 @@ class NameMatcher:
         else:
             usable_weapons=self.rank_dict[proper_name]
             return usable_weapons
+
+if __name__ == '__main__':
+    game='7'
+    unit='Merlinus'
+    unit_class='Bard'
+    x=NameMatcher(game,unit)
+    y=x.fetchRanks(unit_class)
+    print(y)
