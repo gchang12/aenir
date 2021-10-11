@@ -32,6 +32,8 @@ class Morph:
                 message='\nPlease choose a Boolean value for the \'lyn_mode\' option.\n'
                 print(message)
                 raise Exception
+        if (game,unit) == ('7','Nils'):
+            unit='Ninian'
         unit=get_true_name(game,unit)
         kwargs={
             'game':game,\
