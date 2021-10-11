@@ -1,0 +1,11 @@
+swords,Sword
+lances,Lance
+axes,Axe
+bows,Bow
+fire,Fire
+thunder,Thunder
+wind,Wind
+light,Light
+dark,Dark
+staves,Staff
+anima,Anima
