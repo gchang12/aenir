@@ -13,8 +13,6 @@ class Armory:
         weapons=list()
         for x,y,filelist in walk(self.dir):
             for file in filelist:
-                if '.csv' not in file:
-                    continue
                 file=file.capitalize()
                 file=file[:-4]
                 weapons.append(file)

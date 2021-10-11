@@ -14,12 +14,15 @@ class RankFetcher:
         self.root='https://serenesforest.net'
         self.game=game
         self.title=get_nickname(game)
-        self.main_dir=sep.join(['.','weapon_ranks'])
+        self.main_dir=sep.join(['.','class_data'])
+        self.game_dir=sep.join([self.main_dir,'fe%s'%game])
         self.ranks=dict()
 
     def createDir(self):
-        if not exists(self.main_dir):
-            mkdir(self.main_dir)
+        folders=self.main_dir,self.game_dir
+        for f in folders:
+            if not exists(f):
+                mkdir(f)
 
     def joinUrl(self,section=None):
         url=[self.root,self.title]
@@ -45,7 +48,7 @@ class RankFetcher:
         return d
 
     def saveRanks(self):
-        dst=sep.join([self.main_dir,'fe%s.json'%self.game])
+        dst=sep.join([self.game_dir,'weapon-ranks.json'])
         self.cleanupRanks()
         with open(dst,'w') as wfile:
             json.dump(self.ranks,wfile)
@@ -136,8 +139,12 @@ class RankFetcher:
                                 ranks.append(alt)
         self.saveRanks()
 
+def save_all():
+    for n in range(4,10):
+        game=str(n)
+        x=RankFetcher(game)
+        x.createDir()
+        x.getImgRanks()
+
 if __name__ == '__main__':
-    n=9
-    game=str(n)
-    x=RankFetcher(game)
-    x.getImgRanks()
+    save_all()
