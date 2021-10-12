@@ -79,18 +79,17 @@ class Angelo:
     def scrapeTable(self,table):
         data_list=list()
         for tr in table.find_all('tr'):
-            headers=list()
-            for th in tr.find_all('th'):
-                if not data_list:
+            if not data_list:
+                headers=list()
+                for th in tr.find_all('th'):
                     header=th.text
                     header=header.strip()
                     if header not in headers:
                         headers.append(header)
                     else:
-                        data_list.append(headers)
                         break
-                else:
-                    break
+                data_list.append(headers)
+                continue
             row=list()
             for td in tr.find_all('td'):
                 cell=td.text
@@ -157,8 +156,11 @@ class Angelo:
         for url in url_list:
             self.recordPage(url)
 
+def save_all():
+    for n in range(4,10):
+        game=str(n)
+        dog=Angelo(game)
+        dog.recordAllPages()
+
 if __name__ == '__main__':
-    game='8'
-    section='axes'
-    x=Angelo(game)
-    x.scrapePage(section)
+    save_all()
