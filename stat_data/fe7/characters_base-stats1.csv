@@ -1,0 +1,15 @@
+Name,Class,Lv,HP,S/M,Skl,Spd,Lck,Def,Res,Con,Mov,Affin,Weapon Ranks
+Lyn,Lord,1,16,4,7,9,5,2,0,5,5,,D
+Sain,Cavalier,1,19,8,4,6,4,6,0,9,7,,"E,  D"
+Kent,Cavalier,1,20,6,6,7,2,5,1,9,7,,"D,  E"
+Florina,Pegasus Knight,1,17,5,7,9,7,4,4,4,7,,D
+Wil,Archer,2,20,6,5,5,6,5,0,6,5,,D
+Dorcas,Fighter,3,30,7,7,6,3,3,0,14,5,,C
+Serra,Cleric,1,17,2,5,8,6,2,5,4,5,,D
+Erk,Mage,1,17,5,6,7,3,2,4,5,5,,D
+Rath,Nomad,7,25,8,9,10,5,7,2,8,7,,C
+Matthew,Thief,2,18,4,4,11,2,3,0,7,6,,D
+Nils,Bard,1,14,0,0,12,10,5,4,3,5,,–
+Lucius,Monk,3,18,7,6,10,2,1,6,6,5,,D
+Wallace,Knight,12,30,13,7,5,10,15,2,13,4,,A
+General,1,34,15,9,8,10,17,5,15,5,"A (+30),  E",,

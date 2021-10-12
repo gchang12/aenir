@@ -1,0 +1,52 @@
+Name,Class,Lv,HP,S/M,Skl,Spd,Lck,Def,Res,Con,Mov,Affin,Weapon ranks
+Eliwood,Lord,1,18,5,5,7,7,5,0,7,5,,C
+Lowen,Cavalier,2,23,7,5,7,3,7,0,10,7,,"D,  D"
+Marcus,Paladin,1,31,15,15,11,8,10,8,11,8,,"A,  A,  B"
+Rebecca,Archer,1,17,4,5,6,4,3,1,5,5,,D
+Dorcas,Fighter,3,30,7,7,6,3,3,0,14,5,,C
+Bartre,Fighter,2,29,9,5,3,4,4,0,13,5,,D
+Hector,Lord,1,19,7,4,5,3,8,0,13,5,,C
+Oswin,Knight,9,28,13,9,5,3,13,3,14,4,,B
+Serra,Cleric,1,17,2,5,8,6,2,5,4,5,,D
+Matthew,Thief,2,18,4,4,11,2,3,0,7,6,,D
+Guy,Myrmidon,3,21,6,11,11,5,5,0,5,5,,C
+Guy HM,25,8,13,13,5,6,1,,,,,,
+Merlinus,Transporter,5,18,0,4,5,12,5,2,25,0,,–
+Erk,Mage,1,17,5,6,7,3,2,4,5,5,,D
+Priscilla,Troubadour,3,16,6,6,8,7,3,6,4,7,,C
+Lyn,Lord,4,18,5,10,11,5,2,0,5,5,,C
+Wil,Archer,4,21,6,5,6,7,5,1,6,5,,D
+Kent,Cavalier,5,23,8,7,8,4,6,1,9,7,,"D,  D"
+Sain,Cavalier,4,22,9,5,7,5,7,0,9,7,,"D,  D"
+Florina,Pegasus Knight,3,18,6,8,9,8,4,5,4,7,,D
+Raven,Mercenary,5,25,8,11,13,2,5,1,8,5,,C
+Raven HM,29,10,13,15,2,6,2,,,,,,
+Lucius,Monk,3,18,7,6,10,2,1,6,6,5,,D
+Canas,Shaman,8,21,10,9,8,7,5,8,7,5,,B
+Dart,Pirate,8,34,12,8,8,3,6,1,10,5,,B
+Fiora,Pegasus Knight,7,21,8,11,13,6,6,7,5,7,,C
+Legault,Thief,12,26,8,11,15,10,8,3,9,6,,C
+Legault HM,29,8,13,17,10,8,4,,,,,,
+Ninian,Dancer,1,14,0,0,12,10,5,4,4,5,,–
+Isadora,Paladin,1,28,13,12,16,10,8,6,6,8,,"A,  B,  D"
+Heath,Wyvern Rider,7,28,11,8,7,7,10,1,9,7,,B
+Heath HM,32,13,10,9,7,11,2,,,,,,
+Rath,Nomad,9,27,9,10,11,5,8,2,7,7,,B
+Hawkeye,Berserker,4,50,18,14,11,13,14,10,16,6,,A
+Geitz,Warrior,3,40,17,12,13,10,11,3,13,6,,"B,  B"
+Geitz HM,44,19,13,14,10,12,4,,,,,,
+Wallace,General,1,34,16,9,8,10,19,5,15,5,,"A,  E"
+Farina,Pegasus Knight,12,24,10,13,14,10,10,12,5,7,,A
+Pent,Sage,6,33,18,21,17,14,11,16,8,6,,"A,  A"
+Louise,Sniper,4,28,12,14,17,16,9,12,6,6,,A
+Karel,Swordmaster,8,31,16,23,20,15,13,12,9,6,,A
+Harken,Hero,8,38,21,20,17,12,15,10,11,6,,"B,  B"
+Harken HM,42,23,22,18,12,16,11,,,,,,
+Nino,Mage,5,19,7,8,11,10,4,7,3,5,,C
+Jaffar,Assassin,13,34,19,25,24,10,15,11,8,6,,A
+Vaida,Wyvern Lord,9,43,20,19,13,11,21,6,12,8,,"A,  A"
+Vaida HM,47,22,21,14,11,22,7,,,,,,
+Nils,Bard,Same as Ninian,3,5,,–,,,,,,,
+Karla,Swordmaster,5,29,14,21,18,16,11,12,7,6,,A
+Renault,Bishop,16,43,12,22,20,10,15,18,9,6,,"A,  A"
+Athos,Archsage,20,40,30,24,20,25,20,28,9,6,,S  S  S  S
