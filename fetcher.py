@@ -51,12 +51,17 @@ class Fetcher:
         row=list()
         mixed_tr=False
         if tr.find('th') is not None:
+            # If th tag is in content row, set flag to True
             mixed_tr=True
+        # Iterating over empty list if td is not found
         for td in tr.find_all('td'):
             cell=td.text
             if cell.isnumeric():
                 cell=int(cell)
             row.append(cell)
+        # If both row is non-empty and th tag is found, then raise error
+        # It could be the case that row has neither td nor th tags
+        # - no error raised; row is skipped
         assert not (row and mixed_tr)
         return row
 
@@ -65,7 +70,7 @@ class Fetcher:
         for tr in table.find_all('tr'):
             if not data_list:
                 if tr.find('td') is None and tr.find('th') is not None:
-                    # Assume first row is a header row
+                    # Asserting that the first row is a header row
                     headers=self.gatherHeaders(tr)
                     data_list.append(headers)
                 else:

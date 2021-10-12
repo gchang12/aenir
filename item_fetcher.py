@@ -89,25 +89,38 @@ class Angelo:
 
     def gatherContents(self,tr):
         row=list()
+        mixed_tr=False
         if tr.find('th') is not None:
-            return row
+            # If th tag is in content row, set flag to True
+            mixed_tr=True
         for td in tr.find_all('td'):
             cell=td.text
             if cell.isnumeric():
                 cell=int(cell)
             row.append(cell)
+        # If both row is non-empty and th tag is found, then raise error
+        # It could be the case that row has neither td nor th tags
+        # - no error raised; row is skipped
+        assert not (row and mixed_tr)
         return row
 
     def scrapeTable(self,table):
         data_list=list()
         for tr in table.find_all('tr'):
             if not data_list:
-                headers=self.gatherHeaders(tr)
-                data_list.append(headers)
+                if tr.find('td') is None and tr.find('th') is not None:
+                    # Asserting that the first row is a header row
+                    headers=self.gatherHeaders(tr)
+                    data_list.append(headers)
+                else:
+                    message='First row is not a header row.'
+                    print(message,table)
+                    raise Exception
                 continue
             row=self.gatherContents(tr)
             if row:
                 data_list.append(row)
+        assert data_list
         return data_list
 
     def scrapePage(self,section):
