@@ -84,7 +84,7 @@ def save_stats(game):
     tables=tables_for(game)
     folder='fe'+game    
 
-    cache_folder='.'+sep+'raw_data'
+    cache_folder='.'+sep+'stat_data'
     full_dir=cache_folder+sep+folder
 
     directories=cache_folder,full_dir
@@ -99,7 +99,7 @@ def save_stats(game):
         data.to_csv(file,index=False,header=False)
 
 def save_raw_data():
-    data_dir='.','raw_data'
+    data_dir='.','stat_data'
     data_dir=sep.join(data_dir)
     for k in range(4,10):
         game=str(k)

@@ -4,7 +4,7 @@ from aenir2.data_dict import read_stat_names
 from aenir2.table_operations import add_column
 
 def read_stat_table(game,filename):
-    file='.','raw_data','fe'+game,filename
+    file='.','stat_data','fe'+game,filename
     file=sep.join(file)
     df=pd.read_csv(file,index_col=0)
     num_stats=read_stat_names(game)

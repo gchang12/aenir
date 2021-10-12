@@ -23,7 +23,7 @@ def game_title_dict(reverse=False):
     return d
 
 def character_list(game,file_match='characters_base-stats'):
-    data_dir='.','raw_data','fe'+game
+    data_dir='.','stat_data','fe'+game
     data_dir=sep.join(data_dir)
     compiled_names=list()
     for root,folders,files in walk(data_dir):

@@ -7,7 +7,7 @@ from os.path import sep, exists
 class DataDict2:
     def __init__(self,game):
         self.game=game
-        self.stat_dir=sep.join(['.','raw_data','fe%s'%game])
+        self.stat_dir=sep.join(['.','stat_data','fe%s'%game])
         self.promo_file=sep.join([self.stat_dir,'classes_promotion-gains.csv'])
         self.class_dir=sep.join(['.','class_data'])
         game_class_dir=sep.join([self.class_dir,'fe%s'%game])
