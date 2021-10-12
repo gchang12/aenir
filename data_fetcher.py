@@ -52,6 +52,8 @@ def rows_for(table):
             tdtxt=t.text
             tdtxt=tdtxt.replace('*','')
             tdtxt=tdtxt.strip()
+            if tdtxt == 'L’Arachel':
+                tdtxt='L\'Arachel'
             cells.append(tdtxt)
         if not got_header:
             for h in row.find_all(name='th'):
@@ -122,7 +124,7 @@ def get_nickname(game):
 if __name__=='__main__':
     from time import time
     t0=time()
-    save_raw_data()
+    save_stats('8')
     tf=time()
     dt=tf-t0
     print(dt)

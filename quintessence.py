@@ -21,7 +21,8 @@ class Morph:
         if type(game) == int:
             game=str(game)
         assert game in (str(n) for n in range(4,10))
-        unit=unit.capitalize()
+        if unit != 'L\'Arachel':
+            unit=unit.capitalize()
         if game == '4':
             kids=fe4_name_dict('child')
             if unit in kids.keys() or unit in kids.values():
