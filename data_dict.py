@@ -277,7 +277,7 @@ def write_difference(game,audit_list,match_to_list,difference):
     part1=d[audit_list]
     part2=d[match_to_list]
     filename=(part1,part2)
-    filename=('classes_in_'+'_not-in_').join(filename)+'.txt'
+    filename='classes_in_%s_not-in_%s.txt'%filename
     path=('.','audit','fe'+game,filename)
     audit_dir=sep.join(path[:-2])
     diff_dir=sep.join(path[:-1])
