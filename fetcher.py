@@ -40,6 +40,13 @@ class Fetcher:
         data_list=list()
         for tr in table.find_all('tr'):
             if not data_list:
+                # Assumed that all headers are in first tr tag
+                if tr.find('td') is not None:
+                    message='td tag found in first tr tag!'
+                    print(message)
+                    print(table)
+                    print(tr)
+                    raise Exception
                 headers=list()
                 for th in tr.find_all('th'):
                     header=th.text
