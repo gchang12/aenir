@@ -76,32 +76,41 @@ class Angelo:
                     continue
                 return line[1:-1]
 
+    def gatherHeaders(self,tr):
+        headers=list()
+        for th in tr.find_all('th'):
+            header=th.text
+            header=header.strip()
+            if header not in headers:
+                headers.append(header)
+            else:
+                break
+        return headers
+
+    def gatherContents(self,tr):
+        row=list()
+        for td in tr.find_all('td'):
+            cell=td.text
+            if cell.isnumeric():
+                cell=int(cell)
+            row.append(cell)
+        return row
+
     def scrapeTable(self,table):
         data_list=list()
         for tr in table.find_all('tr'):
             if not data_list:
+                # Assumed that all headers are in first tr tag
                 if tr.find('td') is not None:
                     message='td tag found in first tr tag!'
                     print(message)
                     print(table)
                     print(tr)
                     raise Exception
-                headers=list()
-                for th in tr.find_all('th'):
-                    header=th.text
-                    header=header.strip()
-                    if header not in headers:
-                        headers.append(header)
-                    else:
-                        break
+                headers=self.gatherHeaders(tr)
                 data_list.append(headers)
                 continue
-            row=list()
-            for td in tr.find_all('td'):
-                cell=td.text
-                if cell.isnumeric():
-                    cell=int(cell)
-                row.append(cell)
+            row=self.gatherContents(tr)
             if row:
                 data_list.append(row)
         return data_list
