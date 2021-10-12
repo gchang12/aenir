@@ -6,7 +6,6 @@ from os.path import sep, exists
 
 import pandas as pd
 import json
-import re
 
 from aenir2.data_fetcher import get_nickname
 
@@ -156,11 +155,10 @@ class RankFetcher:
         text_list=text_list.split(',')
         for text in text_list:
             text=text.strip()
-            greyed=re.match('[(]',text)
-            if greyed is None:
-                x=True
-            else:
+            if text[0] == '(':
                 x=False
+            else:
+                x=True
             bool_list.append(x)
         return bool_list
 
