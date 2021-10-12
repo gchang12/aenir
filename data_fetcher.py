@@ -104,8 +104,8 @@ def save_raw_data():
     for k in range(4,10):
         game=str(k)
         game_dir=sep.join([data_dir,'fe'+game])
-        if exists(game_dir):
-            continue
+        if not exists(game_dir):
+            mkdir(game_dir)
         save_stats(game)
 
 def get_nickname(game):
