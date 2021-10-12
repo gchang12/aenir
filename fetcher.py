@@ -49,31 +49,34 @@ class Fetcher:
 
     def gatherContents(self,tr):
         row=list()
+        mixed_tr=False
         if tr.find('th') is not None:
-            # If row has th tag and is not the first row, skip
-            # Assume: row has no mixture of th and td tags
-            return row
+            mixed_tr=True
         for td in tr.find_all('td'):
             cell=td.text
             if cell.isnumeric():
                 cell=int(cell)
             row.append(cell)
+        assert not (row and mixed_tr)
         return row
 
     def scrapeTable(self,table):
         data_list=list()
         for tr in table.find_all('tr'):
             if not data_list:
-                # Gather headers from first row
-                # Assume: first row always contains headers
-                # Assume: every table has header row; otherwise data is empty
-                headers=self.gatherHeaders(tr)
-                data_list.append(headers)
-                # Skip to next row
+                if tr.find('td') is None and tr.find('th') is not None:
+                    # Assume first row is a header row
+                    headers=self.gatherHeaders(tr)
+                    data_list.append(headers)
+                else:
+                    message='First row is not a header row.'
+                    print(message,table)
+                    raise Exception
                 continue
             row=self.gatherContents(tr)
             if row:
                 data_list.append(row)
+        assert data_list
         return data_list
 
     def scrapePage(self,section,parser='html.parser'):
