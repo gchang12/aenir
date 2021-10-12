@@ -1,6 +1,5 @@
 import json
 import pandas as pd
-import re
 
 from os import walk, mkdir
 from os.path import sep, exists
@@ -29,10 +28,13 @@ class DataDict2:
 
     def gatherBasesNames(self):
         pattern='characters_base-stats'
+        N=len(pattern)
         names=list()
         for x,y,filelist in walk(self.stat_dir):
             for file in filelist:
-                if not re.match(pattern,file):
+                if len(file) < N:
+                    continue
+                elif file[:N] != pattern:
                     continue
                 file=sep.join([self.stat_dir,file])
                 data=pd.read_csv(file,index_col=0)
