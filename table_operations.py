@@ -47,7 +47,7 @@ def add_column(game,filename,data):
             for k,line in enumerate(r_file.readlines()):
                 line=line.strip()
                 line=line.split(',')
-                unpromoted.append(line[0],)
+                unpromoted.append(line[0])
                 #   Just to match correct classes to each other
                 assert line[1] == data.index[k]
         promoted=tuple(data.index)
