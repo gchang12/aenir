@@ -188,11 +188,11 @@ class Morph:
     #   Modify Morph attributes here
 
     def cap_stats(self):
-        capped_array=()
+        capped_array=list()
         for stat,limit in zip(self.my_stats,self.my_maxes):
             if stat > limit:
                 stat=limit
-            capped_array+=(stat,)
+            capped_array.append(stat)
         self.my_stats=array(capped_array)
         return self
 
@@ -596,16 +596,16 @@ class Morph:
 
     def __call__(self):
         stat_labels=get_stat_names(self.game)
-        my_stats=()
+        my_stats=list()
         print('%s\n'%self.get_display_name())
         for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
             if growth == 0:
-                my_stats+=(avg,)
+                my_stats.append(avg)
             else:
                 stat=''
                 while not stat.isdigit():
                     stat=input(name+': ')
-                my_stats+=(int(stat),)
+                my_stats.append(int(stat))
         stat_dict={
                     'mine':array(my_stats),\
                     'avg':self.my_stats

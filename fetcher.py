@@ -23,12 +23,12 @@ class Fetcher:
             if not exists(d):
                 mkdir(d)
 
-    def joinUrl(self,section=None,supsection=None):
+    def joinUrl(self,section,subsection):
         url=[self.root,self.title]
         if section is None:
             url.append('')
         else:
-            portals=supsection,section
+            portals=section,subsection
             for portal in portals:
                 url.append(portal)
         return '/'.join(url)

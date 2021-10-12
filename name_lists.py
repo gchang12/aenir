@@ -25,7 +25,7 @@ def game_title_dict(reverse=False):
 def character_list(game,file_match='characters_base-stats'):
     data_dir='.','raw_data','fe'+game
     data_dir=sep.join(data_dir)
-    compiled_names=()
+    compiled_names=list()
     for root,folders,files in walk(data_dir):
         if root != data_dir:
             continue
@@ -34,7 +34,7 @@ def character_list(game,file_match='characters_base-stats'):
                 continue
             filename=data_dir,file
             filename=sep.join(filename)
-            table=pd.read_csv(filename,index_col=0,memory_map=True)
+            table=pd.read_csv(filename,index_col=0)
             name_list=table.index
             for name in name_list:
                 if name in compiled_names:
@@ -48,17 +48,17 @@ def character_list(game,file_match='characters_base-stats'):
                 if '(' in name:
                     continue
                 if name not in compiled_names:
-                    compiled_names+=(name,)
+                    compiled_names.append(name)
     return compiled_names
 
 
 def translated_character_list(game,raw_list=None,file_match='characters_base-stats'):
     if raw_list is None:
         raw_list=character_list(game,file_match=file_match)
-    new_list=()
+    new_list=list()
     for unit in raw_list:
         unit=updated_name_for(game,unit)
-        new_list+=(unit,)
+        new_list.append(unit)
     return new_list
 
 
@@ -128,14 +128,14 @@ def get_true_name(game,unit,fe4family=None):
 
 def get_stat_names(game,stat_name=None):
     num_stats=read_stat_names(game)
-    stats=()
+    stats=list()
     for stat in num_stats.keys():
         if num_stats[stat]:
             x=num_stats[stat]
         else:
             x=stat
         if x not in stats:
-            stats+=(x,)
+            stats.append(x)
     if stat_name is not None:
         return stats.index(stat_name)
     return stats
@@ -144,13 +144,13 @@ def read_class_names2(game,audit_name,match_name):
     name_file=r'fe'+game+'.csv'
     table='.','metadata','class_names',name_file
     table=sep.join(table)
-    s=()
+    s=list()
     audit_match=[audit_name,match_name]
     with open(table) as r_file:
         for line in r_file.readlines():
             line=line.strip()
             line=line.split(',')
-            s+=(line,)
+            s.append(line)
     start=None
     stop=None
     for num,name in enumerate(s):

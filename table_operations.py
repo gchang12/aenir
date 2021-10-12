@@ -42,12 +42,12 @@ def add_column(game,filename,data):
         #   SF page for FE7 does not have column for unpromoted classes
         promo_file='.','metadata',r'fe7_promo.csv'
         promo_file=sep.join(promo_file)
-        unpromoted=()
+        unpromoted=list()
         with open(promo_file) as r_file:
             for k,line in enumerate(r_file.readlines()):
                 line=line.strip()
                 line=line.split(',')
-                unpromoted+=(line[0],)
+                unpromoted.append(line[0],)
                 #   Just to match correct classes to each other
                 assert line[1] == data.index[k]
         promoted=tuple(data.index)

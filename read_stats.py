@@ -47,7 +47,7 @@ def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
                 continue
             data_file=data_dir,file
             data_file=sep.join(data_file)
-            data=pd.read_csv(data_file,index_col=0,memory_map=True)
+            data=pd.read_csv(data_file,index_col=0)
             if unit in data.index:
                 if 'Lv' in data.columns:
                     col='Lv'
@@ -89,7 +89,7 @@ def load_stats(game,name,file_match,exceptions=()):
 
 def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
     file_match='characters_base-stats'
-    exceptions=()
+    exceptions=list()
     if game == '4':
         #   For FE4 kids
         if unit in fe4_child_list():
@@ -97,10 +97,10 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
             return data
         baldr_family='Celice','Leaf','Altenna'
         if unit not in baldr_family:
-            exceptions+=('characters_base-stats3.csv',)
+            exceptions.append('characters_base-stats3.csv')
     elif game == '7':
         table_num=('1.csv' if not lyn_mode else '2.csv')
-        exceptions+=('characters_base-stats'+table_num,)
+        exceptions.append('characters_base-stats'+table_num)
         if unit == 'Nils':
             unit = 'Ninian'
     kwargs={
@@ -115,7 +115,7 @@ def load_character_bases(game,unit,lyn_mode=False,father='Arden'):
 
 def load_character_growths(game,unit,lyn_mode=None,father='Arden'):
     file_match='characters_growth-rates'
-    exceptions=()
+    exceptions=list()
     if unit == 'Rifis':
         unit='Lifis'
     if unit == 'Safy':
@@ -125,10 +125,11 @@ def load_character_growths(game,unit,lyn_mode=None,father='Arden'):
         if unit in fe4_child_list():
             data=load_child_growths(unit,father)
             return data
-        exceptions+=(
+        growth_list=[
             'characters_growth-rates1.csv',\
             'characters_growth-rates4.csv'
-            )
+            ]
+        exceptions.extend(growth_list)
     if game == '7':
         dragon_kids=('Ninian','Nils')
         if unit in dragon_kids:
@@ -150,8 +151,7 @@ def load_class_maxes(game,unit,class_name,audit,lyn_mode=None,father=None):
         kw={
             'index_col':0,\
             'header':None,\
-            'squeeze':True,\
-            'memory_map':True
+            'squeeze':True
             }
         data=pd.read_csv(maxes_data,**kw)
         return data
@@ -205,7 +205,7 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     filename='classes_promotion-gains.csv'
     file='.','raw_data','fe'+game,filename
     file=sep.join(file)
-    data=pd.read_csv(file,index_col=0,memory_map=True)
+    data=pd.read_csv(file,index_col=0)
     add_column(game,filename,data)
     name_in_promo=match_class_name(game,unit,class_name,filename,audit)
     #   Evaluates to None on last promotion

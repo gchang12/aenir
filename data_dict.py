@@ -136,7 +136,7 @@ def search_all_tables(x,in_filename):
 def is_father(unit):
     file=('.','raw_data','fe4','characters_base-stats1.csv')
     file=sep.join(file)
-    gen1_bases=pd.read_csv(file,memory_map=True)
+    gen1_bases=pd.read_csv(file)
     parent_list=gen1_bases['Name'].values
     return unit in parent_list
 
@@ -144,14 +144,14 @@ def column_extractor(game,in_filename,index):
     assert type(index) in (str,int)
     data_folder=('.','raw_data','fe'+game)
     data_folder=sep.join(data_folder)
-    names=()
+    names=list()
     for root,folders,files in walk(data_folder):
         for file in files:
             if in_filename not in file:
                 continue
             data_file=(data_folder,file)
             data_file=sep.join(data_file)
-            data=pd.read_csv(data_file,memory_map=True)
+            data=pd.read_csv(data_file)
             if type(index) == int:
                 column=data.iloc[:,index]
             else:
@@ -175,7 +175,7 @@ def column_extractor(game,in_filename,index):
                     )
                 if all(wallace_exception):
                     continue
-                names+=(val,)
+                names.append(val)
     return names
 
 def character_bases(game):
@@ -206,7 +206,7 @@ def class_promo(game):
     if game == '7':
         file=('.','metadata','fe7_promo.csv')
         file=sep.join(file)
-        columns=pd.read_csv(file,header=None,memory_map=True)
+        columns=pd.read_csv(file,header=None)
         unpromoted=columns.iloc[:,0].values
         promoted=columns.iloc[:,1].values
         all_classes+=tuple(unpromoted)+tuple(promoted)
@@ -243,13 +243,13 @@ def read_class_names(game,audit_list,match_list):
     filename=r'fe'+game+'.csv'
     classes_table=('.','metadata','class_names',filename)
     classes_table=sep.join(classes_table)
-    s=()
+    s=list()
     audit_match=[d[audit_list],d[match_list]]
     with open(classes_table) as r_file:
         for line in r_file.readlines():
             line=line.strip()
             line=line.split(',')
-            s+=(line,)
+            s.append(line)
     start=None
     stop=None
     for num,name in enumerate(s):

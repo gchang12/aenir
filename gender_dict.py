@@ -151,9 +151,9 @@ def auto_promo_dict():
             game=line[0]
             unit=line[1]
             if game in promo_dict.keys():
-                promo_dict[game]+=(unit,)
+                promo_dict[game].append(unit)
             else:
-                promo_dict[game]=(unit,)
+                promo_dict[game]=[unit]
     return promo_dict
 
 
