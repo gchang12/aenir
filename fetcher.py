@@ -36,37 +36,33 @@ class Fetcher:
     def outputFile(self,filename):
         return sep.join([self.game_dir,filename])
 
-    def gatherHeaders(self,tr):
-        headers=list()
+    def gatherRows(self,tr,cell):
+        assert cell in ('td','th')
+        rows=list()
+        if cell == 'td':
+            unwanted='th'
+            string_test=lambda x: False
+        elif cell == 'th':
+            unwanted='td'
+            string_test=lambda x: x in rows
+        # If unwanted tag is in content row, set flag to True
         mixed_tr=False
-        if tr.find('td') is not None:
-            # Same check as in gatherContents method
+        if tr.find(unwanted) is not None:
             mixed_tr=True
-        for th in tr.find_all('th'):
-            header=th.text
-            header=header.strip()
-            if header not in headers:
-                headers.append(header)
-            else:
+        # Iterating over empty list if tag is not found
+        for tag in tr.find_all(cell):
+            text=tag.text
+            text=text.strip()
+            if cell == 'td':
+                if text.isnumeric():
+                    text=int(text)
+            if string_test(text):
                 break
-        assert not (headers and mixed_tr)
-        return headers
-
-    def gatherContents(self,tr):
-        row=list()
-        mixed_tr=False
-        if tr.find('th') is not None:
-            # If th tag is in content row, set flag to True
-            mixed_tr=True
-            # Iterating over empty list if td is not found
-        for td in tr.find_all('td'):
-            cell=td.text
-            if cell.isnumeric():
-                cell=int(cell)
-            row.append(cell)
+            else:
+                rows.append(text)
         # If both row is non-empty and th tag is found, then raise error
-        assert not (row and mixed_tr)
-        return row
+        assert not (rows and mixed_tr)
+        return rows
 
     def scrapeTable(self,table):
         data_list=list()
@@ -77,7 +73,7 @@ class Fetcher:
                 # If row has no td tags and has th tags, then it is a header row
                 is_header_row=tr.find('td') is None and tr.find('th') is not None
                 if is_header_row:
-                    headers=self.gatherHeaders(tr)
+                    headers=self.gatherRows(tr,'th')
                     data_list.append(headers)
                 else:
                     # If it is not a header row, stop interpreter
@@ -85,7 +81,7 @@ class Fetcher:
                     print(message,table)
                     raise Exception
                 continue
-            row=self.gatherContents(tr)
+            row=self.gatherRows(tr,'td')
             if row:
                 data_list.append(row)
         assert data_list
