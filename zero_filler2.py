@@ -8,7 +8,8 @@ from aenir2.data_dict import read_stat_names
 
 class ZeroFiller:
     def __init__(self,game,folder=None):
-        assert type(folder) in (type(None),tuple,str)
+        if folder is not None:
+            assert type(folder) in (tuple,str)
         self.game=game
         self.stat_dict=read_stat_names(game)
         if folder is None:
