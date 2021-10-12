@@ -211,4 +211,4 @@ def save_all():
             x.getImgRanks()
 
 if __name__ == '__main__':
-    correct_fe5()
+    save_all()
