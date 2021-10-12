@@ -432,14 +432,13 @@ class Morph:
         self.my_stats=self.my_stats+decrement
         return self
 
-    def __gt__(self,other):
+    def color_dict(self,my_array,my_class,my_level):
         #   Indicates which stats to color during forecast
         #   True: blue
         #   False: red
         #   None: (no color)
         colors={}
-        stat_array=zip(get_stat_names(self.game),self.my_stats,other.my_stats)
-        assert len(get_stat_names(self.game)) == len(self.my_stats)
+        stat_array=zip(get_stat_names(self.game),self.my_stats,my_array)
 
         def update_colors(key,f1,f2):
             if f1() == f2():
@@ -448,8 +447,8 @@ class Morph:
                 x=True
             colors[key]=x
 
-        update_colors('Class',self.current_class,other.current_class)
-        update_colors('Level',self.current_level,other.current_level)
+        update_colors('Class',self.current_class,my_class)
+        update_colors('Level',self.current_level,my_level)
 
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
@@ -501,6 +500,9 @@ class Morph:
         return pd.Series(**kw)
 
     def __repr__(self):
+        return self.display()
+
+    def display(self,my_array=None,my_class=None,my_level=None):
         stat_labels=get_stat_names(self.game)
         stat_values=self.my_stats
         data={
@@ -511,7 +513,17 @@ class Morph:
             }
         for label,value in zip(stat_labels,stat_values):
             data[label]=value
-        return pd.Series(data).to_string()
+        after=pd.Series(data)
+        if (my_array,my_level,my_class) == (None,None,None):
+            return after.to_string()
+        else:
+            data['Class']=my_class
+            data['Level']=my_level
+            for label,value in zip(stat_labels,my_array):
+                data[label]=value
+            before=pd.Series(data)
+            df=pd.DataFrame({'before':before,'after':after})
+            return df
 
     def max_level(self):
         args=(self.game,self.current_class())
@@ -526,9 +538,6 @@ class Morph:
             self.kwargs == other.kwargs
             )
         return all(conditions)
-
-    def __neq__(self,other):
-        return not self.__eq__(other)
 
     def get_display_name(self):
         display_name=[self.game,updated_name_for(self.game,self.unit)]

@@ -6,6 +6,7 @@ from os.path import sep, exists
 
 import pandas as pd
 import json
+import re
 
 from aenir2.data_fetcher import get_nickname
 
@@ -17,6 +18,9 @@ class RankFetcher:
         self.main_dir=sep.join(['.','class_data'])
         self.game_dir=sep.join([self.main_dir,'fe%s'%game])
         self.ranks=dict()
+
+    def outputFile(self,filename):
+        return sep.join([self.game_dir,filename])
 
     def createDir(self):
         folders=self.main_dir,self.game_dir
@@ -48,10 +52,15 @@ class RankFetcher:
         return d
 
     def saveRanks(self):
-        dst=sep.join([self.game_dir,'weapon-ranks.json'])
+        dst=self.outputFile('weapon-ranks.json')
         self.cleanupRanks()
         with open(dst,'w') as wfile:
             json.dump(self.ranks,wfile)
+
+    def ranksFromFile(self):
+        dst=self.outputFile('weapon-ranks.json')
+        with open(dst,'r') as rfile:
+            self.ranks=json.load(rfile)
 
     def cleanupRanks(self):
         new_ranks=dict()
@@ -139,6 +148,58 @@ class RankFetcher:
                                 ranks.append(alt)
         self.saveRanks()
 
+    def filterRanks5(self,text_list):
+        assert self.game == '5'
+        if ',' not in text_list:
+            return [True]
+        bool_list=list()
+        text_list=text_list.split(',')
+        for text in text_list:
+            text=text.strip()
+            greyed=re.match('[(]',text)
+            if greyed is None:
+                x=True
+            else:
+                x=False
+            bool_list.append(x)
+        return bool_list
+
+    def getMoreRanks5(self):
+        assert self.game == '5'
+        soup=self.getSoup('base-stats')
+        self.getImgRanks()
+        text_dict=dict()
+        rank_dict=self.ranks
+        for tr in soup.find_all('tr'):
+            ranks=list()
+            for n,td in enumerate(tr.find_all('td')):
+                if n == 0:
+                    unit_class=td.text
+                    text_dict[unit_class]=ranks
+                elif td.find('a') is None:
+                    continue
+                else:
+                    bool_list=self.filterRanks5(td.text)
+                    ranks.extend(bool_list)
+        for key in text_dict.keys():
+            if key not in rank_dict.keys():
+                continue
+            old_list=rank_dict[key]
+            bool_list=text_dict[key]
+            assert len(old_list) == len(bool_list)
+            new_list=list()
+            for weapon,tf in zip(old_list,bool_list):
+                if tf:
+                    new_list.append(weapon)
+            self.ranks[key]=new_list
+
+        self.saveRanks()
+
+def correct_fe5():
+    game='5'
+    x=RankFetcher(game)
+    x.getMoreRanks5()
+
 def save_all():
     for n in range(4,10):
         game=str(n)
@@ -147,4 +208,4 @@ def save_all():
         x.getImgRanks()
 
 if __name__ == '__main__':
-    save_all()
+    correct_fe5()
