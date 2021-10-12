@@ -49,6 +49,10 @@ class Fetcher:
 
     def gatherContents(self,tr):
         row=list()
+        if tr.find('th') is not None:
+            # If row has th tag and is not the first row, skip
+            # Assume: row has no mixture of th and td tags
+            return row
         for td in tr.find_all('td'):
             cell=td.text
             if cell.isnumeric():
@@ -60,15 +64,12 @@ class Fetcher:
         data_list=list()
         for tr in table.find_all('tr'):
             if not data_list:
-                # Assumed that all headers are in first tr tag
-                if tr.find('td') is not None:
-                    message='td tag found in first tr tag!'
-                    print(message)
-                    print(table)
-                    print(tr)
-                    raise Exception
+                # Gather headers from first row
+                # Assume: first row always contains headers
+                # Assume: every table has header row; otherwise data is empty
                 headers=self.gatherHeaders(tr)
                 data_list.append(headers)
+                # Skip to next row
                 continue
             row=self.gatherContents(tr)
             if row:
