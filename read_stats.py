@@ -10,7 +10,7 @@ from aenir2.child_stats import *
 
 
 def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
-    data_dir='.','raw_data','fe'+game
+    data_dir='.','stat_data','fe'+game
     data_dir=sep.join(data_dir)
     unit_info={}
 
@@ -62,7 +62,7 @@ def load_unit_info(game,unit,lyn_mode=False,father='Arden'):
 
 
 def load_stats(game,name,file_match,exceptions=()):
-    data_dir='.','raw_data','fe'+game
+    data_dir='.','stat_data','fe'+game
     data_dir=sep.join(data_dir)
 
     for root,folders,files in walk(data_dir):
@@ -203,7 +203,7 @@ def load_class_promo_list(game,unit,class_name,audit,lyn_mode=False,father=None)
     if check_promo_status[unit]:
         return
     filename='classes_promotion-gains.csv'
-    file='.','raw_data','fe'+game,filename
+    file='.','stat_data','fe'+game,filename
     file=sep.join(file)
     data=pd.read_csv(file,index_col=0)
     add_column(game,filename,data)

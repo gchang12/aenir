@@ -33,7 +33,7 @@ def collect_table(table,headers,rows,files):
 
 def rows_and_headers_for(game):
     rows={}
-    raw_data_path=('.','raw_data','fe'+game)
+    raw_data_path=('.','stat_data','fe'+game)
     raw_data_path=sep.join(raw_data_path)
     headers=[]
     for root,folders,files in walk(raw_data_path):
@@ -48,7 +48,7 @@ def rows_and_headers_for(game):
 def save_header_info(game):
     rows,headers=rows_and_headers_for(game)
     filename='table_headers.csv'
-    path='.','raw_data','fe'+game,'metadata',filename
+    path='.','stat_data','fe'+game,'metadata',filename
     metadata_dir=sep.join(path[:-1])
     if not exists(metadata_dir):
         mkdir(metadata_dir)
@@ -104,7 +104,7 @@ def name_for_index(table,index,find_in):
     return names
 
 def search_tables(game,x,in_filename):
-    header_path='.','raw_data','fe'+game
+    header_path='.','stat_data','fe'+game
     header_path=sep.join(header_path)
     if not exists(header_path):
         for k in range(4,10):
@@ -134,7 +134,7 @@ def search_all_tables(x,in_filename):
         print('\n')
 
 def is_father(unit):
-    file=('.','raw_data','fe4','characters_base-stats1.csv')
+    file=('.','stat_data','fe4','characters_base-stats1.csv')
     file=sep.join(file)
     gen1_bases=pd.read_csv(file)
     parent_list=gen1_bases['Name'].values
@@ -142,7 +142,7 @@ def is_father(unit):
 
 def column_extractor(game,in_filename,index):
     assert type(index) in (str,int)
-    data_folder=('.','raw_data','fe'+game)
+    data_folder=('.','stat_data','fe'+game)
     data_folder=sep.join(data_folder)
     names=list()
     for root,folders,files in walk(data_folder):

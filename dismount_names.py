@@ -8,7 +8,7 @@ import pandas as pd
 
 class DataDict3:
     def __init__(self):
-        self.stat_dir=sep.join(['.','raw_data','fe5'])
+        self.stat_dir=sep.join(['.','stat_data','fe5'])
         filePointer=lambda x: sep.join([self.stat_dir,x+'.csv'])
         self.promo_file=filePointer('classes_promotion-gains')
         self.bases_file=filePointer('characters_base-stats')

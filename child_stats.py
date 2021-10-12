@@ -15,7 +15,7 @@ def load_child_attributes(unit,filename,father):
         return
     elif father not in dad_list:
         return
-    data_src='.','raw_data','fe4',filename
+    data_src='.','stat_data','fe4',filename
     data_src=sep.join(data_src)
     data=pd.read_csv(data_src)
     kwargs={
