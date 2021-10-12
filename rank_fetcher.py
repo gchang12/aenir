@@ -148,7 +148,8 @@ class RankFetcher:
         self.saveRanks()
 
     def filterRanks5(self,text_list):
-        assert self.game == '5'
+        if self.game != '5':
+            return
         if ',' not in text_list:
             return [True]
         bool_list=list()
@@ -163,7 +164,8 @@ class RankFetcher:
         return bool_list
 
     def getMoreRanks5(self):
-        assert self.game == '5'
+        if self.game != '5':
+            return
         soup=self.getSoup('base-stats')
         self.getImgRanks()
         text_dict=dict()
@@ -203,7 +205,10 @@ def save_all():
         game=str(n)
         x=RankFetcher(game)
         x.createDir()
-        x.getImgRanks()
+        if game == '5':
+            correct_fe5()
+        else:
+            x.getImgRanks()
 
 if __name__ == '__main__':
     correct_fe5()
