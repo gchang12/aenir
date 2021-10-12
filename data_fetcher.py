@@ -44,22 +44,22 @@ def soups_for(game):
 
 
 def rows_for(table):
-    rows=tuple()
+    rows=list()
     got_header=False
     for row in table.find_all(name='tr'):
-        cells=tuple()
+        cells=list()
         for t in row.find_all(name='td'):
             tdtxt=t.text
             tdtxt=tdtxt.replace('*','')
             tdtxt=tdtxt.strip()
-            cells+=(tdtxt,)
+            cells.append(tdtxt)
         if not got_header:
             for h in row.find_all(name='th'):
                 thtxt=h.text
-                cells+=(thtxt,)
+                cells.append(thtxt)
             got_header=True
         if cells:
-            rows+=(cells,)
+            rows.append(cells)
     return rows
 
 
