@@ -23,7 +23,7 @@ def collect_table(table,headers,rows,files):
             for stat in line:
                 file=table.split(sep)[-1]
                 if file not in headers:
-                    headers+=[file]
+                    headers.append(file)
                 if stat not in rows.keys():
                     rows[stat]=['' for n in range(len(files))]
                 column_num=files.index(file)
@@ -202,14 +202,15 @@ def class_maxes(game):
     return class_list
 
 def class_promo(game):
-    all_classes=()
+    all_classes=list()
     if game == '7':
         file=('.','metadata','fe7_promo.csv')
         file=sep.join(file)
         columns=pd.read_csv(file,header=None)
         unpromoted=columns.iloc[:,0].values
         promoted=columns.iloc[:,1].values
-        all_classes+=tuple(unpromoted)+tuple(promoted)
+        all_classes.extend(list(unpromoted))
+        all_classes.extend(list(promoted))
         return all_classes
     kwargs={
         'game':game,
@@ -218,7 +219,7 @@ def class_promo(game):
     for name in col_names:
         kwargs['index']=name
         class_list=column_extractor(**kwargs)
-        all_classes+=class_list
+        all_classes.extend(class_list)
     return all_classes
 
 def class_growths(game):

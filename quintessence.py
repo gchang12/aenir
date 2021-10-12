@@ -269,7 +269,7 @@ class Morph:
             if list_var[-1] is None:
                 list_var[-1]=value
             else:
-                list_var+=[value]
+                list_var.append(value)
 
         if self.game == '4':
             reset_level=self.current_level()
