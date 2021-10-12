@@ -78,6 +78,10 @@ class Angelo:
 
     def gatherHeaders(self,tr):
         headers=list()
+        mixed_tr=False
+        if tr.find('td') is not None:
+            # Same check as in gatherContents method
+            mixed_tr=True
         for th in tr.find_all('th'):
             header=th.text
             header=header.strip()
@@ -85,6 +89,7 @@ class Angelo:
                 headers.append(header)
             else:
                 break
+        assert not (headers and mixed_tr)
         return headers
 
     def gatherContents(self,tr):
@@ -93,26 +98,29 @@ class Angelo:
         if tr.find('th') is not None:
             # If th tag is in content row, set flag to True
             mixed_tr=True
+            # Iterating over empty list if td is not found
         for td in tr.find_all('td'):
             cell=td.text
             if cell.isnumeric():
                 cell=int(cell)
             row.append(cell)
         # If both row is non-empty and th tag is found, then raise error
-        # It could be the case that row has neither td nor th tags
-        # - no error raised; row is skipped
         assert not (row and mixed_tr)
         return row
 
     def scrapeTable(self,table):
         data_list=list()
         for tr in table.find_all('tr'):
-            if not data_list:
-                if tr.find('td') is None and tr.find('th') is not None:
-                    # Asserting that the first row is a header row
+            # If data_list is empty, then it is the first row
+            is_first_row=not data_list
+            if is_first_row:
+                # If row has no td tags and has th tags, then it is a header row
+                is_header_row=tr.find('td') is None and tr.find('th') is not None
+                if is_header_row:
                     headers=self.gatherHeaders(tr)
                     data_list.append(headers)
                 else:
+                    # If it is not a header row, stop interpreter
                     message='First row is not a header row.'
                     print(message,table)
                     raise Exception
