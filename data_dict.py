@@ -48,7 +48,7 @@ def rows_and_headers_for(game):
 def save_header_info(game):
     rows,headers=rows_and_headers_for(game)
     filename='table_headers.csv'
-    path='.','stat_data','fe'+game,'metadata',filename
+    path='.','audit','fe'+game,filename
     metadata_dir=sep.join(path[:-1])
     if not exists(metadata_dir):
         mkdir(metadata_dir)
@@ -299,6 +299,8 @@ def bases_class_in_list(game,compare_list):
     unmatched_items=set()
     name_matches=read_class_names(game,character_bases,compare_list)
     for char,class_name in list_to_audit.items():
+        if char == 'L’Arachel':
+            char='L\'Arachel'
         suffix=gender[char]
         gendered_class=class_name+suffix
         if class_name in match_list:
