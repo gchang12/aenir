@@ -245,7 +245,7 @@ class Morph:
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
-        elif promo_path not in self.my_promotions.keys():
+        elif promo_path not in promo_indices:
             return self.my_promotions
         promo_class=self.my_promotions[promo_path]
         audit=('bases' if self.my_classes[-1] is None else 'promo')
