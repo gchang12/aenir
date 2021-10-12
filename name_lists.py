@@ -167,14 +167,7 @@ def read_class_names2(game,audit_name,match_name):
 
 
 if __name__ == '__main__':
-    k=9
-    game=str(k)
-    unit_list=character_list(game)
-    other_list=character_list(game,file_match='characters_growth-rates')
-    set1=set(unit_list)
-    set2=set(other_list)
-    setx=set1.difference(set2)
-    sety=set2.difference(set1)
-    print(setx)
-    print(sety)
-
+    kw={'get_father':True}
+    x=fe4_child_list(**kw)
+    x=tuple(x)
+    print(x)

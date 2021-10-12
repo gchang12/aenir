@@ -165,6 +165,7 @@ def column_extractor(game,in_filename,index):
                 if 'HM' in val:
                     continue
                 #   For FE4 kids whose fathers are listed with them
+                #   'Character' column in *growths.csv columns but not searched
                 if is_father(val) and column.name == 'Character':
                     continue
                 #   For FE7 Wallace
@@ -265,6 +266,30 @@ def read_class_names(game,audit_list,match_list):
         x=dict(s[start+1:stop])
     return x
 
+def write_difference(game,audit_list,match_to_list,difference):
+    if not match_to_list(game) or not audit_list(game):
+        return
+    d={}
+    d[character_bases]='character-bases'
+    d[class_growths]='class-growths'
+    d[class_maxes]='class-maxes'
+    d[class_promo]='class-promo'
+    part1=d[audit_list]
+    part2=d[match_to_list]
+    filename=(part1,part2)
+    filename=('classes_in_'+'_not-in_').join(filename)+'.txt'
+    path=('.','audit','fe'+game,filename)
+    audit_dir=sep.join(path[:-2])
+    diff_dir=sep.join(path[:-1])
+    if not exists(audit_dir):
+        mkdir(audit_dir)
+    if not exists(diff_dir):
+        mkdir(diff_dir)
+    path=sep.join(path)
+    with open(path,'w') as wFile:
+        for name in difference:
+            wFile.write(name+'\n')
+
 
 def bases_class_in_list(game,compare_list):
     #   For comparing character bases list to class attribute lists
@@ -323,29 +348,6 @@ def compare_class_lists(game,audit_list,match_to_list):
                     unmatched|={cls}
     write_difference(game,audit_list,match_to_list,unmatched)
     return unmatched
-
-
-def write_difference(game,audit_list,match_to_list,difference):
-    if not match_to_list(game) or not audit_list(game):
-        return
-    d={}
-    d[character_bases]='character-bases'
-    d[class_growths]='class-growths'
-    d[class_maxes]='class-maxes'
-    d[class_promo]='class-promo'
-    part1=d[audit_list]
-    part2=d[match_to_list]
-    filename=(part1,part2)
-    filename='classes_in_'+'_not-in_'.join(filename)+'.txt'
-    path=('.','raw_data','fe'+game,'metadata',filename)
-    diff_dir=sep.join(path[:-1])
-    if not exists(diff_dir):
-        mkdir(diff_dir)
-    path=sep.join(path)
-    with open(path,'w') as wFile:
-        for name in difference:
-            wFile.write(name+'\n')
-
 
 def section_in_base_class_list(game,compare_list):
     base_class_dict=character_bases(game)
