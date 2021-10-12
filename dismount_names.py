@@ -40,7 +40,7 @@ class DataDict3:
     def getBonus(self,unit_class):
         filename='fe5-dismount.csv'
         zf=ZeroFiller('5','metadata')
-        bonus=zf.fromCSV(unit_class,filename,valtype='array')
+        bonus=zf.fromCSV(unit_class,filename,return_as='array')
         return bonus
 
     def dismountDiff(self):
