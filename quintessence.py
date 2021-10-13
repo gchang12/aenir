@@ -182,7 +182,7 @@ class Morph:
     def current_class(self):
         return self.current_level(get_level=False)
 
-    #   Modify Morph attributes here
+    #   End of aforementioned methods
 
     def cap_stats(self):
         capped_array=list()
@@ -244,8 +244,6 @@ class Morph:
             }
         kwargs1.update(self.kwargs)
         promo_bonus=load_class_promo(**kwargs1).to_numpy()
-        #   Checks if unit can promote at current level
-        #   -if no, automatically levels up unit
         min_promo_lv=self.min_promo_level(promo_path=promo_path)
         assert self.current_level() >= min_promo_lv
         if self.can_mount():
@@ -403,10 +401,6 @@ class Morph:
         self.snapshot['Class']=self.current_class()
 
     def color_dict(self):
-        #   Indicates which stats to color during forecast
-        #   True: blue
-        #   False: red
-        #   None: (no color)
         colors={}
         my_array=self.snapshot['Stats']
         stat_array=zip(self.stat_names,self.my_stats,my_array)
@@ -556,10 +550,7 @@ class Morph:
         stat_comparison=pd.DataFrame(d,index=index_labels)
         cls_level=pd.DataFrame(cls_level).transpose()
         cls_level.columns=d.keys()
-        if self.game in ('6','7','8'):
-            stat_comparison=stat_comparison.iloc[:-2,:]
-        elif self.game == '9':
-            stat_comparison=stat_comparison.iloc[:-3,:]
+        stat_comparison=self.truncate_data(stat_comparison)
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
         summary={
                 first_name:'-',\
@@ -574,6 +565,13 @@ class Morph:
         stat_comparison=stat_comparison.append(pd.Series(blank_row,name=''))
         stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
         return pd.concat([cls_level,stat_comparison])
+
+    def truncate_data(self,data):
+        if self.game in ('6','7','8'):
+            data=data.iloc[:-2,:]
+        elif self.game == '9':
+            data=data.iloc[:-2,:]
+        return data
 
     def __call__(self):
         my_stats=list()
@@ -593,10 +591,7 @@ class Morph:
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
         csum=sum(val for val in stat_dict['diff'])
         comparison=pd.DataFrame(stat_dict,index=self.stat_names)
-        if self.game in ('6','7','8'):
-            comparison=comparison.iloc[:-2,:]
-        elif self.game == '9':
-            comparison=comparison.iloc[:-3,:]
+        comparison=self.truncate_data(comparison)
         print('\n')
         for cls,lv in zip(self.my_classes,self.my_levels):
             if lv is None:
