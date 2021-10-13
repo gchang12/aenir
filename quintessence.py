@@ -220,6 +220,10 @@ class Morph:
                 num_levels=num_levels-self.current_level()
             elif num_levels == 'max':
                 num_levels=max_level-self.current_level()
+            elif num_levels == 'promo':
+                mpl=self.min_promo_level(promo_path=0)
+                assert mpl > self.current_level()
+                num_levels=mpl-self.current_level()
         else:
             assert type(num_levels) == int
         assert num_levels >= 0
