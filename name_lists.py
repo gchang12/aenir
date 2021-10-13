@@ -114,16 +114,22 @@ def get_true_name(game,unit,fe4family=None):
         message='Please specify a choice for the \'father\' option.'
     else:
         my_dict=unit_name_dict(game)
-        game_title=game_title_dict(reverse=True)[game]
-        message='%s is not in FE%s: %s.\nPlease choose someone from the list below.'%(unit,game,game_title)
     if unit in my_dict.keys():
         return my_dict[unit]
     elif unit in my_dict.values():
         return unit
     else:
-        print(message+'\n')
+        game_title=game_title_dict(reverse=True)[game]
+        message=(
+            '',\
+            '%s is not in FE%s: %s'%(unit,game,game_title),\
+            'Please choose someone from the list above.',\
+            ''
+            )
+        message='\n'.join(message)
         for key in my_dict.keys():
             print(key)
+        print(message)
         raise Exception
 
 def get_stat_names(game,stat_name=None):

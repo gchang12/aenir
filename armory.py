@@ -22,7 +22,7 @@ class Armory:
         wtypes=self.listWeaponTypes()
         if weapon_type not in wtypes:
             message=(
-                '%s does not seem to be a valid weapon type.',\
+                '%s does not seem to be a valid weapon type.'%weapon_type,\
                 'Please choose from the list below.',\
                 ''
                 )
@@ -91,8 +91,8 @@ class Armory:
         return data.transpose()
 
 if __name__ == '__main__':
-    weapon='Fire'
-    x=Armory('8')
-    z=Armory('7')
-    y=x.comparePlus(z,weapon)
+    weapon='Anima'
+    game='6'
+    x=Armory(game)
+    y=x.getWeaponData(weapon)
     print(y)

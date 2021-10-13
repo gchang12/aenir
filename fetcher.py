@@ -39,12 +39,16 @@ class Fetcher:
     def gatherRows(self,tr,cell):
         assert cell in ('td','th')
         rows=list()
+        def alert_user(message):
+            print(message)
+            print(tr)
+            raise Exception
         if cell == 'td':
             unwanted='th'
-            string_test=lambda x: False
+            is_duplicate=lambda x: False
         elif cell == 'th':
             unwanted='td'
-            string_test=lambda x: x in rows
+            is_duplicate=lambda x: x in rows
         # If unwanted tag is in content row, set flag to True
         mixed_tr=False
         if tr.find(unwanted) is not None:
@@ -56,12 +60,15 @@ class Fetcher:
             if cell == 'td':
                 if text.isnumeric():
                     text=int(text)
-            if string_test(text):
-                break
+            if is_duplicate(text):
+                message='There was a duplicate header detected: %s'%text
+                alert_user(message)
             else:
                 rows.append(text)
         # If both row is non-empty and th tag is found, then raise error
-        assert not (rows and mixed_tr)
+        if rows and mixed_tr:
+            message='There was a row with both th and td tags:'
+            alert_user(message)
         return rows
 
     def scrapeTable(self,table):
@@ -78,7 +85,7 @@ class Fetcher:
                 else:
                     # If it is not a header row, stop interpreter
                     message='First row is not a header row.'
-                    print(message,table)
+                    print(message,tr)
                     raise Exception
                 continue
             row=self.gatherRows(tr,'td')
