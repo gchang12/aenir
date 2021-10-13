@@ -59,8 +59,8 @@ class Morph:
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
-        self.unit_info['Base Growths']=self.growth_rates.copy()
         if self.game == '5':
+            self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
         self.snapshot={'Compare':False}
