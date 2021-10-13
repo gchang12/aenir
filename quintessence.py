@@ -603,16 +603,6 @@ class Morph:
         return '!'.join(display_name)
 
     def __sub__(self,other):
-        gba_games=('6','7','8')
-        if self.game in gba_games:
-            assert other.game in gba_games
-            zero_growth_stat='Con'
-        else:
-            assert self.game == other.game
-            if self.game == '9':
-                zero_growth_stat='Mov'
-            else:
-                zero_growth_stat=None
         diff=self.my_stats-other.my_stats
         first=self.my_stats
         second=other.my_stats
@@ -635,10 +625,10 @@ class Morph:
         stat_comparison=pd.DataFrame(d,index=index_labels)
         cls_level=pd.DataFrame(cls_level).transpose()
         cls_level.columns=d.keys()
-        if zero_growth_stat is not None:
-            # This block was based off the assumption that no character has more than one zero growth rate
-            cutoff_row=tuple(stat_comparison.index).index(zero_growth_stat)
-            stat_comparison=stat_comparison.iloc[:cutoff_row,:]
+        if self.game in ('6','7','8'):
+            stat_comparison=stat_comparison.iloc[:-2,:]
+        elif self.game == '9':
+            stat_comparison=stat_comparison.iloc[:-3,:]
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
         summary={
                 first_name:'-',\
@@ -672,14 +662,18 @@ class Morph:
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
         csum=sum(val for val in stat_dict['diff'])
         comparison=pd.DataFrame(stat_dict,index=self.stat_names)
+        if self.game in ('6','7','8'):
+            comparison=comparison.iloc[:-2,:]
+        elif self.game == '9':
+            comparison=comparison.iloc[:-3,:]
         print('\n')
         for cls,lv in zip(self.my_classes,self.my_levels):
             if lv is None:
                 continue
             if cls is None:
                 continue
-            print('Level %d: %s\n'%(lv,cls))
-        print(comparison)
+            print('Level %d: %s'%(lv,cls))
+        print('\n',comparison)
         message=self.get_display_name(),('better' if csum >= 0 else 'worse'),abs(csum)
         message='\n\nYour %s is %s than average by %.2f points.'%message
         print(message)
