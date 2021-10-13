@@ -621,7 +621,14 @@ class Morph:
             'diff':diff
             }
         index_labels=get_stat_names(self.game)
+        cls_level={
+            'Class':[self.current_class(),other.current_class(),'-'],\
+            'Level':[self.current_level(),other.current_level(),'-'],\
+            '':['','','']
+            }
         stat_comparison=pd.DataFrame(d,index=index_labels)
+        cls_level=pd.DataFrame(cls_level).transpose()
+        cls_level.columns=d.keys()
         if zero_growth_stat is not None:
             # This block was based off the assumption that no character has more than one zero growth rate
             cutoff_row=tuple(stat_comparison.index).index(zero_growth_stat)
@@ -632,8 +639,14 @@ class Morph:
                 second_name:'-',\
                 'diff':csum
                 }
+        blank_row={
+            first_name:'',\
+            second_name:'',\
+            'diff':''
+            }
+        stat_comparison=stat_comparison.append(pd.Series(blank_row,name=''))
         stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
-        return stat_comparison
+        return pd.concat([cls_level,stat_comparison])
 
     def __call__(self):
         stat_labels=get_stat_names(self.game)
