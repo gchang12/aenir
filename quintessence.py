@@ -535,10 +535,10 @@ class Morph:
         for label,value in zip(stat_labels,stat_values):
             data[label]=value
         after=pd.Series(data)
+        stat_view=after.to_string()
         if not self.snapshot['Compare']:
-            return after.to_string()
+            return stat_view
         else:
-            original=after.copy()
             after.drop(labels='Name',inplace=True)
             new_data={
                 'Class':self.snapshot['Class'],\
@@ -562,7 +562,7 @@ class Morph:
                     df.drop(label,inplace=True)
             self.snapshot['Compare']=False
             if df.empty:
-                return original.to_string()
+                return stat_view
             else:
                 return df.to_string()
 
