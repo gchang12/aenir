@@ -11,10 +11,13 @@ def dir_switcher(name):
     aenir_loc=sep.join(aenir_loc[:-1])
     chdir(aenir_loc)
     message=(
-        '',\
         'The present working directory has been changed to:',\
         aenir_loc,\
-        ''
+        'Data files are now acccessible.'
         )
-    message='\n'.join(message)
+    new_message=['']
+    for text in message:
+        new_message.append(text)
+        new_message.append('')
+    message='\n'.join(new_message)
     print(message)

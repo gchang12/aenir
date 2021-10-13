@@ -74,6 +74,7 @@ class Morph:
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
+        self.snapshot={'Compare':False}
 
     def equip_scroll(self,scroll_name=None):
         '''
@@ -115,6 +116,7 @@ class Morph:
         else:
             decrement=-decrement
             x=True
+        self.update_snapshot()
         self.my_stats=self.my_stats+decrement
         self.unit_info['Mounted']=x
         return self.cap_stats()
@@ -210,13 +212,21 @@ class Morph:
         our_boy.level_up(num_levels)
         """
         max_level=max_level_dict(self.game,self.current_class())
-        if num_levels == 'max':
-            num_levels=max_level-self.current_level()
+        if type(num_levels) == str:
+            if num_levels.isnumeric():
+                num_levels=int(num_levels)
+                assert num_levels >= self.current_level()
+                num_levels=num_levels-self.current_level()
+            elif num_levels == 'max':
+                num_levels=max_level-self.current_level()
+        else:
+            assert type(num_levels) == int
         assert num_levels >= 0
         if increase_level:
             assert self.current_level()+num_levels <= max_level
         if stat_array is None:
             stat_array=self.growth_rates
+        self.update_snapshot()
         if increase_level:
             index=self.current_index()
             self.my_levels[index]+=num_levels
@@ -264,6 +274,7 @@ class Morph:
         if self.can_mount():
             if not self.unit_info['Mounted']:
                 self.dismount()
+        self.update_snapshot()
         self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
@@ -365,7 +376,8 @@ class Morph:
         bad_in_general.add_auto_bonus(chapter)
         """
         if (self.game,self.unit) == ('8','Knoll'):
-            # Not sure how many hidden levels are added; assumed it was just one
+            # Not sure how many hidden levels are added
+            # - assumed it was just one
             return self.add_hm_bonus(chapter=chapter)
         if (self.game,self.unit) == ('6','Gonzales'):
             assert self.my_levels == [5,None]
@@ -410,6 +422,7 @@ class Morph:
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(increment)
+        self.update_snapshot()
         self.my_stats=self.my_stats+boost_array
         return self.cap_stats()
 
@@ -430,30 +443,35 @@ class Morph:
             self.unit_info['Declines']+=num_times
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
+        self.update_snapshot()
         self.my_stats=self.my_stats+decrement
         return self
 
-    def color_dict(self,my_array,my_class,my_level):
+    def update_snapshot(self):
+        self.snapshot['Compare']=True
+        self.snapshot['Stats']=self.my_stats.copy()
+        self.snapshot['Level']=self.current_level()
+        self.snapshot['Class']=self.current_class()
+
+    def color_dict(self):
         #   Indicates which stats to color during forecast
         #   True: blue
         #   False: red
         #   None: (no color)
         colors={}
+        my_array=self.snapshot['Stats']
         stat_array=zip(get_stat_names(self.game),self.my_stats,my_array)
 
         def update_colors(key,f1,f2):
-            if f1() == f2():
-                x=None
-            else:
-                x=True
-            colors[key]=x
+            if f1() != f2[key]:
+                colors[key]=True
 
-        update_colors('Class',self.current_class,my_class)
-        update_colors('Level',self.current_level,my_level)
+        update_colors('Class',self.current_class,self.snapshot)
+        update_colors('Level',self.current_level,self.snapshot)
 
         for name,my_stat,other_stat in stat_array:
             if my_stat == other_stat:
-                x=None
+                continue
             else:
                 x=my_stat > other_stat
             colors[name]=x
@@ -501,9 +519,6 @@ class Morph:
         return pd.Series(**kw)
 
     def __repr__(self):
-        return self.display()
-
-    def display(self,my_array=None,my_class=None,my_level=None):
         stat_labels=get_stat_names(self.game)
         stat_values=self.my_stats
         data={
@@ -515,16 +530,36 @@ class Morph:
         for label,value in zip(stat_labels,stat_values):
             data[label]=value
         after=pd.Series(data)
-        if (my_array,my_level,my_class) == (None,None,None):
+        if not self.snapshot['Compare']:
             return after.to_string()
         else:
-            data['Class']=my_class
-            data['Level']=my_level
+            original=after.copy()
+            after.drop(labels='Name',inplace=True)
+            new_data={
+                'Class':self.snapshot['Class'],\
+                'Level':self.snapshot['Level'],\
+                '':''
+                }
+            my_array=self.snapshot['Stats']
             for label,value in zip(stat_labels,my_array):
-                data[label]=value
-            before=pd.Series(data)
+                new_data[label]=value
+            before=pd.Series(new_data)
             df=pd.DataFrame({'before':before,'after':after})
-            return df
+            after_colors=self.color_dict()
+            drop_list='Class','Level'
+            for y in drop_list:
+                if y not in after_colors.keys():
+                    df.drop(y,inplace=True)
+            if set.isdisjoint(set(drop_list),set(df.index)):
+                df.drop('',inplace=True)
+            for label in stat_labels:
+                if label not in after_colors.keys():
+                    df.drop(label,inplace=True)
+            self.snapshot['Compare']=False
+            if df.empty:
+                return original.to_string()
+            else:
+                return df.to_string()
 
     def max_level(self):
         args=(self.game,self.current_class())
@@ -631,11 +666,5 @@ if __name__=='__main__':
     game=str(k)
     unit='Leif'
     x=Morph(game,unit)
-    old_growths=x.growth_rates.copy()
-
-    x.equip_scroll('Odo')
-    x.equip_scroll('Baldr')
-    z=x.equip_scroll('Baldr')
-
-    print(x.unit_info)
-    print(z)
+    y=x.level_up(19)
+    print(x)
