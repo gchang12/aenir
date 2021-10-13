@@ -5,17 +5,6 @@ from aenir2.dismount_names import DataDict3
 from numpy import array, zeros
 
 class Morph:
-    """
-    Retrieves virtual copy of character stats and return object containing stats.
-    :param game: The game the unit is from.
-    :param unit: The name of the unit, as used by SerenesForest.net.
-    :param lyn_mode: FE7 only; specifies whether to retrieve Lyn Mode stats for unit, if applicable.
-    :param father: FE4 only; specifies father of child unit.
-
-    game='6'
-    unit='Roy'
-    our_boy=Morph(game,unit)
-    """
     def __init__(self,game,unit,lyn_mode=None,father=None):
         assert type(game) in (str,int)
         if type(game) == int:
@@ -79,11 +68,6 @@ class Morph:
         self.level_up(0)
 
     def equip_scroll(self,scroll_name=None):
-        '''
-        For FE5 units only. Use this method to modify growths with Crusader Scrolls.
-        :param scroll_name: Name of Crusader Scroll
-        Leaving the scroll_name as None while a scroll is applied unequips all scrolls
-        '''
         assert self.game == '5'
         scrolls=scroll_equipper()
         scrolls.columns=self.stat_names
@@ -210,17 +194,6 @@ class Morph:
         return self
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
-        """
-        Increase unit level and apply bonuses based on personal growths.
-        :param num_levels: Number of levels to add to character's current level.
-
-        game='6'
-        unit='Roy'
-        our_boy=Morph(game,unit)
-
-        num_levels=19
-        our_boy.level_up(num_levels)
-        """
         max_level=max_level_dict(self.game,self.current_class())
         if type(num_levels) == str:
             if num_levels.isnumeric():
@@ -256,16 +229,6 @@ class Morph:
             return False
 
     def promote(self,promo_path=None):
-        """
-        Levels up unit to promotion level if necessary and upgrades unit class.
-        :param promo_path: The code for the class the unit upgrades to. See ``promotions'' attribute.
-
-        game='6'
-        unit='Roy'
-        our_boy=Morph(game,unit)
-
-        our_boy.promote()
-        """
         assert self.can_promote()
         promo_indices=tuple(self.my_promotions.keys())
         if len(promo_indices) == 1:
@@ -346,16 +309,6 @@ class Morph:
         return self.level_up(**kwargs)
 
     def add_hm_bonus(self,chapter=''):
-        """
-        Appends hard-mode bonus to applicable characters.
-        :param num_levels: Specify number of hidden level-ups manually; overrides ``chapter'' parameter.
-        :param chapter: Specify chapter character is recruited on, if it affects bonuses.
-        game='6'
-        unit='Cath'
-        chapter='16'
-        cath=Morph(game,unit)
-        cath.add_hm_bonus(chapter=chapter)
-        """
         if (self.game,self.unit) == ('6','Gonzales'):
             assert all(self.my_stats == self.base_stats)
         else:
@@ -379,16 +332,6 @@ class Morph:
         return self.class_level_up(**kwargs)
 
     def add_auto_bonus(self,chapter=''):
-        """
-        Adds levels to applicable unit and appends stat bonuses based on class-growths.
-        :param chapter: The chapter the unit is recruited on.
-
-        game='8'
-        unit='Amelia'
-        chapter='13'
-        bad_in_general=Morph(game,unit)
-        bad_in_general.add_auto_bonus(chapter)
-        """
         if (self.game,self.unit) == ('8','Knoll'):
             # Not sure how many hidden levels are added
             # - assumed it was just one
@@ -413,10 +356,6 @@ class Morph:
         return self.class_level_up(**kwargs)
 
     def use_stat_booster(self,booster_name=None):
-        """
-        Appends stat bonus to argument as specified by by item; varies from game to game.
-        :param stat_name: The name of the stat to boost.
-        """
         bonus_dict=booster_dict(self.game)
         if booster_name is None:
             return bonus_dict
@@ -441,14 +380,10 @@ class Morph:
         return self.cap_stats()
 
     def decline_hugh(self,num_times):
-        """
-        Decrements Hugh's stats according to the number of times you decline him.
-        :param num_times: Number of times you decline to hire him in FE6.
-        """
-        assert type(num_times) == int
-        assert num_times > 0
         assert (self.game,self.unit) == ('6','Hugh')
         assert self.is_clean()
+        assert type(num_times) == int
+        assert num_times > 0
         assert all(self.my_stats-num_times >= self.base_stats-3)
         assert 'Augments' not in self.unit_info.keys()
         if 'Declines' not in self.unit_info.keys():
@@ -492,9 +427,6 @@ class Morph:
         return colors
 
     def is_capped(self,show_series=True):
-        """
-        Returns dictionary of which stats the unit has capped.
-        """
         capped_stats=self.my_stats == self.my_maxes
         d={}
 
