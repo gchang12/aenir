@@ -380,10 +380,10 @@ class Morph:
         return self.cap_stats()
 
     def decline_hugh(self,num_times):
-        assert (self.game,self.unit) == ('6','Hugh')
-        assert self.is_clean()
         assert type(num_times) == int
         assert num_times > 0
+        assert (self.game,self.unit) == ('6','Hugh')
+        assert self.is_clean()
         assert all(self.my_stats-num_times >= self.base_stats-3)
         assert 'Augments' not in self.unit_info.keys()
         if 'Declines' not in self.unit_info.keys():
