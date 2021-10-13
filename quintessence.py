@@ -75,6 +75,7 @@ class Morph:
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
         self.snapshot={'Compare':False}
+        self.level_up(0)
 
     def equip_scroll(self,scroll_name=None):
         '''
