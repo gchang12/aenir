@@ -108,14 +108,13 @@ class Morph:
         func(scroll_name)
         return self.growth_rates
 
-    def set_zero_growths(self):
-        zero_growths=zeros(len(self.stat_names))
-        if all(zero_growths == self.growth_rates):
-            self.growth_rates=self.unit_info['Original Growths']
-            self.unit_info.pop('Original Growths')
-        else:
-            self.unit_info['Original Growths']=self.growth_rates.copy()
-            self.growth_rates=zero_growths
+    def modify_growths(self,mod=None):
+        assert mod in ('zero','negative')
+        if mod == 'zero':
+            new_growths=zeros(len(self.stat_names))
+        elif mod == 'negative':
+            new_growths=-self.growth_rates
+        self.growth_rates=new_growths
         return self.growth_rates
 
     def dismount(self):
