@@ -329,7 +329,7 @@ def bases_class_in_list(game,compare_list):
                         if name in match_list:
                             return name
         else:
-            unmatched_items|={class_name,gendered_class}
+            unmatched_items.update({class_name,gendered_class})
     write_difference(game,character_bases,compare_list,unmatched_items)
     return unmatched_items
 
@@ -347,7 +347,7 @@ def compare_class_lists(game,audit_list,match_to_list):
                 if proper_name in list_to_match:
                     continue
                 else:
-                    unmatched|={cls}
+                    unmatched.add(cls)
     write_difference(game,audit_list,match_to_list,unmatched)
     return unmatched
 
@@ -358,7 +358,7 @@ def section_in_base_class_list(game,compare_list):
     gendered_class_list=set()
     for character,cls in base_class_dict.items():
         gender=genders[character]
-        gendered_class_list|={cls+gender}
+        gendered_class_list.add(cls+gender)
     unmatched=set()
     for cls in list_to_audit:
         if cls in gendered_class_list:
@@ -366,7 +366,7 @@ def section_in_base_class_list(game,compare_list):
         elif cls in base_class_dict.values():
             continue
         else:
-            unmatched|={cls}
+            unmatched.add(cls)
     write_difference(game,compare_list,character_bases,unmatched)
     return unmatched
 

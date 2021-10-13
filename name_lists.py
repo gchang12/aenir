@@ -173,7 +173,12 @@ def read_class_names2(game,audit_name,match_name):
 
 
 if __name__ == '__main__':
-    kw={'get_father':True}
-    x=fe4_child_list(**kw)
-    x=tuple(x)
-    print(x)
+    bad_names=list()
+    for n in range(4,10):
+        game=str(n)
+        clist=character_list(game)
+        for c in clist:
+            if c != c.capitalize():
+                bad_names.append(c)
+    for name in bad_names:
+        print(name)
