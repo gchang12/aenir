@@ -59,8 +59,8 @@ class Morph:
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
         self.my_stats=self.base_stats.copy()
+        self.unit_info['Base Growths']=self.growth_rates.copy()
         if self.game == '5':
-            self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
         self.snapshot={'Compare':False}
@@ -88,18 +88,20 @@ class Morph:
             func=self.unit_info['Scrolls'].remove
         else:
             func=self.unit_info['Scrolls'].append
+        self.update_snapshot('growths')
         self.growth_rates=self.growth_rates+augmented_growths
         func(scroll_name)
-        return self.growth_rates
+        return self.display_stats('growths')
 
     def modify_growths(self,mod=None):
         assert mod in ('zero','negative')
         if mod == 'zero':
-            new_growths=zeros(len(self.stat_names))
+            new_growths=zeros(len(self.stat_names),dtype='int64')
         elif mod == 'negative':
             new_growths=-self.growth_rates
+        self.update_snapshot('growths')
         self.growth_rates=new_growths
-        return self.growth_rates
+        return self.display_stats('growths')
 
     def dismount(self):
         assert self.can_mount()
@@ -191,7 +193,7 @@ class Morph:
                 stat=limit
             capped_array.append(stat)
         self.my_stats=array(capped_array)
-        return self
+        return self.display_stats()
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         max_level=max_level_dict(self.game,self.current_class())
@@ -392,18 +394,20 @@ class Morph:
         decrement[:-2].fill(-num_times)
         self.update_snapshot()
         self.my_stats=self.my_stats+decrement
-        return self
+        return self.display_stats()
 
-    def update_snapshot(self):
+    def update_snapshot(self,stat_array='mine'):
+        my_array=self.stats_from_name(stat_array)
+        self.snapshot['Stats']=my_array
         self.snapshot['Compare']=True
-        self.snapshot['Stats']=self.my_stats.copy()
         self.snapshot['Level']=self.current_level()
         self.snapshot['Class']=self.current_class()
 
-    def color_dict(self):
+    def color_dict(self,stats='mine'):
         colors={}
         my_array=self.snapshot['Stats']
-        stat_array=zip(self.stat_names,self.my_stats,my_array)
+        stats=self.stats_from_name(stats)
+        stat_array=zip(self.stat_names,stats,my_array)
 
         def update_colors(key,f1,f2):
             if f1() != f2[key]:
@@ -441,31 +445,54 @@ class Morph:
         else:
             return d
 
-    def show_stats(self,stat_name=None):
-        assert stat_name in ('bases','growths','maxes')
-        if stat_name == 'bases':
-            stats=self.base_stats
-        elif stat_name == 'growths':
-            stats=self.growth_rates
-        elif stat_name == 'maxes':
-            stats=self.my_maxes
+    def stats_from_name(self,stat_name):
+        stat_dict={
+            'bases':self.base_stats,\
+            'growths':self.growth_rates,\
+            'maxes':self.my_maxes,\
+            'mine':self.my_stats
+            }
+        assert stat_name in stat_dict.keys()
+        return stat_dict[stat_name]
+
+    def show_stats(self,stat_array):
+        stats=self.stats_from_name(stat_array)
         kw={
             'data':stats,\
             'index':self.stat_names,\
-            'name':stat_name
+            'name':stat_array
             }
         return pd.Series(**kw)
 
-    def __repr__(self):
+    def show_summary(self):
+        columns='bases','growths','maxes'
+        data_list=list()
+        for name in columns:
+            data=self.show_stats(name)
+            data_list.append(data)
+        df=pd.DataFrame(data_list)
+        return df.transpose()
+
+    def get_stat_df(self,stat_array):
+        my_array=self.stats_from_name(stat_array)
         data={
             'Name':self.get_display_name(),\
             'Class':self.current_class(),\
             'Level':self.current_level(),\
             '':''
             }
-        for label,value in zip(self.stat_names,self.my_stats):
+        for label,value in zip(self.stat_names,my_array):
             data[label]=value
         after=pd.Series(data)
+        return after
+
+    def __repr__(self):
+        after=self.get_stat_df('mine')
+        stat_view=after.to_string()
+        return stat_view
+
+    def display_stats(self,stat_array='mine'):
+        after=self.get_stat_df(stat_array)
         stat_view=after.to_string()
         if not self.snapshot['Compare']:
             return stat_view
@@ -481,7 +508,7 @@ class Morph:
                 new_data[label]=value
             before=pd.Series(new_data)
             df=pd.DataFrame({'before':before,'after':after})
-            after_colors=self.color_dict()
+            after_colors=self.color_dict(stat_array)
             drop_list='Class','Level'
             for y in drop_list:
                 if y not in after_colors.keys():
