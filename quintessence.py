@@ -75,6 +75,7 @@ class Morph:
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
         self.snapshot={'Compare':False}
+        self.stat_names=get_stat_names(self.game)
         self.level_up(0)
 
     def equip_scroll(self,scroll_name=None):
@@ -85,8 +86,7 @@ class Morph:
         '''
         assert self.game == '5'
         scrolls=scroll_equipper()
-        new_names=get_stat_names(self.game)
-        scrolls.columns=new_names
+        scrolls.columns=self.stat_names
         scroll_name=crusader_name(scroll_name)
         if scroll_name is None:
             base_growths=self.unit_info['Base Growths']
@@ -106,6 +106,16 @@ class Morph:
             func=self.unit_info['Scrolls'].append
         self.growth_rates=self.growth_rates+augmented_growths
         func(scroll_name)
+        return self.growth_rates
+
+    def set_zero_growths(self):
+        zero_growths=zeros(len(self.stat_names))
+        if all(zero_growths == self.growth_rates):
+            self.growth_rates=self.unit_info['Original Growths']
+            self.unit_info.pop('Original Growths')
+        else:
+            self.unit_info['Original Growths']=self.growth_rates.copy()
+            self.growth_rates=zero_growths
         return self.growth_rates
 
     def dismount(self):
@@ -465,7 +475,7 @@ class Morph:
         #   None: (no color)
         colors={}
         my_array=self.snapshot['Stats']
-        stat_array=zip(get_stat_names(self.game),self.my_stats,my_array)
+        stat_array=zip(self.stat_names,self.my_stats,my_array)
 
         def update_colors(key,f1,f2):
             if f1() != f2[key]:
@@ -487,15 +497,14 @@ class Morph:
         Returns dictionary of which stats the unit has capped.
         """
         capped_stats=self.my_stats == self.my_maxes
-        stat_names=get_stat_names(self.game)
         d={}
 
-        for name,val in zip(stat_names,capped_stats):
+        for name,val in zip(self.stat_names,capped_stats):
             d[name]=val
         if show_series:
             maxes={}
             current={}
-            for name,my_stat,cap in zip(stat_names,self.my_stats,self.my_maxes):
+            for name,my_stat,cap in zip(self.stat_names,self.my_stats,self.my_maxes):
                 current[name]=my_stat
                 maxes[name]=cap
             stat_data={
@@ -509,7 +518,6 @@ class Morph:
 
     def show_stats(self,stat_name=None):
         assert stat_name in ('bases','growths','maxes')
-        stat_labels=get_stat_names(self.game)
         if stat_name == 'bases':
             stats=self.base_stats
         elif stat_name == 'growths':
@@ -518,13 +526,13 @@ class Morph:
             stats=self.my_maxes
         kw={
             'data':stats,\
-            'index':stat_labels,\
+            'index':self.stat_names,\
             'name':stat_name
             }
         return pd.Series(**kw)
 
     def __repr__(self):
-        stat_labels=get_stat_names(self.game)
+        stat_labels=self.stat_names
         stat_values=self.my_stats
         data={
             'Name':self.get_display_name(),\
@@ -620,7 +628,7 @@ class Morph:
             second_name:second,\
             'diff':diff
             }
-        index_labels=get_stat_names(self.game)
+        index_labels=self.stat_names
         cls_level={
             'Class':[self.current_class(),other.current_class(),'-'],\
             'Level':[self.current_level(),other.current_level(),'-'],\
@@ -649,7 +657,7 @@ class Morph:
         return pd.concat([cls_level,stat_comparison])
 
     def __call__(self):
-        stat_labels=get_stat_names(self.game)
+        stat_labels=self.stat_names
         my_stats=list()
         print('%s\n'%self.get_display_name())
         for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
