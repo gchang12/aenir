@@ -532,15 +532,13 @@ class Morph:
         return pd.Series(**kw)
 
     def __repr__(self):
-        stat_labels=self.stat_names
-        stat_values=self.my_stats
         data={
             'Name':self.get_display_name(),\
             'Class':self.current_class(),\
             'Level':self.current_level(),\
             '':''
             }
-        for label,value in zip(stat_labels,stat_values):
+        for label,value in zip(self.stat_names,self.my_stats):
             data[label]=value
         after=pd.Series(data)
         stat_view=after.to_string()
@@ -554,7 +552,7 @@ class Morph:
                 '':''
                 }
             my_array=self.snapshot['Stats']
-            for label,value in zip(stat_labels,my_array):
+            for label,value in zip(self.stat_names,my_array):
                 new_data[label]=value
             before=pd.Series(new_data)
             df=pd.DataFrame({'before':before,'after':after})
@@ -565,7 +563,7 @@ class Morph:
                     df.drop(y,inplace=True)
             if set.isdisjoint(set(drop_list),set(df.index)):
                 df.drop('',inplace=True)
-            for label in stat_labels:
+            for label in self.stat_names:
                 if label not in after_colors.keys():
                     df.drop(label,inplace=True)
             self.snapshot['Compare']=False
@@ -657,10 +655,9 @@ class Morph:
         return pd.concat([cls_level,stat_comparison])
 
     def __call__(self):
-        stat_labels=self.stat_names
         my_stats=list()
         print('%s\n'%self.get_display_name())
-        for name,growth,avg in zip(stat_labels,self.growth_rates,self.my_stats):
+        for name,growth,avg in zip(self.stat_names,self.growth_rates,self.my_stats):
             if growth == 0:
                 my_stats.append(avg)
             else:
@@ -674,7 +671,7 @@ class Morph:
                     }
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
         csum=sum(val for val in stat_dict['diff'])
-        comparison=pd.DataFrame(stat_dict,index=stat_labels)
+        comparison=pd.DataFrame(stat_dict,index=self.stat_names)
         print('\n')
         for cls,lv in zip(self.my_classes,self.my_levels):
             if lv is None:
