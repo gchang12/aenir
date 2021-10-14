@@ -1,5 +1,4 @@
 from aenir2.fetcher import Fetcher
-from os import sep
 
 class ItemFetcher(Fetcher):
     def __init__(self,game):
@@ -27,8 +26,7 @@ class ItemFetcher(Fetcher):
 
     def gatherUrl(self):
         game=self.title
-        url=self.joinUrl()
-        soup=BeautifulSoup(get(url).text,'html.parser')
+        soup=self.boilSoup(None,'html.parser')
         unneeded_pages=(
             'Items','Crusader Scrolls','Monster Weapons','Accessories'
             )

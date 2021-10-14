@@ -37,6 +37,11 @@ class RankFetcher:
                 url.append(portal)
         return '/'.join(url)
 
+    def getSoup(self,section):
+        url=self.joinUrl(section=section)
+        soup=BeautifulSoup(get(url).text,'html.parser')
+        return soup
+
     def rankDict(self):
         d=dict()
         file=sep.join([self.main_dir,r'weapon-types.txt'])
@@ -68,11 +73,6 @@ class RankFetcher:
                 continue
             new_ranks[key]=val
         self.ranks=new_ranks
-
-    def getSoup(self,section):
-        url=self.joinUrl(section=section)
-        soup=BeautifulSoup(get(url).text,'html.parser')
-        return soup
 
     def getRanks4(self):
         assert self.game == '4'

@@ -34,57 +34,18 @@ class Angelo:
                 url.append(portal)
         return '/'.join(url)
 
-    def gatherUrl(self):
-        game=self.title
-        url=self.joinUrl()
-        soup=BeautifulSoup(get(url).text,'html.parser')
-        unneeded_pages=(
-            'Items','Crusader Scrolls','Monster Weapons','Accessories'
-            )
-        url_contents=list()
-        for a in soup.find_all('a'):
-            if 'href' not in a.attrs:
-                continue
-            href=a['href']
-            if 'inventory' not in href:
-                if url_contents:
-                    break
-                else:
-                    continue
-            title=a.text
-            if title in unneeded_pages:
-                continue
-            N=len(game)+len('inventory')+2
-            href=href[N:]
-            href=href.replace('/','')
-            url_contents.append(href)
-        return url_contents
-
-    def recordUrl(self):
-        url_contents=self.gatherUrl()
-        with open(self.data_file,'a') as wfile:
-            wfile.write(self.game+',')
-            for portal in url_contents:
-                wfile.write(portal+',')
-            wfile.write('\n')
-
-    def retrieveUrl(self):
-        with open(self.data_file,'r') as rfile:
-            for line in rfile.readlines():
-                line=line.split(',')
-                if line[0] != self.game:
-                    continue
-                return line[1:-1]
+    def outputFile(self,filename):
+        return sep.join([self.game_dir,filename])
 
     def gatherRows(self,tr,cell):
         assert cell in ('td','th')
         rows=list()
         if cell == 'td':
             unwanted='th'
-            string_test=lambda x: False
+            is_duplicate=lambda x: False
         elif cell == 'th':
             unwanted='td'
-            string_test=lambda x: x in rows
+            is_duplicate=lambda x: x in rows
         # If unwanted tag is in content row, set flag to True
         mixed_tr=False
         if tr.find(unwanted) is not None:
@@ -96,8 +57,11 @@ class Angelo:
             if cell == 'td':
                 if text.isnumeric():
                     text=int(text)
-            if string_test(text):
-                break
+            if is_duplicate(text):
+                message='There was a duplicate header detected: %s'%text
+                print(message)
+                print(rows)
+                raise Exception
             else:
                 rows.append(text)
         # If both row is non-empty and th tag is found, then raise error
@@ -159,8 +123,47 @@ class Angelo:
             page_dict[title]=content
         return page_dict
 
-    def outputFile(self,filename):
-        return sep.join([self.game_dir,filename])
+    def gatherUrl(self):
+        game=self.title
+        url=self.joinUrl()
+        soup=BeautifulSoup(get(url).text,'html.parser')
+        unneeded_pages=(
+            'Items','Crusader Scrolls','Monster Weapons','Accessories'
+            )
+        url_contents=list()
+        for a in soup.find_all('a'):
+            if 'href' not in a.attrs:
+                continue
+            href=a['href']
+            if 'inventory' not in href:
+                if url_contents:
+                    break
+                else:
+                    continue
+            title=a.text
+            if title in unneeded_pages:
+                continue
+            N=len(game)+len('inventory')+2
+            href=href[N:]
+            href=href.replace('/','')
+            url_contents.append(href)
+        return url_contents
+
+    def recordUrl(self):
+        url_contents=self.gatherUrl()
+        with open(self.data_file,'a') as wfile:
+            wfile.write(self.game+',')
+            for portal in url_contents:
+                wfile.write(portal+',')
+            wfile.write('\n')
+
+    def retrieveUrl(self):
+        with open(self.data_file,'r') as rfile:
+            for line in rfile.readlines():
+                line=line.split(',')
+                if line[0] != self.game:
+                    continue
+                return line[1:-1]
 
     def recordPage(self,section):
         page_dict=self.scrapePage(section)
