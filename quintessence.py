@@ -501,7 +501,6 @@ class Morph:
 
     def compare_stats(self,stat_array='mine'):
         after=self.get_long_data(stat_array)
-        stat_view=after.to_string()
         after.drop(labels='Name',inplace=True)
         new_data={
             'Class':self.snapshot['Class'],\
@@ -523,11 +522,9 @@ class Morph:
         for label in self.stat_names:
             if label not in after_colors.keys():
                 df.drop(label,inplace=True)
-        if df.empty:
-            view=stat_view
-        else:
+        if not df.empty:
             view=df.to_string()
-        print(view)
+            print(view)
 
     def max_level(self):
         args=(self.game,self.current_class())
