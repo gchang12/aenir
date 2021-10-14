@@ -5,14 +5,14 @@ class RankFetcher2(Fetcher):
         Fetcher.__init__(self,game,'class_data','classes',r'weapon-types.txt')
         self.ranks=dict()
 
+    def outputFile(self,filename):
+        return Fetcher.outputFile(self,filename)
+
     def createDir(self):
         Fetcher.createDir(self)
 
     def joinUrl(self,section=None):
         return Fetcher.joinUrl(self,section)
-
-    def outputFile(self,filename):
-        return Fetcher.outputFile(self,filename)
 
     def boilSoup(self,section,parser='html.parser'):
         return Fetcher.boilSoup(self,section,parser)
@@ -29,14 +29,17 @@ class RankFetcher2(Fetcher):
                     d[line[1]]=line[0]
         return d
 
+    def jsonFile(self):
+        return self.outputFile('weapon-ranks.json')
+
     def saveRanks(self):
-        dst=self.outputFile('weapon-ranks.json')
+        dst=self.jsonFile()
         self.cleanupRanks()
         with open(dst,'w') as wfile:
             json.dump(self.ranks,wfile)
 
     def ranksFromFile(self):
-        dst=self.outputFile('weapon-ranks.json')
+        dst=self.jsonFile()
         with open(dst,'r') as rfile:
             self.ranks=json.load(rfile)
 
@@ -173,3 +176,16 @@ def correct_fe5():
     game='5'
     x=RankFetcher(game)
     x.getMoreRanks5()
+
+def save_all():
+    for n in range(4,10):
+        game=str(n)
+        x=RankFetcher(game)
+        x.createDir()
+        if game == '5':
+            correct_fe5()
+        else:
+            x.getImgRanks()
+
+if __name__ == '__main__':
+    save_all()
