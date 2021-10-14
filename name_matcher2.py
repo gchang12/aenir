@@ -3,6 +3,7 @@ import json
 from os.path import sep
 
 from aenir2.gender_dict import gender_dict
+from aenir2.dismount_names import DataDict3
 
 class NameMatcher:
     def __init__(self,game,unit,mounted=None):
@@ -34,8 +35,8 @@ class NameMatcher:
         unit_classG=unit_class+self.gender
         ranks=self.rank_dict.keys()
         if type(self.mounted) == bool and self.game == '5':
-            # .json dict objects do not actually have correct weapons for dismounted lot
-            if not self.mounted:
+            dd3=DataDict()
+            if not self.mounted and dd3.isMounted(unit_class):
                 dismounted=True
         if dismounted:
             unit_classG=unit_classG[:-1]+', D)'
@@ -45,7 +46,7 @@ class NameMatcher:
         elif unit_classG in ranks:
             return unit_classG
         else:
-            if ' (D)' in unit_class:
+            if dismounted:
                 N=unit_class.index(' (D)')
                 unit_class=unit_class[:N]
             if unit_class not in self.name_dict.keys():
