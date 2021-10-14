@@ -184,6 +184,10 @@ class Morph:
     def current_class(self):
         return self.current_level(get_level=False)
 
+    def quick_promote(self,promo_path=None):
+        self.level_up('promo')
+        self.promote(promo_path=promo_path)
+
     #   End of aforementioned methods
 
     def cap_stats(self):
