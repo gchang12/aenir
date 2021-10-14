@@ -116,6 +116,7 @@ def get_true_name(game,unit,fe4family=None):
             )
     else:
         my_dict=unit_name_dict(game)
+        game_title=game_title_dict(reverse=True)[game]
         message=(
             '%s is not in FE%s: %s'%(unit,game,game_title),\
             'Please choose someone from the list above.'
@@ -126,7 +127,6 @@ def get_true_name(game,unit,fe4family=None):
         return unit
     else:
         message='\n'.join(('',*message,''))
-        game_title=game_title_dict(reverse=True)[game]
         for key in my_dict.keys():
             print(key)
         print(message)
