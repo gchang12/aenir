@@ -35,9 +35,10 @@ class NameMatcher:
         unit_classG=unit_class+self.gender
         ranks=self.rank_dict.keys()
         if type(self.mounted) == bool and self.game == '5':
-            dd3=DataDict()
+            dd3=DataDict3()
             if not self.mounted and dd3.isMounted(unit_class):
                 dismounted=True
+        print(dismounted)
         if dismounted:
             unit_classG=unit_classG[:-1]+', D)'
             unit_class=unit_class+' (D)'
@@ -81,9 +82,10 @@ class NameMatcher:
             return usable_weapons
 
 if __name__ == '__main__':
-    game='7'
-    unit='Merlinus'
-    unit_class='Bard'
-    x=NameMatcher(game,unit)
+    game='5'
+    unit='Felgus'
+    unit_class='Forrest Knight'
+    mounted=False
+    x=NameMatcher(game,unit,mounted=mounted)
     y=x.fetchRanks(unit_class)
     print(y)
