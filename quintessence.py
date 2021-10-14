@@ -455,7 +455,7 @@ class Morph:
         assert stat_name in stat_dict.keys()
         return stat_dict[stat_name]
 
-    def show_stats(self,stat_array):
+    def get_short_data(self,stat_array):
         stats=self.stats_from_name(stat_array)
         kw={
             'data':stats,\
@@ -468,12 +468,12 @@ class Morph:
         columns='bases','growths','maxes'
         data_list=list()
         for name in columns:
-            data=self.show_stats(name)
+            data=self.get_short_data(name)
             data_list.append(data)
         df=pd.DataFrame(data_list)
         return df.transpose()
 
-    def get_stat_df(self,stat_array):
+    def get_long_data(self,stat_array):
         my_array=self.stats_from_name(stat_array)
         data={
             'Name':self.get_display_name(),\
@@ -487,12 +487,12 @@ class Morph:
         return after
 
     def __repr__(self):
-        after=self.get_stat_df('mine')
+        after=self.get_long_data('mine')
         stat_view=after.to_string()
         return stat_view
 
     def display_stats(self,stat_array='mine'):
-        after=self.get_stat_df(stat_array)
+        after=self.get_long_data(stat_array)
         stat_view=after.to_string()
         if not self.snapshot['Compare']:
             return stat_view
