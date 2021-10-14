@@ -205,9 +205,12 @@ class Morph:
             elif num_levels == 'max':
                 num_levels=max_level-self.current_level()
             elif num_levels == 'promo':
+                assert self.can_promote()
                 mpl=self.min_promo_level(promo_path=0)
                 assert mpl > self.current_level()
                 num_levels=mpl-self.current_level()
+            else:
+                raise Exception
         else:
             assert type(num_levels) == int
         assert num_levels >= 0
@@ -371,7 +374,7 @@ class Morph:
         if booster_name not in augments.keys():
             augments[booster_name]=1
         else:
-            augments[booster_name]=+1
+            augments[booster_name]+=1
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(increment)
