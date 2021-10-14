@@ -58,12 +58,13 @@ class Morph:
         self.base_levels=self.my_levels.copy()
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
-        self.my_stats=array(self.base_stats.copy(),dtype='int64')
+        self.my_stats=array(self.base_stats.copy(),dtype='float64')
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
-            self.unit_info['Mounted']=self.can_mount()
-        self.snapshot={'Compare':False}
+            dd3=DataDict3()
+            self.unit_info['Mounted']=dd3.isMounted(self.base_class)
+        self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
 
     def equip_scroll(self,scroll_name=None):
@@ -90,7 +91,7 @@ class Morph:
         self.update_snapshot('growths')
         self.growth_rates=self.growth_rates+augmented_growths
         func(scroll_name)
-        return self.display_stats('growths')
+        return self.compare_stats('growths')
 
     def modify_growths(self,mod=None):
         assert mod in ('zero','negative')
@@ -100,7 +101,7 @@ class Morph:
             new_growths=-self.growth_rates
         self.update_snapshot('growths')
         self.growth_rates=new_growths
-        return self.display_stats('growths')
+        return self.compare_stats('growths')
 
     def dismount(self):
         assert self.can_mount()
@@ -192,7 +193,7 @@ class Morph:
                 stat=limit
             capped_array.append(stat)
         self.my_stats=array(capped_array)
-        return self.display_stats()
+        return self.compare_stats()
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         max_level=max_level_dict(self.game,self.current_class())
@@ -210,7 +211,7 @@ class Morph:
                 else:
                     num_levels=mpl-self.current_level()
             else:
-                message='If argument is a string, it must be numeric, \'max\', or \'promo\'.\n'
+                message='\'num_levels\' must be numeric, \'max\', or \'promo\', if it is a string.\n'
                 print(message)
                 raise Exception
         else:
@@ -218,7 +219,7 @@ class Morph:
         if num_levels == 0:
             return
         else:
-            assert num_levels > 0
+            assert num_levels >= 0
         if increase_level:
             assert self.current_level()+num_levels <= max_level
         if stat_array is None:
@@ -402,12 +403,11 @@ class Morph:
         decrement[:-2].fill(-num_times)
         self.update_snapshot()
         self.my_stats=self.my_stats+decrement
-        return self.display_stats()
+        return self.compare_stats()
 
     def update_snapshot(self,stat_array='mine'):
         my_array=self.stats_from_name(stat_array)
         self.snapshot['Stats']=my_array
-        self.snapshot['Compare']=True
         self.snapshot['Level']=self.current_level()
         self.snapshot['Class']=self.current_class()
 
@@ -498,38 +498,35 @@ class Morph:
         stat_view=after.to_string()
         return stat_view
 
-    def display_stats(self,stat_array='mine'):
+    def compare_stats(self,stat_array='mine'):
         after=self.get_long_data(stat_array)
-        stat_view=after.copy()
-        if not self.snapshot['Compare']:
-            return stat_view
+        stat_view=after.to_string()
+        after.drop(labels='Name',inplace=True)
+        new_data={
+            'Class':self.snapshot['Class'],\
+            'Level':self.snapshot['Level'],\
+            '':''
+            }
+        my_array=self.snapshot['Stats']
+        for label,value in zip(self.stat_names,my_array):
+            new_data[label]=value
+        before=pd.Series(new_data)
+        df=pd.DataFrame({'before':before,'after':after})
+        after_colors=self.color_dict(stat_array)
+        drop_list='Class','Level'
+        for y in drop_list:
+            if y not in after_colors.keys():
+                df.drop(y,inplace=True)
+        if set.isdisjoint(set(drop_list),set(df.index)):
+            df.drop('',inplace=True)
+        for label in self.stat_names:
+            if label not in after_colors.keys():
+                df.drop(label,inplace=True)
+        if df.empty:
+            view=stat_view
         else:
-            after.drop(labels='Name',inplace=True)
-            new_data={
-                'Class':self.snapshot['Class'],\
-                'Level':self.snapshot['Level'],\
-                '':''
-                }
-            my_array=self.snapshot['Stats']
-            for label,value in zip(self.stat_names,my_array):
-                new_data[label]=value
-            before=pd.Series(new_data)
-            df=pd.DataFrame({'before':before,'after':after})
-            after_colors=self.color_dict(stat_array)
-            drop_list='Class','Level'
-            for y in drop_list:
-                if y not in after_colors.keys():
-                    df.drop(y,inplace=True)
-            if set.isdisjoint(set(drop_list),set(df.index)):
-                df.drop('',inplace=True)
-            for label in self.stat_names:
-                if label not in after_colors.keys():
-                    df.drop(label,inplace=True)
-            self.snapshot['Compare']=False
-            if df.empty:
-                return stat_view
-            else:
-                return df
+            view=df.to_string()
+        print(view)
 
     def max_level(self):
         args=(self.game,self.current_class())
@@ -604,7 +601,7 @@ class Morph:
         if self.game in ('6','7','8'):
             data=data.iloc[:-2,:]
         elif self.game == '9':
-            data=data.iloc[:-2,:]
+            data=data.iloc[:-3,:]
         return data
 
     def __call__(self):
