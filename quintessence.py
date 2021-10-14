@@ -460,7 +460,7 @@ class Morph:
             'maxes':self.my_maxes,\
             'mine':self.my_stats
             }
-        return stat_dict[stat_name]
+        return stat_dict[stat_name].copy()
 
     def get_short_data(self,stat_array):
         stats=self.stats_from_name(stat_array)
