@@ -496,7 +496,7 @@ class Morph:
 
     def __repr__(self):
         after=self.get_long_data('mine')
-        stat_view=after.to_string()+'\n'
+        stat_view=after.to_string()
         return stat_view
 
     def compare_stats(self,stat_array='mine'):
@@ -527,7 +527,7 @@ class Morph:
             view=stat_view
         else:
             view=df.to_string()
-        print(view+'\n')
+        print(view)
 
     def max_level(self):
         args=(self.game,self.current_class())
