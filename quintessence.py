@@ -58,17 +58,17 @@ class Morph:
         self.base_levels=self.my_levels.copy()
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
-        self.my_stats=self.base_stats.copy()
+        self.my_stats=array(self.base_stats.copy(),dtype='int64')
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
             self.unit_info['Mounted']=self.can_mount()
         self.snapshot={'Compare':False}
         self.stat_names=get_stat_names(self.game)
-        self.level_up(0)
 
     def equip_scroll(self,scroll_name=None):
         assert self.game == '5'
+        assert len(self.unit_info['Scrolls']) <= 7
         scrolls=scroll_equipper()
         scrolls.columns=self.stat_names
         scroll_name=crusader_name(scroll_name)
@@ -81,7 +81,6 @@ class Morph:
                 return self.unit_info
             else:
                 return scrolls
-        assert len(self.unit_info['Scrolls']) <= 7
         augmented_growths=scrolls.loc[scroll_name].to_numpy()
         if scroll_name in self.unit_info['Scrolls']:
             augmented_growths=-augmented_growths
@@ -206,15 +205,20 @@ class Morph:
             elif num_levels == 'promo':
                 assert self.can_promote()
                 mpl=self.min_promo_level(promo_path=0)
-                assert mpl > self.current_level()
-                num_levels=mpl-self.current_level()
+                if mpl <= self.current_level():
+                    return
+                else:
+                    num_levels=mpl-self.current_level()
             else:
-                message='If argument is a string, it must be numeric, \'max\', or \'promo\'.'
+                message='If argument is a string, it must be numeric, \'max\', or \'promo\'.\n'
                 print(message)
                 raise Exception
         else:
             assert type(num_levels) == int
-        assert num_levels >= 0
+        if num_levels == 0:
+            return
+        else:
+            assert num_levels > 0
         if increase_level:
             assert self.current_level()+num_levels <= max_level
         if stat_array is None:
@@ -456,7 +460,6 @@ class Morph:
             'maxes':self.my_maxes,\
             'mine':self.my_stats
             }
-        assert stat_name in stat_dict.keys()
         return stat_dict[stat_name]
 
     def get_short_data(self,stat_array):
@@ -468,7 +471,7 @@ class Morph:
             }
         return pd.Series(**kw)
 
-    def show_summary(self):
+    def summary(self):
         columns='bases','growths','maxes'
         data_list=list()
         for name in columns:
@@ -487,7 +490,7 @@ class Morph:
             }
         for label,value in zip(self.stat_names,my_array):
             data[label]=value
-        after=pd.Series(data)
+        after=pd.Series(data,name=stat_array)
         return after
 
     def __repr__(self):
@@ -497,7 +500,7 @@ class Morph:
 
     def display_stats(self,stat_array='mine'):
         after=self.get_long_data(stat_array)
-        stat_view=after.to_string()
+        stat_view=after.copy()
         if not self.snapshot['Compare']:
             return stat_view
         else:
@@ -526,7 +529,7 @@ class Morph:
             if df.empty:
                 return stat_view
             else:
-                return df.to_string()
+                return df
 
     def max_level(self):
         args=(self.game,self.current_class())
