@@ -596,7 +596,8 @@ class Morph:
             }
         stat_comparison=stat_comparison.append(pd.Series(blank_row,name=''))
         stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
-        return pd.concat([cls_level,stat_comparison])
+        stat_view=pd.concat([cls_level,stat_comparison])
+        print(stat_view.to_string())
 
     def truncate_data(self,data):
         if self.game in ('6','7','8'):
