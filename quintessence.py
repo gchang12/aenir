@@ -575,8 +575,8 @@ class Morph:
             }
         index_labels=self.stat_names
         cls_level={
-            'Class':[self.current_class(),other.current_class(),'-'],\
-            'Level':[self.current_level(),other.current_level(),'-'],\
+            'Class':[self.current_class(),other.current_class(),''],\
+            'Level':[self.current_level(),other.current_level(),''],\
             '':['','','']
             }
         stat_comparison=pd.DataFrame(d,index=index_labels)
@@ -585,8 +585,8 @@ class Morph:
         stat_comparison=self.truncate_data(stat_comparison)
         csum=sum(n for n in stat_comparison.loc[:,'diff'])
         summary={
-                first_name:'-',\
-                second_name:'-',\
+                first_name:'',\
+                second_name:'',\
                 'diff':csum
                 }
         blank_row={
