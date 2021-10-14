@@ -111,22 +111,22 @@ def fe4_name_dict(fe4family):
 def get_true_name(game,unit,fe4family=None):
     if fe4family is not None:
         my_dict=fe4_name_dict(fe4family)
-        message='Please specify a choice for the \'father\' option.'
+        message=(
+            'Please specify a choice for the \'father\' option from the list above.',\
+            )
     else:
         my_dict=unit_name_dict(game)
+        message=(
+            '%s is not in FE%s: %s'%(unit,game,game_title),\
+            'Please choose someone from the list above.'
+            )
     if unit in my_dict.keys():
         return my_dict[unit]
     elif unit in my_dict.values():
         return unit
     else:
+        message='\n'.join(('',*message,''))
         game_title=game_title_dict(reverse=True)[game]
-        message=(
-            '',\
-            '%s is not in FE%s: %s'%(unit,game,game_title),\
-            'Please choose someone from the list above.',\
-            ''
-            )
-        message='\n'.join(message)
         for key in my_dict.keys():
             print(key)
         print(message)
