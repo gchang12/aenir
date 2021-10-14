@@ -38,7 +38,6 @@ class NameMatcher:
             dd3=DataDict3()
             if not self.mounted and dd3.isMounted(unit_class):
                 dismounted=True
-        print(dismounted)
         if dismounted:
             unit_classG=unit_classG[:-1]+', D)'
             unit_class=unit_class+' (D)'
