@@ -58,7 +58,7 @@ class Morph:
         self.base_levels=self.my_levels.copy()
         self.base_classes=self.my_classes.copy()
         self.my_maxes=self.maximum_stats.copy()
-        self.my_stats=array(self.base_stats.copy(),dtype='float64')
+        self.my_stats=array(self.base_stats,dtype='float64')
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
