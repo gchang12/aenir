@@ -9,13 +9,15 @@ import pandas as pd
 from aenir2.data_fetcher import get_nickname
 
 class Fetcher:
-    def __init__(self,game,folder_name):
+    def __init__(self,game,folder_name,supsection,data_file):
         self.root='https://serenesforest.net'
         self.game=game
         self.title=get_nickname(game)
         self.main_dir=sep.join(['.',folder_name])
         pathPointer=lambda x: sep.join([self.main_dir,x])
         self.game_dir=pathPointer('fe'+game)
+        self.data_file=pathPointer(data_file)
+        self.supsection=supsection
 
     def createDir(self):
         dirs=self.main_dir,self.game_dir
@@ -23,12 +25,12 @@ class Fetcher:
             if not exists(d):
                 mkdir(d)
 
-    def joinUrl(self,section,subsection):
+    def joinUrl(self,section):
         url=[self.root,self.title]
         if section is None:
             url.append('')
         else:
-            portals=section,subsection
+            portals=self.supsection,section
             for portal in portals:
                 url.append(portal)
         return '/'.join(url)
@@ -40,8 +42,7 @@ class Fetcher:
         assert cell in ('td','th')
         rows=list()
         def alert_user(message):
-            print(message)
-            print(tr)
+            print(message,tr)
             raise Exception
         if cell == 'td':
             unwanted='th'
@@ -93,6 +94,11 @@ class Fetcher:
                 data_list.append(row)
         assert data_list
         return data_list
+
+    def boilSoup(self,section,parser):
+        url=self.joinUrl(section)
+        soup=BeautifulSoup(get(url).text,parser)
+        return soup
 
     def scrapePage(self,section,parser='html.parser'):
         url=self.joinUrl(section=section)
