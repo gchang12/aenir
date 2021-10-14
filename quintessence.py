@@ -152,7 +152,7 @@ class Morph:
                 x=False
             else:
                 x=True
-        elif self.unit == 'Lara':
+        elif (self.game,self.unit) == ('5','Lara'):
             if self.my_classes in lara_promotions:
                 x=False
             else:
@@ -496,8 +496,8 @@ class Morph:
 
     def __repr__(self):
         after=self.get_long_data('mine')
-        stat_view=after.to_string()
-        return stat_view
+        after=after.to_string()
+        return after
 
     def compare_stats(self,stat_array='mine'):
         after=self.get_long_data(stat_array)
@@ -523,8 +523,8 @@ class Morph:
             if label not in after_colors.keys():
                 df.drop(label,inplace=True)
         if not df.empty:
-            view=df.to_string()
-            print(view)
+            df=df.to_string()
+            print(df)
 
     def max_level(self):
         args=(self.game,self.current_class())
@@ -593,8 +593,8 @@ class Morph:
             }
         stat_comparison=stat_comparison.append(pd.Series(blank_row,name=''))
         stat_comparison=stat_comparison.append(pd.Series(summary,name='total'))
-        stat_view=pd.concat([cls_level,stat_comparison])
-        print(stat_view.to_string())
+        stat_comparison=pd.concat([cls_level,stat_comparison]).to_string()
+        print(stat_comparison)
 
     def truncate_data(self,data):
         if self.game in ('6','7','8'):
@@ -622,6 +622,7 @@ class Morph:
         csum=sum(val for val in stat_dict['diff'])
         comparison=pd.DataFrame(stat_dict,index=self.stat_names)
         comparison=self.truncate_data(comparison)
+        comparison=comparison.to_string()
         print('\n')
         for cls,lv in zip(self.my_classes,self.my_levels):
             if lv is None:
