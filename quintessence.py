@@ -210,6 +210,8 @@ class Morph:
                 assert mpl > self.current_level()
                 num_levels=mpl-self.current_level()
             else:
+                message='If argument is a string, it must be numeric, \'max\', or \'promo\'.'
+                print(message)
                 raise Exception
         else:
             assert type(num_levels) == int
