@@ -1,3 +1,5 @@
+import json
+
 from aenir2.fetcher import Fetcher
 
 class RankFetcher2(Fetcher):
@@ -174,13 +176,14 @@ class RankFetcher2(Fetcher):
 
 def correct_fe5():
     game='5'
-    x=RankFetcher(game)
+    x=RankFetcher2(game)
     x.getMoreRanks5()
 
 def save_all():
+    # all is well
     for n in range(4,10):
         game=str(n)
-        x=RankFetcher(game)
+        x=RankFetcher2(game)
         x.createDir()
         if game == '5':
             correct_fe5()

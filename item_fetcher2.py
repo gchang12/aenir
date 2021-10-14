@@ -1,3 +1,5 @@
+from os.path import exists
+
 from aenir2.fetcher import Fetcher
 
 class ItemFetcher(Fetcher):
@@ -49,7 +51,17 @@ class ItemFetcher(Fetcher):
             url_contents.append(href)
         return url_contents
 
+    def testUrlFile(self):
+        count=0
+        with open(self.data_file,'r') as rfile:
+            for line in rfile.readlines():
+                count+=1
+        if count == 6:
+            raise FileExistsError
+
     def recordUrl(self):
+        if exists(self.data_file):
+            self.testUrlFile()
         url_contents=self.gatherUrl()
         with open(self.data_file,'a') as wfile:
             wfile.write(self.game+',')
@@ -71,7 +83,7 @@ class ItemFetcher(Fetcher):
         else:
             parser='html.parser'
         self.page_contents=list(Fetcher.scrapePage(self,section,parser=parser))
-        # Differs from original script in the respect that it pings SF.net twice
+        # Pings SF.net twice unlike original
         soup=self.boilSoup(section,parser)
         if len(self.page_contents) > 1:
             for h3 in soup.find_all('h3'):
@@ -86,6 +98,8 @@ class ItemFetcher(Fetcher):
         page_dict=dict()
         for content,title in zip(self.page_contents,self.table_titles):
             page_dict[title]=content
+        self.page_contents.clear()
+        self.table_titles.clear()
         return page_dict
 
     def recordPage(self,section):
@@ -109,12 +123,21 @@ class ItemFetcher(Fetcher):
         for url in url_list:
             self.recordPage(url)
 
-def save_all():
+def test_all(func):
     for n in range(4,10):
-        game=str(n)
-        dog=ItemFetcher(game)
-        dog.recordAllPages()
+        n=str(n)
+        func(n)
+
+def save(n):
+    # this also works
+    dog=ItemFetcher(n)
+    dog.recordAllPages()
+
+def record_url(game):
+    # this works
+    x=ItemFetcher(game)
+    x.recordUrl()
 
 if __name__ == '__main__':
-    x=ItemFetcher('4')
-    print(x.game_dir)
+    func=record_url
+    test_all(record_url)
