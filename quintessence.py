@@ -200,7 +200,6 @@ class Morph:
         if type(num_levels) == str:
             if num_levels.isnumeric():
                 num_levels=int(num_levels)
-                assert num_levels >= self.current_level()
                 num_levels=num_levels-self.current_level()
             elif num_levels == 'max':
                 num_levels=max_level-self.current_level()
