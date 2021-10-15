@@ -98,6 +98,13 @@ class ClassMatcher:
                 name_dict[line[0]]=line[1]
         return name_dict
 
+    def saveNameDict(self):
+        name_dict=self.compileNameDict()
+        file='name_dict.json'
+        file=self.inputFile(file)
+        with open(file,'w') as wfile:
+            json.dump(name_dict,wfile)
+
     def recordMatches(self,vs='bases-vs-growths'):
         if vs == 'bases-vs-growths':
             file1='1'
@@ -131,9 +138,9 @@ def compare(n):
     x.recordMatches('bases-vs-growths')
     x.recordMatches('growths-vs-bases')
 
+def save_dict(n):
+    x=ClassMatcher(n)
+    x.saveNameDict()
 if __name__ == '__main__':
-    game='6'
-    unit_class='Master Lord'
-    x=ClassMatcher(game)
-    y=x.getGrowths(unit_class)
-    print(y)
+    func=save_dict
+    test_all(func)
