@@ -1,0 +1,111 @@
+Class,HP,S/M,Skl,Spd,Def,Res,Mov,Con
+Lord (Ephraim),18,6,6,7,6,0,5,8
+Lord (Eirika),16,4,8,9,3,1,5,5
+Great Lord (Ephraim),18,3,3,4,5,0,7,10
+Great Lord (Eirika),18,3,3,4,5,0,7,7
+Dancer,14,1,2,7,0,1,5,4
+Soldier,20,3,0,1,0,0,5,6
+Cavalier (M),20,5,2,5,6,0,7,9
+Cavalier (F),18,5,3,3,6,0,7,9
+Paladin (M),23,7,4,7,8,3,8,11
+Paladin (F),23,6,6,11,7,6,8,9
+Great Knight (M),21,8,4,6,11,3,6,13
+Great Knight (F),20,6,6,7,9,3,6,10
+Knight (M),17,5,2,0,9,0,4,13
+Knight (F),16,4,3,1,8,1,4,10
+General (M),21,8,4,3,13,3,5,15
+General (F),20,8,5,5,11,4,5,11
+Mercenary (M),18,4,8,8,4,0,5,9
+Mercenary (F),16,3,5,6,2,0,5,8
+Hero (M),22,6,9,10,8,2,6,11
+Hero (F),22,6,10,11,6,3,6,9
+Myrmidon (M),16,4,9,9,2,0,5,8
+Myrmidon (F),15,3,9,10,1,1,5,5
+Swordmaster (M),21,6,11,10,5,2,6,9
+Swordmaster (F),19,6,11,12,4,3,6,7
+Assassin (M),16,3,1,9,2,0,6,8
+Assassin (F),16,3,1,9,2,0,6,6
+Thief,16,3,1,9,2,0,6,6
+Rogue,16,3,1,9,2,0,6,7
+Archer (M),18,4,3,3,3,0,5,7
+Archer (F),17,3,3,4,3,0,5,5
+Sniper (M),21,7,6,5,5,2,6,8
+Sniper (F),19,6,6,7,5,3,6,6
+Ranger (M),21,7,6,7,6,3,7,9
+Ranger (F),21,6,6,7,5,4,7,8
+Wyvern Rider (M),20,7,3,5,8,0,7,10
+Wyvern Rider (F),19,6,5,5,7,0,7,9
+Wyvern Lord (M),25,9,5,7,10,1,8,11
+Wyvern Lord (F),24,8,7,7,9,2,8,10
+Wyvern Knight (M),20,7,7,8,7,1,8,10
+Wyvern Knight (F),19,6,8,9,6,2,8,9
+Mage (M),16,1,2,3,3,3,5,5
+Mage (F),16,1,3,2,2,4,5,3
+Sage (M),20,5,4,4,5,5,6,7
+Sage (F),19,4,6,5,3,6,6,4
+Mage Knight (M),20,4,3,5,5,5,7,8
+Mage Knight (F),19,3,5,6,3,6,7,6
+Monk,18,1,1,2,1,5,5,6
+Priest,18,1,1,2,1,5,5,5
+Cleric,16,1,2,2,0,6,5,4
+Bishop (M),21,4,4,4,3,8,6,7
+Bishop (F),19,4,5,4,2,9,6,5
+Shaman (M),16,2,1,2,2,4,5,7
+Shaman (F),15,3,1,1,1,5,5,3
+Druid (M),19,6,3,4,4,6,6,8
+Druid (F),17,7,3,4,3,7,6,4
+Summoner (M),18,5,3,4,3,5,6,8
+Summoner (F),18,5,3,4,3,5,6,4
+Journeyman (1),14,3,0,1,1,0,4,8
+Journeyman (2),20,5,3,4,2,1,5,8
+Journeyman (3),28,8,5,6,5,0,6,8
+Recruit (1),13,3,0,1,0,1,4,6
+Recruit (2),18,5,3,3,6,0,5,6
+Recruit (3),23,6,6,11,7,6,6,6
+Pupil (1),13,1,0,1,0,3,4,5
+Pupil (2),17,2,3,3,3,3,5,5
+Pupil (3),20,5,4,4,5,5,6,5
+Manakete (M),20,0,0,2,1,1,6,25
+Manakete (F),12,0,0,2,2,2,6,5
+Fighter,20,5,2,4,2,0,5,11
+Warrior,28,8,5,6,5,0,6,13
+Brigand,20,5,1,5,3,0,5,12
+Pirate,19,4,2,6,3,0,5,10
+Berserker,24,7,6,7,6,0,6,13
+Pegasus Knight,14,4,5,5,3,2,7,5
+Falcoknight,20,6,7,7,5,4,8,6
+Troubadour,15,1,1,3,2,5,6,5
+Valkyrie,19,4,3,5,4,8,7,6
+Necromancer,18,9,4,5,3,8,6,7
+Fleet,19,1,1,2,5,0,3,25
+Phantom,1,5,2,4,0,0,5,11
+Revenant,25,2,0,0,0,0,4,6
+Entombed,35,3,0,1,0,0,5,6
+Bonewalker (Sw/Ln),20,4,2,3,3,0,5,7
+Bonewalker (Bow),18,4,3,2,3,0,5,6
+Wight (Sword/Lance),21,7,5,6,5,2,6,9
+Wight (Bow),21,6,6,5,5,2,6,8
+Bael,25,6,3,3,6,1,5,12
+Elder Bael,36,8,5,5,9,4,6,15
+Cyclops,40,8,5,6,13,0,5,16
+Cyclops,40,8,5,6,13,0,5,16
+Mauthe Doog,16,4,10,10,2,0,7,6
+Gwyllgi,21,6,12,12,5,2,8,8
+Tarvos,21,6,2,5,7,0,7,10
+Maelduin,25,8,4,7,9,3,8,12
+Mogall,15,2,1,2,2,4,5,4
+Arch Mogall,17,6,3,3,3,7,6,5
+Gorgon Egg,50,0,0,0,10,10,0,6
+Gorgon,19,8,3,4,5,7,6,11
+Gargoyle,19,6,3,6,6,0,6,8
+Deathgoyle,23,8,5,8,9,1,7,11
+Draco Zombie,53,1,0,1,0,3,5,25
+Demon King,60,23,20,18,25,25,2,25
+Civilian (Young boy),8,1,0,0,0,0,5,4
+Civilian (Young girl),7,0,0,0,0,1,5,3
+Civilian (Male 1),10,0,1,0,0,2,5,6
+Civilian (Female 1),9,0,1,0,0,1,5,4
+Civilian (Male 2),12,3,0,0,2,0,5,7
+Civilian (Female 2),10,0,1,0,1,1,5,5
+Queen,10,0,0,0,0,0,5,5
+Pontifex,10,0,0,0,0,0,5,8
