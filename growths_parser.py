@@ -146,7 +146,6 @@ class GrowthsParser:
             json.dump(growths_dict,wfile)
 
     def getCommonGrowths5(self,unit_class):
-        assert unit_class in self.readGrowths().keys()
         growth_dict=self.readGrowths()[unit_class]
         if 'C' not in growth_dict:
             # FE5 has nine stats with class growth rates
@@ -212,7 +211,7 @@ class GrowthsParser:
         fixed_growths=self.getFixedGrowths5(unit_class)
         growth_sum=common_growths+uncommon_growths+fixed_growths
         return growth_sum
-        
+
 if __name__ == '__main__':
     x=GrowthsParser('5')
     unit_class='Pirate'
