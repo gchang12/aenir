@@ -1,3 +1,6 @@
+import pandas as pd
+import json
+
 from aenir2.fetcher import Fetcher
 
 class ClassFetcher(Fetcher):
@@ -16,16 +19,24 @@ class ClassFetcher(Fetcher):
 
     def recordData(self,stat_type):
         if stat_type == 'base-stats':
-            page_list=self.scrapeBases()
+            page_list=tuple(self.scrapeBases())
         elif stat_type == 'growth-rates':
             if self.is_jugdral:
                 return
             else:
-                page_list=self.scrapeGrowths()
+                page_list=tuple(self.scrapeGrowths())
         filename='classes_%s.csv'%stat_type
         file=self.outputFile(filename)
         kw={'index':False,'header':False}
-        for data in page_list:
+        if len(page_list) == 1:
+            page_list[0].to_csv(file,**kw)
+        else:
+            headers=page_list[0].iloc[0,:].to_list()
+            new_data=list()
+            for data in page_list:
+                new_data.append(data[1:])
+            data=pd.concat(new_data)
+            kw['header']=headers
             data.to_csv(file,**kw)
 
     def recordBases(self):
@@ -44,19 +55,90 @@ class ClassFetcher(Fetcher):
     def recordGrowths(self):
         self.recordData('growth-rates')
 
+    def recordGrowths4(self):
+        assert self.game == '4'
+        soup=self.boilSoup('growth-rates')
+        table=list()
+        headers=list()
+        for tr in soup.find_all('tr'):
+            if not headers:
+                for th in tr.find_all('th'):
+                    headers.append(th.text.strip())
+                table.append(headers)
+                continue
+            row=list()
+            for td in tr.find_all('td'):
+                cell=td.text
+                if '*' in cell:
+                    cell=cell.replace('*','')
+                elif cell.isdigit():
+                    cell=int(cell)
+                row.append(cell)
+            table.append(row)
+        df=pd.DataFrame(table)
+        filename=self.outputFile('partial_growth-rates.csv')
+        df.to_csv(filename,index=False,header=False)
+
+    def recordGrowths5(self):
+        soup=self.boilSoup('growth-rates')
+        tables=list()
+        get_filename=lambda x:'partial_growth-rates'+str(x)+'.csv'
+        for n,table in enumerate(soup.find_all('table')):
+            if n == 1:
+                continue
+            contents=list()
+            headers=list()
+            for tr in table.find_all('tr'):
+                if not headers:
+                    for th in tr.find_all('th'):
+                        headers.append(th.text.strip())
+                    contents.append(headers)
+                    continue
+                row=list()
+                for td in tr.find_all('td'):
+                    cell=td.text
+                    a=td.find('a')
+                    if cell.isdigit():
+                        cell=int(cell)
+                    elif a is not None:
+                        img=a.find('img')
+                        cell=('UC' if img['alt'] == 'Uncommon' else 'C')
+                    row.append(cell)
+                contents.append(row)
+            tables.append(contents)
+        for n,t in enumerate(tables,start=1):
+            filename=get_filename(n)
+            data=pd.DataFrame(t)
+            filename=self.outputFile(filename)
+            data.to_csv(filename,index=False,header=False)
+
 def test_all(func):
     for n in range(4,10):
         n=str(n)
         func(n)
 
-def save_bases(n):
+def save(n,stat_type):
     x=ClassFetcher(n)
-    func=x.recordBases()
+    if stat_type == 'bases':
+        x.recordBases()
+    elif stat_type == 'growths':
+        x.recordGrowths()
+
+def save_growthsJ(n):
+    assert n in (4,5)
+    n=str(n)
+    x=ClassFetcher(n)
+    if n == '4':
+        x.recordGrowths4()
+    else:
+        x.recordGrowths5()
+
+def save_bases(n):
+    save(n,'bases')
 
 def save_growths(n):
-    x=ClassFetcher(n)
-    func=x.recordGrowths()
+    save(n,'growths')
 
 if __name__ == '__main__':
     func=save_bases
-    test_all(func)
+    func('5')
