@@ -8,27 +8,9 @@ class ItemFetcher(Fetcher):
         self.page_contents=None
         self.table_titles=list()
 
-    def createDir(self):
-        Fetcher.createDir(self)
-
-    def joinUrl(self,section=None):
-        return Fetcher.joinUrl(self,section)
-
-    def outputFile(self,filename):
-        return Fetcher.outputFile(self,filename)
-
-    def gatherRows(self,tr,cell):
-        return Fetcher.gatherRows(self,tr,cell)
-
-    def scrapeTable(self,table):
-        return Fetcher.scrapeTable(self,table)
-
-    def boilSoup(self,section,parser):
-        return Fetcher.boilSoup(self,section,parser)
-
     def gatherUrl(self):
         game=self.title
-        soup=self.boilSoup(None,'html.parser')
+        soup=self.boilSoup(section=None,parser='html.parser')
         unneeded_pages=(
             'Items','Crusader Scrolls','Monster Weapons','Accessories'
             )
@@ -52,11 +34,12 @@ class ItemFetcher(Fetcher):
         return url_contents
 
     def testUrlFile(self):
-        count=0
+        my_list=list()
         with open(self.data_file,'r') as rfile:
             for line in rfile.readlines():
-                count+=1
-        if count == 6:
+                line=line.split(',')
+                my_list.append(line[0])
+        if my_list == [str(n) for n in range(4,10)]:
             raise FileExistsError
 
     def recordUrl(self):
@@ -139,5 +122,6 @@ def record_url(game):
     x.recordUrl()
 
 if __name__ == '__main__':
-    func=record_url
-    test_all(record_url)
+    func=save
+    #test_all(func)
+    save(str(4))

@@ -143,8 +143,10 @@ class Morph:
     
     def can_promote(self):
         trainees='Ross','Amelia','Ewan'
-        lara_promotions=['Thief','Thief Fighter','Dancer','Thief Fighter'],\
-                         ['Thief','Dancer','Thief Fighter']
+        lara_promotions=(
+            ['Thief','Thief Fighter','Dancer','Thief Fighter'],\
+            ['Thief','Dancer','Thief Fighter']
+            )
         if self.my_promotions is None:
             x=False
         elif self.unit in trainees:
