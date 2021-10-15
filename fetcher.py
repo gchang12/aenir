@@ -25,7 +25,7 @@ class Fetcher:
             if not exists(d):
                 mkdir(d)
 
-    def joinUrl(self,section):
+    def joinUrl(self,section=None):
         url=[self.root,self.title]
         if section is None:
             url.append('')
@@ -95,14 +95,14 @@ class Fetcher:
         assert data_list
         return data_list
 
-    def boilSoup(self,section,parser):
+    def boilSoup(self,section,parser='html.parser'):
         url=self.joinUrl(section)
         soup=BeautifulSoup(get(url).text,parser)
         return soup
 
-    def scrapePage(self,section,parser='html.parser'):
+    def scrapePage(self,section,parser,skip_col='first'):
         url=self.joinUrl(section=section)
-        soup=BeautifulSoup(get(url).text,parser)
+        soup=self.boilSoup(section,parser)
         kw={'index':None}
         for table in soup.find_all('table'):
             table=self.scrapeTable(table)
@@ -110,10 +110,14 @@ class Fetcher:
             kw['columns']=header
             kw['data']=table
             data=pd.DataFrame(**kw)
+            if skip_col == 'first':
+                data=data.iloc[:,1:]
+            elif type(skip_col) == int:
+                data=data.iloc[:,:-skip_col]
             yield data
 
     def recordPage(self,section):
-        page_dict=self.scrapePage(section)
+        page_list=self.scrapePage(section)
         filename=section+'.csv'
         file=self.outputFile(filename)
         kw={'index':False,'header':False}

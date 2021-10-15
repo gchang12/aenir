@@ -7,18 +7,6 @@ class RankFetcher2(Fetcher):
         Fetcher.__init__(self,game,'class_data','classes',r'weapon-types.txt')
         self.ranks=dict()
 
-    def outputFile(self,filename):
-        return Fetcher.outputFile(self,filename)
-
-    def createDir(self):
-        Fetcher.createDir(self)
-
-    def joinUrl(self,section=None):
-        return Fetcher.joinUrl(self,section)
-
-    def boilSoup(self,section,parser='html.parser'):
-        return Fetcher.boilSoup(self,section,parser)
-
     def rankDict(self):
         d=dict()
         with open(self.data_file) as rfile:
