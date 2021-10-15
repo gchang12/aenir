@@ -9,6 +9,7 @@ from aenir2.scolder import scold_user
 
 class GrowthsParser:
     def __init__(self,game):
+        # Stats listed in Judgral games are in-line with current records
         assert game in ('4','5')
         self.game=game
         self.game_dir=sep.join(['.','class_data','fe%s'%game])
@@ -18,12 +19,12 @@ class GrowthsParser:
 
     def growthsData(self):
         if self.game == '4':
-            file='classes_growth-rates.csv'
+            file='partial_growth-rates.csv'
         else:
             file='partial_growth-rates1.csv'
         growths_file=self.inputFile(file)
         growths_data=pd.read_csv(growths_file,index_col=0)
-        if self.game == '5':            
+        if self.game == '5':
             arena_patterns=['Arena (Normal)','Arena (Thief)']
             growths_data.drop(index=arena_patterns,inplace=True)
         return growths_data
@@ -117,8 +118,8 @@ class GrowthsParser:
     def getGrowths4(self,unit_class):
         key=self.readGrowths()[unit_class]
         growths_data=self.growthsData()
-        growths_row=growths_data.loc[key,:]
-        return growths_row.to_numpy()
+        row=growths_data.loc[key,:]
+        return row.to_numpy()
 
     def findGrowths5(self):
         file=self.inputFile('partial_growth-rates2.csv')
@@ -145,6 +146,7 @@ class GrowthsParser:
             json.dump(growths_dict,wfile)
 
     def getCommonGrowths5(self,unit_class):
+        assert unit_class in self.readGrowths().keys()
         growth_dict=self.readGrowths()[unit_class]
         if 'C' not in growth_dict:
             # FE5 has nine stats with class growth rates
@@ -213,7 +215,7 @@ class GrowthsParser:
         
 if __name__ == '__main__':
     x=GrowthsParser('5')
-    unit_class='Soldier'
+    unit_class='Pirate'
     y=x.getGrowths5(unit_class)
     #y=x.growthsData()
     print(y)

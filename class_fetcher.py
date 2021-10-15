@@ -19,25 +19,27 @@ class ClassFetcher(Fetcher):
 
     def recordData(self,stat_type):
         if stat_type == 'base-stats':
-            page_list=tuple(self.scrapeBases())
+            page_list=list(self.scrapeBases())
         elif stat_type == 'growth-rates':
             if self.is_jugdral:
                 return
             else:
-                page_list=tuple(self.scrapeGrowths())
+                page_list=list(self.scrapeGrowths())
         filename='classes_%s.csv'%stat_type
         file=self.outputFile(filename)
         kw={'index':False,'header':False}
         if len(page_list) == 1:
-            page_list[0].to_csv(file,**kw)
+            data=page_list[0]
+            h=False
         else:
             headers=page_list[0].iloc[0,:].to_list()
             new_data=list()
             for data in page_list:
                 new_data.append(data[1:])
             data=pd.concat(new_data)
-            kw['header']=headers
-            data.to_csv(file,**kw)
+            h=headers
+        kw['header']=h
+        data.to_csv(file,**kw)
 
     def recordBases(self):
         self.recordData('base-stats')

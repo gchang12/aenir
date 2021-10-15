@@ -13,7 +13,6 @@ class Armory:
         weapons=list()
         for x,y,filelist in walk(self.dir):
             for file in filelist:
-                file=file.capitalize()
                 file=file[:-4]
                 weapons.append(file)
         return weapons
@@ -91,8 +90,9 @@ class Armory:
         return data.transpose()
 
 if __name__ == '__main__':
-    weapon='Anima'
+    weapon='Fire'
     game='6'
     x=Armory(game)
-    y=x.getWeaponData(weapon)
-    print(y)
+    y=x.listWeaponTypes()
+    for t in y:
+        print(t)
