@@ -95,7 +95,15 @@ class ClassMatcher:
             for line in rfile.readlines():
                 line=line.strip()
                 line=line.split(',')
-                name_dict[line[0]]=line[1]
+                bases_name=line[0]
+                growths_name=line[1]
+                if not growths_name:
+                    continue
+                name_dict[bases_name]=growths_name
+                if ' (' not in bases_name:
+                    genders=' (M)',' (F)'
+                    for g in genders:
+                        name_dict[bases_name+g]=growths_name
         return name_dict
 
     def saveNameDict(self):
@@ -141,6 +149,7 @@ def compare(n):
 def save_dict(n):
     x=ClassMatcher(n)
     x.saveNameDict()
+
 if __name__ == '__main__':
     func=save_dict
     test_all(func)

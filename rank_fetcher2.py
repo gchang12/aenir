@@ -32,6 +32,7 @@ class RankFetcher2(Fetcher):
         dst=self.jsonFile()
         with open(dst,'r') as rfile:
             self.ranks=json.load(rfile)
+        return self.ranks
 
     def cleanupRanks(self):
         new_ranks=dict()
