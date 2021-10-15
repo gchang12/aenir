@@ -5,7 +5,7 @@ from os.path import sep
 
 from aenir2.name_matcher3 import ClassMatcher
 from aenir2.growths_parser import GrowthsParser
-from aenir2.rank_fetcher2 import RankFetcher2
+from aenir2.rank_fetcher import RankFetcher
 
 class ClassStats:
     def __init__(self,game,unit_class):
@@ -51,7 +51,7 @@ class ClassStats:
         return row.to_numpy()
 
     def getRanks(self):
-        rf2=RankFetcher2(self.game)
+        rf2=RankFetcher(self.game)
         ranks=rf2.ranksFromFile()[self.unit_class]
         return tuple(ranks)
 

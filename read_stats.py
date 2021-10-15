@@ -3,7 +3,7 @@ from os import walk
 import pandas as pd
 from aenir2.stat_table import read_stat_table
 from aenir2.gender_dict import promo_dict, gender_dict
-from aenir2.match_names import match_class_name,get_class_name
+from aenir2.name_matcher import match_class_name,get_class_name
 from aenir2.name_lists import *
 from aenir2.table_operations import zero_filler,add_column
 from aenir2.child_stats import *
