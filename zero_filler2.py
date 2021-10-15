@@ -42,14 +42,11 @@ class ZeroFiller:
 
     def fillArray(self,*args):
         values=self.fillDict(*args).values()
-        values=list(values)
+        values=tuple(values)
         values=array(values)
         return values
 
-    def fromCSV(self,row_name,filename,return_as='Series'):
-        filename=sep.join([self.folder,filename])
-        data=pd.read_csv(filename,index_col=0)
-        assert row_name in data.index
+    def fromDF(self,row_name,data,return_as='array'):
         row=data.loc[row_name,:]
         values=row.to_list()
         stats=tuple(row.index)
@@ -67,7 +64,12 @@ class ZeroFiller:
             assert return_as in ('array','Series','dict')
         return x
 
-    def fromDict(self,d,return_as='dict'):
+    def fromCSV(self,row_name,filename,return_as='array'):
+        filename=sep.join([self.folder,filename])
+        data=pd.read_csv(filename,index_col=0)
+        return self.fromDF(row_name,data,return_as=return_as)
+
+    def fromDict(self,d,return_as='array'):
         assert type(d) == dict
         if return_as == 'dict':
             func=self.fillDict
