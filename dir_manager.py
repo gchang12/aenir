@@ -13,7 +13,7 @@ def dir_switcher(name):
     message=(
         'The present working directory has been changed to:',\
         aenir_loc,\
-        'Data files are now acccessible.'
+        'Data files are now accessible.'
         )
     new_message=['']
     for text in message:
