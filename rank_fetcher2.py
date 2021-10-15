@@ -2,7 +2,7 @@ import json
 
 from aenir2.fetcher import Fetcher
 
-class RankFetcher2(Fetcher):
+class RankFetcher(Fetcher):
     def __init__(self,game):
         Fetcher.__init__(self,game,'class_data','classes',r'weapon-types.txt')
         self.ranks=dict()
