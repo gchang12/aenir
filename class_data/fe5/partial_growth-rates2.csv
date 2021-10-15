@@ -1,0 +1,43 @@
+Class,Phys 1,Mag 1,Fig 1,Phys 2,Mag 2,Fig 2,Ballista,Fixed
+Swordfighter,UC,,UC,,,UC,,
+Swordmaster,,,,,,C,,
+Soldier,C,,,UC,,,,UC
+Axe Fighter,,,C,,,UC,,
+Mercenary,UC,,UC,,,C,,
+Pirate,,,C,,,,,
+Berserker,,,C,,,UC,,
+Bow Fighter,UC,,UC,,,UC,,
+Sniper,UC,,,,,UC,,
+Hunter,,,C,,,,,
+Thief,,,UC,,,,,UC
+Mage (Wind),,C,,,,,,
+Mage (Thunder),,UC,,,UC,,,
+Mage Knight,UC,,,UC,,,,UC
+Sister,,C,,,,,,
+Bishop,,C,,,,UC,,UC
+Dark Mage,,UC,,,UC,,,
+Dark Bishop,,,,,,C,,
+Priest,,C,,,,UC,,
+Mountain Thief,,,UC,,,UC,,
+Warrior,,,UC,,,UC,,
+Dancer,,,C,,,,,
+Sword Armour,UC,,,UC,,,,UC
+Lance Armour,UC,,,UC,,UC,,UC
+Axe Armour,UC,,,UC,,UC,,UC
+Bow Armour,UC,,,UC,,UC,,
+General,UC,,,UC,,UC,,
+Social Knight,C,,,UC,,,,UC
+Paladin,C,,,UC,,,,
+Troubadour,UC,,,UC,,,,UC
+Lance Knight,UC,,,UC,,,,
+Duke Knight,,,,C,,,,
+Axe Knight,C,,,,,,,
+Great Knight,UC,,,UC,,,,
+Arch Knight,UC,,,UC,,,,UC
+Bow Knight,UC,,,UC,,,,UC
+Pegasus Rider,UC,,,UC,,,,UC
+Dragon Rider,C,,,,,,,
+Dragon Knight,UC,,,,,,,UC
+Long Arch,,,,,,,UC,UC
+Iron Arch,,,,,,,C,
+Poison Arch,,,,,,,C,
