@@ -1,6 +1,0 @@
-4,swords,lances,axes,bows,fire-thunder-wind,light-dark,staves,
-5,swords,lances,axes,bows,fire-thunder-wind,light-dark,staves,
-6,swords,lances,axes,bows,staves,anima-tomes,light-tomes,dark-tomes,
-7,swords,lances,axes,bows,staves,anima-tomes,dark-tomes,light-tomes,
-8,swords,lances,axes,bows,staves,anima-tomes,dark-tomes,light-tomes,
-9,swords,lances,axes,bows,fire-thunder-wind-light,staves,knives,laguz-weapons,

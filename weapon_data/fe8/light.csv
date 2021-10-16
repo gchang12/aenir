@@ -1,7 +1,0 @@
-Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,WEx,Worth,Effects
-Lightning,E,1~2,6,4,95,5,35,1,630,–
-Shine,D,1~2,8,6,90,8,30,2,900,–
-Divine,C,1~2,12,8,85,10,25,1,2500,–
-Purge,B,3~10,20,10,75,5,5,3,3000,–
-Aura,A,1~2,15,12,85,15,20,1,8000,–
-Ivaldi,S,1~2,10,17,90,5,30,1,–,"Defence +5, effective against monsters"

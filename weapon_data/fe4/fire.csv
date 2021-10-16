@@ -1,9 +1,0 @@
-Name,Mt,Wt,Hit,Rng,Rank,Worth,Uses,Effects
-Fire,8,12,90,1~2,C,3000,50,–
-Elfire,14,12,80,1~2,B,6000,50,–
-Bolganone,20,12,70,1~2,A,12000,50,–
-Falaflame,30,15,80,1~2,*,50000,50,"Mag +10, Def +10, Mdf +10"
-Meteor,15,30,60,3~10,C,65535,50,"User cannot be countered, reduces user’s Move to 0"
-Empty Book,0,0,0,0,A,1000,0,–
-Empty Book,0,0,0,0,B,1000,0,–
-Empty Book,0,0,0,0,C,1000,0,–
