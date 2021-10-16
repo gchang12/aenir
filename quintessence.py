@@ -1,6 +1,6 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
-from aenir2.dismount_data import SleepStaff
+from aenir2.dismount_data import DismountData
 from aenir2.scolder import scold_user
 
 from numpy import array, zeros
@@ -62,7 +62,7 @@ class Morph:
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
-            dd3=SleepStaff()
+            dd3=DismountData()
             self.unit_info['Mounted']=dd3.isMounted(self.base_class)
         self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
@@ -105,7 +105,7 @@ class Morph:
 
     def dismount(self):
         assert self.can_mount()
-        dd3=SleepStaff()
+        dd3=DismountData()
         decrement=dd3.getBonus(self.current_class())
         if self.unit_info['Mounted']:
             x=False
@@ -239,7 +239,7 @@ class Morph:
 
     def can_mount(self):
         if self.game == '5':
-            dd3=SleepStaff()
+            dd3=DismountData()
             return dd3.isMounted(self.current_class())
         else:
             return False
