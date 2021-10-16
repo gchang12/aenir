@@ -74,14 +74,9 @@ class Morph:
         scrolls.columns=self.stat_names
         scroll_name=crusader_name(scroll_name)
         if scroll_name is None:
-            base_growths=self.unit_info['Base Growths']
-            enhanced_growths=self.growth_rates
-            if not all(base_growths == enhanced_growths):
-                self.growth_rates=base_growths
-                self.unit_info['Scrolls']=list()
-                return self.unit_info
-            else:
-                return scrolls
+            for name in self.unit_info['Scrolls']:
+                scrolls.drop(name,inplace=True)
+            return scrolls
         augmented_growths=scrolls.loc[scroll_name].to_numpy()
         if scroll_name in self.unit_info['Scrolls']:
             augmented_growths=-augmented_growths
