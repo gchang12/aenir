@@ -6,7 +6,7 @@ from os.path import sep
 
 import pandas as pd
 
-class DataDict3:
+class SleepStaff:
     def __init__(self):
         self.stat_dir=sep.join(['.','stat_data','fe5'])
         filePointer=lambda x: sep.join([self.stat_dir,x+'.csv'])
