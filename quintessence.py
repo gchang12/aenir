@@ -510,16 +510,12 @@ class Morph:
         before=pd.Series(new_data)
         df=pd.DataFrame({'before':before,'after':after})
         after_colors=self.color_dict(stat_array)
-        drop_list=('Class','Level')
-        for y in drop_list:
-            if y not in after_colors.keys():
-                df.drop(y,inplace=True)
-        for label in self.stat_names:
+        drop_list=['Class','Level']+self.stat_names
+        for label in drop_list:
             if label not in after_colors.keys():
                 df.drop(label,inplace=True)
         remaining_indices=set(df.index)
-        drop_list=('Class','Level'),self.stat_names
-        for y in drop_list:
+        for y in (drop_list[:2],drop_list[2:]):
             if remaining_indices.isdisjoint(set(y)):
                 df.drop('',inplace=True)
                 break
