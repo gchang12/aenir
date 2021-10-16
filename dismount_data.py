@@ -58,7 +58,7 @@ class DismountData:
         return diff
 
 if __name__ == '__main__':
-    x=DataDict3()
+    x=DismountData()
     unit_class='Lance Knight'
-    y=x.getBonus(unit_class)
+    y=x.dismountDiff()
     print(y)
