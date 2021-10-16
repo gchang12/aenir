@@ -1,6 +1,0 @@
-Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,Effects
-Fenrir,A,1~2,13,15,65,0,13,7800,(Cannot be obtained)
-Flux,D,1~2,5,8,70,0,30,780,–
-Nosferatu,C,1~2,6,10,70,0,20,3000,Restores HP equal to damage done to enemy
-Eclipse,B,3~10,9,–,10,0,5,4000,Reduces HP to 1
-Apocalypse,S,1~2,12,18,80,5,20,–,"Magic +5, effective against Wyvern Riders, Wyvern Lords and Mamkutes"

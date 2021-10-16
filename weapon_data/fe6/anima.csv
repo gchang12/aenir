@@ -1,8 +1,0 @@
-Name,Rank,Rng,Wt,Mt,Hit,Crt,Uses,Worth,Effects
-Fire,E,1~2,1,5,95,0,30,420,–
-Thunder,D,1~2,2,6,80,5,25,500,–
-Fimbulvetr,A,1~2,8,13,80,0,15,3900,(Usable in Trial Maps only)
-Elfire,C,1~2,4,8,75,0,20,800,–
-Aircalibur,B,1~2,2,8,85,0,20,1100,Effective against flying units
-Bolting,A,3~10,10,12,70,0,5,3000,–
-Forblaze,S,1~2,6,14,85,5,20,–,"Luck +5, effective against Wyvern Riders, Wyvern Lords and Mamkutes"

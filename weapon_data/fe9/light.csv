@@ -1,6 +1,0 @@
-Name,Rank,Mt,Hit,Crt,Wt,Rng,Uses,Worth,WEx,Note
-Light,D,2,80,0,4,1~2,40,800,1,–
-Shine,C,4,75,0,6,1~2,30,2100,2,–
-Purge,B,10,70,0,8,3~10,5,1000,3,–
-Nosferatu,A,7,70,0,12,1~2,20,1500,2,Restores user’s HP equal to damage done to enemy
-Rexaura,S,12,85,5,10,1~2,20,–,2,Defence +3
