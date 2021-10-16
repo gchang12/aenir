@@ -1,3 +1,5 @@
+Be sure to donwload the directory_methods module so that this module can find the data files
+
 HOW TO USE
 ===
 rutger='6','Rutger'
