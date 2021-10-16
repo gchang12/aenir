@@ -1,5 +1,5 @@
 from aenir2.quintessence import Morph
-from aenir2.dir_manager import dir_switcher
+from directory_methods.switcher import dir_switcher
 
 dir_switcher('aenir2')
 
