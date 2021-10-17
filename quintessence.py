@@ -436,13 +436,13 @@ class Morph:
             colors[name]=x
         return colors
 
-    def is_capped(self,show_series=True):
+    def is_capped(self,show_df=True):
         capped_stats=self.my_stats == self.my_maxes
         d={}
 
         for name,val in zip(self.stat_names,capped_stats):
             d[name]=val
-        if show_series:
+        if show_df:
             maxes={}
             current={}
             for name,my_stat,cap in zip(self.stat_names,self.my_stats,self.my_maxes):
@@ -453,9 +453,10 @@ class Morph:
                     'current':current,\
                     'maximum':maxes
                     }
-            return pd.DataFrame.from_dict(stat_data)
+            df=pd.DataFrame.from_dict(stat_data).to_string()
+            print(df)
         else:
-            return d
+            print(d)
 
     def stats_from_name(self,stat_name):
         stat_dict={
@@ -481,8 +482,14 @@ class Morph:
         for name in columns:
             data=self.get_short_data(name)
             data_list.append(data)
+        growths=data_list[1]
+        keys=growths.index
+        values=growths.values
+        new_growths=['%d%%'%n for n in values]
+        data_list[1]=pd.Series(data=new_growths,index=keys,name='growths')
         df=pd.DataFrame(data_list)
-        return df.transpose()
+        df=df.transpose().to_string()
+        print(df)
 
     def get_long_data(self,stat_array):
         my_array=self.stats_from_name(stat_array)
