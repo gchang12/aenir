@@ -62,8 +62,8 @@ class Morph:
         if self.game == '5':
             self.unit_info['Base Growths']=self.growth_rates.copy()
             self.unit_info['Scrolls']=list()
-            dd3=DismountData()
-            self.unit_info['Mounted']=dd3.isMounted(self.base_class)
+            dd=DismountData()
+            self.unit_info['Mounted']=dd.isMounted(self.base_class)
         self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
 
@@ -76,7 +76,9 @@ class Morph:
         if scroll_name is None:
             for name in self.unit_info['Scrolls']:
                 scrolls.drop(name,inplace=True)
-            return scrolls
+            scrolls=scrolls.to_string()
+            print(scrolls)
+            return
         augmented_growths=scrolls.loc[scroll_name].to_numpy()
         if scroll_name in self.unit_info['Scrolls']:
             augmented_growths=-augmented_growths
@@ -100,8 +102,8 @@ class Morph:
 
     def dismount(self):
         assert self.can_mount()
-        dd3=DismountData()
-        decrement=dd3.getBonus(self.current_class())
+        dd=DismountData()
+        decrement=dd.getBonus(self.current_class())
         if self.unit_info['Mounted']:
             x=False
         else:
@@ -234,8 +236,8 @@ class Morph:
 
     def can_mount(self):
         if self.game == '5':
-            dd3=DismountData()
-            return dd3.isMounted(self.current_class())
+            dd=DismountData()
+            return dd.isMounted(self.current_class())
         else:
             return False
 
@@ -326,7 +328,8 @@ class Morph:
             if chapter in bonus_by_chapter.keys():
                 num_levels=bonus_by_chapter[chapter]
             else:
-                return bonus_by_chapter
+                print(bonus_by_chapter)
+                return
         else:
             assert type(chapter) == int
             assert chapter >= 0
@@ -354,7 +357,8 @@ class Morph:
         if chapter in bonus_by_chapter.keys():
             num_levels=bonus_by_chapter[chapter]
         else:
-            return bonus_by_chapter
+            print(bonus_by_chapter)
+            return
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':increase_stats,\
@@ -371,7 +375,8 @@ class Morph:
             stat_name=bonus[0]
             increment=bonus[1]
         else:
-            return bonus_dict
+            print(bonus_dict)
+            return
         if 'Augments' not in self.unit_info.keys():
             self.unit_info['Augments']={}
         augments=self.unit_info['Augments']
@@ -470,7 +475,7 @@ class Morph:
         return pd.Series(**kw)
 
     def summary(self):
-        columns='bases','growths','maxes'
+        columns='bases','growths'
         data_list=list()
         for name in columns:
             data=self.get_short_data(name)
