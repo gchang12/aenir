@@ -1,7 +1,8 @@
 from aenir2.read_stats import *
 from aenir2.gender_dict import *
 from aenir2.dismount_data import DismountData
-from aenir2.scolder import scold_user
+
+from directory_methods import messageWriter
 
 from numpy import array, zeros
 
@@ -21,7 +22,7 @@ class Morph:
             lyndis_league=character_list(game,file_match='characters_base-stats1')
             if unit in lyndis_league:
                 message='Please choose a Boolean value for the \'lyn_mode\' option.'
-                scold_user(message)
+                messageWriter(message)
         if (game,unit) == ('7','Nils'):
             unit='Ninian'
         unit=get_true_name(game,unit)
@@ -231,7 +232,7 @@ class Morph:
                     num_levels=mpl-self.current_level()
             else:
                 message='\'num_levels\' must be numeric, \'max\', or \'promo\', if it is a string.'
-                scold_user(message)
+                messageWriter(message)
         else:
             assert type(num_levels) == int
         if num_levels == 0:
@@ -315,7 +316,7 @@ class Morph:
                     'has promoted to an unmounted class:',\
                     self.current_class()
                     )
-                scold_user(message)
+                messageWriter(message)
         return self.cap_stats()
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
