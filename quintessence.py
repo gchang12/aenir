@@ -247,7 +247,8 @@ class Morph:
         if len(promo_indices) == 1:
             promo_path=promo_indices[0]
         elif promo_path not in promo_indices:
-            return self.my_promotions
+            print(self.my_promotions)
+            return
         promo_class=self.my_promotions[promo_path]
         audit=('bases' if self.my_classes[-1] is None else 'promo')
         kwargs1={
