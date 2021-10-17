@@ -66,6 +66,7 @@ class Morph:
             self.unit_info['Mounted']=dd.isMounted(self.base_class)
         self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
+        self.unit_info['Growths Type']='Normal'
 
     def equip_scroll(self,scroll_name=None):
         assert self.game == '5'
@@ -94,8 +95,11 @@ class Morph:
         assert mod in ('zero','negative')
         if mod == 'zero':
             new_growths=zeros(len(self.stat_names),dtype='int64')
+            growths_type='Zero'
         elif mod == 'negative':
             new_growths=-self.growth_rates
+            growths_type='Negative'
+        self.unit_info['Growths Type']=growths_type
         self.update_snapshot('growths')
         self.growth_rates=new_growths
         return self.compare_stats('growths')
@@ -328,6 +332,7 @@ class Morph:
             bonus_by_chapter=hard_mode_dict()[self.unit]
             if chapter in bonus_by_chapter.keys():
                 num_levels=bonus_by_chapter[chapter]
+                self.unit_info['Hard Mode']=(chapter,num_levels)
             else:
                 print(bonus_by_chapter)
                 return
@@ -335,6 +340,7 @@ class Morph:
             assert type(chapter) == int
             assert chapter >= 0
             num_levels=chapter
+            self.unit_info['Hard Mode']=('Custom',num_levels)
         kwargs={
             'num_levels':num_levels,\
             'increase_stats':True,\
@@ -357,6 +363,7 @@ class Morph:
         bonus_by_chapter=auto_level_dict()[self.unit]
         if chapter in bonus_by_chapter.keys():
             num_levels=bonus_by_chapter[chapter]
+            self.unit_info['Auto-Level']=(chapter,num_levels)
         else:
             print(bonus_by_chapter)
             return
