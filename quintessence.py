@@ -90,6 +90,18 @@ class Morph:
         self.growth_rates=self.growth_rates+augmented_growths
         func(scroll_name)
         return self.compare_stats('growths')
+        
+    def history(self):
+        my_levels=['Level']
+        my_classes=['Class']
+        for lv,cls in zip(self.my_levels,self.my_classes):
+            if lv is None and cls is None:
+                continue
+            my_levels.append(lv)
+            my_classes.append(cls)
+        df=pd.Series(my_classes,index=my_levels)
+        df=df.to_string()
+        print(df)
 
     def modify_growths(self,mod=None):
         assert mod in ('zero','negative')
