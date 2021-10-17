@@ -488,7 +488,8 @@ class Morph:
         new_growths=['%d%%'%n for n in values]
         data_list[1]=pd.Series(data=new_growths,index=keys,name='growths')
         df=pd.DataFrame(data_list)
-        df=df.transpose().to_string()
+        df=df.transpose()
+        df=self.truncate_data(df).to_string()
         print(df)
 
     def get_long_data(self,stat_array):
