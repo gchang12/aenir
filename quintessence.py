@@ -67,7 +67,7 @@ class Morph:
             self.unit_info['Mounted']=dd.isMounted(self.base_class)
         self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
-        self.unit_info['Growths Type']='Normal'
+        self.unit_info['Growths Modifier']=None
 
     def equip_scroll(self,scroll_name=None):
         assert self.game == '5'
@@ -91,10 +91,31 @@ class Morph:
         self.growth_rates=self.growth_rates+augmented_growths
         func(scroll_name)
         return self.compare_stats('growths')
-        
+
+    def unequip_all_scrolls(self):
+        assert self.game == '5'
+        self.growth_rates=self.unit_info['Base Growths']
+        self.unit_info['Scrolls'].clear()
+
+    def show_scrolls(self):
+        assert self.game == '5'
+        if not self.unit_info['Scrolls']:
+            return
+        base_growths=self.unit_info['Base Growths']
+        data={'base':base_growths}
+        scroll_df=scroll_equipper()
+        for scroll in self.unit_info['Scrolls']:
+            scroll=crusader_name(scroll)
+            augment=scroll_df.loc[scroll].to_numpy()
+            data[scroll]=augment
+        data['final']=self.growth_rates
+        df=pd.DataFrame(data,index=self.stat_names)
+        df=df.to_string()
+        print(df)
+
     def history(self):
-        my_levels=['Level']
-        my_classes=['Class']
+        my_levels=['Level','']
+        my_classes=['Class','']
         for lv,cls in zip(self.my_levels,self.my_classes):
             if lv is None and cls is None:
                 continue
@@ -106,13 +127,14 @@ class Morph:
 
     def modify_growths(self,mod=None):
         assert mod in ('zero','negative')
+        assert self.unit_info['Growths Modifier'] is None
         if mod == 'zero':
             new_growths=zeros(len(self.stat_names),dtype='int64')
             growths_type='Zero'
         elif mod == 'negative':
             new_growths=-self.growth_rates
             growths_type='Negative'
-        self.unit_info['Growths Type']=growths_type
+        self.unit_info['Growths Modifier']=growths_type
         self.update_snapshot('growths')
         self.growth_rates=new_growths
         return self.compare_stats('growths')
@@ -158,8 +180,8 @@ class Morph:
     def can_promote(self):
         trainees='Ross','Amelia','Ewan'
         lara_promotions=(
-            ['Thief','Thief Fighter','Dancer','Thief Fighter'],\
-            ['Thief','Dancer','Thief Fighter']
+            ['Thief Fighter','Dancer','Thief Fighter'],\
+            ['Dancer','Thief Fighter']
             )
         if self.my_promotions is None:
             x=False
@@ -169,7 +191,7 @@ class Morph:
             else:
                 x=True
         elif (self.game,self.unit) == ('5','Lara'):
-            if self.my_classes in lara_promotions:
+            if self.my_classes[1:] in lara_promotions:
                 x=False
             else:
                 x=True
