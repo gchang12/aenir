@@ -114,8 +114,9 @@ class Morph:
         print(df)
 
     def history(self):
-        my_levels=['Level','']
-        my_classes=['Class','']
+        hline='='*5
+        my_levels=['Level',hline]
+        my_classes=['Class',hline]
         for lv,cls in zip(self.my_levels,self.my_classes):
             if lv is None and cls is None:
                 continue
