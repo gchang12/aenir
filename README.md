@@ -12,7 +12,7 @@ rutger.level\_up(6)
 
 rutger.promote(promo_path=0)
 
-rutger.is\_capped(show\_series=True)
+rutger.is\_capped(show\_df=True)
 
 rutger.use\_stat\_booster('Energy Ring')
 
