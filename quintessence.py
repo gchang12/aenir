@@ -617,10 +617,16 @@ class Morph:
             'show_sign':False,\
             'show_percent':show_percent
             }
-
         before=self.series_from_data(**kw)
+
+        g=lambda n: after.to_numpy()[n]
+        final_cls,final_lv=g(0),g(1)
+        kw['cls']=final_cls
+        kw['lv']=final_lv
+        kw['my_array']=final_stats
+        after=self.series_from_data(**kw)
+
         new_data=self.snapshot.copy()
-        
         if self.current_class() != new_data['Class']:
             cls_val=True
         else:
@@ -638,19 +644,6 @@ class Morph:
         kw['my_array']=diff
         kw['show_sign']=True
         change=self.series_from_data(**kw)
-
-        after=after.to_dict()
-        new_after=dict()
-        for key,val in after.items():
-            if key in ('Class','Level',''):
-                new_after[key]=val
-            else:
-                val=round(val,ndigits=2)
-                val=str(val)
-                if show_percent:
-                    val=val+'%'
-                new_after[key]=val
-        after=pd.Series(new_after)
 
         display_data={
             'before':before,\
