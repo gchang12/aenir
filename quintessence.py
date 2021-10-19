@@ -614,6 +614,7 @@ class Morph:
 
         kw['cls']=self.snapshot['Class']
         kw['lv']=self.snapshot['Level']
+        kw['my_array']=my_array
         kw['show_sign']=False
         before=self.series_from_data(**kw)
 
@@ -624,14 +625,15 @@ class Morph:
         kw['my_array']=final_stats
         after=self.series_from_data(**kw)
 
-        new_data=self.snapshot()
+        new_data=self.snapshot
+        rarrow='-'*3+'>'
         if self.current_class() != new_data['Class']:
-            cls_val=True
+            cls_val=rarrow
         else:
             cls_val=''
         if self.current_level() != new_data['Level']:
             if cls_val:
-                lv_val=''
+                lv_val=rarrow
             else:
                 lv_val=self.current_level()-new_data['Level']
                 lv_val='+'+str(lv_val)
