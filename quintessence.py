@@ -610,13 +610,11 @@ class Morph:
         final_stats=after.to_numpy()[3:]
         diff=final_stats-my_array
 
-        kw={
-            'cls':self.snapshot['Class'],\
-            'lv':self.snapshot['Level'],\
-            'my_array':my_array,\
-            'show_sign':False,\
-            'show_percent':show_percent
-            }
+        kw={'show_percent':show_percent}
+
+        kw['cls']=self.snapshot['Class']
+        kw['lv']=self.snapshot['Level']
+        kw['show_sign']=False
         before=self.series_from_data(**kw)
 
         g=lambda n: after.to_numpy()[n]
@@ -626,7 +624,7 @@ class Morph:
         kw['my_array']=final_stats
         after=self.series_from_data(**kw)
 
-        new_data=self.snapshot.copy()
+        new_data=self.snapshot()
         if self.current_class() != new_data['Class']:
             cls_val=True
         else:
