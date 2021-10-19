@@ -82,21 +82,20 @@ class Morph:
             scrolls=scrolls.to_string()
             print(scrolls)
             return
-        augmented_growths=scrolls.loc[scroll_name].to_numpy()
-        if scroll_name in self.unit_info['Scrolls']:
-            augmented_growths=-augmented_growths
-            func=self.unit_info['Scrolls'].remove
-        else:
-            func=self.unit_info['Scrolls'].append
+        elif scroll_name in self.unit_info['Scrolls']:
+            return
+        self.unit_info['Scrolls'].append(scroll_name)
         self.update_snapshot('growths')
-        self.growth_rates=self.growth_rates+augmented_growths
+        raw_growths=array(self.unit_info['Base Growths'])
+        for name in self.unit_info['Scrolls']:
+            augment=scrolls.loc[name].to_numpy()
+            raw_growths=raw_growths+augment
         capped_growths=list()
-        for g in self.growth_rates:
+        for g in raw_growths:
             if g < 0:
                 g=0
             capped_growths.append(g)
         self.growth_rates=array(capped_growths)
-        func(scroll_name)
         return self.show_scrolls()
 
     def unequip_all_scrolls(self):
@@ -771,7 +770,10 @@ class Morph:
 if __name__=='__main__':
     k=5
     game=str(k)
-    unit='Leif'
-    x=Morph(game,unit)
-    y=x.level_up(19)
-    print(x)
+    fe5_units=character_list(game)
+    for unit in fe5_units:
+        x=Morph(game,unit)
+        try:
+            x.dismount()
+        except:
+            continue
