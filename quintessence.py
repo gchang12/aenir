@@ -618,8 +618,8 @@ class Morph:
         kw['show_sign']=False
         before=self.series_from_data(**kw)
 
-        g=lambda n: after.to_numpy()[n]
-        final_cls,final_lv=g(0),g(1)
+        final_cls=after.at['Class']
+        final_lv=after.at['Level']
         kw['cls']=final_cls
         kw['lv']=final_lv
         kw['my_array']=final_stats
