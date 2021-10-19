@@ -109,7 +109,10 @@ class Morph:
         new_array=list()
         for x in my_array:
             if show_sign:
-                if x > 0:
+                if abs(x) < 10**-3:
+                    new_array.append('')
+                    continue
+                elif x > 0:
                     prefix='+'
                 else:
                     prefix=''
