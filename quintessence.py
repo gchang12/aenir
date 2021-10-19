@@ -17,6 +17,7 @@ class Morph:
         if game == '4':
             kids=fe4_name_dict('child')
             if unit in kids.keys() or unit in kids.values():
+                father=father.capitalize()
                 father=get_true_name(game,father,fe4family='father')
         if game == '7' and lyn_mode is None:
             lyndis_league=character_list(game,file_match='characters_base-stats1')
