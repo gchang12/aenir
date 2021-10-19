@@ -89,25 +89,38 @@ class Morph:
             func=self.unit_info['Scrolls'].append
         self.update_snapshot('growths')
         self.growth_rates=self.growth_rates+augmented_growths
+        capped_growths=list()
+        for g in self.growth_rates:
+            if g < 0:
+                g=0
+            capped_growths.append(g)
+        self.growth_rates=array(capped_growths)
         func(scroll_name)
-        return self.compare_stats('growths')
+        return self.show_scrolls()
 
     def unequip_all_scrolls(self):
         assert self.game == '5'
+        self.update_snapshot('growths')
         self.growth_rates=self.unit_info['Base Growths']
         self.unit_info['Scrolls'].clear()
+        return self.show_scrolls()
 
     def show_scrolls(self):
         assert self.game == '5'
-        if not self.unit_info['Scrolls']:
-            return
         base_growths=self.unit_info['Base Growths']
         data={'base':base_growths}
         scroll_df=scroll_equipper()
         for scroll in self.unit_info['Scrolls']:
             scroll=crusader_name(scroll)
             augment=scroll_df.loc[scroll].to_numpy()
-            data[scroll]=augment
+            new_augment=list()
+            for x in augment:
+                if x > 0:
+                    prefix='+'
+                else:
+                    prefix=''
+                new_augment.append(prefix+str(x))
+            data[scroll]=new_augment
         data['final']=self.growth_rates
         df=pd.DataFrame(data,index=self.stat_names)
         df=df.to_string()
@@ -151,6 +164,11 @@ class Morph:
             x=True
         self.update_snapshot()
         self.my_stats=self.my_stats+decrement
+        for n,s in enumerate(self.my_stats):
+            if s < 0:
+                stat_name=self.stat_names[n]
+                message='Dismount has resulted in %s having a negative %s stat of %d.'%(self.unit,stat_name,s)
+                messageWriter(message)
         self.unit_info['Mounted']=x
         return self.cap_stats()
 
@@ -565,17 +583,40 @@ class Morph:
         for label,value in zip(self.stat_names,my_array):
             new_data[label]=value
         before=pd.Series(new_data)
-        df=pd.DataFrame({'before':before,'after':after})
-        after_colors=self.color_dict(stat_array)
-        drop_list=['Class','Level']+self.stat_names
-        for label in drop_list:
-            if label not in after_colors.keys():
-                df.drop(label,inplace=True)
-        remaining_indices=set(df.index)
-        for y in (drop_list[:2],drop_list[2:]):
-            if remaining_indices.isdisjoint(set(y)):
-                df.drop('',inplace=True)
-                break
+        final_stats=after.to_numpy()[3:]
+        diff=final_stats-my_array
+        if self.current_class() != new_data['Class']:
+            cls_val=True
+        else:
+            cls_val=''
+        if self.current_level() != new_data['Level']:
+            if cls_val:
+                lv_val=''
+            else:
+                lv_val=self.current_level()-new_data['Level']
+                lv_val='+'+str(lv_val)
+        else:
+            lv_val=''
+        change_data={
+            'Class':cls_val,\
+            'Level':lv_val,\
+            '':''
+            }
+        for label,value in zip(self.stat_names,diff):
+            if value > 0:
+                prefix='+'
+            else:
+                prefix=''
+            value=round(value,ndigits=2)
+            value=prefix+str(value)
+            change_data[label]=value
+        change=pd.Series(change_data)
+        display_data={
+            'before':before,\
+            'change':change,\
+            'after':after
+            }
+        df=pd.DataFrame(display_data)
         if not df.empty:
             df=df.to_string()
             print(df)
