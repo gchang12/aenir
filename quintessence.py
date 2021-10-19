@@ -105,23 +105,35 @@ class Morph:
         self.unit_info['Scrolls'].clear()
         return self.show_scrolls()
 
+    def get_string_array(self,my_array,show_sign,show_percent):
+        new_array=list()
+        for x in my_array:
+            if show_sign:
+                if x > 0:
+                    prefix='+'
+                else:
+                    prefix=''
+            else:
+                prefix=''
+            x=round(x,ndigits=2)
+            x=prefix+str(x)
+            if show_percent:
+                x=x+'%'
+            new_array.append(x)
+        return array(new_array)
+
     def show_scrolls(self):
         assert self.game == '5'
         base_growths=self.unit_info['Base Growths']
+        base_growths=self.get_string_array(base_growths,False,True)
         data={'base':base_growths}
         scroll_df=scroll_equipper()
         for scroll in self.unit_info['Scrolls']:
             scroll=crusader_name(scroll)
             augment=scroll_df.loc[scroll].to_numpy()
-            new_augment=list()
-            for x in augment:
-                if x > 0:
-                    prefix='+'
-                else:
-                    prefix=''
-                new_augment.append(prefix+str(x))
+            new_augment=self.get_string_array(augment,True,True)
             data[scroll]=new_augment
-        data['final']=self.growth_rates
+        data['final']=self.get_string_array(self.growth_rates,False,True)
         df=pd.DataFrame(data,index=self.stat_names)
         df=df.to_string()
         print(df)
@@ -572,19 +584,30 @@ class Morph:
         return after
 
     def compare_stats(self,stat_array='mine'):
+        if stat_array == 'growths':
+            show_percent=True
+        else:
+            show_percent=False
+        f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
+        
         after=self.get_long_data(stat_array)
         after.drop(labels='Name',inplace=True)
+
+        my_array=self.snapshot['Stats']
+        final_stats=after.to_numpy()[3:]
+        diff=final_stats-my_array
+
+        my_array=f(my_array,False)
         new_data={
             'Class':self.snapshot['Class'],\
             'Level':self.snapshot['Level'],\
             '':''
             }
-        my_array=self.snapshot['Stats']
         for label,value in zip(self.stat_names,my_array):
             new_data[label]=value
         before=pd.Series(new_data)
-        final_stats=after.to_numpy()[3:]
-        diff=final_stats-my_array
+        
+        diff=f(diff,True)
         if self.current_class() != new_data['Class']:
             cls_val=True
         else:
@@ -603,14 +626,22 @@ class Morph:
             '':''
             }
         for label,value in zip(self.stat_names,diff):
-            if value > 0:
-                prefix='+'
-            else:
-                prefix=''
-            value=round(value,ndigits=2)
-            value=prefix+str(value)
             change_data[label]=value
         change=pd.Series(change_data)
+
+        after_dict=after.to_dict()
+        new_final=dict()
+        for key,val in after_dict.items():
+            if key in ('Class','Level',''):
+                new_final[key]=val
+            else:
+                val=round(val,ndigits=2)
+                val=str(val)
+                if show_percent:
+                    val=val+'%'
+                new_final[key]=val
+        after=pd.Series(new_final)
+
         display_data={
             'before':before,\
             'change':change,\
