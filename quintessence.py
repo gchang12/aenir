@@ -583,6 +583,19 @@ class Morph:
         after=after.to_string()
         return after
 
+    def series_from_data(self,cls,lv,my_array,show_sign,show_percent):
+        f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
+        new_data={
+            'Class':cls,\
+            'Level':lv,\
+            '':''
+            }
+        my_array=f(my_array,show_percent)
+        for label,value in zip(self.stat_names,my_array):
+            new_data[label]=value
+        srs=pd.Series(new_data)
+        return srs
+
     def compare_stats(self,stat_array='mine'):
         if stat_array == 'growths':
             show_percent=True
@@ -597,17 +610,17 @@ class Morph:
         final_stats=after.to_numpy()[3:]
         diff=final_stats-my_array
 
-        my_array=f(my_array,False)
-        new_data={
-            'Class':self.snapshot['Class'],\
-            'Level':self.snapshot['Level'],\
-            '':''
+        kw={
+            'cls':self.snapshot['Class'],\
+            'lv':self.snapshot['Level'],\
+            'my_array':my_array,\
+            'show_sign':False,\
+            'show_percent':show_percent
             }
-        for label,value in zip(self.stat_names,my_array):
-            new_data[label]=value
-        before=pd.Series(new_data)
+
+        before=self.series_from_data(**kw)
+        new_data=self.snapshot.copy()
         
-        diff=f(diff,True)
         if self.current_class() != new_data['Class']:
             cls_val=True
         else:
@@ -620,27 +633,24 @@ class Morph:
                 lv_val='+'+str(lv_val)
         else:
             lv_val=''
-        change_data={
-            'Class':cls_val,\
-            'Level':lv_val,\
-            '':''
-            }
-        for label,value in zip(self.stat_names,diff):
-            change_data[label]=value
-        change=pd.Series(change_data)
+        kw['cls']=cls_val
+        kw['lv']=lv_val
+        kw['my_array']=diff
+        kw['show_sign']=True
+        change=self.series_from_data(**kw)
 
-        after_dict=after.to_dict()
-        new_final=dict()
-        for key,val in after_dict.items():
+        after=after.to_dict()
+        new_after=dict()
+        for key,val in after.items():
             if key in ('Class','Level',''):
-                new_final[key]=val
+                new_after[key]=val
             else:
                 val=round(val,ndigits=2)
                 val=str(val)
                 if show_percent:
                     val=val+'%'
-                new_final[key]=val
-        after=pd.Series(new_final)
+                new_after[key]=val
+        after=pd.Series(new_after)
 
         display_data={
             'before':before,\
