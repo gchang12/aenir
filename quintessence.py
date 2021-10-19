@@ -590,7 +590,7 @@ class Morph:
             'Level':lv,\
             '':''
             }
-        my_array=f(my_array,show_percent)
+        my_array=f(my_array,show_sign)
         for label,value in zip(self.stat_names,my_array):
             new_data[label]=value
         srs=pd.Series(new_data)
