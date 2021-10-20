@@ -19,11 +19,14 @@ class Morph:
             if unit in kids.keys() or unit in kids.values():
                 father=father.capitalize()
                 father=get_true_name(game,father,fe4family='father')
-        if game == '7' and lyn_mode is None:
+        if game == '7':
             lyndis_league=character_list(game,file_match='characters_base-stats1')
             if unit in lyndis_league:
-                message='Please choose a Boolean value for the \'lyn_mode\' option.'
-                messageWriter(message)
+                if lyn_mode is None:
+                    message='Please choose a Boolean value for the \'lyn_mode\' option.'
+                    messageWriter(message)
+            else:
+                lyn_mode=None
         if (game,unit) == ('7','Nils'):
             unit='Ninian'
         unit=get_true_name(game,unit)
