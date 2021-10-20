@@ -609,13 +609,9 @@ class Morph:
         else:
             show_percent=False
         f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
-        
-        after=self.get_long_data(stat_array)
-        after.drop(labels='Name',inplace=True)
 
         my_array=self.snapshot['Stats']
-        final_stats=after.to_numpy()[3:]
-        diff=final_stats-my_array
+        diff=self.my_stats-my_array
 
         kw={'show_percent':show_percent}
 
@@ -625,11 +621,9 @@ class Morph:
         kw['show_sign']=False
         before=self.series_from_data(**kw)
 
-        final_cls=after.at['Class']
-        final_lv=after.at['Level']
-        kw['cls']=final_cls
-        kw['lv']=final_lv
-        kw['my_array']=final_stats
+        kw['cls']=self.current_class()
+        kw['lv']=self.current_level()
+        kw['my_array']=self.my_stats
         after=self.series_from_data(**kw)
 
         old_data=self.snapshot
