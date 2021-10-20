@@ -529,7 +529,9 @@ class Morph:
                     'current':current,\
                     'maximum':maxes
                     }
-            df=pd.DataFrame.from_dict(stat_data).to_string()
+            df=pd.DataFrame.from_dict(stat_data)
+            df=self.truncate_data(df)
+            df=df.to_string()
             print(df)
         else:
             print(d)
@@ -565,7 +567,6 @@ class Morph:
         data_list[1]=pd.Series(data=new_growths,index=keys,name='growths')
         df=pd.DataFrame(data_list)
         df=df.transpose()
-        df=self.truncate_data(df).to_string()
         print(df)
 
     def get_long_data(self,stat_array):
