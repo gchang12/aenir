@@ -1,4 +1,4 @@
-Be sure to donwload the directory_methods module so that this module can find the data files
+Be sure to download the directory_methods module so that this module can find the data files.
 
 HOW TO USE
 ===
