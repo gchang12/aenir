@@ -625,7 +625,8 @@ class Morph:
         f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
 
         my_array=self.snapshot['Stats']
-        diff=self.my_stats-my_array
+        new_array=self.stats_from_name(stat_array)
+        diff=new_array-my_array
 
         kw={'show_percent':show_percent}
 
@@ -637,7 +638,7 @@ class Morph:
 
         kw['cls']=self.current_class()
         kw['lv']=self.current_level()
-        kw['my_array']=self.my_stats
+        kw['my_array']=new_array
         after=self.series_from_data(**kw)
 
         old_data=self.snapshot
