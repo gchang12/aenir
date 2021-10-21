@@ -175,7 +175,7 @@ class Morph:
         self.unit_info['Growths Modifier']=growths_type
         self.update_snapshot('growths')
         self.growth_rates=new_growths
-        return self.compare_stats('growths')
+        return self.show_diff('growths')
 
     def dismount(self):
         if not self.can_mount():
@@ -279,7 +279,7 @@ class Morph:
                 stat=limit
             capped_array.append(stat)
         self.my_stats=array(capped_array)
-        return self.compare_stats()
+        return self.show_diff()
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         max_level=max_level_dict(self.game,self.current_class())
@@ -493,7 +493,7 @@ class Morph:
         decrement[:-2].fill(-num_times)
         self.update_snapshot()
         self.my_stats=self.my_stats+decrement
-        return self.compare_stats()
+        return self.show_diff()
 
     def update_snapshot(self,stat_array='mine'):
         my_array=self.stats_from_name(stat_array)
@@ -617,7 +617,7 @@ class Morph:
         srs=pd.Series(new_data)
         return srs
 
-    def compare_stats(self,stat_array='mine'):
+    def show_diff(self,stat_array='mine'):
         if stat_array == 'growths':
             show_percent=True
         else:
