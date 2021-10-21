@@ -140,11 +140,14 @@ class Morph:
         base_growths=self.get_string_array(base_growths,False,True)
         data={'base':base_growths}
         scroll_df=scroll_equipper()
+        bonus=zeros(len(self.stat_names))
         for scroll in self.unit_info['Scrolls']:
             scroll=crusader_name(scroll)
             augment=scroll_df.loc[scroll].to_numpy()
+            bonus=bonus+augment
             new_augment=self.get_string_array(augment,True,True)
             data[scroll]=new_augment
+        data['bonus']=self.get_string_array(array(bonus,dtype=int),True,True)
         data['final']=self.get_string_array(self.growth_rates,False,True)
         df=pd.DataFrame(data,index=self.stat_names)
         df=df.to_string()
