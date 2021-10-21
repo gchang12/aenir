@@ -72,6 +72,12 @@ class Morph:
         self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
         self.unit_info['Growths Modifier']=None
+        if self.game in ('4','5'):
+            self.cutoff=None
+        elif self.game == '9':
+            self.cutoff=3
+        else:
+            self.cutoff=2
 
     def equip_scroll(self,scroll_name=None):
         assert self.game == '5'
@@ -172,7 +178,8 @@ class Morph:
         return self.compare_stats('growths')
 
     def dismount(self):
-        assert self.can_mount()
+        if not self.can_mount():
+            return
         dd=DismountData()
         decrement=dd.getBonus(self.current_class())
         if self.unit_info['Mounted']:
@@ -566,13 +573,9 @@ class Morph:
         growths=data_list[1]
         keys=growths.index
         values=growths.values
-        if self.game in ('4','5'):
+        if self.cutoff is None:
             new_growths=['%d%%'%n for n in values]
         else:
-            if self.game == '9':
-                k=3
-            else:
-                k=2
             new_growths=list()
             for v in values[:-k]:
                 new_growths.append('%d%%'%v)
@@ -737,11 +740,11 @@ class Morph:
         print(stat_comparison)
 
     def truncate_data(self,data):
-        if self.game in ('6','7','8'):
-            data=data.iloc[:-2,:]
-        elif self.game == '9':
-            data=data.iloc[:-3,:]
-        return data
+        if self.cutoff is None:
+            x=data
+        else:
+            x=data.iloc[:-self.cutoff,:]
+        return x
 
     def __call__(self):
         my_stats=list()
