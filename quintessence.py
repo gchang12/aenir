@@ -566,7 +566,17 @@ class Morph:
         growths=data_list[1]
         keys=growths.index
         values=growths.values
-        new_growths=['%d%%'%n for n in values]
+        if self.game in ('4','5'):
+            new_growths=['%d%%'%n for n in values]
+        else:
+            if self.game == '9':
+                k=3
+            else:
+                k=2
+            new_growths=list()
+            for v in values[:-k]:
+                new_growths.append('%d%%'%v)
+            new_growths.extend(['-']*k)
         data_list[1]=pd.Series(data=new_growths,index=keys,name='growths')
         df=pd.DataFrame(data_list)
         df=df.transpose()
