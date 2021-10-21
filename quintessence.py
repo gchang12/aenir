@@ -577,6 +577,7 @@ class Morph:
             new_growths=['%d%%'%n for n in values]
         else:
             new_growths=list()
+            k=self.cutoff
             for v in values[:-k]:
                 new_growths.append('%d%%'%v)
             new_growths.extend(['-']*k)
