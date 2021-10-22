@@ -140,14 +140,11 @@ class Morph:
         base_growths=self.get_string_array(base_growths,False,True)
         data={'base':base_growths}
         scroll_df=scroll_equipper()
-        bonus=zeros(len(self.stat_names))
         for scroll in self.unit_info['Scrolls']:
             scroll=crusader_name(scroll)
             augment=scroll_df.loc[scroll].to_numpy()
-            bonus=bonus+augment
             new_augment=self.get_string_array(augment,True,True)
             data[scroll]=new_augment
-        data['bonus']=self.get_string_array(array(bonus,dtype=int),True,True)
         data['final']=self.get_string_array(self.growth_rates,False,True)
         df=pd.DataFrame(data,index=self.stat_names)
         df=df.to_string()
@@ -183,6 +180,7 @@ class Morph:
     def dismount(self):
         if not self.can_mount():
             return
+        assert self.unit_info['Growths Modifier'] != 'Negative'
         dd=DismountData()
         decrement=dd.getBonus(self.current_class())
         if self.unit_info['Mounted']:
@@ -192,11 +190,6 @@ class Morph:
             x=True
         self.update_snapshot()
         self.my_stats=self.my_stats+decrement
-        for n,s in enumerate(self.my_stats):
-            if s < 0:
-                stat_name=self.stat_names[n]
-                message='Dismount has resulted in %s having a negative %s stat of %d.'%(self.unit,stat_name,s)
-                messageWriter(message)
         self.unit_info['Mounted']=x
         return self.cap_stats()
 
@@ -789,7 +782,4 @@ if __name__=='__main__':
     fe5_units=character_list(game)
     for unit in fe5_units:
         x=Morph(game,unit)
-        try:
-            x.dismount()
-        except:
-            continue
+        x.dismount()
