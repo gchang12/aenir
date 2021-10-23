@@ -2,6 +2,7 @@ Be sure to download the directory_methods module so that this module can find th
 
 HOW TO USE
 ===
+```python
 rutger='6','Rutger'
 
 rutger=Morph(\*rutger)
@@ -24,4 +25,4 @@ karel=Morph(\*karel)
 
 comparison=rutger - karel
 
-rutger()
+rutger()```
