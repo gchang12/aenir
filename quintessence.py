@@ -601,13 +601,12 @@ class Morph:
         return after
 
     def series_from_data(self,cls,lv,my_array,show_sign,show_percent):
-        f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
         new_data={
             'Class':cls,\
             'Level':lv,\
             '':''
             }
-        my_array=f(my_array,show_sign)
+        my_array=self.get_string_array(my_array,show_sign,show_percent)
         for label,value in zip(self.stat_names,my_array):
             new_data[label]=value
         srs=pd.Series(new_data)
