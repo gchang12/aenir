@@ -2,7 +2,7 @@ Be sure to download the directory_methods module so that this module can find th
 
 TYPICAL USAGE
 ===
-```python*-*-
+```python
 rutger='6','Rutger'
 rutger=Morph(*rutger)
 rutger.add_hm_bonus(chapter='')
