@@ -14,4 +14,5 @@ rutger.level_up(18)
 karel='6','Karel'
 karel=Morph(*karel)
 comparison=rutger - karel
-rutger()```
+rutger()
+```
