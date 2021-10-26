@@ -69,7 +69,6 @@ class Morph:
             self.unit_info['Scrolls']=list()
             dd=DismountData()
             self.unit_info['Mounted']=dd.isMounted(self.base_class)
-        self.snapshot=dict()
         self.stat_names=get_stat_names(self.game)
         self.unit_info['Growths Modifier']=None
         if self.game in ('4','5'):
@@ -94,7 +93,6 @@ class Morph:
         elif scroll_name in self.unit_info['Scrolls']:
             return
         self.unit_info['Scrolls'].append(scroll_name)
-        self.update_snapshot('growths')
         raw_growths=array(self.unit_info['Base Growths'])
         for name in self.unit_info['Scrolls']:
             augment=scrolls.loc[name].to_numpy()
@@ -105,50 +103,11 @@ class Morph:
                 g=0
             capped_growths.append(g)
         self.growth_rates=array(capped_growths)
-        return self.show_scrolls()
 
     def unequip_all_scrolls(self):
         assert self.game == '5'
-        self.update_snapshot('growths')
         self.growth_rates=self.unit_info['Base Growths']
         self.unit_info['Scrolls'].clear()
-        return self.show_scrolls()
-
-    def get_string_array(self,my_array,show_sign,show_percent):
-        new_array=list()
-        for x in my_array:
-            if show_sign:
-                if abs(x) < 10**-3:
-                    new_array.append('')
-                    continue
-                elif x > 0:
-                    prefix='+'
-                else:
-                    prefix=''
-            else:
-                prefix=''
-            x=round(x,ndigits=2)
-            x=prefix+str(x)
-            if show_percent:
-                x=x+'%'
-            new_array.append(x)
-        return array(new_array)
-
-    def show_scrolls(self):
-        assert self.game == '5'
-        base_growths=self.unit_info['Base Growths']
-        base_growths=self.get_string_array(base_growths,False,True)
-        data={'base':base_growths}
-        scroll_df=scroll_equipper()
-        for scroll in self.unit_info['Scrolls']:
-            scroll=crusader_name(scroll)
-            augment=scroll_df.loc[scroll].to_numpy()
-            new_augment=self.get_string_array(augment,True,True)
-            data[scroll]=new_augment
-        data['final']=self.get_string_array(self.growth_rates,False,True)
-        df=pd.DataFrame(data,index=self.stat_names)
-        df=df.to_string()
-        print(df)
 
     def history(self):
         hline='='*5
@@ -173,13 +132,10 @@ class Morph:
             new_growths=-self.growth_rates
             growths_type='Negative'
         self.unit_info['Growths Modifier']=growths_type
-        self.update_snapshot('growths')
         self.growth_rates=new_growths
-        return self.show_diff('growths')
 
     def dismount(self):
-        if not self.can_mount():
-            return
+        assert self.can_mount()
         assert self.unit_info['Growths Modifier'] != 'Negative'
         dd=DismountData()
         decrement=dd.getBonus(self.current_class())
@@ -188,7 +144,6 @@ class Morph:
         else:
             decrement=-decrement
             x=True
-        self.update_snapshot()
         self.my_stats=self.my_stats+decrement
         self.unit_info['Mounted']=x
         return self.cap_stats()
@@ -275,7 +230,6 @@ class Morph:
                 stat=limit
             capped_array.append(stat)
         self.my_stats=array(capped_array)
-        return self.show_diff()
 
     def level_up(self,num_levels,stat_array=None,increase_level=True,increase_stats=True):
         max_level=max_level_dict(self.game,self.current_class())
@@ -305,7 +259,6 @@ class Morph:
             assert self.current_level()+num_levels <= max_level
         if stat_array is None:
             stat_array=self.growth_rates
-        self.update_snapshot()
         if increase_level:
             index=self.current_index()
             self.my_levels[index]+=num_levels
@@ -342,7 +295,6 @@ class Morph:
         if self.can_mount():
             if not self.unit_info['Mounted']:
                 self.dismount()
-        self.update_snapshot()
         self.my_stats=self.my_stats+promo_bonus
 
         def append_upgrade(list_var,value):
@@ -470,7 +422,6 @@ class Morph:
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
         boost_array=zeros(len(self.my_stats))
         boost_array[stat_loc:stat_loc+1].fill(increment)
-        self.update_snapshot()
         self.my_stats=self.my_stats+boost_array
         return self.cap_stats()
 
@@ -487,36 +438,7 @@ class Morph:
             self.unit_info['Declines']+=num_times
         decrement=zeros(len(self.my_stats))
         decrement[:-2].fill(-num_times)
-        self.update_snapshot()
         self.my_stats=self.my_stats+decrement
-        return self.show_diff()
-
-    def update_snapshot(self,stat_array='mine'):
-        my_array=self.stats_from_name(stat_array)
-        self.snapshot['Stats']=my_array
-        self.snapshot['Level']=self.current_level()
-        self.snapshot['Class']=self.current_class()
-
-    def color_dict(self,stats='mine'):
-        colors={}
-        my_array=self.snapshot['Stats']
-        stats=self.stats_from_name(stats)
-        stat_array=zip(self.stat_names,stats,my_array)
-
-        def update_colors(key,f1,f2):
-            if f1() != f2[key]:
-                colors[key]=True
-
-        update_colors('Class',self.current_class,self.snapshot)
-        update_colors('Level',self.current_level,self.snapshot)
-
-        for name,my_stat,other_stat in stat_array:
-            if my_stat == other_stat:
-                continue
-            else:
-                x=my_stat > other_stat
-            colors[name]=x
-        return colors
 
     def is_capped(self,show_df=True):
         capped_stats=self.my_stats == self.my_maxes
@@ -599,72 +521,6 @@ class Morph:
         after=self.get_long_data('mine')
         after=after.to_string()
         return after
-
-    def series_from_data(self,cls,lv,my_array,show_sign,show_percent):
-        new_data={
-            'Class':cls,\
-            'Level':lv,\
-            '':''
-            }
-        my_array=self.get_string_array(my_array,show_sign,show_percent)
-        for label,value in zip(self.stat_names,my_array):
-            new_data[label]=value
-        srs=pd.Series(new_data)
-        return srs
-
-    def show_diff(self,stat_array='mine'):
-        if stat_array == 'growths':
-            show_percent=True
-        else:
-            show_percent=False
-        f=lambda x,show_sign: self.get_string_array(x,show_sign,show_percent)
-
-        my_array=self.snapshot['Stats']
-        new_array=self.stats_from_name(stat_array)
-        diff=new_array-my_array
-
-        kw={'show_percent':show_percent}
-
-        kw['cls']=self.snapshot['Class']
-        kw['lv']=self.snapshot['Level']
-        kw['my_array']=my_array
-        kw['show_sign']=False
-        before=self.series_from_data(**kw)
-
-        kw['cls']=self.current_class()
-        kw['lv']=self.current_level()
-        kw['my_array']=new_array
-        after=self.series_from_data(**kw)
-
-        old_data=self.snapshot
-        rarrow='-'*3+'>'
-        if self.current_class() != old_data['Class']:
-            cls_val=rarrow
-        else:
-            cls_val=''
-        if self.current_level() != old_data['Level']:
-            if cls_val:
-                lv_val=rarrow
-            else:
-                lv_val=self.current_level()-old_data['Level']
-                lv_val='+'+str(lv_val)
-        else:
-            lv_val=''
-        kw['cls']=cls_val
-        kw['lv']=lv_val
-        kw['my_array']=diff
-        kw['show_sign']=True
-        change=self.series_from_data(**kw)
-
-        display_data={
-            'before':before,\
-            'change':change,\
-            'after':after
-            }
-        df=pd.DataFrame(display_data)
-        if not df.empty:
-            df=df.to_string()
-            print(df)
 
     def max_level(self):
         args=(self.game,self.current_class())
