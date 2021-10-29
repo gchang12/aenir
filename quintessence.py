@@ -44,14 +44,12 @@ class Morph:
         self.base_level=self.unit_info.pop('Level')
         self.base_stats=load_character_bases(**kwargs).to_numpy()
         self.growth_rates=load_character_growths(**kwargs).to_numpy()
-        #   Start update for class attribute loaders here
         d={}
         d['audit']='bases'
         d['class_name']=self.base_class
         kwargs.update(d)
         self.maximum_stats=load_class_maxes(**kwargs).to_numpy()
         self.promotions=load_class_promo_list(**kwargs)
-        #   Start mutable attributes here
         if self.promotions is not None:
             self.my_levels=[self.base_level,None]
             self.my_promotions=self.promotions.copy()
@@ -109,7 +107,7 @@ class Morph:
         self.growth_rates=self.unit_info['Base Growths']
         self.unit_info['Scrolls'].clear()
 
-    def history(self):
+    def show_history(self):
         hline='='*5
         my_levels=['Level',hline]
         my_classes=['Class',hline]
@@ -194,8 +192,6 @@ class Morph:
             x=True
         return x
 
-    #   Methods to help identify correct attribute to update
-
     def current_index(self):
         if self.can_promote():
             if self.my_classes[-1] is not None:
@@ -217,11 +213,9 @@ class Morph:
     def current_class(self):
         return self.current_level(get_level=False)
 
-    def quick_promote(self,promo_path=None):
+    def quick_promote(self,promo_path=0):
         self.level_up('promo')
         self.promote(promo_path=promo_path)
-
-    #   End of aforementioned methods
 
     def cap_stats(self):
         capped_array=list()
@@ -323,14 +317,6 @@ class Morph:
         if self.game == '5':
             can_mount=self.unit_info['Mounted']
             self.unit_info['Mounted']=self.can_mount()
-            if type(can_mount) == bool and self.unit_info['Mounted'] is None:
-                message=(
-                    'The mounted class:',\
-                    self.my_classes[0],\
-                    'has promoted to an unmounted class:',\
-                    self.current_class()
-                    )
-                messageWriter(message)
         return self.cap_stats()
 
     def class_level_up(self,num_levels,increase_stats,increase_level):
@@ -377,8 +363,6 @@ class Morph:
 
     def add_auto_bonus(self,chapter=''):
         if (self.game,self.unit) == ('8','Knoll'):
-            # Not sure how many hidden levels are added
-            # - assumed it was just one
             return self.add_hm_bonus(chapter=chapter)
         if (self.game,self.unit) == ('6','Gonzales'):
             assert self.my_levels == [5,None]
@@ -440,29 +424,25 @@ class Morph:
         decrement[:-2].fill(-num_times)
         self.my_stats=self.my_stats+decrement
 
-    def is_capped(self,show_df=True):
+    def show_capped(self):
         capped_stats=self.my_stats == self.my_maxes
         d={}
-
         for name,val in zip(self.stat_names,capped_stats):
             d[name]=val
-        if show_df:
-            maxes={}
-            current={}
-            for name,my_stat,cap in zip(self.stat_names,self.my_stats,self.my_maxes):
-                current[name]=my_stat
-                maxes[name]=cap
-            stat_data={
-                    'capped':d,\
-                    'current':current,\
-                    'maximum':maxes
-                    }
-            df=pd.DataFrame.from_dict(stat_data)
-            df=self.truncate_data(df)
-            df=df.to_string()
-            print(df)
-        else:
-            print(d)
+        maxes={}
+        current={}
+        for name,my_stat,cap in zip(self.stat_names,self.my_stats,self.my_maxes):
+            current[name]=my_stat
+            maxes[name]=cap
+        stat_data={
+                'capped':d,\
+                'current':current,\
+                'maximum':maxes
+                }
+        df=pd.DataFrame.from_dict(stat_data)
+        df=self.truncate_data(df)
+        df=df.to_string()
+        print(df)
 
     def stats_from_name(self,stat_name):
         stat_dict={
@@ -482,7 +462,7 @@ class Morph:
             }
         return pd.Series(**kw)
 
-    def summary(self):
+    def show_summary(self):
         columns='bases','growths'
         data_list=list()
         for name in columns:
@@ -637,4 +617,5 @@ if __name__=='__main__':
     fe5_units=character_list(game)
     for unit in fe5_units:
         x=Morph(game,unit)
-        x.dismount()
+        if x.can_promote():
+            x.quick_promote()
