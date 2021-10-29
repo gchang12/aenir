@@ -89,7 +89,8 @@ class Morph:
             print(scrolls)
             return
         elif scroll_name in self.unit_info['Scrolls']:
-            return
+            message='You already have the %s scroll equipped.'%scroll_name
+            messageWriter(message)
         self.unit_info['Scrolls'].append(scroll_name)
         raw_growths=array(self.unit_info['Base Growths'])
         for name in self.unit_info['Scrolls']:
@@ -137,13 +138,10 @@ class Morph:
         assert self.unit_info['Growths Modifier'] != 'Negative'
         dd=DismountData()
         decrement=dd.getBonus(self.current_class())
-        if self.unit_info['Mounted']:
-            x=False
-        else:
+        if not self.unit_info['Mounted']:
             decrement=-decrement
-            x=True
+        self.unit_info['Mounted']=not self.unit_info['Mounted']
         self.my_stats=self.my_stats+decrement
-        self.unit_info['Mounted']=x
         return self.cap_stats()
 
     def is_clean(self):
