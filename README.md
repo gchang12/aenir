@@ -8,7 +8,7 @@ rutger=Morph(*rutger)
 rutger.add_hm_bonus(chapter='')
 rutger.level_up(6)
 rutger.promote(promo_path=0)
-rutger.is_capped(show_df=True)
+rutger.show_capped()
 rutger.use_stat_booster('Energy Ring')
 rutger.level_up(18)
 karel='6','Karel'
