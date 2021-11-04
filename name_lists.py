@@ -1,8 +1,10 @@
 import pandas as pd
 from aenir2.data_dict import read_stat_names
 from os.path import sep
-from os import walk
+from os import walk, remove, mkdir
 from aenir2.gender_dict import updated_name_for
+
+from directory_methods import messageWriter
 
 def game_title_dict(reverse=False):
     title_file='.','metadata',r'game-titles.csv'
@@ -108,29 +110,54 @@ def fe4_name_dict(fe4family):
         key_list.append(new_name)
     return dict_generator(key_list,val_list)
 
+def write_dummy_file(game,list_type):
+    assert list_type in ('father','regular')
+    if list_type == 'father':
+        namelist=fe4_name_dict(list_type)
+        suffix='fathers'
+    else:
+        namelist=translated_character_list(game)
+        suffix='units'
+    mkdir('temp')
+    file=sep.join(['temp','dummy.py'])
+    function_name='fe%s_%s'%(game,suffix)
+    header='def %s():'%function_name
+    subheader="   '''\n"
+    with open(file,'w') as wfile:
+        wfile.write(header)
+        wfile.write(subheader)
+        for name in namelist:
+            wfile.write("   %s\n"%name)
+        wfile.write(subheader)
+
 def get_true_name(game,unit,fe4family=None):
     if fe4family is not None:
         my_dict=fe4_name_dict(fe4family)
         message=(
-            'Please specify a choice for the \'father\' option from the list above.',\
+            '%s is not a father with a choice of brides.'%unit,\
+            'Please check the \'fe_unit_list\' function for a list of valid options.',\
+            'Be sure to switch the \'show_fathers\' option to True.'
             )
     else:
         my_dict=unit_name_dict(game)
         game_title=game_title_dict(reverse=True)[game]
         message=(
             '%s is not in FE%s: %s'%(unit,game,game_title),\
-            'Please choose someone from the list above.'
+            'Please check the \'fe_unit_list\' function for a list of valid names.'
             )
     if unit in my_dict.keys():
         return my_dict[unit]
     elif unit in my_dict.values():
         return unit
     else:
-        message='\n'.join(('',*message,''))
-        for key in my_dict.keys():
-            print(key)
-        print(message)
-        raise Exception
+        messageWriter(message)
+
+def fe_unit_list(game,show_fathers=False):
+    if not show_fathers:
+        my_dict=unit_name_dict(game)
+    else:
+        my_dict=fe4_name_dict(fe4family)
+    return my_dict
 
 def get_stat_names(game,stat_name=None):
     num_stats=read_stat_names(game)
