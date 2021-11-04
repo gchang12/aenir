@@ -17,6 +17,7 @@ class Morph:
         if game == '4':
             kids=fe4_name_dict('child')
             if unit in kids.keys() or unit in kids.values():
+                father=str(father)
                 father=father.capitalize()
                 father=get_true_name(game,father,fe4family='father')
         if game == '7':
@@ -531,6 +532,7 @@ class Morph:
         return '!'.join(display_name)
 
     def __sub__(self,other):
+        assert self.cutoff is other.cutoff
         diff=self.my_stats-other.my_stats
         first=self.my_stats
         second=other.my_stats
