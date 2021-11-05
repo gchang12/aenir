@@ -1,7 +1,9 @@
 import pandas as pd
-from aenir2.data_dict import read_stat_names
+
 from os.path import sep
 from os import walk, remove, mkdir
+
+from aenir2.data_dict import read_stat_names
 from aenir2.gender_dict import updated_name_for
 
 from directory_methods import messageWriter
@@ -136,7 +138,7 @@ def get_true_name(game,unit,fe4family=None):
         message=(
             '%s is not a father with a choice of brides.'%unit,\
             'Please check the \'fe_unit_list\' function for a list of valid options.',\
-            'Be sure to switch the \'show_fathers\' option to True.'
+            'Be sure to pass \'fe4_fathers\' as the argument.'
             )
     else:
         my_dict=unit_name_dict(game)
@@ -152,11 +154,12 @@ def get_true_name(game,unit,fe4family=None):
     else:
         messageWriter(message)
 
-def fe_unit_list(game,show_fathers=False):
-    if not show_fathers:
-        my_dict=unit_name_dict(game)
+def fe_unit_list(arg):
+    assert arg in [str(n) for n in range(4,10)]+['fe4_fathers']
+    if arg != 'fe4_fathers':
+        my_dict=unit_name_dict(arg)
     else:
-        my_dict=fe4_name_dict(fe4family)
+        my_dict=fe4_name_dict('father')
     return my_dict
 
 def get_stat_names(game,stat_name=None):
@@ -200,12 +203,6 @@ def read_class_names2(game,audit_name,match_name):
 
 
 if __name__ == '__main__':
-    bad_names=list()
-    for n in range(4,10):
-        game=str(n)
-        clist=character_list(game)
-        for c in clist:
-            if c != c.capitalize():
-                bad_names.append(c)
-    for name in bad_names:
-        print(name)
+    arg='4'
+    y=fe_unit_list(arg)
+    print(len(y))
