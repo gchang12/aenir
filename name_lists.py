@@ -144,7 +144,7 @@ def get_true_name(game,unit,fe4family=None):
         my_dict=unit_name_dict(game)
         game_title=game_title_dict(reverse=True)[game]
         message=(
-            '%s is not in FE%s: %s'%(unit,game,game_title),\
+            '%s is not in FE%s: %s.'%(unit,game,game_title),\
             'Please check the \'fe_unit_list\' function for a list of valid names.'
             )
     if unit in my_dict.keys():
