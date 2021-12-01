@@ -403,9 +403,7 @@ class Morph:
         else:
             augments[booster_name]+=1
         stat_loc=get_stat_names(self.game,stat_name=stat_name)
-        boost_array=zeros(len(self.my_stats))
-        boost_array[stat_loc:stat_loc+1].fill(increment)
-        self.my_stats=self.my_stats+boost_array
+        self.my_stats[stat_loc]=self.my_stats[stat_loc]+increment
         return self.cap_stats()
 
     def decline_hugh(self,num_times):
@@ -434,10 +432,10 @@ class Morph:
             current[name]=my_stat
             maxes[name]=cap
         stat_data={
-                'capped':d,\
-                'current':current,\
-                'maximum':maxes
-                }
+            'capped':d,\
+            'current':current,\
+            'maximum':maxes
+            }
         df=pd.DataFrame.from_dict(stat_data)
         df=self.truncate_data(df)
         df=df.to_string()
