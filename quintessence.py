@@ -554,7 +554,7 @@ class Morph:
         cls_level=pd.DataFrame(cls_level).transpose()
         cls_level.columns=d.keys()
         stat_comparison=self.truncate_data(stat_comparison)
-        csum=sum(n for n in stat_comparison.loc[:,'diff'])
+        csum=sum(stat_comparison.loc[:,'diff'])
         summary={
                 first_name:'',\
                 second_name:'',\
@@ -593,7 +593,7 @@ class Morph:
                     'avg':self.my_stats
                     }
         stat_dict['diff']=stat_dict['mine']-stat_dict['avg']
-        csum=sum(val for val in stat_dict['diff'])
+        csum=sum(stat_dict['diff'])
         comparison=pd.DataFrame(stat_dict,index=self.stat_names)
         comparison=self.truncate_data(comparison)
         comparison=comparison.to_string()

@@ -84,7 +84,7 @@ class ZeroFiller:
 if __name__ == '__main__':
     game='6'
     unit='Roy'
-    folders='raw_data'
+    folders='stat_data'
     filename='characters_growth-rates.csv'
     x=ZeroFiller(game,folders)
     #d={'HP':99}
