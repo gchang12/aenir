@@ -155,6 +155,7 @@ def get_true_name(game,unit,fe4family=None):
         messageWriter(message)
 
 def fe_unit_list(arg):
+    arg=str(arg)
     assert arg in [str(n) for n in range(4,10)]+['fe4_fathers']
     if arg != 'fe4_fathers':
         my_dict=unit_name_dict(arg)
