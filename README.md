@@ -1,3 +1,1 @@
-More arbitrary text
-Yabba dabba doo
-fjdfkjdk
+Add logging and stuff

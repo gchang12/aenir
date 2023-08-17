@@ -2,16 +2,18 @@
 """
 Tests functionality of SerenesScraper methods
 """
-# pylint: disable=E1111
+# pylint: disable=E1111,W3101
 
 import unittest
-import urllib.parse
+import logging
 
 import requests as r
 import pandas as pd
 from bs4 import BeautifulSoup
 
-import scraper
+from aenir import scraper
+
+logging.basicConfig(level=logging.DEBUG)
 
 class SerenesTestCase(unittest.TestCase):
     """
@@ -29,6 +31,7 @@ class SerenesTestCase(unittest.TestCase):
         Tests that no scraper.SerenesScraper instance is created
         if the game_name is not a string.
         """
+        logging.debug("Asserting that __init__ fails when its argument is not a string.")
         with self.assertRaises(TypeError):
             nonexistent_scraper = scraper.SerenesScraper(None)
         with self.assertRaises(NameError):
@@ -39,6 +42,7 @@ class SerenesTestCase(unittest.TestCase):
         Tests that no scraper.SerenesScraper instance is created
         if the game name does not exist as a path on SF.net.
         """
+        logging.debug("Asserting that __init__ fails when its str-argument is not a game.")
         bad_name = 'yabba-dabba-doo'
         with self.assertRaises(r.exceptions.HTTPError):
             nonexistent_scraper = scraper.SerenesScraper(bad_name)
@@ -50,6 +54,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that an error is raised if the path does not exist.
         No tables are appended to the 'url_to_tables'.
         """
+        logging.debug("Asserting that scrape_tables fails when its path does not exist.")
         path = "characters/accuracy"
         with self.assertRaises(r.exceptions.HTTPError):
             no_name = self.sos_scraper.scrape_tables(path)
@@ -62,6 +67,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that an error is raised if the path is not a str.
         No tables are appended to the 'url_to_tables'.
         """
+        logging.debug("Asserting that scrape_tables fails when its argument is not a string.")
         notastr = None
         with self.assertRaises(TypeError):
             no_name = self.sos_scraper.scrape_tables(notastr)
@@ -74,6 +80,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the 'url_to_tables' object is appended
         with a list of pd.DataFrame objects.
         """
+        logging.debug("Asserting that scrape_tables succeeds.")
         section_page = "characters/base-stats"
         self.sos_scraper.scrape_tables(section_page)
         self.assertIn(section_page, self.sos_scraper.url_to_tables)
@@ -90,6 +97,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the tables are saved and so forth.
         They must be identical to the tables fetched.
         """
+        logging.debug("Asserting that save_tables succeeds.")
         section_page = "characters/growth-rates"
         self.sos_scraper.scrape_tables(section_page)
         self.sos_scraper.save_tables(section_page)
@@ -101,7 +109,7 @@ class SerenesTestCase(unittest.TestCase):
         source_url = "/".join( [self.sos_scraper.home_url, section_page] )
         response = r.get(source_url)
         fetched_table = pd.read_html(response.text)[0]
-        sql_table = pd.read_sql_table(table_name_root + '0', "sqlite:///" + db_path.__str__())
+        sql_table = pd.read_sql_table(table_name_root + '0', "sqlite:///" + str(db_path))
         self.assertFalse(sql_table.empty)
         self.assertTrue(all(sql_table == fetched_table))
 
@@ -110,6 +118,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the operation is not carried out if
         the key is not found.
         """
+        logging.debug("Asserting that save_tables fails if the urlpath is not found.")
         notpath = ""
         with self.assertRaises(KeyError):
             self.sos_scraper.save_tables(notpath)
@@ -119,6 +128,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the loaded table is no different
         from one fetched from the worldwide web.
         """
+        logging.debug("Asserting that load_tables succeeds.")
         table_name = "characters__growth_rates"
         self.sos_scraper.scrape_tables(self.sos_scraper.tablename_to_urlpath(table_name))
         self.sos_scraper.save_tables(self.sos_scraper.tablename_to_urlpath(table_name))
