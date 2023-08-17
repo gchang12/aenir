@@ -82,10 +82,11 @@ class SerenesScraper(SerenesBase):
             logging.info("table = pd.read_sql_table%s", (table_name, con))
             try:
                 table = pd.read_sql_table(table_name, con)
+                tableindex += 1
                 logging.info("Appending 'table' to self.url_tables[\"%s\"]", urlpath)
                 self.url_to_tables[urlpath].append(table)
-                tableindex += 1
             except ValueError:
+                logging.info("There were %d table(s) compiled for '%s'.", tableindex, tablename)
                 break
 
 if __name__ == '__main__':
