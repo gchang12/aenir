@@ -1,2 +1,3 @@
 .gitignore
 aenir_venv/*
+__pycache__/*
