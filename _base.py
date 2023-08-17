@@ -11,13 +11,6 @@ class SerenesBase:
     descendants, including the scraper
     and data management classes.
     """
-    TABLE_TO_URLPATH = {
-            "characters_growthrates": "characters/growth-rates",
-            "characters_basestats": "characters/base-stats",
-            "classes_maximumstats": "classes/maximum-stats",
-            "classes_promotiongains": "classes/promotion-gains",
-            "classes_growthrates": "classes/growth-rates",
-            }
     def __init__(self, game_name: str):
         """
         Initialize:
@@ -34,6 +27,17 @@ class SerenesBase:
         """
         return self.home_dir / Path(filename)
 
+    def urlpath_to_tablename(self, urlpath: str):
+        """
+        Converts urlpath-like str to tablename str.
+        """
+        return urlpath.replace("/", "__").replace("-", "_")
+
+    def tablename_to_urlpath(self, tablename: str):
+        """
+        Converts tablename-like str to urlpath.
+        """
+        return tablename.replace("__", "/").replace("_", "-")
 
 if __name__ == '__main__':
     pass
