@@ -38,22 +38,43 @@ class SerenesScraper(SerenesBase):
         """
         if not isinstance(path, str):
             raise TypeError
-        table_url = urllib.parse.urljoin(self.home_url, path)
+        table_url = "/".join([self.home_url, path])
         response = r.get(table_url)
         response.raise_for_status()
         self.url_to_tables[path] = pd.read_html(response.text)
 
-    def save_table(self, path: str):
+    def save_tables(self, urlpath: str):
         """
         Saves table data and junk.
         """
-        pass
+        tablename = self.urlpath_to_tablename(urlpath)
+        tableindex = 0
+        self.home_dir.mkdir(exist_ok=True, parents=True)
+        save_dir = self.home_dir.joinpath("raw_stats.db").__str__()
+        while self.url_to_tables[urlpath]:
+            table = self.url_to_tables[urlpath].pop(0)
+            name = tablename + str(tableindex)
+            con = "sqlite:///" + save_dir
+            table.to_sql(name, con, index=False)
+            tableindex += 1
+        del self.url_to_tables[urlpath]
 
-    def load_table(self, path: str):
+    def load_tables(self, tablename: str):
         """
         Loads table data and junk
         """
-        pass
+        save_dir = self.home_dir.joinpath("raw_stats.db").__str__()
+        self.url_to_tables[self.tablename_to_urlpath(tablename)] = []
+        tableindex = 0
+        while True:
+            table_name = tablename + str(tableindex)
+            con = "sqlite:///" + save_dir
+            try:
+                table = pd.read_sql_table(table_name, con)
+                self.url_to_tables[self.tablename_to_urlpath(tablename)].append(table)
+                tableindex += 1
+            except ValueError:
+                break
 
 if __name__ == '__main__':
-    breakpoint()
+    pass
