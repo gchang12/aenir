@@ -1,4 +1,4 @@
 .gitignore
-aenir_venv/*
+.aenir_venv/*
 __pycache__/*
 data/*
