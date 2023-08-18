@@ -62,6 +62,7 @@ class SerenesScraper(SerenesBase):
             table = self.url_to_tables[urlpath].pop(0)
             name = tablename + str(tableindex)
             con = "sqlite:///" + save_dir
+            logging.info("First row of '%s.%s': %s", self.game_name, name, table.head(n=1))
             table.to_sql(name, con, index=False)
             logging.info("table.to_sql(\"%s\", \"%s\", index=False)", name, con)
             tableindex += 1
