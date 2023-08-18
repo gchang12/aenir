@@ -132,13 +132,13 @@ class SerenesTestCase(unittest.TestCase):
         table_name = "characters__growth_rates"
         urlpath = self.sos_scraper.tablename_to_urlpath(table_name)
         self.sos_scraper.scrape_tables(urlpath)
-        www_table = self.sos_scraper[urlpath][0]
+        original_table = self.sos_scraper.url_to_tables[urlpath][0]
         self.sos_scraper.save_tables(urlpath)
         self.sos_scraper.load_tables(table_name)
         self.assertIn(urlpath, self.sos_scraper.url_to_tables)
         url_source = "/".join( [self.sos_scraper.home_url, urlpath] )
         loaded_table = self.sos_scraper.url_to_tables[urlpath][0]
-        self.assertTrue(all(loaded_table == www_table))
+        self.assertTrue(all(loaded_table == original_table))
 
 if __name__ == '__main__':
-    help(unittest.main)
+    unittest.main()
