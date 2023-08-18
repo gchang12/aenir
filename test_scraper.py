@@ -31,7 +31,7 @@ class SerenesTestCase(unittest.TestCase):
         Tests that no scraper.SerenesScraper instance is created
         if the game_name is not a string.
         """
-        logging.debug("Asserting that __init__ fails when its argument is not a string.")
+        logging.info("Asserting that __init__ fails when its argument is not a string.")
         with self.assertRaises(TypeError):
             nonexistent_scraper = scraper.SerenesScraper(None)
         with self.assertRaises(NameError):
@@ -42,7 +42,7 @@ class SerenesTestCase(unittest.TestCase):
         Tests that no scraper.SerenesScraper instance is created
         if the game name does not exist as a path on SF.net.
         """
-        logging.debug("Asserting that __init__ fails when its str-argument is not a game.")
+        logging.info("Asserting that __init__ fails when its str-argument is not a game.")
         bad_name = 'yabba-dabba-doo'
         with self.assertRaises(r.exceptions.HTTPError):
             nonexistent_scraper = scraper.SerenesScraper(bad_name)
@@ -54,7 +54,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that an error is raised if the path does not exist.
         No tables are appended to the 'url_to_tables'.
         """
-        logging.debug("Asserting that scrape_tables fails when its path does not exist.")
+        logging.info("Asserting that scrape_tables fails when its path does not exist.")
         path = "characters/accuracy"
         with self.assertRaises(r.exceptions.HTTPError):
             no_name = self.sos_scraper.scrape_tables(path)
@@ -67,7 +67,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that an error is raised if the path is not a str.
         No tables are appended to the 'url_to_tables'.
         """
-        logging.debug("Asserting that scrape_tables fails when its argument is not a string.")
+        logging.info("Asserting that scrape_tables fails when its argument is not a string.")
         notastr = None
         with self.assertRaises(TypeError):
             no_name = self.sos_scraper.scrape_tables(notastr)
@@ -80,7 +80,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the 'url_to_tables' object is appended
         with a list of pd.DataFrame objects.
         """
-        logging.debug("Asserting that scrape_tables succeeds.")
+        logging.info("Asserting that scrape_tables succeeds.")
         section_page = "characters/base-stats"
         self.sos_scraper.scrape_tables(section_page)
         self.assertIn(section_page, self.sos_scraper.url_to_tables)
@@ -97,7 +97,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the tables are saved and so forth.
         They must be identical to the tables fetched.
         """
-        logging.debug("Asserting that save_tables succeeds.")
+        logging.info("Asserting that save_tables succeeds.")
         section_page = "characters/growth-rates"
         self.sos_scraper.scrape_tables(section_page)
         self.sos_scraper.save_tables(section_page)
@@ -118,7 +118,7 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the operation is not carried out if
         the key is not found.
         """
-        logging.debug("Asserting that save_tables fails if the urlpath is not found.")
+        logging.info("Asserting that save_tables fails if the urlpath is not found.")
         notpath = ""
         with self.assertRaises(KeyError):
             self.sos_scraper.save_tables(notpath)
@@ -128,17 +128,17 @@ class SerenesTestCase(unittest.TestCase):
         Asserts that the loaded table is no different
         from one fetched from the worldwide web.
         """
-        logging.debug("Asserting that load_tables succeeds.")
+        logging.info("Asserting that load_tables succeeds.")
         table_name = "characters__growth_rates"
-        self.sos_scraper.scrape_tables(self.sos_scraper.tablename_to_urlpath(table_name))
-        self.sos_scraper.save_tables(self.sos_scraper.tablename_to_urlpath(table_name))
-        self.sos_scraper.load_tables(table_name)
         urlpath = self.sos_scraper.tablename_to_urlpath(table_name)
+        self.sos_scraper.scrape_tables(urlpath)
+        www_table = self.sos_scraper[urlpath][0]
+        self.sos_scraper.save_tables(urlpath)
+        self.sos_scraper.load_tables(table_name)
         self.assertIn(urlpath, self.sos_scraper.url_to_tables)
         url_source = "/".join( [self.sos_scraper.home_url, urlpath] )
-        www_table = pd.read_html(r.get(url_source).text)[0]
         loaded_table = self.sos_scraper.url_to_tables[urlpath][0]
         self.assertTrue(all(loaded_table == www_table))
 
 if __name__ == '__main__':
-    unittest.main()
+    help(unittest.main)
