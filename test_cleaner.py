@@ -11,6 +11,7 @@ class TestCleaning(unittest.TestCase):
     Provides testing for functions that clean up
     pd.DataFrame objects to be referenced for stats.
     """
+
     def setUp(self):
         """
         Create generic pd.DataFrame objects for cleaning here.
@@ -30,13 +31,6 @@ class TestCleaning(unittest.TestCase):
     def test_convert_to_int_df(self):
         """
         Asserts that the pd.DataFrame.dtypes is int.
-        """
-        pass
-
-    def test_remove_nonnumeric_columns(self):
-        """
-        Asserts that there are no columns with nonnumeric
-        data, sans the foreign key columns.
         """
         pass
 

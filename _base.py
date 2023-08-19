@@ -12,6 +12,7 @@ class SerenesBase:
     descendants, including the scraper
     and data management classes.
     """
+
     NUM_TO_NAME = {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
@@ -26,6 +27,7 @@ class SerenesBase:
             "classes/maximum-stats": "classes__maximum_stats",
             "classes/promotion-gains": "classes__promotion_gains",
             }
+
     def __init__(self, game_num: int):
         """
         Initialize:

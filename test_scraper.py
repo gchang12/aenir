@@ -19,6 +19,7 @@ class TestScraper(unittest.TestCase):
     """
     Tests that the methods defined in scraper.SerenesScraper work.
     """
+
     def setUp(self):
         """
         Set up the scraper.SerenesScraper instance.
