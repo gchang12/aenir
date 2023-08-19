@@ -42,7 +42,7 @@ class SerenesBase:
         """
         Returns a path to a data file in the home directory
         """
-        return self.home_dir / Path(filename)
+        return self.home_dir.joinpath(filename)
 
 if __name__ == '__main__':
     pass
