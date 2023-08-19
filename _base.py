@@ -2,6 +2,7 @@
 """
 Defines the SerenesBase class
 """
+# pylint: disable=R0903
 
 from pathlib import Path
 
@@ -25,7 +26,8 @@ class SerenesBase:
         - game_name: One of the folders in the serenesforest.net site
         - home_dir: pathlib.Path object to the directory
         """
-        self.game_name = self.NUM_TO_NAME[game_num]
+        self.game_num = game_num
+        self.game_name = self.NUM_TO_NAME[self.game_num]
         self.home_dir = Path("data", self.game_name)
         self.url_to_tables = {}
 

@@ -32,8 +32,8 @@ class SerenesScraper(SerenesBase):
         """
         logging.info("self.__init__(self, %d)", game_num)
         SerenesBase.__init__(self, game_num)
+        self.home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
-        self.home_url = "/".join((self.URL_ROOT, game_name))
         logging.info("requests.get(\"%s\")", self.home_url)
         response = r.get(self.home_url)
         logging.info("requests.raise_for_status(): Checking for errors")
@@ -44,9 +44,9 @@ class SerenesScraper(SerenesBase):
         """
         Scrapes table objects from HOME_URL/section/page.
         """
-        if urlpath not in self.PAGE_DICT:
-            logging.warning("'%s' not in self.PAGE_DICT", urlpath)
-            raise ValueError
+        if not isinstance(urlpath, str):
+            logging.warning("not isinstance('%s', str)", urlpath)
+            raise TypeError
         table_url = "/".join([self.home_url, urlpath])
         logging.info("requests.get(\"%s\")", table_url)
         response = r.get(table_url)
@@ -61,7 +61,7 @@ class SerenesScraper(SerenesBase):
         """
         Saves table data and junk.
         """
-        tablename = self.page_dict[urlpath]
+        tablename = self.PAGE_DICT[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
         logging.info("'%s' directory now exists.", str(self.home_dir))
