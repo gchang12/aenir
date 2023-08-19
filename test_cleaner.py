@@ -113,8 +113,82 @@ class TestCleaner(unittest.TestCase):
             for oldname, newname in zip(old_fields, new_fields):
                 self.assertEqual(newname, field_mappings[oldname])
 
+    def test_pd_drop(self):
+        """
+        Asserts that the columns specified are dropped
+        from the tables in one section, given as an argument.
+        """
+        section = "characters/base-stats"
+        columns = ["Affin", "Weapon ranks"]
+        for df in self.sos_cleaner.url_to_tables[section]:
+            self.assertTrue(set(columns).issubset(set(df.columns)))
+        self.sos_cleaner.pd_drop(columns)
+        for df in self.sos_cleaner.url_to_tables[section]:
+            self.assertTrue(set(columns).isdisjoint(set(df.columns)))
+
+    def test_pd_drop__keyerror(self):
+        """
+        Asserts that nonexistent columns are ignored,
+        and that the tables are not affected. 
+        """
+        section = "characters/base-stats"
+        columns = [""]
+        columnlist = []
+        for df in self.sos_cleaner.url_to_tables[section]:
+            columnlist.append(tuple(df.columns))
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.pd_drop(columns)
+        new_columnlist = []
+        for df in self.sos_cleaner.url_to_tables[section]:
+            new_columnlist.append(tuple(df.columns))
+        self.assertListEqual(columnlist, new_columnlist)
+
+    def test_replace_with_int_dataframes(self):
+        """
+        Tests that the following have been applymap'ed to a 
+        list of pd.DataFrames in a given section:
+        - re.sub
+        - int
+        """
+        section = "characters/growth-rates"
+        # test that everything can be cast to int in a growths-df
+        self.sos_cleaner.replace_with_int_dataframes(section)
+        for df in self.sos_cleaner.url_to_tables[section]:
+            df = df.drop("Name", axis=1)
+            self.assertTrue(all(df.dtypes == int))
+
+    def test_create_class_reconciliation_file(self):
+        """
+        Tests for the creation of a blank JSON file
+        that lists table1 classes not in table2.
+        """
+        table1 = "characters__base_stats0"
+        table2 = "characters__maximum_stats0"
+        # Should create a JSON file
+        self.sos_cleaner.create_class_reconciliation_file(table1, table2)
+        json_path = self.sos_cleaner.get_datafile_path(f"{table1}_JOIN_{table2}.json")
+        self.assertTrue(json_path.exists())
+        with open(json_path) as rfile:
+            class_mappings = json.load(rfile)
+        # Tests that the class_mappings dict is 'blank'
+        self.assertIsInstance(class_mappings, dict)
+        self.assertListEqual(list(class_mappings.values()), [None])
+
+    def test_load_class_reconciliation_file__mappings_not_done(self):
+        """
+        Asserts that the mappings are not done if there is
+        at least one None value in the target-value list.
+        """
+        # i.e. 'Class' column remains the same.
+        pass
+
+    def test_load_class_reconciliation_file(self):
+        """
+        Asserts that the mappings are done if there are
+        no None values in the target-value list.
+        """
+        # i.e. 'Class' column is mapped to a new column per mapping.
+        pass
+
 if __name__ == '__main__':
-    # section1_JOIN_section2: name reconciliation
-    # convert to int; apply re.sub call first (e.g. Levin!Ced)
-    # remove unwanted columns
     pass
