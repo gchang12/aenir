@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """
 Fetches data tables off https://serenesforest.net/
-Stores data tables into SQL databases.
+Stores data tables into SQL databases, and loads them.
 """
 # pylint: disable=W3101
 
@@ -24,7 +24,7 @@ class SerenesScraper(SerenesBase):
         - home_url: Determines whence to begin scraping operations.
         - url_to_tables: section/page -> list[pd.DataFrame]
         """
-        logging.info("self.__init__(self, %d)", game_num)
+        logging.info("self.__init__(self, %s)", game_num)
         SerenesBase.__init__(self, game_num)
         self.home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
@@ -36,7 +36,9 @@ class SerenesScraper(SerenesBase):
 
     def scrape_tables(self, urlpath: str):
         """
-        Scrapes table objects from HOME_URL/section/page.
+        Scrapes tables from HOME_URL/section/page.
+        Tables are stored in self.url_to_tables[urlpath] list
+        as pd.DataFrame objects.
         """
         if not isinstance(urlpath, str):
             logging.warning("not isinstance('%s', str)", urlpath)
@@ -51,15 +53,16 @@ class SerenesScraper(SerenesBase):
         self.url_to_tables[urlpath] = pd.read_html(response.text)
         logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: OK", urlpath)
 
-    def save_tables(self, urlpath: str):
+    def save_tables(self, urlpath: str, filename: str = "raw_stats.db"):
         """
-        Saves table data and junk.
+        Saves pd.DataFrame tables to self.get_datafile_path(filename).
+        Clears self.url_to_tables[urlpath] := list[pd.DataFrame].
         """
         tablename = self.page_dict[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
         logging.info("'%s' directory now exists.", str(self.home_dir))
-        save_dir = str(self.home_dir.joinpath("raw_stats.db"))
+        save_dir = str(self.home_dir.joinpath(filename))
         while self.url_to_tables[urlpath]:
             logging.info("table = self.url_to_tables[\"%s\"].pop(0)", urlpath)
             table = self.url_to_tables[urlpath].pop(0)
@@ -72,16 +75,18 @@ class SerenesScraper(SerenesBase):
         del self.url_to_tables[urlpath]
         logging.info("\"%s\" no longer in self.url_to_tables.", urlpath)
 
-    def load_tables(self, urlpath: str):
+    def load_tables(self, urlpath: str, filename: str = "raw_stats.db"):
         """
-        Loads table data and junk
+        Loads tables from self.get_datafile_path(filename).
+        Stores tables as pd.DataFrame objects in
+        self.url_to_tables[urlpath] := list[pd.DataFrame]
         """
-        save_dir = str(self.home_dir.joinpath("raw_stats.db"))
-        tablename = self.page_dict[urlpath]
+        save_dir = str(self.home_dir.joinpath(filename))
+        tablename_root = self.page_dict[urlpath]
         self.url_to_tables[urlpath] = []
         tableindex = 0
         while True:
-            table_name = tablename + str(tableindex)
+            table_name = tablename_root + str(tableindex)
             con = "sqlite:///" + save_dir
             logging.info("table = pd.read_sql_table%s", (table_name, con))
             try:
@@ -90,7 +95,7 @@ class SerenesScraper(SerenesBase):
                 logging.info("Appending 'table' to self.url_tables[\"%s\"]", urlpath)
                 self.url_to_tables[urlpath].append(table)
             except ValueError:
-                logging.info("There were %d table(s) compiled for '%s'.", tableindex, tablename)
+                logging.info("There were %d table(s) compiled for '%s'.", tableindex, tablename_root)
                 break
 
 if __name__ == '__main__':

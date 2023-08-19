@@ -2,3 +2,4 @@
 .aenir_venv/*
 __pycache__/*
 data/*
+*.log

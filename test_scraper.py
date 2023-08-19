@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 
 from aenir import scraper
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, filename="logging_scraper-test.log")
 
 class TestScraper(unittest.TestCase):
     """
@@ -23,8 +23,9 @@ class TestScraper(unittest.TestCase):
         """
         Set up the scraper.SerenesScraper instance.
         """
+        self.filename = "mock_stats.db"
         self.sos_scraper = scraper.SerenesScraper(6)
-        self.sos_scraper.home_dir.joinpath("raw_stats.db").unlink(missing_ok=True)
+        self.sos_scraper.home_dir.joinpath(self.filename).unlink(missing_ok=True)
 
     def test__init__gamenum_notin_numtoname(self):
         """
@@ -88,9 +89,9 @@ class TestScraper(unittest.TestCase):
         logging.info("Asserting that save_tables succeeds.")
         section_page = "characters/growth-rates"
         self.sos_scraper.scrape_tables(section_page)
-        self.sos_scraper.save_tables(section_page)
+        self.sos_scraper.save_tables(section_page, filename=self.filename)
         self.assertNotIn(section_page, self.sos_scraper.url_to_tables)
-        db_path = self.sos_scraper.home_dir.joinpath("raw_stats.db")
+        db_path = self.sos_scraper.home_dir.joinpath(self.filename)
         self.assertTrue(db_path.exists())
         table_name_root = "characters__growth_rates"
         source_url = "/".join( [self.sos_scraper.home_url, section_page] )
@@ -108,7 +109,7 @@ class TestScraper(unittest.TestCase):
         logging.info("Asserting that save_tables fails if the urlpath is not found.")
         notpath = ""
         with self.assertRaises(KeyError):
-            self.sos_scraper.save_tables(notpath)
+            self.sos_scraper.save_tables(notpath, filename=self.filename)
 
     def test_load_tables(self):
         """
@@ -119,8 +120,8 @@ class TestScraper(unittest.TestCase):
         urlpath = "characters/growth-rates"
         self.sos_scraper.scrape_tables(urlpath)
         original_table = self.sos_scraper.url_to_tables[urlpath][0]
-        self.sos_scraper.save_tables(urlpath)
-        self.sos_scraper.load_tables(urlpath)
+        self.sos_scraper.save_tables(urlpath, filename=self.filename)
+        self.sos_scraper.load_tables(urlpath, filename=self.filename)
         self.assertIn(urlpath, self.sos_scraper.url_to_tables)
         loaded_table = self.sos_scraper.url_to_tables[urlpath][0]
         self.assertTrue(all(loaded_table == original_table))
