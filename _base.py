@@ -20,6 +20,12 @@ class SerenesBase:
             8: "the-sacred-stones",
             9: "path-of-radiance",
             }
+    PAGE_DICT = {
+            "characters/base-stats": "characters__base_stats",
+            "characters/growth-rates": "characters__growth_rates",
+            "classes/maximum-stats": "classes__maximum_stats",
+            "classes/promotion-gains": "classes__promotion_gains",
+            }
     def __init__(self, game_num: int):
         """
         Initialize:
@@ -27,6 +33,7 @@ class SerenesBase:
         - home_dir: pathlib.Path object to the directory
         """
         self.game_num = game_num
+        self.page_dict = self.PAGE_DICT.copy()
         self.game_name = self.NUM_TO_NAME[self.game_num]
         self.home_dir = Path("data", self.game_name)
         self.url_to_tables = {}

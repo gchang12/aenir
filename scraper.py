@@ -18,12 +18,6 @@ class SerenesScraper(SerenesBase):
     Defines functions to scrape and save.
     """
     URL_ROOT = "https://serenesforest.net/"
-    PAGE_DICT = {
-            "characters/base-stats": "characters__base_stats",
-            "characters/growth-rates": "characters__growth_rates",
-            "classes/maximum-stats": "classes__maximum_stats",
-            "classes/promotion-gains": "classes__promotion_gains",
-            }
     def __init__(self, game_num: int):
         """
         Initialize:
@@ -61,7 +55,7 @@ class SerenesScraper(SerenesBase):
         """
         Saves table data and junk.
         """
-        tablename = self.PAGE_DICT[urlpath]
+        tablename = self.page_dict[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
         logging.info("'%s' directory now exists.", str(self.home_dir))
@@ -83,7 +77,7 @@ class SerenesScraper(SerenesBase):
         Loads table data and junk
         """
         save_dir = str(self.home_dir.joinpath("raw_stats.db"))
-        tablename = self.PAGE_DICT[urlpath]
+        tablename = self.page_dict[urlpath]
         self.url_to_tables[urlpath] = []
         tableindex = 0
         while True:
