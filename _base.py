@@ -21,11 +21,17 @@ class SerenesBase:
             8: "the-sacred-stones",
             9: "path-of-radiance",
             }
-    PAGE_DICT = {
+    URL_TO_TABLE = {
             "characters/base-stats": "characters__base_stats",
             "characters/growth-rates": "characters__growth_rates",
             "classes/maximum-stats": "classes__maximum_stats",
             "classes/promotion-gains": "classes__promotion_gains",
+            }
+    URL_TO_COLUMN = {
+            "characters/base-stats": "char-bases",
+            "characters/growth-rates": "char-growths",
+            "classes/maximum-stats": "maxes",
+            "classes/promotion-gains": "promo",
             }
 
     def __init__(self, game_num: int):
@@ -35,7 +41,7 @@ class SerenesBase:
         - home_dir: pathlib.Path object to the directory
         """
         self.game_num = game_num
-        self.page_dict = self.PAGE_DICT.copy()
+        self.page_dict = self.URL_TO_TABLE.copy()
         self.game_name = self.NUM_TO_NAME[self.game_num]
         self.home_dir = Path("data", self.game_name)
         self.url_to_tables = {}
