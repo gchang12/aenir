@@ -17,7 +17,9 @@ class SerenesScraper(SerenesBase):
     Stores all parameters relevant to scraping process.
     Defines functions to scrape and save.
     """
+
     URL_ROOT = "https://serenesforest.net/"
+
     def __init__(self, game_num: int):
         """
         Initialize:
@@ -95,7 +97,7 @@ class SerenesScraper(SerenesBase):
                 logging.info("Appending 'table' to self.url_tables[\"%s\"]", urlpath)
                 self.url_to_tables[urlpath].append(table)
             except ValueError:
-                logging.info("There were %d table(s) compiled for '%s'.", tableindex, tablename_root)
+                logging.info("There were %d table(s) compiled for '%s'", tableindex, tablename_root)
                 break
 
 if __name__ == '__main__':
