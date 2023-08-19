@@ -20,7 +20,7 @@ class SerenesScraper(SerenesBase):
 
     URL_ROOT = "https://serenesforest.net/"
 
-    def __init__(self, game_num: int):
+    def __init__(self, game_num: int, check_if_url_exists=True):
         """
         Initialize:
         - home_url: Determines whence to begin scraping operations.
@@ -30,11 +30,12 @@ class SerenesScraper(SerenesBase):
         SerenesBase.__init__(self, game_num)
         self.home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
-        logging.info("requests.get(\"%s\")", self.home_url)
-        response = r.get(self.home_url)
-        logging.info("requests.raise_for_status(): Checking for errors")
-        response.raise_for_status()
-        logging.info("requests.raise_for_status(): OK")
+        if check_if_url_exists:
+            logging.info("requests.get(\"%s\")", self.home_url)
+            response = r.get(self.home_url)
+            logging.info("requests.raise_for_status(): Checking for errors")
+            response.raise_for_status()
+            logging.info("requests.raise_for_status(): OK")
 
     def scrape_tables(self, urlpath: str):
         """

@@ -10,7 +10,7 @@ class SerenesCleaner(SerenesScraper):
     def __init__(self, game_num):
         """
         """
-        SerenesScraper.__init__(self, game_num)
+        SerenesScraper.__init__(self, game_num, check_if_url_exists=False)
 
 
 if __name__ == '__main__':
