@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 
 from aenir import scraper
 
-logging.basicConfig(level=logging.DEBUG, filename="logging_scraper-test.log")
+logging.basicConfig(level=logging.DEBUG, filename="log_test-scraper.log")
 
 class TestScraper(unittest.TestCase):
     """
