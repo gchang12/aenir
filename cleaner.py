@@ -4,8 +4,6 @@
 
 import logging
 
-from aenir.scraper import SerenesScraper
-
 def remove_nonnumeric_rows():
     """
     Deletes rows with a nonnumeric value
