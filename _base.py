@@ -21,12 +21,14 @@ class SerenesBase:
             8: "the-sacred-stones",
             9: "path-of-radiance",
             }
+
     URL_TO_TABLE = {
             "characters/base-stats": "characters__base_stats",
             "characters/growth-rates": "characters__growth_rates",
             "classes/maximum-stats": "classes__maximum_stats",
             "classes/promotion-gains": "classes__promotion_gains",
             }
+
     URL_TO_COLUMN = {
             "characters/base-stats": "char-bases",
             "characters/growth-rates": "char-growths",
