@@ -6,6 +6,7 @@ Tests functionality of SerenesScraper methods
 
 import unittest
 import logging
+import json
 
 import requests as r
 import pandas as pd
