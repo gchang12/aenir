@@ -147,6 +147,36 @@ class TestCleaner(unittest.TestCase):
             new_columnlist.append(tuple(df.columns))
         self.assertListEqual(columnlist, new_columnlist)
 
+    def test_replace_with_int_dataframes__column_dne(self):
+        """
+        Tests that the following have been applymap'ed to a 
+        list of pd.DataFrames in a given section:
+        - re.sub
+        - int
+        - DataFrame.convert_dtypes
+        Tests that the function fails when nonexistent columns
+        are passed as arguments to pd.DataFrame.drop
+        """
+        # test that everything can be cast to int in a growths-df
+        section = "characters/growth-rates"
+        columns = [""]
+        # test that old_columns match new_columns
+        old_columns = []
+        for df in self.sos_cleaner.url_to_tables[section]:
+            old_columns.append(tuple(df.columns))
+        # test that columns are unaffected by the error
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.replace_with_int_dataframes(section, columns)
+        new_columns = []
+        for df in self.sos_cleaner.url_to_tables[section]:
+            new_columns.append(tuple(df.columns))
+            df = df.drop("Name", axis=1)
+            # Assume nothing is in its most efficient datatype
+            self.assertFalse(all(df.dtypes == int))
+            self.asserFalse(all(df.convert_dtypes().dtypes == df.dtypes))
+        # test for equality
+        self.assertListEqual(new_columns, old_columns)
+
     def test_replace_with_int_dataframes(self):
         """
         Tests that the following have been applymap'ed to a 
@@ -154,12 +184,23 @@ class TestCleaner(unittest.TestCase):
         - re.sub
         - int
         """
-        section = "characters/growth-rates"
         # test that everything can be cast to int in a growths-df
-        self.sos_cleaner.replace_with_int_dataframes(section)
+        section = "characters/growth-rates"
+        columns = ["Name"]
+        # test that old_columns match new_columns
+        old_columns = []
         for df in self.sos_cleaner.url_to_tables[section]:
-            df = df.drop("Name", axis=1)
+            old_columns.append(tuple(df.columns))
+        # main operation here
+        self.sos_cleaner.replace_with_int_dataframes(section, columns)
+        new_columns = []
+        for df in self.sos_cleaner.url_to_tables[section]:
+            new_columns.append(tuple(df.columns))
+            df = df.drop(columns, axis=1)
             self.assertTrue(all(df.dtypes == int))
+            self.asserTrue(all(df.convert_dtypes().dtypes == df.dtypes))
+        # no change
+        self.assertListEqual(new_columns, old_columns)
 
     def test_create_class_reconciliation_file(self):
         """
@@ -191,13 +232,13 @@ class TestCleaner(unittest.TestCase):
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                clscolumns.append(df.loc[:,"Class"])
+                clscolumns.append(df.loc[:, "Class"])
         self.load_class_reconciliation_file(*self.cls_recon_sections)
         # Extract copy of pd.DataFrame['Class'] after loading
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                new_clscolumns.append(df.loc[:,"Class"])
+                new_clscolumns.append(df.loc[:, "Class"])
         self.assertEqual(len(clscolumns), len(new_clscolumns))
         for oldcls, newcls in zip(clscolumns, new_clscolumns):
             self.assertTrue(all(oldcls == newcls))
@@ -217,13 +258,13 @@ class TestCleaner(unittest.TestCase):
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                clscolumns.append(df.loc[:,"Class"])
+                clscolumns.append(df.loc[:, "Class"])
         self.load_class_reconciliation_file(*self.cls_recon_sections)
         # Extract copy of pd.DataFrame['Class'] after loading
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                new_clscolumns.append(df.loc[:,"Class"])
+                new_clscolumns.append(df.loc[:, "Class"])
         self.assertEqual(len(clscolumns), len(new_clscolumns))
         for oldcls, newcls in zip(clscolumns, new_clscolumns):
             self.assertTrue(all(oldcls.map(cls_mappings) == newcls))
