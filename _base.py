@@ -11,13 +11,21 @@ class SerenesBase:
     descendants, including the scraper
     and data management classes.
     """
-    def __init__(self, game_name: str):
+    NUM_TO_NAME = {
+            4: "genealogy-of-the-holy-war",
+            5: "thracia-776",
+            6: "binding-blade",
+            7: "blazing-sword",
+            8: "the-sacred-stones",
+            9: "path-of-radiance",
+            }
+    def __init__(self, game_num: int):
         """
         Initialize:
         - game_name: One of the folders in the serenesforest.net site
         - home_dir: pathlib.Path object to the directory
         """
-        self.game_name = game_name
+        self.game_name = self.NUM_TO_NAME[game_num]
         self.home_dir = Path("data", self.game_name)
         self.url_to_tables = {}
 
@@ -26,18 +34,6 @@ class SerenesBase:
         Returns a path to a data file in the home directory
         """
         return self.home_dir / Path(filename)
-
-    def urlpath_to_tablename(self, urlpath: str):
-        """
-        Converts urlpath-like str to tablename str.
-        """
-        return urlpath.replace("/", "__").replace("-", "_")
-
-    def tablename_to_urlpath(self, tablename: str):
-        """
-        Converts tablename-like str to urlpath.
-        """
-        return tablename.replace("__", "/").replace("_", "-")
 
 if __name__ == '__main__':
     pass

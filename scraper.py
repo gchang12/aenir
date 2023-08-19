@@ -18,47 +18,56 @@ class SerenesScraper(SerenesBase):
     Defines functions to scrape and save.
     """
     URL_ROOT = "https://serenesforest.net/"
-    def __init__(self, game_name: str):
+    PAGE_DICT = {
+            "characters/base-stats": "characters__base_stats",
+            "characters/growth-rates": "characters__growth_rates",
+            "classes/maximum-stats": "classes__maximum_stats",
+            "classes/promotion-gains": "classes__promotion_gains",
+            }
+    def __init__(self, game_num: int):
         """
         Initialize:
         - home_url: Determines whence to begin scraping operations.
         - url_to_tables: section/page -> list[pd.DataFrame]
         """
-        if not isinstance(game_name, str):
-            logging.info("game_name='%s' is not a str.", game_name)
-            raise TypeError
-        SerenesBase.__init__(self, game_name)
-        self.home_url = "/".join((self.URL_ROOT, game_name))
+        logging.info("self.__init__(self, %d)", game_num)
+        SerenesBase.__init__(self, game_num)
         logging.info("self.home_url = \"%s\"", self.home_url)
+        self.home_url = "/".join((self.URL_ROOT, game_name))
         logging.info("requests.get(\"%s\")", self.home_url)
         response = r.get(self.home_url)
+        logging.info("requests.raise_for_status(): Checking for errors")
         response.raise_for_status()
-        logging.info("requests.raise_for_status(): No anomalies")
+        logging.info("requests.raise_for_status(): OK")
 
-    def scrape_tables(self, path: str):
+    def scrape_tables(self, urlpath: str):
         """
         Scrapes table objects from HOME_URL/section/page.
         """
-        if not isinstance(path, str):
-            raise TypeError
-        table_url = "/".join([self.home_url, path])
-        response = r.get(table_url)
+        if urlpath not in self.PAGE_DICT:
+            logging.warning("'%s' not in self.PAGE_DICT", urlpath)
+            raise ValueError
+        table_url = "/".join([self.home_url, urlpath])
         logging.info("requests.get(\"%s\")", table_url)
+        response = r.get(table_url)
+        logging.info("requests.raise_for_status(): Checking for errors")
         response.raise_for_status()
-        logging.info("requests.raise_for_status(): No anomalies")
-        self.url_to_tables[path] = pd.read_html(response.text)
-        logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]", path)
+        logging.info("requests.raise_for_status(): OK")
+        logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: Assigning", urlpath)
+        self.url_to_tables[urlpath] = pd.read_html(response.text)
+        logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: OK", urlpath)
 
     def save_tables(self, urlpath: str):
         """
         Saves table data and junk.
         """
-        tablename = self.urlpath_to_tablename(urlpath)
+        tablename = self.page_dict[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
         logging.info("'%s' directory now exists.", str(self.home_dir))
         save_dir = str(self.home_dir.joinpath("raw_stats.db"))
         while self.url_to_tables[urlpath]:
+            logging.info("table = self.url_to_tables[\"%s\"].pop(0)", urlpath)
             table = self.url_to_tables[urlpath].pop(0)
             name = tablename + str(tableindex)
             con = "sqlite:///" + save_dir
@@ -69,12 +78,12 @@ class SerenesScraper(SerenesBase):
         del self.url_to_tables[urlpath]
         logging.info("\"%s\" no longer in self.url_to_tables.", urlpath)
 
-    def load_tables(self, tablename: str):
+    def load_tables(self, urlpath: str):
         """
         Loads table data and junk
         """
         save_dir = str(self.home_dir.joinpath("raw_stats.db"))
-        urlpath = self.tablename_to_urlpath(tablename)
+        tablename = self.PAGE_DICT[urlpath]
         self.url_to_tables[urlpath] = []
         tableindex = 0
         while True:

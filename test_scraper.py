@@ -15,7 +15,7 @@ from aenir import scraper
 
 logging.basicConfig(level=logging.DEBUG)
 
-class SerenesTestCase(unittest.TestCase):
+class TestScraper(unittest.TestCase):
     """
     Tests that the methods defined in scraper.SerenesScraper work.
     """
@@ -23,7 +23,7 @@ class SerenesTestCase(unittest.TestCase):
         """
         Set up the scraper.SerenesScraper instance.
         """
-        self.sos_scraper = scraper.SerenesScraper('binding-blade')
+        self.sos_scraper = scraper.SerenesScraper(6)
         self.sos_scraper.home_dir.joinpath("raw_stats.db").unlink(missing_ok=True)
 
     def test__init__gamename_isnotstr(self):
