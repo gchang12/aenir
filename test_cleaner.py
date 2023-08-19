@@ -28,6 +28,10 @@ class TestCleaner(unittest.TestCase):
                 self.sos_cleaner.save_tables(page, filename=self.datasource_file)
             self.sos_cleaner.load_tables(page, filename=self.datasource_file)
         self.sos_cleaner.get_datafile_path(self.consolidation_file).unlink(missing_ok=True)
+        self.cls_recon_sections = ("characters__base_stats", "classes__maximum_stats")
+        self.cls_recon_file = "{}_JOIN_{}.json".format(*self.cls_recon_sections)
+        for filename in (self.cls_recon_file, self.consolidation_file):
+            self.get_datafile_path(filename).unlink(missing_ok=True)
 
     def test_create_field_consolidation_file(self):
         """
@@ -128,8 +132,8 @@ class TestCleaner(unittest.TestCase):
 
     def test_pd_drop__keyerror(self):
         """
-        Asserts that nonexistent columns are ignored,
-        and that the tables are not affected. 
+        Asserts that a KeyError is raised when nonexistent columns are encountered,
+        and that the tables are not affected.
         """
         section = "characters/base-stats"
         columns = [""]
@@ -160,13 +164,11 @@ class TestCleaner(unittest.TestCase):
     def test_create_class_reconciliation_file(self):
         """
         Tests for the creation of a blank JSON file
-        that lists table1 classes not in table2.
+        that lists 'char-bases' classes not in 'maximum-stats'.
         """
-        table1 = "characters__base_stats0"
-        table2 = "characters__maximum_stats0"
         # Should create a JSON file
-        self.sos_cleaner.create_class_reconciliation_file(table1, table2)
-        json_path = self.sos_cleaner.get_datafile_path(f"{table1}_JOIN_{table2}.json")
+        self.sos_cleaner.create_class_reconciliation_file(*self.cls_recon_sections)
+        json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         self.assertTrue(json_path.exists())
         with open(json_path) as rfile:
             class_mappings = json.load(rfile)
@@ -178,17 +180,53 @@ class TestCleaner(unittest.TestCase):
         """
         Asserts that the mappings are not done if there is
         at least one None value in the target-value list.
+        Checks that the Class column for the source remains the same.
         """
-        # i.e. 'Class' column remains the same.
-        pass
+        # Partially fill out class-mappings, and save to JSON 
+        cls_mappings = {} # TODO: Fill out; at least one is mapped to None.
+        json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
+        with open(json_path, mode='w') as wfile:
+            json.dump(cls_mappings, wfile)
+        # Extract copy of pd.DataFrame['Class']
+        clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                clscolumns.append(df.loc[:,"Class"])
+        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        # Extract copy of pd.DataFrame['Class'] after loading
+        new_clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                new_clscolumns.append(df.loc[:,"Class"])
+        self.assertEqual(len(clscolumns), len(new_clscolumns))
+        for oldcls, newcls in zip(clscolumns, new_clscolumns):
+            self.assertTrue(all(oldcls == newcls))
 
     def test_load_class_reconciliation_file(self):
         """
         Asserts that the mappings are done if there are
         no None values in the target-value list.
+        The 'Class' column in 'char-bases' should be remapped.
         """
-        # i.e. 'Class' column is mapped to a new column per mapping.
-        pass
+        # Fully fill out class-mappings, and save to JSON 
+        cls_mappings = {} # TODO: Fill out; at least one is mapped to None.
+        json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
+        with open(json_path, mode='w') as wfile:
+            json.dump(cls_mappings, wfile)
+        # Extract copy of pd.DataFrame['Class']
+        clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                clscolumns.append(df.loc[:,"Class"])
+        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        # Extract copy of pd.DataFrame['Class'] after loading
+        new_clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                new_clscolumns.append(df.loc[:,"Class"])
+        self.assertEqual(len(clscolumns), len(new_clscolumns))
+        for oldcls, newcls in zip(clscolumns, new_clscolumns):
+            self.assertTrue(all(oldcls.map(cls_mappings) == newcls))
 
 if __name__ == '__main__':
-    pass
+    unittest.main()
