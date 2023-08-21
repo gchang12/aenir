@@ -11,6 +11,7 @@ class SerenesCleaner(SerenesScraper):
         """
         """
         SerenesScraper.__init__(self, game_num, check_if_url_exists=False)
+        self.gender_dict = {}
 
 
 if __name__ == '__main__':

@@ -25,6 +25,8 @@ class TestCleaner(unittest.TestCase):
         self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections)
         self.consolidation_file = "mock_fieldconsolidation.json"
         self.datasource_file = "mock_datasource.db"
+        self.clsmatch_file = "mock_clsmatch.db"
+        self.gender_file = "mock_genders.json"
         self.sos_cleaner = SerenesCleaner(game_num)
         for page in self.sos_cleaner.page_dict:
             if not self.sos_cleaner.get_datafile_path(self.datasource_file).exists():
@@ -34,6 +36,38 @@ class TestCleaner(unittest.TestCase):
         self.sos_cleaner.get_datafile_path(self.consolidation_file).unlink(missing_ok=True)
         for filename in (self.cls_recon_file, self.consolidation_file):
             self.get_datafile_path(filename).unlink(missing_ok=True)
+        self.cls_mappings = {
+                'Archer': 'Non-promoted',
+                'Bandit': 'Non-promoted',
+                'Bard': 'Non-promoted',
+                'Bishop': 'Bishop',
+                'Cavalier': 'Non-promoted',
+                'Dancer': 'Non-promoted',
+                'Druid': 'Druid',
+                'Fighter': 'Non-promoted',
+                'General': 'General',
+                'Hero': 'Hero',
+                'Knight': 'Non-promoted',
+                'Lord': 'Non-promoted',
+                'Mage': 'Non-promoted',
+                'Mamkute': 'Non-promoted',
+                'Mercenary': 'Non-promoted',
+                'Myrmidon': 'Non-promoted',
+                'Nomad': 'Non-promoted',
+                'Nomadic Trooper': ,
+                'Paladin': 'Paladin',
+                'Pegasus Knight': 'Non-promoted',
+                'Pirate': 'Non-promoted',
+                'Priest': 'Non-promoted',
+                'Sage': 'Sage',
+                'Shaman': 'Non-promoted',
+                'Sniper': 'Sniper',
+                'Swordmaster': 'Swordmaster',
+                'Thief': 'Non-promoted',
+                'Troubadour': 'Non-promoted',
+                'Wyvern Lord': 'Wyvern Lord',
+                'Wyvern Rider': 'Non-promoted',
+                }
 
     def test_create_field_consolidation_file(self):
         """
@@ -263,8 +297,17 @@ class TestCleaner(unittest.TestCase):
             class_mappings = json.load(rfile)
         # Tests that the JSON object is a dict
         self.assertIsInstance(class_mappings, dict)
-        # TODO: Assert that only the reconciled names are in the keys of the mapping
-        #self.assertListEqual(list(class_mappings.values()), [None])
+        # Assert that only the to-be-reconciled names are in the keys of the mapping
+        basestats_classes = set(
+                self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, "Class"]
+                )
+        maxstats_classes = set(
+                self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"]
+                )
+        # The goal of this function is to identify non-matching classes
+        unmatched_classes = basestats_classes.difference(maxstats_classes)
+        self.assertSetEqual(unmatched_classes, set(class_mappings.keys()))
+        # TODO: assert that a class-matching database has been created.
 
     def test_load_class_reconciliation_file__mappings_not_done(self):
         """
@@ -272,8 +315,8 @@ class TestCleaner(unittest.TestCase):
         at least one None value in the target-value list.
         Checks that the Class column for the source remains the same.
         """
-        # TODO: Partially fill out class-mappings, and save to JSON 
-        cls_mappings = {}
+        # must fail if at least one mapping is None
+        cls_mappings = {'Lord': None}
         # dump complete class mapping into JSON
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
@@ -300,12 +343,10 @@ class TestCleaner(unittest.TestCase):
         no None values in the target-value list.
         The 'Class' column in 'char-bases' should be remapped.
         """
-        # TODO: Fully fill out class-mappings
-        cls_mappings = {}
         # dump complete class mappings to JSON
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
-            json.dump(cls_mappings, wfile)
+            json.dump(self.cls_mappings, wfile)
         # extract deep-copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
@@ -319,11 +360,57 @@ class TestCleaner(unittest.TestCase):
             for df in df_list:
                 new_clscolumns.append(df.loc[:, "Class"])
         # check against the old columns
-        self.assertNotEqual(clscolumns, new_clscolumns))
+        self.assertNotEqual(clscolumns, new_clscolumns)
         # check that new columns have been mapped successfully
         self.assertEqual(len(clscolumns), len(new_clscolumns))
         for oldcol, newcol in zip(clscolumns, new_clscolumns):
-            self.assertTrue(all(oldcol.map(cls_mappings) == newcol))
+            self.assertTrue(all(oldcol.map(self.cls_mappings) == newcol))
+
+    # TODO
+    def test_validate_class_match(self):
+        """
+        Asserts that True is returned when all classes match.
+        """
+        # dump complete class mappings to JSON
+        json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
+        with open(json_path, mode='w') as wfile:
+            json.dump(self.cls_mappings, wfile)
+        # load reconciliations: assume successful
+        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        # main operation
+        true = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
+        self.assertTrue(true)
+        # check matches manually
+        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
+        cls_maxes_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
+        # Create intermediary table for the first table: self.clsmatch_file = "mock_clsmatch.db"
+        # Make sure that each gendered class is matched appropriately
+
+    def test_validate_class_match__unmatched_classes_exist(self):
+        """
+        Asserts that if there are unmapped classes, an object
+        containing those classes is returned and/or saved.
+        """
+        # validate without doing any operations
+        unmatched_classes = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
+        # check matches manually
+        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
+        cls_maxes_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
+    # end TODO
+
+    def test_create_gender_file(self):
+        """
+        Tests that a JSON file with the character names is created.
+        """
+        # Note: Gender file is to be loaded while mapping foreign keys
+        self.sos_cleaner.create_gender_file()
+        gender_file = self.sos_cleaner.get_datafile_path(self.gender_file)
+        self.assertTrue(gender_file.exists())
+        with open(gender_file) as rfile:
+            gender_dict = json.load(rfile)
+        character_set = set(self.sos_cleaner.url_to_tables["characters/base-stats"][0].loc[:, "Name"])
+        self.assertSetEqual(character_set, set(gender_dict.keys()))
+        self.assertSetEqual(set(gender_dict.values()), {None})
 
 if __name__ == '__main__':
     unittest.main()

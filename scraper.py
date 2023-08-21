@@ -33,9 +33,9 @@ class SerenesScraper(SerenesBase):
         if check_if_url_exists:
             logging.info("requests.get(\"%s\")", self.home_url)
             response = r.get(self.home_url)
-            logging.info("requests.raise_for_status(): Checking for errors")
+            logging.info("requests.raise_for_status() # Checking for errors")
             response.raise_for_status()
-            logging.info("requests.raise_for_status(): OK")
+            logging.info("requests.raise_for_status() # OK")
 
     def scrape_tables(self, urlpath: str):
         """
@@ -49,9 +49,9 @@ class SerenesScraper(SerenesBase):
         table_url = "/".join([self.home_url, urlpath])
         logging.info("requests.get(\"%s\")", table_url)
         response = r.get(table_url)
-        logging.info("requests.raise_for_status(): Checking for errors")
+        logging.info("requests.raise_for_status() # Checking for errors")
         response.raise_for_status()
-        logging.info("requests.raise_for_status(): OK")
+        logging.info("requests.raise_for_status() # OK")
         logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: Assigning", urlpath)
         self.url_to_tables[urlpath] = pd.read_html(response.text)
         logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: OK", urlpath)
