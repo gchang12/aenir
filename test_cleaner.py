@@ -6,6 +6,7 @@ Tests data-cleaning capabilities of SerenesCleaner.
 import logging
 import unittest
 import json
+import pandas as pd
 
 from aenir.cleaner import SerenesCleaner
 
@@ -364,7 +365,6 @@ class TestCleaner(unittest.TestCase):
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
 
-    # TODO: Revise 'validate_class_match' tests
     def test_validate_class_match(self):
         """
         Asserts that True is returned when all classes match.
@@ -380,22 +380,42 @@ class TestCleaner(unittest.TestCase):
         # main operation
         true = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
         self.assertTrue(true)
-        # check matches manually
-        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
-        cls_maxes_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
-        # Create intermediary table for the first table: self.clsmatch_file = "mock_clsmatch.db"
-        # Make sure that each gendered class is matched appropriately
+        char_bases_classes = self.sos_cleaner
+            .url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
+        cls_maxes_classes = self.sos_cleaner
+            .url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
+        # check that the matches are complete
+        match_table = pd.read_sql(
+                self.cls_recon_file,
+                str(self.get_datafile_path(self.clsmatch_file))
+                )
+        self.assertTrue(
+                match_table.join(char_bases_classes, on="Class")
+                .loc[:, self.cls_recon_sections[1]].notnull().empty
+                )
 
     def test_validate_class_match__unmatched_classes_exist(self):
         """
-        Asserts that if there are unmapped classes, an object
-        containing those classes is returned and/or saved.
+        Asserts that if there are unmapped classes, a pd.DataFrame
+        containing those classes is returned.
         """
         # validate without doing any operations
         unmatched_classes = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
+        unmatched_classes_notnull = unmatched_classes[
+                unmatched_classes.loc[:, self.cls_recon_sections[0]].notnull()
+                ]
         # check matches manually
-        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
-        cls_maxes_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
+        char_bases_classes = self.sos_cleaner
+            .url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
+        cls_maxes_classes = self.sos_cleaner
+            .url_to_tables[self.cls_recon_sections[1]][0].loc[:, 'Class']
+        # check that the matches are incomplete
+        match_table = pd.read_sql(
+                self.cls_recon_file,
+                str(self.get_datafile_path(self.clsmatch_file))
+                )
+        match_table_notnull = match_table[match_table.loc[:, self.cls_recon_sections[0]].notnull()]
+        self.assertTrue(all(unmatched_classes_notnull, match_table_notnull))
 
     def test_create_gender_file(self):
         """
@@ -407,7 +427,9 @@ class TestCleaner(unittest.TestCase):
         self.assertTrue(gender_file.exists())
         with open(gender_file) as rfile:
             gender_dict = json.load(rfile)
-        character_set = set(self.sos_cleaner.url_to_tables["characters/base-stats"][0].loc[:, "Name"])
+        character_set = set(
+                self.sos_cleaner.url_to_tables["characters/base-stats"][0].loc[:, "Name"]
+                )
         self.assertSetEqual(character_set, set(gender_dict.keys()))
         self.assertSetEqual(set(gender_dict.values()), {None})
 
