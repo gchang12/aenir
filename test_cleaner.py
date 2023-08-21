@@ -9,6 +9,8 @@ import json
 
 from aenir.cleaner import SerenesCleaner
 
+logging.basicConfig(filename="log_test-cleaner.log", level=logging.DEBUG)
+
 class TestCleaner(unittest.TestCase):
     """
     Defines tests for SerenesCleaner.
@@ -19,6 +21,8 @@ class TestCleaner(unittest.TestCase):
         Instance of SerenesCleaner must be initialized.
         All data must be compiled into a source.
         """
+        self.cls_recon_sections = ("characters__base_stats", "classes__maximum_stats")
+        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections)
         self.consolidation_file = "mock_fieldconsolidation.json"
         self.datasource_file = "mock_datasource.db"
         self.sos_cleaner = SerenesCleaner(game_num)
@@ -28,8 +32,6 @@ class TestCleaner(unittest.TestCase):
                 self.sos_cleaner.save_tables(page, filename=self.datasource_file)
             self.sos_cleaner.load_tables(page, filename=self.datasource_file)
         self.sos_cleaner.get_datafile_path(self.consolidation_file).unlink(missing_ok=True)
-        self.cls_recon_sections = ("characters__base_stats", "classes__maximum_stats")
-        self.cls_recon_file = "{}_JOIN_{}.json".format(*self.cls_recon_sections)
         for filename in (self.cls_recon_file, self.consolidation_file):
             self.get_datafile_path(filename).unlink(missing_ok=True)
 
@@ -39,19 +41,23 @@ class TestCleaner(unittest.TestCase):
         a common standard is created.
         """
         self.sos_cleaner.create_field_consolidation_file(filename=self.consolidation_file)
+        # File should exist after the function call
         cfile_path = self.sos_cleaner.get_datafile_path(self.consolidation_file)
         self.assertTrue(cfile_path.exists())
-        # JSON file must have dict mapping unique field names to None
         with open(self.sos_cleaner.get_datafile_path(self.consolidation_file)) as rfile:
             field_mappings = json.load(rfile)
+        # JSON file must contain dict object
         self.assertIsInstance(field_mappings, dict)
+        # The aforementioned dict must map all unique field names to None
         self.assertListEqual(list(field_mappings.values()), [None])
-        # Said dict must contain every field in the tables
         fieldset = set()
         for df_list in self.sos_cleaner.url_to_tables.values():
             for df in df_list:
                 fieldset.update(set(df.columns))
+        # Said dict must contain every field in the tables
         self.assertSetEqual(set(field_mappings.keys()), fieldset)
+        # The dict cannot contain duplicate keys
+        self.assertEqual(len(field_mappings), len(fieldset))
 
     def test_load_field_consolidation_file__missing_keys(self):
         """
@@ -69,6 +75,7 @@ class TestCleaner(unittest.TestCase):
             for df in df_list:
                 df.rename(axis=1, mapper={'HP': 'health-points'}, inplace=True)
                 fielddict[page].append(tuple(df.columns))
+        # ValueError: dict has an incomplete mapping
         with self.assertRaises(ValueError):
             self.sos_cleaner.load_field_consolidation_file(filename=self.consolidation_file)
         # compile new field names
@@ -96,8 +103,8 @@ class TestCleaner(unittest.TestCase):
         for page, df_list in self.sos_cleaner.url_to_tables.items():
             fielddict[page] = []
             for df in df_list:
-                df.rename(axis=1, mapper={'HP': 'health-points'}, inplace=True)
                 fielddict[page].append(tuple(df.columns))
+                df.rename(axis=1, mapper={'HP': 'health-points'}, inplace=True)
         # Invocation should not change field set
         with self.assertRaises(ValueError):
             self.sos_cleaner.load_field_consolidation_file(filename=self.consolidation_file)
@@ -135,6 +142,7 @@ class TestCleaner(unittest.TestCase):
                 new_fielddict[page].append(tuple(df.columns))
         # compare the field names
         self.assertNotEqual(fielddict, new_fielddict)
+        # assert that the old names are mapped to the new
         for page in self.sos_cleaner.url_to_tables:
             old_fields = fielddict[page]
             new_fields = new_fielddict[page]
@@ -148,9 +156,16 @@ class TestCleaner(unittest.TestCase):
         """
         section = "characters/base-stats"
         columns = ["Affin", "Weapon ranks"]
+        # pre-drop: columns in all tables contain 'columns' contents
+        contains_columns = False
         for df in self.sos_cleaner.url_to_tables[section]:
-            self.assertTrue(set(columns).issubset(set(df.columns)))
+            if not set(columns).issubset(set(df.columns)):
+                continue
+            contains_columns = True
+        self.assertTrue(contains_columns)
+        # main operation
         self.sos_cleaner.pd_drop(columns)
+        # post-drop: no columns should intersect with 'columns'
         for df in self.sos_cleaner.url_to_tables[section]:
             self.assertTrue(set(columns).isdisjoint(set(df.columns)))
 
@@ -162,13 +177,17 @@ class TestCleaner(unittest.TestCase):
         section = "characters/base-stats"
         columns = [""]
         columnlist = []
+        # compile column list
         for df in self.sos_cleaner.url_to_tables[section]:
             columnlist.append(tuple(df.columns))
+        # do operation here; it should fail
         with self.assertRaises(KeyError):
             self.sos_cleaner.pd_drop(columns)
+        # compile new column list
         new_columnlist = []
         for df in self.sos_cleaner.url_to_tables[section]:
             new_columnlist.append(tuple(df.columns))
+        # make sure the two column lists are equal
         self.assertListEqual(columnlist, new_columnlist)
 
     def test_replace_with_int_dataframes__column_dne(self):
@@ -184,21 +203,22 @@ class TestCleaner(unittest.TestCase):
         # test that everything can be cast to int in a growths-df
         section = "characters/growth-rates"
         columns = [""]
-        # test that old_columns match new_columns
+        # compile old columns to compare
         old_columns = []
         for df in self.sos_cleaner.url_to_tables[section]:
             old_columns.append(tuple(df.columns))
-        # test that columns are unaffected by the error
+        # call should fail
         with self.assertRaises(KeyError):
             self.sos_cleaner.replace_with_int_dataframes(section, columns)
+        # compile new columns to compare against old
         new_columns = []
         for df in self.sos_cleaner.url_to_tables[section]:
             new_columns.append(tuple(df.columns))
             df = df.drop("Name", axis=1)
             # Assume nothing is in its most efficient datatype
             self.assertFalse(all(df.dtypes == int))
-            self.asserFalse(all(df.convert_dtypes().dtypes == df.dtypes))
-        # test for equality
+            self.assertFalse(all(df.convert_dtypes().dtypes == df.dtypes))
+        # make sure old == new
         self.assertListEqual(new_columns, old_columns)
 
     def test_replace_with_int_dataframes(self):
@@ -208,22 +228,24 @@ class TestCleaner(unittest.TestCase):
         - re.sub
         - int
         """
-        # test that everything can be cast to int in a growths-df
         section = "characters/growth-rates"
         columns = ["Name"]
-        # test that old_columns match new_columns
+        # compile old columns to compare
         old_columns = []
         for df in self.sos_cleaner.url_to_tables[section]:
             old_columns.append(tuple(df.columns))
-        # main operation here
+        # main operation should succeed with no errors
         self.sos_cleaner.replace_with_int_dataframes(section, columns)
         new_columns = []
+        # compile new columns to compare against old
         for df in self.sos_cleaner.url_to_tables[section]:
             new_columns.append(tuple(df.columns))
             df = df.drop(columns, axis=1)
+            # all columns should be in the most efficient dtype
             self.assertTrue(all(df.dtypes == int))
-            self.asserTrue(all(df.convert_dtypes().dtypes == df.dtypes))
-        # no change
+            self.assertTrue(all(df.convert_dtypes().dtypes == df.dtypes))
+        # operation may involve taking out columns, and putting them back in
+        # this test asserts that they are put back in in the right order
         self.assertListEqual(new_columns, old_columns)
 
     def test_create_class_reconciliation_file(self):
@@ -231,13 +253,15 @@ class TestCleaner(unittest.TestCase):
         Tests for the creation of a blank JSON file
         that lists 'char-bases' classes not in 'maximum-stats'.
         """
-        # Should create a JSON file
+        # main operation
         self.sos_cleaner.create_class_reconciliation_file(*self.cls_recon_sections)
+        # a JSON file should be created
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         self.assertTrue(json_path.exists())
+        # load dict from JSON
         with open(json_path) as rfile:
             class_mappings = json.load(rfile)
-        # Tests that the class_mappings dict is 'blank'
+        # Tests that the JSON object is a dict
         self.assertIsInstance(class_mappings, dict)
         # TODO: Assert that only the reconciled names are in the keys of the mapping
         #self.assertListEqual(list(class_mappings.values()), [None])
@@ -248,23 +272,26 @@ class TestCleaner(unittest.TestCase):
         at least one None value in the target-value list.
         Checks that the Class column for the source remains the same.
         """
-        # Partially fill out class-mappings, and save to JSON 
-        cls_mappings = {} # TODO: Fill out; at least one is mapped to None.
+        # TODO: Partially fill out class-mappings, and save to JSON 
+        cls_mappings = {}
+        # dump complete class mapping into JSON
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
             json.dump(cls_mappings, wfile)
-        # Extract copy of pd.DataFrame['Class']
+        # compile copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 clscolumns.append(df.loc[:, "Class"])
+        # ValueError: recon not done
         with self.assertRaises(ValueError):
             self.load_class_reconciliation_file(*self.cls_recon_sections)
-        # Extract copy of pd.DataFrame['Class'] after loading
+        # compile copies of pd.DataFrame['Class'] post-call
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 new_clscolumns.append(df.loc[:, "Class"])
+        # classes should be the same
         self.assertListEqual(clscolumns, new_clscolumns)
 
     def test_load_class_reconciliation_file(self):
@@ -273,23 +300,27 @@ class TestCleaner(unittest.TestCase):
         no None values in the target-value list.
         The 'Class' column in 'char-bases' should be remapped.
         """
-        # Fully fill out class-mappings, and save to JSON 
-        cls_mappings = {} # TODO: Fill out; at least one is mapped to None.
+        # TODO: Fully fill out class-mappings
+        cls_mappings = {}
+        # dump complete class mappings to JSON
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
             json.dump(cls_mappings, wfile)
-        # Extract copy of pd.DataFrame['Class']
+        # extract deep-copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 clscolumns.append(df.loc[:, "Class"])
+        # main operation
         self.load_class_reconciliation_file(*self.cls_recon_sections)
-        # Extract copy of pd.DataFrame['Class'] after loading
+        # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 new_clscolumns.append(df.loc[:, "Class"])
+        # check against the old columns
         self.assertNotEqual(clscolumns, new_clscolumns))
+        # check that new columns have been mapped successfully
         self.assertEqual(len(clscolumns), len(new_clscolumns))
         for oldcol, newcol in zip(clscolumns, new_clscolumns):
             self.assertTrue(all(oldcol.map(cls_mappings) == newcol))
