@@ -156,8 +156,23 @@ class TestCleaner(unittest.TestCase):
         """
         Asserts that the mappings as indicated by the JSON file are applied appropriately.
         """
-        # TODO: map stuff here
-        field_mappings = {}
+        field_mappings = {
+                'Affin': 'Affinity (DROP)',
+                'Class': 'Class',
+                'Con': 'Con',
+                'Def': 'Def',
+                'HP': 'HP',
+                'Lck': 'Lck',
+                'Lv': 'Lv',
+                'Mov': 'Mov',
+                'Name': 'Character',
+                'Promotion': 'Promotion',
+                'Res': 'Res',
+                'S/M': 'S/M',
+                'Skl': 'Skl',
+                'Spd': 'Spd',
+                'Weapon ranks': 'Weapon Ranks (DROP)',
+                }
         # save mappings
         with open(self.sos_cleaner.get_datafile_path(self.consolidation_file), mode='w') as wfile:
             json.dump(field_mappings, wfile)
