@@ -380,7 +380,7 @@ class TestCleaner(unittest.TestCase):
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
 
-    def test_validate_class_match(self):
+    def test_validate_classes(self):
         """
         Asserts that True is returned when all classes match.
         """
@@ -393,7 +393,7 @@ class TestCleaner(unittest.TestCase):
         # load reconciliations: assume successful
         self.load_class_reconciliation_file(*self.cls_recon_sections)
         # main operation
-        true = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
+        true = self.validate_classes(*self.cls_recon_sections, self.clsmatch_file)
         self.assertTrue(true)
         char_bases_classes = self.sos_cleaner
             .url_to_tables[self.cls_recon_sections[0]][0].loc[:, 'Class']
@@ -409,7 +409,7 @@ class TestCleaner(unittest.TestCase):
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
 
-    def test_validate_class_match__unmatched_classes_exist(self):
+    def test_validate_classes__unmatched_classes_exist(self):
         """
         Asserts that if there are unmapped classes, a pd.DataFrame
         containing those classes is returned.
