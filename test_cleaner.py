@@ -55,7 +55,7 @@ class TestCleaner(unittest.TestCase):
                 'Mercenary': 'Non-promoted',
                 'Myrmidon': 'Non-promoted',
                 'Nomad': 'Non-promoted',
-                'Nomadic Trooper': ,
+                'Nomadic Trooper': 'Nomad Trooper',
                 'Paladin': 'Paladin',
                 'Pegasus Knight': 'Non-promoted',
                 'Pirate': 'Non-promoted',
@@ -372,12 +372,93 @@ class TestCleaner(unittest.TestCase):
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 clscolumns.append(df.loc[:, "Class"])
+
         # dump complete class mappings for reconciliation
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
             json.dump(self.cls_mappings, wfile)
+
         # create gender file for reconciliation
-        self.sos_cleaner.create_gender_file(self.gender_file)
+        gender_dict = {
+                'Allen': None,
+                'Astohl': None,
+                'Barth': None,
+                'Bartre': None,
+                'Bors': None,
+                'Brunya': "F",
+                'Cath': None,
+                'Cath (HM)': None,
+                'Cecilia': None,
+                'Chad': None,
+                'Clarine': None,
+                'Dayan': "M",
+                'Dieck': None,
+                'Dorothy': None,
+                'Douglas': "M",
+                'Echidna': "F",
+                'Eliwood': None,
+                'Ellen': None,
+                'Elphin': None,
+                'Fa': None,
+                'Fir': None,
+                'Fir (HM)': None,
+                'Gale': "M",
+                'Garret': None,
+                'Garret (HM)': None,
+                'Geese': None,
+                'Gonzales': None,
+                'Gonzales (HM)': None,
+                'Guinevere': "F",
+                'Hector': "M",
+                'Hugh': None,
+                'Igrene': "F",
+                'Juno': None,
+                'Karel': "M",
+                'Klein': "M",
+                'Klein (HM)': "M",
+                'Lalum': None,
+                'Lance': None,
+                'Lilina': None,
+                'Lott': None,
+                'Lugh': None,
+                'Marcus': "M",
+                'Merlinus': None,
+                'Miredy': None,
+                'Miredy (HM)': None,
+                'Murdoch': "M",
+                'Narshen': "M",
+                'Niime': "F",
+                'Noah': None,
+                'Oujay': None,
+                'Percival': "M",
+                'Percival (HM)': "M",
+                'Ray': None,
+                'Roy': None,
+                'Rutger': None,
+                'Rutger (HM)': None,
+                'Saul': None,
+                'Shin': None,
+                'Shin (HM)': None,
+                'Sofiya': None,
+                'Sue': None,
+                'Tate': None,
+                'Tate (HM)': None,
+                'Thany': None,
+                'Treck': None,
+                'Wade': None,
+                'Wendy': None,
+                'Wolt': None,
+                'Yodel': "M",
+                'Zealot': "M",
+                'Zeis': None,
+                'Zeis (HM)': None,
+                'Zephiel': None
+                }
+
+        # dump gender file into JSON format
+        with open(str(self.get_datafile_path(self.gender_file))), mode="w") as wfile:
+            json.dump(gender_dict, wfile)
+
         # main operation
         self.load_class_reconciliation_file(*self.cls_recon_sections)
         # extract deep-copies of pd.DataFrame['Class'] post-load
