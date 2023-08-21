@@ -156,7 +156,7 @@ class TestCleaner(unittest.TestCase):
         """
         Asserts that the mappings as indicated by the JSON file are applied appropriately.
         """
-        # map stuff here
+        # TODO: map stuff here
         field_mappings = {}
         # save mappings
         with open(self.sos_cleaner.get_datafile_path(self.consolidation_file), mode='w') as wfile:
