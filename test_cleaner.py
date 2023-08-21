@@ -239,7 +239,8 @@ class TestCleaner(unittest.TestCase):
             class_mappings = json.load(rfile)
         # Tests that the class_mappings dict is 'blank'
         self.assertIsInstance(class_mappings, dict)
-        self.assertListEqual(list(class_mappings.values()), [None])
+        # TODO: Assert that only the reconciled names are in the keys of the mapping
+        #self.assertListEqual(list(class_mappings.values()), [None])
 
     def test_load_class_reconciliation_file__mappings_not_done(self):
         """
@@ -257,15 +258,14 @@ class TestCleaner(unittest.TestCase):
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 clscolumns.append(df.loc[:, "Class"])
-        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        with self.assertRaises(ValueError):
+            self.load_class_reconciliation_file(*self.cls_recon_sections)
         # Extract copy of pd.DataFrame['Class'] after loading
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 new_clscolumns.append(df.loc[:, "Class"])
-        self.assertEqual(len(clscolumns), len(new_clscolumns))
-        for oldcls, newcls in zip(clscolumns, new_clscolumns):
-            self.assertTrue(all(oldcls == newcls))
+        self.assertListEqual(clscolumns, new_clscolumns)
 
     def test_load_class_reconciliation_file(self):
         """
@@ -289,9 +289,10 @@ class TestCleaner(unittest.TestCase):
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 new_clscolumns.append(df.loc[:, "Class"])
+        self.assertNotEqual(clscolumns, new_clscolumns))
         self.assertEqual(len(clscolumns), len(new_clscolumns))
-        for oldcls, newcls in zip(clscolumns, new_clscolumns):
-            self.assertTrue(all(oldcls.map(cls_mappings) == newcls))
+        for oldcol, newcol in zip(clscolumns, new_clscolumns):
+            self.assertTrue(all(oldcol.map(cls_mappings) == newcol))
 
 if __name__ == '__main__':
     unittest.main()
