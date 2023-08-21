@@ -406,7 +406,7 @@ class TestCleaner(unittest.TestCase):
                 )
         self.assertTrue(
                 match_table.join(char_bases_classes, on="Class")
-                .loc[:, self.cls_recon_sections[1]].notnull().empty
+                .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
 
     def test_validate_class_match__unmatched_classes_exist(self):
@@ -416,8 +416,8 @@ class TestCleaner(unittest.TestCase):
         """
         # validate without doing any operations
         unmatched_classes = self.validate_class_match(*self.cls_recon_sections, self.clsmatch_file)
-        unmatched_classes_notnull = unmatched_classes[
-                unmatched_classes.loc[:, self.cls_recon_sections[0]].notnull()
+        unmatched_classes = unmatched_classes[
+                unmatched_classes.loc[:, self.cls_recon_sections[1]].notnull()
                 ]
         # check matches manually
         char_bases_classes = self.sos_cleaner
@@ -429,8 +429,8 @@ class TestCleaner(unittest.TestCase):
                 self.cls_recon_file,
                 str(self.get_datafile_path(self.clsmatch_file))
                 )
-        match_table_notnull = match_table[match_table.loc[:, self.cls_recon_sections[0]].notnull()]
-        self.assertTrue(all(unmatched_classes_notnull, match_table_notnull))
+        match_table = match_table[match_table.loc[:, self.cls_recon_sections[1]].notnull()]
+        self.assertTrue(all(unmatched_classes, match_table))
 
     def test_create_gender_file(self):
         """
