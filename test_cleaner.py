@@ -31,44 +31,12 @@ class TestCleaner(unittest.TestCase):
         self.sos_cleaner = SerenesCleaner(game_num)
         for page in self.sos_cleaner.page_dict:
             if not self.sos_cleaner.get_datafile_path(self.datasource_file).exists():
-                self.sos_cleaner.scrape_tables(page, filename=self.datasource_file)
+                self.sos_cleaner.scrape_tables(page)
                 self.sos_cleaner.save_tables(page, filename=self.datasource_file)
             self.sos_cleaner.load_tables(page, filename=self.datasource_file)
         self.sos_cleaner.get_datafile_path(self.consolidation_file).unlink(missing_ok=True)
         for filename in (self.cls_recon_file, self.consolidation_file, self.gender_file, self.clsmatch_file):
             self.get_datafile_path(filename).unlink(missing_ok=True)
-        self.cls_mappings = {
-                'Archer': 'Non-promoted',
-                'Bandit': 'Non-promoted',
-                'Bard': 'Non-promoted',
-                'Bishop': 'Bishop',
-                'Cavalier': 'Non-promoted',
-                'Dancer': 'Non-promoted',
-                'Druid': 'Druid',
-                'Fighter': 'Non-promoted',
-                'General': 'General',
-                'Hero': 'Hero',
-                'Knight': 'Non-promoted',
-                'Lord': 'Non-promoted',
-                'Mage': 'Non-promoted',
-                'Mamkute': 'Non-promoted',
-                'Mercenary': 'Non-promoted',
-                'Myrmidon': 'Non-promoted',
-                'Nomad': 'Non-promoted',
-                'Nomadic Trooper': 'Nomad Trooper',
-                'Paladin': 'Paladin',
-                'Pegasus Knight': 'Non-promoted',
-                'Pirate': 'Non-promoted',
-                'Priest': 'Non-promoted',
-                'Sage': 'Sage',
-                'Shaman': 'Non-promoted',
-                'Sniper': 'Sniper',
-                'Swordmaster': 'Swordmaster',
-                'Thief': 'Non-promoted',
-                'Troubadour': 'Non-promoted',
-                'Wyvern Lord': 'Wyvern Lord',
-                'Wyvern Rider': 'Non-promoted',
-                }
 
     def test_create_field_consolidation_file(self):
         """
@@ -283,12 +251,15 @@ class TestCleaner(unittest.TestCase):
         # compile old columns to compare
         old_columns = []
         for df in self.sos_cleaner.url_to_tables[section]:
+            df.at[0, "HP"] = str(df.at[0, "HP"]) + " *"
             old_columns.append(tuple(df.columns))
         # main operation should succeed with no errors
         self.sos_cleaner.replace_with_int_dataframes(section, columns)
         new_columns = []
         # compile new columns to compare against old
         for df in self.sos_cleaner.url_to_tables[section]:
+            # Gotta make sure the stat exceptions are ignored.
+            self.assertNotIn(" *", df.at[0, "HP"])
             new_columns.append(tuple(df.columns))
             df = df.drop(columns, axis=1)
             # all columns should be in the most efficient dtype
@@ -354,14 +325,14 @@ class TestCleaner(unittest.TestCase):
         self.assertListEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
                 self.cls_recon_file,
-                str(self.get_datafile_path(self.clsmatch_file))
+                "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
                 )
         self.assertFalse(
                 match_table.join(char_bases_classes, on="Class")
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
 
-    def test_load_class_reconciliation_file(self):
+    def test_load_class_reconciliation_file__cls2cls(self):
         """
         Asserts that the mappings are done if there are
         no None values in the target-value list.
@@ -372,11 +343,101 @@ class TestCleaner(unittest.TestCase):
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
                 clscolumns.append(df.loc[:, "Class"])
-
         # dump complete class mappings for reconciliation
+        cls_mappings = {
+                "Hero (M)": "Hero (F)",
+                }
+        self.cls_recon_sections = ("classes__promotion_gains", "classes__maximum_stats")
+        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections)
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         with open(json_path, mode='w') as wfile:
-            json.dump(self.cls_mappings, wfile)
+            json.dump(cls_mappings, wfile)
+        # main operation
+        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        # extract deep-copies of pd.DataFrame['Class'] post-load
+        new_clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                new_clscolumns.append(df.loc[:, "Class"])
+        # check that the columns have changed
+        self.assertNotEqual(clscolumns, new_clscolumns)
+        match_table = pd.read_sql(
+                self.cls_recon_file,
+                "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
+                )
+        # Check that no null-rows exist
+        self.assertTrue(
+                match_table.join(char_bases_classes, on="Class")
+                .loc[:, self.cls_recon_sections[1]].isnull().empty
+                )
+        # Check that everything in the match_table is in the target table
+        self.assertTrue(
+                all(
+                    match_table.loc[:, self.cls_recon_sections[1]]
+                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"])
+                    )
+                )
+        promo_column = self.sos_scraper.url_to_tables[self.cls_recon_sections[0]][0]
+        # check that the things have been mapped properly.
+        for old_clsname, new_clsname in zip(
+                promo_column.loc[:, "Promotion"],
+                match_table.loc[:, self.cls_recon_sections[1]][0]
+                ):
+            if old_clsname in cls_mappings:
+                # i.e. if old_clsname == 'Hero (M)'
+                self.assertEqual(cls_mappings[old_clsname], new_clsname)
+            else:
+                self.assertEqual(old_clsname, new_clsname)
+
+    def test_load_class_reconciliation_file__char2cls(self):
+        """
+        Asserts that the mappings are done if there are
+        no None values in the target-value list.
+        The 'Class' column in 'char-bases' should be remapped.
+        Gender must be mapped.
+        """
+        # extract deep-copies of pd.DataFrame['Class']
+        clscolumns = []
+        for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
+            for df in df_list:
+                clscolumns.append(df.loc[:, "Class"])
+
+        # dump complete class mappings for reconciliation
+        cls_mappings = {
+                'Archer': 'Non-promoted',
+                'Bandit': 'Non-promoted',
+                'Bard': 'Non-promoted',
+                'Bishop': 'Bishop',
+                'Cavalier': 'Non-promoted',
+                'Dancer': 'Non-promoted',
+                'Druid': 'Druid',
+                'Fighter': 'Non-promoted',
+                'General': 'General',
+                'Hero': 'Hero',
+                'Knight': 'Non-promoted',
+                'Lord': 'Non-promoted',
+                'Mage': 'Non-promoted',
+                'Mamkute': 'Non-promoted',
+                'Mercenary': 'Non-promoted',
+                'Myrmidon': 'Non-promoted',
+                'Nomad': 'Non-promoted',
+                'Nomadic Trooper': 'Nomad Trooper',
+                'Paladin': 'Paladin',
+                'Pegasus Knight': 'Non-promoted',
+                'Pirate': 'Non-promoted',
+                'Priest': 'Non-promoted',
+                'Sage': 'Sage',
+                'Shaman': 'Non-promoted',
+                'Sniper': 'Sniper',
+                'Swordmaster': 'Swordmaster',
+                'Thief': 'Non-promoted',
+                'Troubadour': 'Non-promoted',
+                'Wyvern Lord': 'Wyvern Lord',
+                'Wyvern Rider': 'Non-promoted',
+                }
+        json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
+        with open(json_path, mode='w') as wfile:
+            json.dump(cls_mappings, wfile)
 
         # create gender file for reconciliation
         gender_dict = {
@@ -454,9 +515,7 @@ class TestCleaner(unittest.TestCase):
                 'Zeis (HM)': None,
                 'Zephiel': None
                 }
-
-        # dump gender file into JSON format
-        with open(str(self.get_datafile_path(self.gender_file))), mode="w") as wfile:
+        with open(str(self.get_datafile_path(self.gender_file)), mode="w") as wfile:
             json.dump(gender_dict, wfile)
 
         # main operation
@@ -470,18 +529,34 @@ class TestCleaner(unittest.TestCase):
         self.assertNotEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
                 self.cls_recon_file,
-                str(self.get_datafile_path(self.clsmatch_file))
+                "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
                 )
+        # check that only one column exists: one for the target table
+        self.assertEqual(1, len(match_table.columns))
+        # Check that no null-rows exist
         self.assertTrue(
-                match_table.join(char_bases_classes, on="Class")
+                # The index must match that of the left table
+                match_table.join(char_bases_classes, on="Name")
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
+        # Check that everything in the match_table is in the target table
         self.assertTrue(
                 all(
                     match_table.loc[:, self.cls_recon_sections[1]]
-                    .isin(self.url_to_tables[self.cls_recon_sections[1]].loc[:, "Class"])
+                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"])
                     )
                 )
+        bases_table = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
+        # Check that all's been mapped properly.
+        for charname, old_clsname, new_clsname in zip(
+                bases_table.iloc[:, 0],
+                bases_table.loc[:, "Class"],
+                match_table.loc[:, self.cls_recon_sections[1]]
+                ):
+            transformed_clsname = cls_mappings[old_cls_name]
+            if gender_dict[charname] is not None:
+                transformed_clsname += f" ({gender_dict[charname]})"
+            self.assertEqual(transformed_clsname, new_clsname)
 
     def test_create_gender_file(self):
         """
