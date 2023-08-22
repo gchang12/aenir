@@ -259,7 +259,7 @@ class TestCleaner(unittest.TestCase):
         # compile new columns to compare against old
         for df in self.sos_cleaner.url_to_tables[section]:
             # Gotta make sure the stat exceptions are ignored.
-            self.assertNotIn(" *", df.at[0, "HP"])
+            self.assertNotIn(" *", str(df.at[0, "HP"]))
             new_columns.append(tuple(df.columns))
             df = df.drop(columns, axis=1)
             # all columns should be in the most efficient dtype
