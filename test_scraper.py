@@ -29,6 +29,21 @@ class TestScraper(unittest.TestCase):
         self.sos_scraper = scraper.SerenesScraper(6)
         self.sos_scraper.home_dir.joinpath(self.filename).unlink(missing_ok=True)
 
+    def test__setattr_property(self):
+        """
+        Tests that setting properties doesn't work.
+        """
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.game_num = None
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.page_dict = None
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.game_name = None
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.home_dir = None
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.url_to_tables = None
+
     def test__init__gamenum_notin_numtoname(self):
         """
         Tests that no scraper.SerenesScraper instance is created

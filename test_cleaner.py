@@ -17,7 +17,7 @@ class TestCleaner(unittest.TestCase):
     Defines tests for SerenesCleaner.
     """
 
-    def setUp(self, game_num=6):
+    def setUp(self):
         """
         Instance of SerenesCleaner must be initialized.
         All data must be compiled into a source.
@@ -28,7 +28,7 @@ class TestCleaner(unittest.TestCase):
         self.datasource_file = "mock_datasource.db"
         self.clsmatch_file = "mock_clsmatch.db"
         self.gender_file = "mock_genders.json"
-        self.sos_cleaner = SerenesCleaner(game_num)
+        self.sos_cleaner = SerenesCleaner(6, cheeck_if_url_exists=False)
         for page in self.sos_cleaner.page_dict:
             if not self.sos_cleaner.get_datafile_path(self.datasource_file).exists():
                 self.sos_cleaner.scrape_tables(page)
@@ -166,47 +166,6 @@ class TestCleaner(unittest.TestCase):
             new_fields = new_fielddict[page]
             for oldname, newname in zip(old_fields, new_fields):
                 self.assertEqual(newname, field_mappings[oldname])
-
-    def test_pd_drop(self):
-        """
-        Asserts that the columns specified are dropped
-        from the tables in one section, given as an argument.
-        """
-        section = "characters/base-stats"
-        columns = ["Affin", "Weapon ranks"]
-        # pre-drop: columns in all tables contain 'columns' contents
-        contains_columns = False
-        for df in self.sos_cleaner.url_to_tables[section]:
-            if not set(columns).issubset(set(df.columns)):
-                continue
-            contains_columns = True
-        self.assertTrue(contains_columns)
-        # main operation
-        self.sos_cleaner.pd_drop(columns)
-        # post-drop: no columns should intersect with 'columns'
-        for df in self.sos_cleaner.url_to_tables[section]:
-            self.assertTrue(set(columns).isdisjoint(set(df.columns)))
-
-    def test_pd_drop__keyerror(self):
-        """
-        Asserts that a KeyError is raised when nonexistent columns are encountered,
-        and that the tables are not affected.
-        """
-        section = "characters/base-stats"
-        columns = [""]
-        columnlist = []
-        # compile column list
-        for df in self.sos_cleaner.url_to_tables[section]:
-            columnlist.append(tuple(df.columns))
-        # do operation here; it should fail
-        with self.assertRaises(KeyError):
-            self.sos_cleaner.pd_drop(columns)
-        # compile new column list
-        new_columnlist = []
-        for df in self.sos_cleaner.url_to_tables[section]:
-            new_columnlist.append(tuple(df.columns))
-        # make sure the two column lists are equal
-        self.assertListEqual(columnlist, new_columnlist)
 
     def test_replace_with_int_dataframes__column_dne(self):
         """

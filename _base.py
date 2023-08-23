@@ -42,11 +42,46 @@ class SerenesBase:
         - game_name: One of the folders in the serenesforest.net site
         - home_dir: pathlib.Path object to the directory
         """
-        self.game_num = game_num
-        self.page_dict = self.URL_TO_TABLE.copy()
-        self.game_name = self.NUM_TO_NAME[self.game_num]
-        self.home_dir = Path("data", self.game_name)
-        self.url_to_tables = {}
+        self._game_num = game_num
+        self._page_dict = self.URL_TO_TABLE.copy()
+        self._game_name = self.NUM_TO_NAME[self._game_num]
+        self._home_dir = Path("data", self._game_name)
+        self._url_to_tables = {}
+
+    @property
+    def game_num(self):
+        """
+        Get:    The number of the game in the Fire Emblem series.
+        """
+        return self._game_num
+
+    @property
+    def page_dict(self):
+        """
+        Get:    dict that maps urlpath -> table_name
+        """
+        return self._page_dict
+
+    @property
+    def game_name(self):
+        """
+        Get:    str representing the name of the game as shown in the urlpath.
+        """
+        return self._game_name
+
+    @property
+    def home_dir(self):
+        """
+        Get:    pathlib.Path to the directory where all scraped data for the game is stored.
+        """
+        return self._home_dir
+
+    @property
+    def url_to_tables(self):
+        """
+        Get:    dict that maps urlpath -> List[stat_tables]
+        """
+        return self._url_to_tables
 
     def get_datafile_path(self, filename: str):
         """
