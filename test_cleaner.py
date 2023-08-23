@@ -26,7 +26,7 @@ class TestCleaner(unittest.TestCase):
                 "characters__base_stats", "classes__maximum_stats",
                 "Class", "Class"
                 )
-        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections[:2])
+        self.cls_recon_file = "{}_JOIN_{}.json".format(*self.cls_recon_sections[:2])
         self.consolidation_file = "mock_fieldconsolidation.json"
         self.datasource_file = "mock_datasource.db"
         self.clsmatch_file = "mock_clsmatch.db"
@@ -297,9 +297,9 @@ class TestCleaner(unittest.TestCase):
         # classes should be the same
         self.assertListEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
-                self.cls_recon_file,
+                self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )
+                )[0]
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertFalse(
                 char_bases_classes.join(match_table, on=self.cls_recon_sections[2])
@@ -317,7 +317,7 @@ class TestCleaner(unittest.TestCase):
                 "classes__promotion_gains", "classes__maximum_stats",
                 "Promotion", "Class",
                 )
-        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections[:2])
+        self.cls_recon_file = "{}_JOIN_{}.json".format(*self.cls_recon_sections[:2])
         # extract deep-copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
@@ -340,9 +340,9 @@ class TestCleaner(unittest.TestCase):
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
-                self.cls_recon_file,
+                self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )
+                )[0]
         # Check that no null-rows exist
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertTrue(
@@ -501,7 +501,7 @@ class TestCleaner(unittest.TestCase):
             json.dump(gender_dict, wfile)
 
         # main operation
-        self.load_class_reconciliation_file(self.cls_recon_sections[:2])
+        self.load_class_reconciliation_file(self.cls_recon_sections)
         # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
@@ -510,9 +510,9 @@ class TestCleaner(unittest.TestCase):
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
-                self.cls_recon_file,
+                self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )
+                )[0]
         # check that only one column exists: one for the target table
         self.assertEqual(1, len(match_table.columns))
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
