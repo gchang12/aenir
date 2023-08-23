@@ -22,8 +22,11 @@ class TestCleaner(unittest.TestCase):
         Instance of SerenesCleaner must be initialized.
         All data must be compiled into a source.
         """
-        self.cls_recon_sections = ("characters__base_stats", "classes__maximum_stats")
-        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections)
+        self.cls_recon_sections = (
+                "characters__base_stats", "classes__maximum_stats",
+                "Class", "Class"
+                )
+        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections[:2])
         self.consolidation_file = "mock_fieldconsolidation.json"
         self.datasource_file = "mock_datasource.db"
         self.clsmatch_file = "mock_clsmatch.db"
@@ -35,7 +38,12 @@ class TestCleaner(unittest.TestCase):
                 self.sos_cleaner.save_tables(page, filename=self.datasource_file)
             self.sos_cleaner.load_tables(page, filename=self.datasource_file)
         self.sos_cleaner.get_datafile_path(self.consolidation_file).unlink(missing_ok=True)
-        for filename in (self.cls_recon_file, self.consolidation_file, self.gender_file, self.clsmatch_file):
+        for filename in (
+                self.cls_recon_file,
+                self.consolidation_file,
+                self.gender_file,
+                self.clsmatch_file
+                ):
             self.get_datafile_path(filename).unlink(missing_ok=True)
 
     def test_create_field_consolidation_file(self):
@@ -47,7 +55,8 @@ class TestCleaner(unittest.TestCase):
         # File should exist after the function call
         cfile_path = self.sos_cleaner.get_datafile_path(self.consolidation_file)
         self.assertTrue(cfile_path.exists())
-        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file)) as rfile:
+        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file),
+                encoding='utf-8') as rfile:
             field_mappings = json.load(rfile)
         # JSON file must contain dict object
         self.assertIsInstance(field_mappings, dict)
@@ -69,7 +78,8 @@ class TestCleaner(unittest.TestCase):
         """
         # Save blank file with incomplete set of mappings
         field_mappings = {} # Blank by construction
-        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file), mode='w') as wfile:
+        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file),
+                mode='w', encoding='utf-8') as wfile:
             json.dump(field_mappings, wfile)
         # get old field-lists and in order
         fielddict = {}
@@ -99,7 +109,8 @@ class TestCleaner(unittest.TestCase):
         field_mappings['health-points'] = None  # This mapping to None ensures that the loading fails
         field_mappings['S/M'] = 'Pow'           # Sample mapping. This should fail.
         # Save the new mapping to file
-        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file), mode='w') as wfile:
+        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file),
+                mode='w', encoding='utf-8') as wfile:
             json.dump(field_mappings, wfile)
         # get old field-lists and in order
         fielddict = {}
@@ -142,7 +153,8 @@ class TestCleaner(unittest.TestCase):
                 'Weapon ranks': 'Weapon Ranks (DROP)',
                 }
         # save mappings
-        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file), mode='w') as wfile:
+        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file),
+                mode='w', encoding='utf-8') as wfile:
             json.dump(field_mappings, wfile)
         # get old field-lists and in order
         fielddict = {}
@@ -234,21 +246,23 @@ class TestCleaner(unittest.TestCase):
         that lists 'char-bases' classes not in 'maximum-stats'.
         """
         # main operation
-        self.sos_cleaner.create_class_reconciliation_file(*self.cls_recon_sections)
+        self.sos_cleaner.create_class_reconciliation_file(self.cls_recon_sections)
         # a JSON file should be created
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
         self.assertTrue(json_path.exists())
         # load dict from JSON
-        with open(json_path) as rfile:
+        with open(json_path, encoding='utf-8') as rfile:
             class_mappings = json.load(rfile)
         # Tests that the JSON object is a dict
         self.assertIsInstance(class_mappings, dict)
         # Assert that only the to-be-reconciled names are in the keys of the mapping
         basestats_classes = set(
-                self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:, "Class"]
+                self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0].loc[:,
+                    selc.cls_recon_sections[2]]
                 )
         maxstats_classes = set(
-                self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"]
+                self.sos_cleaner.url_to_tables[self.cls_recon_sections[1]][0].loc[:,
+                    selc.cls_recon_sections[3]]
                 )
         # The goal of this function is to identify non-matching classes
         unmatched_classes = basestats_classes.difference(maxstats_classes)
@@ -265,29 +279,30 @@ class TestCleaner(unittest.TestCase):
         cls_mappings = {'Lord': None}
         # dump complete class mapping into JSON
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
-        with open(json_path, mode='w') as wfile:
+        with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(cls_mappings, wfile)
         # compile copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                clscolumns.append(df.loc[:, "Class"])
+                clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # ValueError: recon not done
         with self.assertRaises(ValueError):
-            self.load_class_reconciliation_file(*self.cls_recon_sections)
+            self.load_class_reconciliation_file(self.cls_recon_sections)
         # compile copies of pd.DataFrame['Class'] post-call
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                new_clscolumns.append(df.loc[:, "Class"])
+                new_clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # classes should be the same
         self.assertListEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
                 self.cls_recon_file,
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
                 )
+        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertFalse(
-                match_table.join(char_bases_classes, on="Class")
+                char_bases_classes.join(match_table, on=self.cls_recon_sections[2])
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
 
@@ -297,27 +312,31 @@ class TestCleaner(unittest.TestCase):
         no None values in the target-value list.
         The 'Class' column in 'char-bases' should be remapped.
         """
+        # reset settings here
+        self.cls_recon_sections = (
+                "classes__promotion_gains", "classes__maximum_stats",
+                "Promotion", "Class",
+                )
+        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections[:2])
         # extract deep-copies of pd.DataFrame['Class']
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                clscolumns.append(df.loc[:, "Class"])
+                clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # dump complete class mappings for reconciliation
         cls_mappings = {
                 "Hero (M)": "Hero (F)",
                 }
-        self.cls_recon_sections = ("classes__promotion_gains", "classes__maximum_stats")
-        self.cls_recon_file = "{}-JOIN-{}.json".format(*self.cls_recon_sections)
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
-        with open(json_path, mode='w') as wfile:
+        with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(cls_mappings, wfile)
         # main operation
-        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        self.load_class_reconciliation_file(self.cls_recon_sections)
         # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                new_clscolumns.append(df.loc[:, "Class"])
+                new_clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
@@ -325,21 +344,24 @@ class TestCleaner(unittest.TestCase):
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
                 )
         # Check that no null-rows exist
+        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertTrue(
-                match_table.join(char_bases_classes, on="Class")
+                char_bases_classes.join(match_table, on=self.cls_recon_sections[2])
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
         # Check that everything in the match_table is in the target table
         self.assertTrue(
                 all(
                     match_table.loc[:, self.cls_recon_sections[1]]
-                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"])
+                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:,
+                        self.cls_recon_sections[3]]
+                        )
                     )
                 )
         promo_column = self.sos_scraper.url_to_tables[self.cls_recon_sections[0]][0]
         # check that the things have been mapped properly.
         for old_clsname, new_clsname in zip(
-                promo_column.loc[:, "Promotion"],
+                promo_column.loc[:, self.cls_recon_sections[2]],
                 match_table.loc[:, self.cls_recon_sections[1]][0]
                 ):
             if old_clsname in cls_mappings:
@@ -359,7 +381,7 @@ class TestCleaner(unittest.TestCase):
         clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                clscolumns.append(df.loc[:, "Class"])
+                clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
 
         # dump complete class mappings for reconciliation
         cls_mappings = {
@@ -395,7 +417,7 @@ class TestCleaner(unittest.TestCase):
                 'Wyvern Rider': 'Non-promoted',
                 }
         json_path = self.sos_cleaner.get_datafile_path(self.cls_recon_file)
-        with open(json_path, mode='w') as wfile:
+        with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(cls_mappings, wfile)
 
         # create gender file for reconciliation
@@ -474,16 +496,17 @@ class TestCleaner(unittest.TestCase):
                 'Zeis (HM)': None,
                 'Zephiel': None
                 }
-        with open(str(self.get_datafile_path(self.gender_file)), mode="w") as wfile:
+        with open(str(self.get_datafile_path(self.gender_file)),
+                mode="w", encoding='utf-8') as wfile:
             json.dump(gender_dict, wfile)
 
         # main operation
-        self.load_class_reconciliation_file(*self.cls_recon_sections)
+        self.load_class_reconciliation_file(self.cls_recon_sections[:2])
         # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
             for df in df_list:
-                new_clscolumns.append(df.loc[:, "Class"])
+                new_clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # check that the columns have changed
         self.assertNotEqual(clscolumns, new_clscolumns)
         match_table = pd.read_sql(
@@ -492,24 +515,27 @@ class TestCleaner(unittest.TestCase):
                 )
         # check that only one column exists: one for the target table
         self.assertEqual(1, len(match_table.columns))
+        char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         # Check that no null-rows exist
         self.assertTrue(
                 # The index must match that of the left table
-                match_table.join(char_bases_classes, on="Name")
+                char_bases_classes.join(match_table, on="Name")
                 .loc[:, self.cls_recon_sections[1]].isnull().empty
                 )
         # Check that everything in the match_table is in the target table
         self.assertTrue(
                 all(
                     match_table.loc[:, self.cls_recon_sections[1]]
-                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:, "Class"])
+                    .isin(self.url_to_tables[self.cls_recon_sections[1]][0].loc[:,
+                        self.cls_recon_sections[3]]
+                        )
                     )
                 )
         bases_table = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         # Check that all's been mapped properly.
         for charname, old_clsname, new_clsname in zip(
                 bases_table.iloc[:, 0],
-                bases_table.loc[:, "Class"],
+                bases_table.loc[:, self.cls_recon_sections[2]],
                 match_table.loc[:, self.cls_recon_sections[1]]
                 ):
             transformed_clsname = cls_mappings[old_cls_name]
@@ -525,7 +551,7 @@ class TestCleaner(unittest.TestCase):
         self.sos_cleaner.create_gender_file(self.gender_file)
         gender_file = self.sos_cleaner.get_datafile_path(self.gender_file)
         self.assertTrue(gender_file.exists())
-        with open(gender_file) as rfile:
+        with open(gender_file, encoding='utf-8') as rfile:
             gender_dict = json.load(rfile)
         character_set = set(
                 self.sos_cleaner.url_to_tables["characters/base-stats"][0].loc[:, "Name"]
