@@ -28,7 +28,7 @@ class SerenesScraper(SerenesBase):
         """
         logging.info("self.__init__(self, %s)", game_num)
         SerenesBase.__init__(self, game_num)
-        self.home_url = "/".join((self.URL_ROOT, self.game_name))
+        self._home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
         if check_if_url_exists:
             logging.info("requests.get(\"%s\")", self.home_url)
@@ -36,6 +36,14 @@ class SerenesScraper(SerenesBase):
             logging.info("requests.raise_for_status() # Checking for errors")
             response.raise_for_status()
             logging.info("requests.raise_for_status() # OK")
+
+    @property
+    def home_url(self):
+        """
+        Get:    str representing the online directory
+                from which to extract data for the game.
+        """
+        return self._home_url
 
     def scrape_tables(self, urlpath: str):
         """
