@@ -299,7 +299,7 @@ class TestCleaner(unittest.TestCase):
         match_table = pd.read_sql(
                 self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )[0]
+                )
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertFalse(
                 char_bases_classes.join(match_table, on=self.cls_recon_sections[2])
@@ -342,7 +342,7 @@ class TestCleaner(unittest.TestCase):
         match_table = pd.read_sql(
                 self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )[0]
+                )
         # Check that no null-rows exist
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
         self.assertTrue(
@@ -512,7 +512,7 @@ class TestCleaner(unittest.TestCase):
         match_table = pd.read_sql(
                 self.cls_recon_file.replace(".json", ""),
                 "sqlite:///" + str(self.get_datafile_path(self.clsmatch_file))
-                )[0]
+                )
         # check that only one column exists: one for the target table
         self.assertEqual(1, len(match_table.columns))
         char_bases_classes = self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]][0]
