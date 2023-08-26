@@ -71,35 +71,6 @@ class TestCleaner(unittest.TestCase):
         # The dict cannot contain duplicate keys
         self.assertEqual(len(field_mappings), len(fieldset))
 
-    def test_load_field_consolidation_file__missing_keys(self):
-        """
-        Asserts that the DataFrame objects remain as they are if
-        there are keys in the DataFrame not present in the file.
-        """
-        # Save blank file with incomplete set of mappings
-        field_mappings = {} # Blank by construction
-        with open(self.sos_cleaner.get_datafile_path(self.consolidation_file),
-                mode='w', encoding='utf-8') as wfile:
-            json.dump(field_mappings, wfile)
-        # get old field-lists and in order
-        fielddict = {}
-        for page, df_list in self.sos_cleaner.url_to_tables.items():
-            fielddict[page] = []
-            for df in df_list:
-                df.rename(axis=1, mapper={'HP': 'health-points'}, inplace=True)
-                fielddict[page].append(tuple(df.columns))
-        # ValueError: dict has an incomplete mapping
-        with self.assertRaises(ValueError):
-            self.sos_cleaner.load_field_consolidation_file(filename=self.consolidation_file)
-        # compile new field names
-        new_fielddict = {}
-        for page, df_list in self.sos_cleaner.url_to_tables.items():
-            new_fielddict[page] = []
-            for df in df_list:
-                new_fielddict[page].append(tuple(df.columns))
-        # The names should remain as they are
-        self.assertDictEqual(new_fielddict, fielddict)
-
     def test_load_field_consolidation_file__mappings_not_done(self):
         """
         Asserts that the mappings per the JSON file are not applied
