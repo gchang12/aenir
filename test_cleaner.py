@@ -31,7 +31,7 @@ class TestCleaner(unittest.TestCase):
         self.datasource_file = "mock_datasource.db"
         self.clsmatch_file = "mock_clsmatch.db"
         self.gender_file = "mock_genders.json"
-        self.sos_cleaner = SerenesCleaner(6, cheeck_if_url_exists=False)
+        self.sos_cleaner = SerenesCleaner(6)
         for page in self.sos_cleaner.page_dict:
             if not self.sos_cleaner.get_datafile_path(self.datasource_file).exists():
                 self.sos_cleaner.scrape_tables(page)
