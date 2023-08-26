@@ -83,6 +83,12 @@ class SerenesBase:
         """
         return self._url_to_tables
 
+    def urlpath_to_table(self, urlpath: str):
+        """
+        Returns table name corresponding to urlpath.
+        """
+        return urlpath.replace("/", "__").replace("-", "_")
+
     def get_datafile_path(self, filename: str):
         """
         Returns a path to a data file in the home directory
