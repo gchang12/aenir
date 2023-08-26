@@ -44,7 +44,7 @@ class TestCleaner(unittest.TestCase):
                 self.gender_file,
                 self.clsmatch_file
                 ):
-            self.get_datafile_path(filename).unlink(missing_ok=True)
+            self.sos_cleaner.get_datafile_path(filename).unlink(missing_ok=True)
 
     def test_create_field_consolidation_file(self):
         """
@@ -259,7 +259,7 @@ class TestCleaner(unittest.TestCase):
                 clscolumns.append(df.loc[:, self.cls_recon_sections[2]])
         # ValueError: recon not done
         with self.assertRaises(ValueError):
-            self.load_class_reconciliation_file(self.cls_recon_sections)
+            self.load_class_reconciliation_file(self.cls_recon_sections, self.gender_file, self.clsmatch_file)
         # compile copies of pd.DataFrame['Class'] post-call
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
@@ -302,7 +302,7 @@ class TestCleaner(unittest.TestCase):
         with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(cls_mappings, wfile)
         # main operation
-        self.load_class_reconciliation_file(self.cls_recon_sections)
+        self.load_class_reconciliation_file(self.cls_recon_sections, self.gender_file, self.clsmatch_file)
         # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:
@@ -472,7 +472,7 @@ class TestCleaner(unittest.TestCase):
             json.dump(gender_dict, wfile)
 
         # main operation
-        self.load_class_reconciliation_file(self.cls_recon_sections)
+        self.load_class_reconciliation_file(self.cls_recon_sections, self.gender_file, self.clsmatch_file)
         # extract deep-copies of pd.DataFrame['Class'] post-load
         new_clscolumns = []
         for df_list in self.sos_cleaner.url_to_tables[self.cls_recon_sections[0]]:

@@ -68,7 +68,13 @@ class SerenesCleaner(SerenesScraper):
             new_cell = re.sub("[^0-9]*([0-9]+)[^0-9].*", "\\1", cell)
             return int(new_cell)
         for index, table in enumerate(self.url_to_tables[urlpath]):
-            self.url_to_tables[index] = table.applymap(convert_to_int)
+            temp_columns = []
+            for column in columns:
+                temp_columns.append(table.loc[:, column])
+            table.drop(columns, inplace=True)
+            self.url_to_tables[index] = pd.concat(
+                    [*temp_columns, table.applymap(convert_to_int)], axis=1
+                    ).convert_dtypes()
 
     def create_class_reconciliation_file(self, sections_columns):
         """
@@ -89,11 +95,13 @@ class SerenesCleaner(SerenesScraper):
         for rtable in self.url_to_tables[right_table]:
             right_cls_set.update(set(rtable.loc[:, rtable_col]))
         cls_dict = {lname: None for lname in left_cls_set.difference(right_cls_set)}
+        left_table = left_table.replace("/", "__").replace("-", "_")
+        right_table = right_table.replace("/", "__").replace("-", "_")
         filename = f"{left_table}_JOIN_{right_table}.json"
         with open(filename, mode='w', encoding='utf-8') as wfile:
             json.dump(cls_dict, wfile)
 
-    def load_class_reconciliation_file(self, sections_columns, filename):
+    def load_class_reconciliation_file(self, sections_columns, gender_file, clsmatch_file):
         """
         sections_columns:
         - 1: left table
@@ -107,9 +115,33 @@ class SerenesCleaner(SerenesScraper):
         Also loads gender file if applicable
         """
         left_table, right_table, ltable_col, rtable_col = section_columns
-        if left_table.starts_with("characters"):
-            gender_dict = {}
-            pass
+        # compile genders here, if applicable
+        gender_dict = {}
+        if not left_table.starts_with("characters"):
+            with open(gender_file, encoding='utf-8') as rfile:
+                tmp_gender_dict = json.load(rfile)
+            for character, gender in tmp_gender_dict.items():
+                if gender is None:
+                    continue
+                gender_dict[character] = gender
+        left_tablename = self.urlpath_to_table(left_table)
+        right_tablename = self.urlpath_to_table(right_table)
+        # compile class-matches here
+        clsmatch_json = f"{left_tablename}_JOIN_{right_tablename}.json"
+        with open(clsmatch_json, encoding='utf-8') as rfile:
+            clsmatch_dict = json.load(rfile)
+        # match results
+        def map_class_to_class(indexrecord):
+            """
+            Maps indexrecord to class in right_table.
+            """
+            remapped_cls = clsmatch_dict[indexrecord]
+            if indexrecord in gender_dict:
+                remapped_cls += f" ({gender_dict[indexrecord]})"
+            return remapped_cls
+        table_list = []
+        for table in self.url_to_tables[left_table]:
+            table_list.append(table.loc[:, ltable_col])
 
     def create_gender_file(self, filename):
         """
