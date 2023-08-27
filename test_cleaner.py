@@ -33,7 +33,9 @@ class TestCleaner(unittest.TestCase):
         self.sos_cleaner.tables_file = "MOCK-raw_stats.db"
         # delete files
         #self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).unlink(missing_ok=True)
-        self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json).unlink(missing_ok=True)
+        fieldrecon_file = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
+        fieldrecon_file.unlink(missing_ok=True)
+        logging.info("Deleting '%s'...", str(fieldrecon_file))
         for urlpath in self.sos_cleaner.page_dict:
             if not self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).exists():
                 self.sos_cleaner.scrape_tables(urlpath)
@@ -48,6 +50,7 @@ class TestCleaner(unittest.TestCase):
         - converts cell.dtypes to int
         - reinserts non-numeric columns where they previously were
         """
+        logging.info("Testing 'replace_with_int_df' method...")
         urlpath = "characters/base-stats"
         columns = ["Name", "Class", "Affin", "Weapon ranks"]
         # get table
@@ -82,6 +85,9 @@ class TestCleaner(unittest.TestCase):
         Tests that the method fails if:
         - the column list is not in the field list.
         """
+        logging.info(
+                "Testing 'replace_with_int_df' method when 'columns' is not a subset of df.columns."
+                )
         urlpath = "characters/base-stats"
         columns = [""]
         bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
@@ -115,6 +121,7 @@ class TestCleaner(unittest.TestCase):
         Tests that a JSON file containing a dict of
         column names is created, each mapped to null.
         """
+        logging.info("Creating field recon file...")
         # given: recon file dne
         recon_file  = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
         # main
@@ -138,6 +145,7 @@ class TestCleaner(unittest.TestCase):
         works on a pd.DataFrame object that has been
         affected by the drop_nonnumeric_rows method.
         """
+        logging.info("Dropping non-numeric rows...")
         urlpath = "characters/growth-rates"
         self.sos_cleaner.drop_nonnumeric_rows(urlpath, numeric_col="HP")
         growths_table = self.sos_cleaner.url_to_tables[urlpath][0]
@@ -154,6 +162,7 @@ class TestCleaner(unittest.TestCase):
         Tests that field mappings are applied
         to all pd.DataFrame objects
         """
+        logging.info("Testing 'apply_fieldrecon_file' method...")
         # set up for main
         json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
         fielddict = {"HP": "health-points"}
@@ -180,6 +189,7 @@ class TestCleaner(unittest.TestCase):
         Tests that all field mappings remain as they are
         if a null is in the values of the JSON dict.
         """
+        logging.info("Testing 'apply_fieldrecon_file' method when JSON-dict contains null.")
         # set up for main
         json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
         fielddict = {"HP": None, "Def": "Defense"}
