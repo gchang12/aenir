@@ -30,6 +30,7 @@ class SerenesScraper(SerenesBase):
         SerenesBase.__init__(self, game_num)
         self._home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
+        self.tables_file = "raw_stats.db"
         if check_if_url_exists:
             logging.info("requests.get(\"%s\")", self.home_url)
             response = r.get(self.home_url)
@@ -64,16 +65,16 @@ class SerenesScraper(SerenesBase):
         self.url_to_tables[urlpath] = pd.read_html(response.text)
         logging.info("self.url_to_tables[\"%s\"] := list[pd.DataFrame]: OK", urlpath)
 
-    def save_tables(self, urlpath: str, filename: str = "raw_stats.db"):
+    def save_tables(self, urlpath: str):
         """
-        Saves pd.DataFrame tables to self.get_datafile_path(filename).
+        Saves pd.DataFrame tables to self.get_datafile_path(self.tables_file).
         Clears self.url_to_tables[urlpath] := list[pd.DataFrame].
         """
         tablename = self.page_dict[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
         logging.info("'%s' directory now exists.", str(self.home_dir))
-        save_dir = str(self.home_dir.joinpath(filename))
+        save_dir = str(self.home_dir.joinpath(self.tables_file))
         while self.url_to_tables[urlpath]:
             logging.info("table = self.url_to_tables[\"%s\"].pop(0)", urlpath)
             table = self.url_to_tables[urlpath].pop(0)
@@ -86,13 +87,13 @@ class SerenesScraper(SerenesBase):
         del self.url_to_tables[urlpath]
         logging.info("\"%s\" no longer in self.url_to_tables.", urlpath)
 
-    def load_tables(self, urlpath: str, filename: str = "raw_stats.db"):
+    def load_tables(self, urlpath: str):
         """
-        Loads tables from self.get_datafile_path(filename).
+        Loads tables from self.get_datafile_path(self.tables_file).
         Stores tables as pd.DataFrame objects in
         self.url_to_tables[urlpath] := list[pd.DataFrame]
         """
-        save_dir = str(self.home_dir.joinpath(filename))
+        save_dir = str(self.home_dir.joinpath(self.tables_file))
         tablename_root = self.page_dict[urlpath]
         self.url_to_tables[urlpath] = []
         tableindex = 0
