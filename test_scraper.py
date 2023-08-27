@@ -136,7 +136,9 @@ class TestScraper(unittest.TestCase):
         logging.info("Asserting that load_tables succeeds.")
         urlpath = "characters/growth-rates"
         self.sos_scraper.scrape_tables(urlpath)
+        #self.sos_scraper.save_tables(urlpath)
         original_table = self.sos_scraper.url_to_tables[urlpath][0]
+        self.sos_scraper.save_tables(urlpath)
         self.sos_scraper.load_tables(urlpath)
         self.assertIn(urlpath, self.sos_scraper.url_to_tables)
         loaded_table = self.sos_scraper.url_to_tables[urlpath][0]
