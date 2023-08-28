@@ -15,17 +15,7 @@ class TestReconciler(unittest.TestCase):
         """
         pass
 
-    def test_create_chr_to_cls_reconfile(self):
-        """
-        """
-        pass
-
-    def test_create_cls_to_cls_reconfile(self):
-        """
-        """
-        pass
-
-    def test_create_chr_to_chr_reconfile(self):
+    def test_create_namerecon_file(self):
         """
         """
         pass
