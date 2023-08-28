@@ -21,6 +21,12 @@ class TestScraper(unittest.TestCase):
     Tests that the methods defined in scraper.SerenesScraper work.
     """
 
+    def tearDown(self):
+        """
+        Deletes file produced by tests.
+        """
+        self.sos_scraper.home_dir.joinpath(self.sos_scraper.tables_file).unlink(missing_ok=True)
+
     def setUp(self):
         """
         Set up the scraper.SerenesScraper instance.

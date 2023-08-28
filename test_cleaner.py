@@ -17,6 +17,13 @@ class TestCleaner(unittest.TestCase):
     Defines tests for SerenesCleaner.
     """
 
+    def tearDown(self):
+        """
+        Removes all files produced during the test-run.
+        """
+        fieldrecon_file = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
+        fieldrecon_file.unlink(missing_ok=True)
+
     def setUp(self):
         """
         Create a SerenesCleaner instance.
