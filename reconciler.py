@@ -16,24 +16,28 @@ class SerenesReconciler(SerenesCleaner):
     Defines methods for identifying names present in the column of one table,
     and mapping those names to those of a column in another.
     """
+
     def __init__(self, game_num):
         """
         """
+        SerenesCleaner.__init__(self, game_num)
         pass
 
-    def create_chr_to_cls_reconfile(self, table_col: [(fromtable, fromcol), (totable, tocol)]):
+    def create_namerecon_file(self, ltable_columns: tuple, rtable_column: tuple):
         """
         """
+        # ltable_columns: (ltable, from_col, tomatch_col)
+        # rtable_column: (rtable, to_col)
         pass
 
-    def create_cls_to_cls_reconfile(self):
+    def sanitize_all_tables(self):
         """
         """
-        pass
-
-    def create_chr_to_chr_reconfile(self):
-        """
-        """
+        # for each table:
+        #    drop_nonnumeric_rows
+        #    replace_with_int_df
+        # try: create_fieldrecon_file
+        # except FileNotExistsError: apply_fieldrecon_file
         pass
 
 
