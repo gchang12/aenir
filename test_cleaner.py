@@ -139,6 +139,17 @@ class TestCleaner(unittest.TestCase):
         my_recon_dict = {fieldname: None for fieldname in fieldname_set}
         self.assertDictEqual(my_recon_dict, recon_dict)
 
+    def test_create_fieldrecon_file__file_exists(self):
+        """
+        Tests that the method fails if the file exists already.
+        """
+        json_path = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
+        json_path.write_text("")
+        with self.assertRaises(FileExistsError):
+            self.sos_cleaner.create_fieldrecon_file()
+        json_path.unlink()
+        # check that nothing has changed?
+
     def test_drop_nonnumeric_rows(self):
         """
         Tests that pd.DataFrame.applymap with func=int
@@ -156,6 +167,13 @@ class TestCleaner(unittest.TestCase):
         self.assertTrue(
                 growths_table[pd.to_numeric(growths_table["HP"], errors="coerce").isnull()].empty
                     )
+
+    def test_apply_fieldrecon_file__file_dne(self):
+        """
+        Tests that method fails if the file does not exist.
+        """
+        with self.assertRaises(FileNotFoundError):
+            self.sos_cleaner.apply_fieldrecon_file()
 
     def test_apply_fieldrecon_file(self):
         """
