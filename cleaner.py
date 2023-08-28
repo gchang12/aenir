@@ -79,6 +79,8 @@ class SerenesCleaner(SerenesScraper):
         Save that dict to JSON, with indent=4.
         """
         fieldname_set = set()
+        if self.get_datafile_path(self.fieldrecon_json).exists():
+            raise FileExistsError
         logging.info("create_fieldrecon_file()")
         for tableset in self.url_to_tables.values():
             for table in tableset:
