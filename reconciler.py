@@ -40,6 +40,11 @@ class SerenesReconciler(SerenesCleaner):
         # except FileNotExistsError: apply_fieldrecon_file
         pass
 
+    def commit_namerecon_file(self, ltable_columns: tuple, rtable_column: tuple):
+        """
+        """
+        pass
+
 
 if __name__ == '__main__':
     pass

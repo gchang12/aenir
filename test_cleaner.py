@@ -5,12 +5,15 @@ Tests data-cleaning capabilities of SerenesCleaner.
 
 import logging
 import unittest
+from datetime import datetime
 import json
 import pandas as pd
 
 from aenir.cleaner import SerenesCleaner
 
 logging.basicConfig(filename="log_test-cleaner.log", level=logging.DEBUG)
+
+logging.info("\n\nStarting test-run on '%s'\n\n", str(datetime.now()))
 
 class TestCleaner(unittest.TestCase):
     """
@@ -36,17 +39,18 @@ class TestCleaner(unittest.TestCase):
         # create instance
         self.sos_cleaner = SerenesCleaner(6)
         # modify file attributes to point to mocks
-        self.sos_cleaner.fieldrecon_json = "MOCK-fieldrecon.json"
-        self.sos_cleaner.tables_file = "MOCK-raw_stats.db"
+        self.sos_cleaner.fieldrecon_json = "MOCK-" + self.sos_cleaner.fieldrecon_json
+        self.sos_cleaner.tables_file = "MOCK-" + self.sos_cleaner.tables_file
         # delete files
         #self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).unlink(missing_ok=True)
         fieldrecon_file = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
         fieldrecon_file.unlink(missing_ok=True)
         logging.info("Deleting '%s'...", str(fieldrecon_file))
-        for urlpath in self.sos_cleaner.page_dict:
-            if not self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).exists():
+        if not self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).exists():
+            for urlpath in self.sos_cleaner.page_dict:
                 self.sos_cleaner.scrape_tables(urlpath)
                 self.sos_cleaner.save_tables(urlpath)
+        for urlpath in self.sos_cleaner.page_dict:
             self.sos_cleaner.load_tables(urlpath)
 
     def test_replace_with_int_df(self):
@@ -61,25 +65,20 @@ class TestCleaner(unittest.TestCase):
         urlpath = "characters/base-stats"
         columns = ["Name", "Class", "Affin", "Weapon ranks"]
         # get table
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
+        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
         # create bad value to be cleaned
         bad_hp = str(bases_table.at[0, "HP"]) + " *"
         bases_table.at[0, "HP"] = bad_hp
         # compile before-values for comparison
-        bases_columns = list(bases_table.columns)
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
         # assert: before-values are not numerical
-        bases_table.drop(columns, inplace=True, axis=1)
         #self.assertTrue( not all(bases_table.dtypes == int) )
         # main
         self.sos_cleaner.replace_with_int_df(urlpath, columns)
         # compile after-values
         new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        new_bases_columns = list(new_bases_table.columns)
         # assert: columns are in their original places
-        self.assertListEqual(new_bases_columns, bases_columns)
+        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
         # assert: numeric columns are of int-dtype
-        new_bases_table.drop(columns, inplace=True, axis=1)
         # Note: presence of null-rows makes this assertion impossible
         #self.assertTrue( all(new_bases_table.dtypes == int) )
         # assert: contents remain identical
@@ -102,8 +101,6 @@ class TestCleaner(unittest.TestCase):
         bad_hp = str(bases_table.at[0, "HP"]) + " *"
         bases_table.at[0, "HP"] = bad_hp
         # compile before-values for comparison
-        bases_columns = list(bases_table.columns)
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
         #bases_table.drop(columns, inplace=True)
         # main
         with self.assertRaises(ValueError):
@@ -112,9 +109,8 @@ class TestCleaner(unittest.TestCase):
         #self.assertTrue( not all(bases_table.dtypes == int) )
         # compile after-values
         new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        new_bases_columns = list(new_bases_table.columns)
         # assert: columns are in their original places
-        self.assertListEqual(new_bases_columns, bases_columns)
+        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
         # assert: numeric columns are of int-dtype
         #new_bases_table.drop(columns, inplace=True)
         #self.assertFalse( all(new_bases_table.dtypes == int) )
@@ -151,7 +147,7 @@ class TestCleaner(unittest.TestCase):
         Tests that the method fails if the file exists already.
         """
         json_path = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
-        json_path.write_text("")
+        json_path.write_text("", encoding='utf-8')
         with self.assertRaises(FileExistsError):
             self.sos_cleaner.create_fieldrecon_file()
         json_path.unlink()
@@ -202,9 +198,10 @@ class TestCleaner(unittest.TestCase):
         # main
         self.sos_cleaner.apply_fieldrecon_file()
         # check that all instances of 'HP' have been replaced by 'health-points'
-        for tablelist in self.sos_cleaner.url_to_tables.values():
+        for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
             for table in tablelist:
                 if {"HP", "health-points"}.isdisjoint(set(table.columns)):
+                    logging.info("'HP' or equivalent not in '%s' section.", urlpath)
                     continue
                 self.assertNotIn("HP", table.columns)
                 self.assertIn("health-points", table.columns)
@@ -217,7 +214,7 @@ class TestCleaner(unittest.TestCase):
         logging.info("Testing 'apply_fieldrecon_file' method when JSON-dict contains null.")
         # set up for main
         json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
-        fielddict = {"HP": None, "Def": "Defense"}
+        fielddict = {"HP": "health-points", "Def": "Defense", "": None}
         with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(fielddict, wfile)
         # check: nonexistent mapping is not already in the dataframes
@@ -225,17 +222,18 @@ class TestCleaner(unittest.TestCase):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 fieldset.update(set(table.columns))
-        self.assertNotIn(fielddict["Def"], fieldset)
+        self.assertNotIn(fielddict["HP"], fieldset)
         # main: fail
         with self.assertRaises(ValueError):
             self.sos_cleaner.apply_fieldrecon_file()
         # check: labels are untouched
-        for tablelist in self.sos_cleaner.url_to_tables.values():
+        for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
             for table in tablelist:
-                if {"Def", "Defense"}.isdisjoint(set(table.columns)):
+                if {"HP", "health-points"}.isdisjoint(set(table.columns)):
+                    logging.info("'HP' or equivalent not in '%s' section.", urlpath)
                     continue
-                self.assertNotIn("Defense", table.columns)
-                self.assertIn("Def", table.columns)
+                self.assertNotIn("health-points", table.columns)
+                self.assertIn("HP", table.columns)
 
 if __name__ == '__main__':
     unittest.main()
