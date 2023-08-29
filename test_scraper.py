@@ -2,23 +2,28 @@
 """
 Tests functionality of SerenesScraper methods
 """
-# pylint: disable=E1111,W3101
+# pylint: disable=E1111,E1136
+# pylint: disable=E1111
 
 import unittest
 import logging
-import json
+from datetime import datetime
 
 import requests as r
 import pandas as pd
 from bs4 import BeautifulSoup
 
-from aenir import scraper
+from aenir.scraper import SerenesScraper
 
 logging.basicConfig(level=logging.DEBUG, filename="log_test-scraper.log")
 
+logging.info("\n\nStarting test-run on '%s'\n\n", str(datetime.now()))
+
+# log datetime here
+
 class TestScraper(unittest.TestCase):
     """
-    Tests that the methods defined in scraper.SerenesScraper work.
+    Tests that the methods defined in SerenesScraper work.
     """
 
     def tearDown(self):
@@ -29,11 +34,10 @@ class TestScraper(unittest.TestCase):
 
     def setUp(self):
         """
-        Set up the scraper.SerenesScraper instance.
+        Set up the SerenesScraper instance.
         """
-        self.sos_scraper = scraper.SerenesScraper(6)
-        self.sos_scraper.tables_file = "mock_stats.db"
-        self.sos_scraper.home_dir.joinpath(self.sos_scraper.tables_file).unlink(missing_ok=True)
+        self.sos_scraper = SerenesScraper(6)
+        self.sos_scraper.tables_file = "MOCK-" + self.sos_scraper.tables_file
 
     def test__setattr_property(self):
         """
@@ -52,12 +56,12 @@ class TestScraper(unittest.TestCase):
 
     def test__init__gamenum_notin_numtoname(self):
         """
-        Tests that no scraper.SerenesScraper instance is created
+        Tests that no SerenesScraper instance is created
         if the game_name is not a string.
         """
         logging.info("Asserting that __init__ fails when its argument is not in NUM_TO_NAME.")
         with self.assertRaises(KeyError):
-            nonexistent_scraper = scraper.SerenesScraper(None)
+            nonexistent_scraper = SerenesScraper(None)
         with self.assertRaises(NameError):
             del nonexistent_scraper
 
@@ -101,7 +105,9 @@ class TestScraper(unittest.TestCase):
             self.assertIsInstance(table, pd.DataFrame)
             self.assertFalse(table.empty)
         bases_src = "https://serenesforest.net/binding-blade/characters/base-stats/"
-        num_html_tables = len(BeautifulSoup(r.get(bases_src).text, 'html.parser').find_all("table"))
+        num_html_tables = len(
+                BeautifulSoup(r.get(bases_src, timeout=1).text, 'html.parser').find_all("table")
+                )
         self.assertEqual(num_html_tables, len(self.sos_scraper.url_to_tables[section_page]))
 
     def test_save_tables(self):
@@ -118,7 +124,7 @@ class TestScraper(unittest.TestCase):
         self.assertTrue(db_path.exists())
         table_name_root = "characters__growth_rates"
         source_url = "/".join( [self.sos_scraper.home_url, section_page] )
-        response = r.get(source_url)
+        response = r.get(source_url, timeout=1)
         fetched_table = pd.read_html(response.text)[0]
         sql_table = pd.read_sql_table(table_name_root + '0', "sqlite:///" + str(db_path))
         self.assertFalse(sql_table.empty)

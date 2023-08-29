@@ -3,7 +3,6 @@
 Fetches data tables off https://serenesforest.net/
 Stores data tables into SQL databases, and loads them.
 """
-# pylint: disable=W3101
 
 import logging
 
@@ -26,14 +25,14 @@ class SerenesScraper(SerenesBase):
         - home_url: Determines whence to begin scraping operations.
         - url_to_tables: section/page -> list[pd.DataFrame]
         """
-        logging.info("self.__init__(self, %s)", game_num)
+        logging.info("\nself.__init__(self, %s)", game_num)
         SerenesBase.__init__(self, game_num)
         self._home_url = "/".join((self.URL_ROOT, self.game_name))
         logging.info("self.home_url = \"%s\"", self.home_url)
         self.tables_file = "raw_stats.db"
         if check_if_url_exists:
             logging.info("requests.get(\"%s\")", self.home_url)
-            response = r.get(self.home_url)
+            response = r.get(self.home_url, timeout=1)
             logging.info("requests.raise_for_status() # Checking for errors")
             response.raise_for_status()
             logging.info("requests.raise_for_status() # OK")
@@ -52,12 +51,13 @@ class SerenesScraper(SerenesBase):
         Tables are stored in self.url_to_tables[urlpath] list
         as pd.DataFrame objects.
         """
+        logging.info("\nself.scrape_tables('%s')", urlpath)
         if not isinstance(urlpath, str):
             logging.warning("not isinstance('%s', str)", urlpath)
             raise TypeError
         table_url = "/".join([self.home_url, urlpath])
         logging.info("requests.get(\"%s\")", table_url)
-        response = r.get(table_url)
+        response = r.get(table_url, timeout=1)
         logging.info("requests.raise_for_status() # Checking for errors")
         response.raise_for_status()
         logging.info("requests.raise_for_status() # OK")
@@ -70,6 +70,7 @@ class SerenesScraper(SerenesBase):
         Saves pd.DataFrame tables to self.get_datafile_path(self.tables_file).
         Clears self.url_to_tables[urlpath] := list[pd.DataFrame].
         """
+        logging.info("\nself.save_tables('%s')", urlpath)
         tablename = self.page_dict[urlpath]
         tableindex = 0
         self.home_dir.mkdir(exist_ok=True, parents=True)
@@ -93,6 +94,7 @@ class SerenesScraper(SerenesBase):
         Stores tables as pd.DataFrame objects in
         self.url_to_tables[urlpath] := list[pd.DataFrame]
         """
+        logging.info("\nself.load_tables('%s')", urlpath)
         save_dir = str(self.home_dir.joinpath(self.tables_file))
         tablename_root = self.page_dict[urlpath]
         self.url_to_tables[urlpath] = []
