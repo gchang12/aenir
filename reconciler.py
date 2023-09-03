@@ -40,21 +40,5 @@ class SerenesReconciler(SerenesCleaner):
         # rtable_column: (rtable, to_col)
         pass
 
-    def sanitize_all_tables(self):
-        """
-        for table in tables:
-            drop_nonnumeric_rows
-            replace_with_int_df
-        try: create_fieldrecon_file
-        except: apply_fieldrecon_file
-        """
-        for urlpath in self.url_to_tables:
-            self.drop_nonnumeric_rows(urlpath)
-            self.replace_with_int_df(urlpath)
-        try:
-            self.create_fieldrecon_file()
-        except FileExistsError:
-            self.apply_fieldrecon_file()
-
 if __name__ == '__main__':
     pass

@@ -53,68 +53,6 @@ class TestCleaner(unittest.TestCase):
         for urlpath in self.sos_cleaner.page_dict:
             self.sos_cleaner.load_tables(urlpath)
 
-    def test_replace_with_int_df(self):
-        """
-        Tests that the method:
-        - temporarily removes non-numeric columns
-        - converts remaining cells to numeric strings
-        - converts cell.dtypes to int
-        - reinserts non-numeric columns where they previously were
-        """
-        logging.info("Testing 'replace_with_int_df' method...")
-        urlpath = "characters/base-stats"
-        columns = ["Name", "Class", "Affin", "Weapon ranks"]
-        # get table
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        # create bad value to be cleaned
-        bad_hp = str(bases_table.at[0, "HP"]) + " *"
-        bases_table.at[0, "HP"] = bad_hp
-        # get copy of the table pre-call
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
-        # main
-        self.sos_cleaner.replace_with_int_df(urlpath, columns)
-        # compile after-values
-        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        # assert: columns are in their original places
-        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
-        # assert: contents remain identical
-        self.assertTrue( all(new_bases_table == bases_table) )
-        # assert: bad HP value is not in the 'HP' column.
-        self.assertNotIn(bad_hp, set(new_bases_table["HP"]))
-
-    def test_replace_with_int_df__column_dne(self):
-        """
-        Tests that the method fails if:
-        - the column list is not in the field list.
-        """
-        logging.info(
-                "Testing 'replace_with_int_df' method when 'columns' is not a subset of df.columns."
-                )
-        urlpath = "characters/base-stats"
-        columns = [""]
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        # create bad value to be cleaned
-        bad_hp = str(bases_table.at[0, "HP"]) + " *"
-        bases_table.at[0, "HP"] = bad_hp
-        # compile before-values for comparison
-        #bases_table.drop(columns, inplace=True)
-        # main
-        with self.assertRaises(ValueError):
-            self.sos_cleaner.replace_with_int_df(urlpath, columns)
-        # assert: before-values are not numerical
-        #self.assertTrue( not all(bases_table.dtypes == int) )
-        # compile after-values
-        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        # assert: columns are in their original places
-        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
-        # assert: numeric columns are of int-dtype
-        #new_bases_table.drop(columns, inplace=True)
-        #self.assertFalse( all(new_bases_table.dtypes == int) )
-        # assert: contents remain identical
-        self.assertTrue( all(new_bases_table == bases_table) )
-        # assert: bad HP value is still in the 'HP' column.
-        self.assertIn(bad_hp, set(new_bases_table.loc[:, "HP"]))
-
     def test_create_fieldrecon_file(self):
         """
         Tests that a JSON file containing a dict of

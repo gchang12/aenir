@@ -4,6 +4,7 @@ Defines tests for the SerenesReconciler methods.
 """
 
 import unittest
+import logging
 
 from aenir.reconciler import SerenesReconciler
 
@@ -41,8 +42,14 @@ class TestReconciler(unittest.TestCase):
                 self.sos_reconciler.save_tables(urlpath)
         for urlpath in self.sos_reconciler.page_dict:
             self.sos_reconciler.load_tables(urlpath)
-        # clean data
-        self.sos_reconciler.sanitize_all_tables()
+            self.sos_reconciler.drop_nonnumeric_rows(urlpath)
+        # create mappings here
+        if not self.sos_reconciler.get_datafile_path(self.sos_reconciler.fieldrecon_json).exists():
+            self.sos_reconciler.create_fieldrecon_file()
+            logging.warning("Field-recon file does not exist. Terminating...")
+            exit()
+        else:
+            self.sos_reconciler.apply_fieldrecon_file()
 
     def tearDown(self):
         """
@@ -103,4 +110,4 @@ class TestReconciler(unittest.TestCase):
         self.assertSetEqual(set(ltable_to_rtable), set(ldict))
 
 if __name__ == '__main__':
-    pass
+    unittest.main()

@@ -28,50 +28,6 @@ class SerenesCleaner(SerenesScraper):
         SerenesScraper.__init__(self, game_num, check_if_url_exists=False)
         self.fieldrecon_json = "fieldrecon.json"
 
-    def replace_with_int_df(self, urlpath: str, columns: Iterable[str]):
-        """
-        Temporarily removes non-numeric columns.
-        Converts numeric columns to those of the integer dtype.
-        Reinserts non-numeric columns
-        """
-
-        logging.info(
-                "\nreplace_with_int_df(self, '%s', '%s')", urlpath, columns
-                )
-
-        def replace_with_int(cell: object):
-            """
-            Replaces a cell with itself cast to int.
-            """
-            new_cell = re.sub("[^0-9]*([0-9]+)[^0-9].*", "\\1", cell)
-            if new_cell.isnumeric():
-                new_cell = int(new_cell)
-            return new_cell
-
-        for index, table in enumerate(self.url_to_tables[urlpath]):
-            logging.info("Converting self.url_to_tables['%s'][%d]...", urlpath, index)
-            nonnumeric_columns = OrderedDict()
-            # original column set, for reference.
-            table_columns = tuple(table.columns)
-            # pop non-numeric columns
-            for column in columns:
-                if column not in table_columns:
-                    raise ValueError(f"{column} not a field in self.url_to_tables['{urlpath}'][%d]")
-                col_index = table_columns.index(column)
-                nonnumeric_columns[col_index] = (column, table.pop(column))
-            # convert dataframes to int-dataframes
-            int_df = table.applymap(replace_with_int)
-            # convert df.dtypes to optimal
-            #int_df = int_df.convert_dtypes()
-            # reinsert nonnumeric columns
-            for nn_index, column in nonnumeric_columns.items():
-                int_df.insert(nn_index, *column)
-            # reset url_to_tables entry
-            logging.info(
-                    "Conversion successful. Setting self.url_to_tables['%s'][%d]", urlpath, index
-                    )
-            self.url_to_tables[urlpath][index] = int_df
-
     def create_fieldrecon_file(self):
         """
         Compile a list of the unique fields in all compiled SQL tables.
