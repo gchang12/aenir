@@ -3,7 +3,6 @@
 Tests functionality of SerenesScraper methods
 """
 # pylint: disable=E1111,E1136
-# pylint: disable=E1111
 
 import unittest
 import logging
@@ -16,10 +15,7 @@ from bs4 import BeautifulSoup
 from aenir.scraper import SerenesScraper
 
 logging.basicConfig(level=logging.DEBUG, filename="log_test-scraper.log")
-
 logging.info("\n\nStarting test-run on '%s'\n\n", str(datetime.now()))
-
-# log datetime here
 
 class TestScraper(unittest.TestCase):
     """
