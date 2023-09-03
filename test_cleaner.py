@@ -12,7 +12,6 @@ import pandas as pd
 from aenir.cleaner import SerenesCleaner
 
 logging.basicConfig(filename="log_test-cleaner.log", level=logging.DEBUG)
-
 logging.info("\n\nStarting test-run on '%s'\n\n", str(datetime.now()))
 
 class TestCleaner(unittest.TestCase):
