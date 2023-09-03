@@ -33,10 +33,12 @@ class SerenesCleaner(SerenesScraper):
         Temporarily removes non-numeric columns.
         Converts numeric columns to those of the integer dtype.
         Reinserts non-numeric columns
+        * Some tables within a urlpath may contain differing columns
+        ** To use during finalization.
         """
 
         logging.info(
-                "\nreplace_with_int_df(self, '%s', '%s')", urlpath, columns
+                "\nreplace_with_int_df(self, '%s', *%s)", urlpath, columns
                 )
 
         def replace_with_int(cell: object):
@@ -120,7 +122,10 @@ class SerenesCleaner(SerenesScraper):
         logging.info("Applying field recon mapping to all df's.")
         for tablelist in self.url_to_tables.values():
             for index, table in enumerate(tablelist):
-                tablelist[index] = table.rename(fielddict, axis=1)
+                try:
+                    tablelist[index] = table.rename(fielddict, axis=1).drop(columns="DROP")
+                except KeyError:
+                    tablelist[index] = table.rename(fielddict, axis=1)
         logging.info("Applied field recon mapping to all df's.")
 
 if __name__ == "__main__":
