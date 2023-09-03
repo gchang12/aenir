@@ -49,7 +49,7 @@ class SerenesCleaner(SerenesScraper):
             json.dump(fieldname_dict, wfile, indent=4)
         logging.info("Successfully dumped field recon dict into JSON...")
 
-    def drop_nonnumeric_rows(self, urlpath: str, numeric_col: str = "HP"):
+    def drop_nonnumeric_rows(self, urlpath: str, numeric_col: str = "Def"):
         """
         Takes a urlpath as an argument, and drops the non-numeric rows
         for all tables indicated by the urlpath.
