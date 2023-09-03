@@ -78,22 +78,23 @@ class TestReconciler(unittest.TestCase):
         ltable, key_col, from_col = self.ltable_columns
         rtable, to_col = self.rtable_columns
         # gather set from left table.
-        ltable_df = self.sos_reconciler.url_to_tables[ltable][0]
         ldict = dict()
-        for index in ltable_df.index:
-            pkey = ltable_df.at[index, key_col]
-            pval = ltable_df.at[index, from_col]
-            ldict[pkey] = pval
+        for ltable_df in self.sos_reconciler.url_to_tables[ltable]:
+            ltable_df = self.sos_reconciler.url_to_tables[ltable][0]
+            for index in ltable_df.index:
+                pkey = ltable_df.at[index, key_col]
+                pval = ltable_df.at[index, from_col]
+                ldict[pkey] = pval
         # gather set from right table.
         # subtract right from left set.
-        rtable_df = self.sos_reconciler.url_to_tables[rtable][0]
-        for index in rtable_df.index:
-            if rtable_df.at[index, to_col] not in ldict.values():
-                continue
-            for pkey, pval in ldict.items():
-                if pval != rtable_df.at[index, to_col]:
+        for rtable_df in self.sos_reconciler.url_to_tables[rtable]:
+            for index in rtable_df.index:
+                if rtable_df.at[index, to_col] not in ldict.values():
                     continue
-                ldict.pop(pkey)
+                for pkey, pval in ldict.items():
+                    if pval != rtable_df.at[index, to_col]:
+                        continue
+                    ldict.pop(pkey)
         # ##run##
         self.sos_reconciler.create_namerecon_file(
                 self.ltable_columns,
