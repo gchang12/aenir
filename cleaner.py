@@ -7,6 +7,7 @@ import logging
 import re
 import json
 from typing import Iterable
+from collections import OrderedDict
 
 import pandas as pd
 from aenir.scraper import SerenesScraper
@@ -17,7 +18,7 @@ class SerenesCleaner(SerenesScraper):
     Defines methods for data cleanup process.
     """
 
-    def __init__(self, game_num):
+    def __init__(self, game_num: int):
         """
         Defines filename to be manually filled
         for field cleanup process, in addition to parent
@@ -38,18 +39,18 @@ class SerenesCleaner(SerenesScraper):
                 "\nreplace_with_int_df(self, '%s', '%s')", urlpath, columns
                 )
 
-        def replace_with_int(cell):
+        def replace_with_int(cell: object):
             """
             Replaces a cell with itself cast to int.
             """
             new_cell = re.sub("[^0-9]*([0-9]+)[^0-9].*", "\\1", cell)
             if new_cell.isnumeric():
-                return int(new_cell)
+                new_cell = int(new_cell)
             return new_cell
 
         for index, table in enumerate(self.url_to_tables[urlpath]):
             logging.info("Converting self.url_to_tables['%s'][%d]...", urlpath, index)
-            nonnumeric_columns = {}
+            nonnumeric_columns = OrderedDict()
             # original column set, for reference.
             table_columns = tuple(table.columns)
             # pop non-numeric columns

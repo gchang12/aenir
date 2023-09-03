@@ -29,13 +29,6 @@ class SerenesBase:
             "classes/promotion-gains": "classes__promotion_gains",
             }
 
-    URL_TO_COLUMN = {
-            "characters/base-stats": "char-bases",
-            "characters/growth-rates": "char-growths",
-            "classes/maximum-stats": "maxes",
-            "classes/promotion-gains": "promo",
-            }
-
     def __init__(self, game_num: int):
         """
         Initialize:
