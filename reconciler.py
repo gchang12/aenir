@@ -24,7 +24,6 @@ class SerenesReconciler(SerenesCleaner):
         Create object
         """
         SerenesCleaner.__init__(self, game_num)
-        pass
 
     def get_namerecon_json(self, ltable: str, rtable: str):
         """
