@@ -65,22 +65,18 @@ class TestCleaner(unittest.TestCase):
         urlpath = "characters/base-stats"
         columns = ["Name", "Class", "Affin", "Weapon ranks"]
         # get table
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
+        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # create bad value to be cleaned
         bad_hp = str(bases_table.at[0, "HP"]) + " *"
         bases_table.at[0, "HP"] = bad_hp
-        # compile before-values for comparison
-        # assert: before-values are not numerical
-        #self.assertTrue( not all(bases_table.dtypes == int) )
+        # get copy of the table pre-call
+        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
         # main
         self.sos_cleaner.replace_with_int_df(urlpath, columns)
         # compile after-values
         new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # assert: columns are in their original places
         self.assertCountEqual(new_bases_table.columns, bases_table.columns)
-        # assert: numeric columns are of int-dtype
-        # Note: presence of null-rows makes this assertion impossible
-        #self.assertTrue( all(new_bases_table.dtypes == int) )
         # assert: contents remain identical
         self.assertTrue( all(new_bases_table == bases_table) )
         # assert: bad HP value is not in the 'HP' column.
@@ -199,9 +195,11 @@ class TestCleaner(unittest.TestCase):
         self.sos_cleaner.apply_fieldrecon_file()
         # check that all instances of 'HP' have been replaced by 'health-points'
         for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
-            for table in tablelist:
+            for index, table in enumerate(tablelist):
                 if {"HP", "health-points"}.isdisjoint(set(table.columns)):
-                    logging.info("'HP' or equivalent not in '%s' section.", urlpath)
+                    logging.info(
+                            "'HP' or equivalent not in table #%d of '%s' section.", index, urlpath
+                            )
                     continue
                 self.assertNotIn("HP", table.columns)
                 self.assertIn("health-points", table.columns)
@@ -228,9 +226,11 @@ class TestCleaner(unittest.TestCase):
             self.sos_cleaner.apply_fieldrecon_file()
         # check: labels are untouched
         for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
-            for table in tablelist:
+            for index, table in enumerate(tablelist):
                 if {"HP", "health-points"}.isdisjoint(set(table.columns)):
-                    logging.info("'HP' or equivalent not in '%s' section.", urlpath)
+                    logging.info(
+                            "'HP' or equivalent not in table #%d of '%s' section.", index, urlpath
+                            )
                     continue
                 self.assertNotIn("health-points", table.columns)
                 self.assertIn("HP", table.columns)
