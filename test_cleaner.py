@@ -119,7 +119,7 @@ class TestCleaner(unittest.TestCase):
         logging.info("Testing 'apply_fieldrecon_file' method...")
         # set up for main
         json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
-        fielddict = {"HP": "health-points"}
+        fielddict = {"HP": "health-points", "Mov": "DROP"}
         with open(json_path, mode='w', encoding='utf-8') as wfile:
             json.dump(fielddict, wfile)
         # check: nonexistent mapping is not already in the dataframes
@@ -128,11 +128,14 @@ class TestCleaner(unittest.TestCase):
             for table in tablelist:
                 fieldset.update(set(table.columns))
         self.assertNotIn(fielddict["HP"], fieldset)
+        self.assertIn("Mov", fieldset)
         # main
         self.sos_cleaner.apply_fieldrecon_file()
         # check that all instances of 'HP' have been replaced by 'health-points'
         for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
             for index, table in enumerate(tablelist):
+                self.assertNotIn("Mov", table.columns)
+                self.assertNotIn("DROP", table.columns)
                 if {"HP", "health-points"}.isdisjoint(set(table.columns)):
                     logging.info(
                             "'HP' or equivalent not in table #%d of '%s' section.", index, urlpath
