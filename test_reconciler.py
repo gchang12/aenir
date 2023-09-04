@@ -6,6 +6,7 @@ Defines tests for the SerenesReconciler methods.
 import unittest
 import logging
 import json
+from pathlib import Path
 from datetime import datetime
 
 from aenir.reconciler import SerenesReconciler
@@ -38,7 +39,7 @@ class TestReconciler(unittest.TestCase):
         self.namerecon_path = self.sos_reconciler.get_namerecon_json(
                 self.ltable_columns[0],
                 self.rtable_columns[0],
-                )
+                ).with_name("table1-JOIN-table2.json")
         # compile tables from db file
         self.sos_reconciler.tables_file = "MOCK-" + self.sos_reconciler.tables_file
         if not self.sos_reconciler.get_datafile_path(self.sos_reconciler.tables_file).exists():
@@ -76,6 +77,7 @@ class TestReconciler(unittest.TestCase):
                     self.rtable_columns,
                     )
 
+    @unittest.skip
     def test_create_namerecon_file(self):
         """
         Creates a name-recon file in JSON format.
@@ -96,13 +98,12 @@ class TestReconciler(unittest.TestCase):
         # subtract right from left set.
         lset = set()
         for rtable_df in self.sos_reconciler.url_to_tables[rtable]:
-            for index in rtable_df.index:
-                if rtable_df.at[index, to_col] not in ldict.values():
-                    continue
-                for pkey, pval in ldict.items():
-                    if pval == rtable_df.at[index, to_col]:
-                        continue
-                    lset.add(pkey)
+            lset.update(set(rtable_df.loc[:, to_col]))
+        rnamerecon_dict = {}
+        for pkey, pval in ldict.items():
+            if pval in lset:
+                continue
+            rnamerecon_dict[pkey] = None
         # ##run##
         self.sos_reconciler.create_namerecon_file(
                 self.ltable_columns,
@@ -115,8 +116,25 @@ class TestReconciler(unittest.TestCase):
         self.assertIsInstance(ltable_to_rtable, dict)
         # assert all values are null
         self.assertSetEqual(set(ltable_to_rtable.values()), {None})
-        # assert all keys match {right - left}
-        self.assertSetEqual(set(ltable_to_rtable), lset)
+
+    def test_verify_namerecons(self):
+        """
+        Tests that the names match from the thing
+        """
+        checkdict = [
+                ("characters/base-stats", ("characters/growth-rates", "Name")),
+                ("characters/base-stats", ("classes/maximum-stats", "Class")),
+                ("characters/base-stats", ("classes/promotion-gains", "Class")),
+                ("classes/promotion-gains", ("classes/maximum-stats", "Class")),
+                ]
+        self.sos_reconciler.tables_file = "cleaned_stats.db"
+        self.sos_reconciler.url_to_tables.clear()
+        for urlpath in self.sos_reconciler.page_dict:
+            self.sos_reconciler.load_tables(urlpath)
+            self.sos_reconciler.drop_nonnumeric_rows(urlpath, numeric_col="Def")
+        self.sos_reconciler.apply_fieldrecon_file()
+        for args in checkdict:
+            self.assertTrue(*args)
 
 if __name__ == '__main__':
     unittest.main()

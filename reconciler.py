@@ -27,9 +27,9 @@ class SerenesReconciler(SerenesCleaner):
 
     def get_namerecon_json(self, ltable: str, rtable: str):
         """
-        Returns a pathlib.Path of the form, ltable_JOIN_rtable
+        Returns a pathlib.Path of the form, ltable-JOIN-rtable
         """
-        namerecon_table = self.URL_TO_TABLE[ltable] + "_JOIN_" + self.URL_TO_TABLE[rtable] + ".json"
+        namerecon_table = self.URL_TO_TABLE[ltable] + "-JOIN-" + self.URL_TO_TABLE[rtable] + ".json"
         return self.get_datafile_path(namerecon_table)
 
     def create_namerecon_file(self, ltable_columns: Tuple[str, str, str], rtable_columns: Tuple[str, str]):
@@ -40,7 +40,6 @@ class SerenesReconciler(SerenesCleaner):
         ltable, key_col, from_col = ltable_columns
         rtable, to_col = rtable_columns
         namerecon_dict = {}
-        nnamerecon_dict = {}
         namerecon_json = self.get_namerecon_json(ltable, rtable)
         if namerecon_json.exists():
             logging.info("namerecon_json exists")
@@ -54,16 +53,47 @@ class SerenesReconciler(SerenesCleaner):
         # gather set from right table.
         # subtract right from left set.
         logging.info("Compiling non-matching column-pairs")
+        rnamerecon_set = set()
         for rtable_df in self.url_to_tables[rtable]:
-            for index in rtable_df.index:
-                if rtable_df.at[index, to_col] not in namerecon_dict.values():
-                    continue
-                for pkey, pval in namerecon_dict.items():
-                    if pval == rtable_df.at[index, to_col]:
-                        continue
-                    nnamerecon_dict[pkey] = None
+            rnamerecon_set.update(set(rtable_df.loc[:, to_col]))
+        rnamerecon_dict = {}
+        for pkey, pval in namerecon_dict.items():
+            if pval in rnamerecon_set:
+                continue
+            rnamerecon_dict[pkey] = None
         with open(str(namerecon_json), mode='w', encoding='utf-8') as wfile:
-            json.dump(nnamerecon_dict, wfile)
+            json.dump(rnamerecon_dict, wfile, indent=4)
+
+    def verify_namerecons(self, ltable: str, rtable_columns: Tuple[str, str]):
+        """
+        """
+        # get table names here
+        rtable, to_col = rtable_columns
+        json_path = self.get_namerecon_json(ltable, rtable)
+        with open(str(json_path), encoding='utf-8') as rfile:
+            namerecon_dict = json.load(rfile)
+        rtable_set = set()
+        for rtable_df in self.url_to_tables[rtable]:
+            rtable_set.update(set(rtable_df.loc[:, to_col]))
+        # check if json is a subset of the thing
+        for value in namerecon_dict.values():
+            if value is None:
+                continue
+            if value not in rtable_set:
+                return False
+        return True
 
 if __name__ == '__main__':
-    pass
+    sos_dict = SerenesReconciler.URL_TO_TABLE.copy()
+    sos_dict["characters/base-stats"] = ("characters/base-stats", "Name", "Class")
+    sos_dict["characters/growth-rates"] = ("characters/growth-rates", "Name", "Name")
+    sos_dict["classes/maximum-stats"] = ("classes/maximum-stats", "Class", "Class")
+    sos_dict["classes/promotion-gains"] = ("classes/promotion-gains", "Class", "Class")
+    sos = SerenesReconciler(6)
+    sos.tables_file = "cleaned_stats.db"
+    for urlpath in sos.page_dict:
+        sos.load_tables(urlpath)
+    #sos.create_namerecon_file( ("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name") )
+    sos.create_namerecon_file( ("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class") )
+    sos.create_namerecon_file(sos_dict['characters/base-stats'], sos_dict['classes/maximum-stats'][:-1])
+    sos.create_namerecon_file(sos_dict['characters/base-stats'], sos_dict['classes/promotion-gains'][:-1])

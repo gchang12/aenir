@@ -96,9 +96,10 @@ class TestCleaner(unittest.TestCase):
         urlpath = "characters/growth-rates"
         self.sos_cleaner.drop_nonnumeric_rows(urlpath, numeric_col="HP")
         growths_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        growths_table.drop("Name", inplace=True, axis=1)
-        growths_table = growths_table.applymap(int).convert_dtypes()
-        self.assertNotIn("Name", growths_table, growths_table.columns)
+        # type-checking no longer necessary
+        #growths_table.drop("Name", inplace=True, axis=1)
+        #growths_table = growths_table.applymap(int).convert_dtypes()
+        #self.assertNotIn("Name", growths_table, growths_table.columns)
         #self.assertTrue( all(growths_table.dtypes == int) )
         self.assertTrue(
                 growths_table[pd.to_numeric(growths_table["HP"], errors="coerce").isnull()].empty
@@ -189,18 +190,24 @@ class TestCleaner(unittest.TestCase):
         # get table
         bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # create bad value to be cleaned
-        bad_hp = str(bases_table.at[0, "HP"]) + " *"
+        bad_hp = "-" + str(bases_table.at[0, "HP"]) + " *"
         bases_table.at[0, "HP"] = bad_hp
         # get copy of the table pre-call
         bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
         # main
+        #self.sos_cleaner.drop_nonnumeric_rows(urlpath)
         self.sos_cleaner.replace_with_int_df(urlpath, columns)
         # compile after-values
         new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # assert: columns are in their original places
-        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
+        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
         # assert: contents remain identical
+        #new_bases_table = new_bases_table[pd.to_numeric(new_bases_table['HP'], errors='coerce').notnull()]
+        #bases_table = bases_table[pd.to_numeric(bases_table['HP'], errors='coerce').notnull()]
         self.assertTrue( all(new_bases_table == bases_table) )
+        # assert: df is at optimal dtype
+        self.assertTrue( all(new_bases_table.dtypes == new_bases_table.convert_dtypes().dtypes) )
+        self.assertTrue( new_bases_table.at[0, "HP"] < 0)
         # assert: bad HP value is not in the 'HP' column.
         self.assertNotIn(bad_hp, set(new_bases_table["HP"]))
 
@@ -215,11 +222,12 @@ class TestCleaner(unittest.TestCase):
         urlpath = "characters/base-stats"
         columns = [""]
         bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
+        # compile before-values for comparison
+        #bases_table.drop(columns, inplace=True)
+        #self.sos_cleaner.drop_nonnumeric_rows(urlpath)
         # create bad value to be cleaned
         bad_hp = str(bases_table.at[0, "HP"]) + " *"
         bases_table.at[0, "HP"] = bad_hp
-        # compile before-values for comparison
-        #bases_table.drop(columns, inplace=True)
         # main
         with self.assertRaises(ValueError):
             self.sos_cleaner.replace_with_int_df(urlpath, columns)
@@ -228,11 +236,50 @@ class TestCleaner(unittest.TestCase):
         # compile after-values
         new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # assert: columns are in their original places
-        self.assertCountEqual(new_bases_table.columns, bases_table.columns)
+        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
         # assert: numeric columns are of int-dtype
         #new_bases_table.drop(columns, inplace=True)
         #self.assertFalse( all(new_bases_table.dtypes == int) )
         # assert: contents remain identical
+        #new_bases_table = new_bases_table[pd.to_numeric(new_bases_table['HP'], errors='coerce').notnull()]
+        #bases_table = bases_table[pd.to_numeric(bases_table['HP'], errors='coerce').notnull()]
+        self.assertTrue( all(new_bases_table == bases_table) )
+        # assert: bad HP value is still in the 'HP' column.
+        self.assertIn(bad_hp, set(new_bases_table.loc[:, "HP"]))
+
+    def test_replace_with_int_df__not_all_columns_listed(self):
+        """
+        Tests that the method fails if:
+        - the column list does not include all nonnumeric columns.
+        """
+        logging.info(
+                "Testing 'replace_with_int_df' method when 'columns' does not list all nummeric columns"
+                )
+        urlpath = "characters/base-stats"
+        columns = ["Name"]
+        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
+        # compile before-values for comparison
+        #bases_table.drop(columns, inplace=True)
+        #self.sos_cleaner.drop_nonnumeric_rows(urlpath)
+        # create bad value to be cleaned
+        bad_hp = str(bases_table.at[0, "HP"]) + " *"
+        bases_table.at[0, "HP"] = bad_hp
+        bases_table = bases_table.copy()
+        # main
+        with self.assertRaises(TypeError):
+            self.sos_cleaner.replace_with_int_df(urlpath, columns)
+        # assert: before-values are not numerical
+        #self.assertTrue( not all(bases_table.dtypes == int) )
+        # compile after-values
+        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
+        # assert: columns are in their original places
+        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
+        # assert: numeric columns are of int-dtype
+        #new_bases_table.drop(columns, inplace=True)
+        #self.assertFalse( all(new_bases_table.dtypes == int) )
+        # assert: contents remain identical
+        #new_bases_table = new_bases_table[pd.to_numeric(new_bases_table['HP'], errors='coerce').notnull()]
+        #bases_table = bases_table[pd.to_numeric(bases_table['HP'], errors='coerce').notnull()]
         self.assertTrue( all(new_bases_table == bases_table) )
         # assert: bad HP value is still in the 'HP' column.
         self.assertIn(bad_hp, set(new_bases_table.loc[:, "HP"]))
