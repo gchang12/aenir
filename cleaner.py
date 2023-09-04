@@ -28,7 +28,7 @@ class SerenesCleaner(SerenesScraper):
         SerenesScraper.__init__(self, game_num, check_if_url_exists=False)
         self.fieldrecon_json = "fieldrecon.json"
 
-    def replace_with_int_df(self, urlpath: str, columns: Iterable[str]):
+    def replace_with_int_df(self, urlpath: str, columns: Iterable[str] = []):
         """
         Temporarily removes non-numeric columns.
         Converts numeric columns to those of the integer dtype.
@@ -57,18 +57,19 @@ class SerenesCleaner(SerenesScraper):
             # original column set, for reference.
             table_columns = tuple(table.columns)
             # pop non-numeric columns
+            table_copy = table.copy()
             for column in columns:
                 if column not in table_columns:
-                    self.url_to_tables[urlpath][index] = table.copy()
-                    raise ValueError(f"{column} not a field in self.url_to_tables['{urlpath}'][%d]")
+                    self.url_to_tables[urlpath][index] = table_copy
+                    raise ValueError(f"'{column}' not in the column-set of self.url_to_tables['{urlpath}'][{index}]")
                 col_index = table_columns.index(column)
                 nonnumeric_columns[col_index] = (column, table.pop(column))
             # convert dataframes to int-dataframes
             try:
                 int_df = table.applymap(replace_with_int)
-            except TypeError as error:
-                self.url_to_tables[urlpath][index] = table.copy()
-                raise TypeError("Either not all nonnumeric columns were listed,"
+            except TypeError:
+                self.url_to_tables[urlpath][index] = table_copy
+                raise TypeError("Either not all nonnumeric columns were listed, "
                         "or this function has already been called.")
             # convert df.dtypes to optimal
             int_df = int_df.convert_dtypes()
