@@ -66,6 +66,7 @@ class SerenesReconciler(SerenesCleaner):
 
     def verify_namerecons(self, ltable: str, rtable_columns: Tuple[str, str]):
         """
+        Checks that all mapped names exist in target table.
         """
         # get table names here
         rtable, to_col = rtable_columns
@@ -91,16 +92,4 @@ class SerenesReconciler(SerenesCleaner):
             return True
 
 if __name__ == '__main__':
-    sos_dict = SerenesReconciler.URL_TO_TABLE.copy()
-    sos_dict["characters/base-stats"] = ("characters/base-stats", "Name", "Class")
-    sos_dict["characters/growth-rates"] = ("characters/growth-rates", "Name", "Name")
-    sos_dict["classes/maximum-stats"] = ("classes/maximum-stats", "Class", "Class")
-    sos_dict["classes/promotion-gains"] = ("classes/promotion-gains", "Class", "Class")
-    sos = SerenesReconciler(6)
-    sos.tables_file = "cleaned_stats.db"
-    for urlpath in sos.page_dict:
-        sos.load_tables(urlpath)
-    #sos.create_namerecon_file( ("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name") )
-    sos.create_namerecon_file( ("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class") )
-    sos.create_namerecon_file(sos_dict['characters/base-stats'], sos_dict['classes/maximum-stats'][:-1])
-    sos.create_namerecon_file(sos_dict['characters/base-stats'], sos_dict['classes/promotion-gains'][:-1])
+    pass

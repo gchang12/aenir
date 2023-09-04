@@ -123,7 +123,8 @@ class TestReconciler(unittest.TestCase):
 
     def test_verify_namerecons(self):
         """
-        Tests that the names match from the thing
+        Tests that the names match the target column of the target table.
+        # Warning: References *-JOIN-*.json files, and cleaned_stats.db, created off-screen. 
         """
         checkdict = [
                 ("characters/base-stats", ("characters/growth-rates", "Name")),
@@ -142,7 +143,8 @@ class TestReconciler(unittest.TestCase):
 
     def test_verify_namerecons__fail(self):
         """
-        Tests that the names match from the thing
+        Tests that the test fails if the names don't match the target column
+        # Warning: References *-JOIN-*.json files, and cleaned_stats.db, created off-screen. 
         """
         args = ("characters/base-stats", ("characters/growth-rates", "Name"))
         self.sos_reconciler.tables_file = "cleaned_stats.db"
