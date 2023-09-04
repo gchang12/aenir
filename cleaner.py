@@ -35,44 +35,52 @@ class SerenesCleaner(SerenesScraper):
         Reinserts non-numeric columns
         * Some tables within a urlpath may contain differing columns
         ** To use during finalization.
+        Note: Does not raise an error even if non-numeric rows exist.
         """
 
         logging.info(
                 "\nreplace_with_int_df(self, '%s', *%s)", urlpath, columns
                 )
 
-        def replace_with_int(cell: object):
+        def replace_with_int(cell: str) -> int:
             """
             Replaces a cell with itself cast to int.
             """
-            new_cell = re.sub("[^0-9]*([0-9]+)[^0-9].*", "\\1", cell)
-            if new_cell.isnumeric():
+            new_cell = re.sub("[^0-9+-]*([-+]?[0-9]+).*", "\\1", cell)
+            if re.fullmatch("[-+]?[0-9]+", new_cell):
                 new_cell = int(new_cell)
             return new_cell
 
+        nonnumeric_columns = OrderedDict()
         for index, table in enumerate(self.url_to_tables[urlpath]):
             logging.info("Converting self.url_to_tables['%s'][%d]...", urlpath, index)
-            nonnumeric_columns = OrderedDict()
             # original column set, for reference.
             table_columns = tuple(table.columns)
             # pop non-numeric columns
             for column in columns:
                 if column not in table_columns:
+                    self.url_to_tables[urlpath][index] = table.copy()
                     raise ValueError(f"{column} not a field in self.url_to_tables['{urlpath}'][%d]")
                 col_index = table_columns.index(column)
                 nonnumeric_columns[col_index] = (column, table.pop(column))
             # convert dataframes to int-dataframes
-            int_df = table.applymap(replace_with_int)
+            try:
+                int_df = table.applymap(replace_with_int)
+            except TypeError as error:
+                self.url_to_tables[urlpath][index] = table.copy()
+                raise TypeError("Either not all nonnumeric columns were listed,"
+                        "or this function has already been called.")
             # convert df.dtypes to optimal
-            #int_df = int_df.convert_dtypes()
+            int_df = int_df.convert_dtypes()
             # reinsert nonnumeric columns
             for nn_index, column in nonnumeric_columns.items():
                 int_df.insert(nn_index, *column)
             # reset url_to_tables entry
+            nonnumeric_columns.clear()
             logging.info(
                     "Conversion successful. Setting self.url_to_tables['%s'][%d]", urlpath, index
                     )
-            self.url_to_tables[urlpath][index] = int_df
+            self.url_to_tables[urlpath][index] = int_df.convert_dtypes()
 
     def create_fieldrecon_file(self):
         """

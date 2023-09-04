@@ -82,5 +82,10 @@ class SerenesBase:
         """
         return self.home_dir.joinpath(filename)
 
+    def get_urlname(self, tablename: str):
+        """
+        """
+        return tablename.replace("__", "/").replace("_", "-")
+
 if __name__ == '__main__':
     pass
