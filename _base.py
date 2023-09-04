@@ -13,7 +13,7 @@ class SerenesBase:
     and data management classes.
     """
 
-    NUM_TO_NAME = {
+    _NUM_TO_NAME = {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
             6: "binding-blade",
@@ -22,7 +22,7 @@ class SerenesBase:
             9: "path-of-radiance",
             }
 
-    URL_TO_TABLE = {
+    _URL_TO_TABLE = {
             "characters/base-stats": "characters__base_stats",
             "characters/growth-rates": "characters__growth_rates",
             "classes/maximum-stats": "classes__maximum_stats",
@@ -40,6 +40,20 @@ class SerenesBase:
         self._game_name = self.NUM_TO_NAME[self._game_num]
         self._home_dir = Path("data", self._game_name)
         self._url_to_tables = {}
+
+    @property
+    def URL_TO_TABLE(self):
+        """
+        Get:    {urlpath: urlpath.replace("/", "__").replace("-", "_")
+        """
+        return self._URL_TO_TABLE
+
+    @property
+    def NUM_TO_NAME(self):
+        """
+        Get:    {num: game-title as it appears on SF.net}
+        """
+        return self._NUM_TO_NAME
 
     @property
     def game_num(self):
@@ -84,6 +98,7 @@ class SerenesBase:
 
     def get_urlname(self, tablename: str):
         """
+        Maps: str -> str.replace(self, "__", "/").replace("_", "-")
         """
         return tablename.replace("__", "/").replace("_", "-")
 
