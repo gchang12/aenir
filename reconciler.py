@@ -76,12 +76,19 @@ class SerenesReconciler(SerenesCleaner):
         for rtable_df in self.url_to_tables[rtable]:
             rtable_set.update(set(rtable_df.loc[:, to_col]))
         # check if json is a subset of the thing
+        nonexistent_values = set()
         for value in namerecon_dict.values():
             if value is None:
                 continue
             if value not in rtable_set:
-                return False
-        return True
+                nonexistent_values.add(value)
+        if nonexistent_values:
+            logging.info("%s-JOIN-%s has missing values:", ltable, rtable)
+            for value in nonexistent_values:
+                logging.info(value)
+            return False
+        else:
+            return True
 
 if __name__ == '__main__':
     sos_dict = SerenesReconciler.URL_TO_TABLE.copy()
