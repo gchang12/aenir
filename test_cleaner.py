@@ -186,7 +186,7 @@ class TestCleaner(unittest.TestCase):
         """
         logging.info("Testing 'replace_with_int_df' method...")
         urlpath = "characters/base-stats"
-        columns = ["Name", "Class", "Affin", "Weapon ranks"]
+        columns = ["Class", "Name", "Affin", "Weapon ranks", "Name"]
         # get table
         bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
         # create bad value to be cleaned
@@ -207,7 +207,7 @@ class TestCleaner(unittest.TestCase):
         self.assertTrue( all(new_bases_table == bases_table) )
         # assert: df is at optimal dtype
         self.assertTrue( all(new_bases_table.dtypes == new_bases_table.convert_dtypes().dtypes) )
-        self.assertTrue( new_bases_table.at[0, "HP"] < 0)
+        self.assertTrue( new_bases_table.at[0, "HP"] < 0 )
         # assert: bad HP value is not in the 'HP' column.
         self.assertNotIn(bad_hp, set(new_bases_table["HP"]))
 

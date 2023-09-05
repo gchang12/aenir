@@ -7,7 +7,6 @@ import logging
 import re
 import json
 from typing import Iterable
-from collections import OrderedDict
 
 import pandas as pd
 from aenir.scraper import SerenesScraper
@@ -51,14 +50,14 @@ class SerenesCleaner(SerenesScraper):
                 new_cell = int(new_cell)
             return new_cell
 
-        nonnumeric_columns = OrderedDict()
+        nonnumeric_columns = {}
         for index, table in enumerate(self.url_to_tables[urlpath]):
             logging.info("Converting self.url_to_tables['%s'][%d]...", urlpath, index)
             # original column set, for reference.
             table_columns = tuple(table.columns)
             # pop non-numeric columns
             table_copy = table.copy()
-            for column in columns:
+            for column in set(columns):
                 if column not in table_columns:
                     self.url_to_tables[urlpath][index] = table_copy
                     raise ValueError(f"'{column}' not in the column-set of self.url_to_tables['{urlpath}'][{index}]")
@@ -74,7 +73,8 @@ class SerenesCleaner(SerenesScraper):
             # convert df.dtypes to optimal
             int_df = int_df.convert_dtypes()
             # reinsert nonnumeric columns
-            for nn_index, column in nonnumeric_columns.items():
+            for nn_index in sorted(nonnumeric_columns):
+                column = nonnumeric_columns[nn_index]
                 int_df.insert(nn_index, *column)
             # reset url_to_tables entry
             nonnumeric_columns.clear()
