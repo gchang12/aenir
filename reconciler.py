@@ -84,9 +84,9 @@ class SerenesReconciler(SerenesCleaner):
             if value not in rtable_set:
                 nonexistent_values.add(value)
         if nonexistent_values:
-            logging.info("%s-JOIN-%s has missing values:", ltable, rtable)
-            for value in nonexistent_values:
-                logging.info(value)
+            ne_value_str = "\n".join(nonexistent_values)
+            logging.warning("%s-JOIN-%s has missing values:\n%s",
+                    ltable, rtable, ne_value_str)
             return False
         else:
             return True
