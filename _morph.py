@@ -26,9 +26,7 @@ class BaseMorph(SerenesReconciler):
     def set_level(self, tgt_level: int):
         pass
 
-    def get_maxlevel(self):
-        pass
-
+    # composite functions
     def level_up(self, num_levels: int):
         self.set_level
         self.modify_stats
