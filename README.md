@@ -58,7 +58,7 @@ reconciler
 --what if the file dne
 
 
-// 2023-09-07
+// 2023-09-06
 assert converted url is in keys
 write tests for ScraperTest
 rewrite tests
@@ -68,3 +68,6 @@ remove subclassing of aseMorph
   --need to know everything that can go wrong
     --everything encompasses a large universe of scenariosthat will happen onlyon the dev-side of things
         --put it like this: only one fnction can permanently damageyou=r work
+
+// 2023-09-07
+move scraper method to \_base.py
