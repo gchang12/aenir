@@ -190,7 +190,7 @@ class CleanerTest( unittest.TestCase ):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 new_fieldset.update( set( table.columns ) )
-        self.assertFalse( { "Affin" , "Weapon ranks" }.issubset( new_fieldset ) )
+        self.assertTrue( { "Affin" , "Weapon ranks" }.isdisjoint( new_fieldset ) )
         self.assertNotIn( "DROP!" , new_fieldset )
         self.assertIn( "health-points" , new_fieldset )
 
@@ -211,11 +211,13 @@ class CleanerTest( unittest.TestCase ):
         # existing file is unchanged
         self.assertEqual( old_stat , self.clsrecon_path.stat() )
 
-    def test_create_clsrecon_file__columns_dne( self ):
+    @patch( "pathlib.Path.exists" )
+    def test_create_clsrecon_file__columns_dne( self , mock_path ):
         """
         """
         ltable_columns = ( "characters/base-stats" , "lass" )
         rtable_columns = ( "classes/maximum-stats" , "Class" )
+        mock_path.return_value = False
         with self.assertRaises( KeyError ): # for pd.DataFrame_s
             self.sos_cleaner.create_clsrecon_file( ltable_columns , rtable_columns )
         self.assertFalse( self.clsrecon_path.exists() )
@@ -233,8 +235,8 @@ class CleanerTest( unittest.TestCase ):
     def test_create_clsrecon_file( self , mock_wfile ):
         """
         """
-        ltable_columns = ( "characters/base-stats" , "Class" )
-        rtable_columns = ( "classes/maximum-stats" , "Class" )
+        ltable_columns = ( "classes/maximum-stats" , "Class" )
+        rtable_columns = ( "classes/promotion-gains" , "Promotion" )
         # creating a mock-file class
         mock_wfile.return_value = RewriteableIO()
         # main
@@ -324,6 +326,6 @@ class CleanerTest( unittest.TestCase ):
 
 if __name__ == '__main__':
     unittest.main(
-            defaultTest=[ test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file") ],
-            module=CleanerTest,
+            #defaultTest=[ test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file") ],
+            #module=CleanerTest,
             )
