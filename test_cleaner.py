@@ -5,6 +5,7 @@
 import re
 import json
 import unittest
+from unittest.mock import patch
 
 from aenir.cleaner import SerenesCleaner
 
@@ -181,9 +182,9 @@ class CleanerTest( unittest.TestCase ):
         self.assertFalse( { "Affin" , "Weapon ranks" , "DROP!" }.issubset( new_fieldset ) )
         self.assertIn( "health-points" , new_fieldset )
 
-
-    # may have to mock some stuff
-    def test_create_clsrecon_file__file_exists( self ):
+    # may have to mock some io-stuff
+    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
+    def test_create_clsrecon_file__file_exists( self , mock_clsrecon_file ):
         """
         """
         ltable_columns = ( "characters/base-stats" , "Class" )
@@ -197,15 +198,21 @@ class CleanerTest( unittest.TestCase ):
         # existing file is unchanged
         self.assertEqual( old_stat , clsrecon_file.stat() )
 
-
     # may have to mock some stuff
-    def test_create_clsrecon_file( self ):
+    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
+    def test_create_clsrecon_file( self , mock_clsrecon_file ):
         """
         """
         pass
 
+    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
+    def test_verify_clsrecon_file__file_dne( self , mock_clsrecon_file ):
+        """
+        """
+        pass
 
-    def test_verify_clsrecon_file( self ):
+    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
+    def test_verify_clsrecon_file( self , mock_clsrecon_file ):
         """
         """
         # false positives
