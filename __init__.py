@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 """
-This file exists so that these files know
-that this is a module
 """
 
 if __name__ == '__main__':
+    # https://github.com/gchang12/aenir
     pass

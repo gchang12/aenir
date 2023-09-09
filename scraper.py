@@ -2,76 +2,54 @@
 """
 """
 
+from pathlib import Path
 import logging
 
-import requests as r
+import requests
 import pandas as pd
 
-from aenir._base import SerenesBase
 
-class SerenesScraper(SerenesBase):
+class SerenesScraper:
     """
     """
 
-    URL_ROOT = "https://serenesforest.net/"
+    NUM_TO_NAME = {
+            4: "genealogy-of-the-holy-war",
+            5: "thracia-776",
+            6: "binding-blade",
+            7: "blazing-sword",
+            8: "the-sacred-stones",
+            9: "path-of-radiance",
+            }
 
-    def __init__(self, game_num: int, check_if_url_exists=True):
-        """
-        """
-        SerenesBase.__init__(self, game_num)
-        self._home_url = "/".join((self.URL_ROOT, self.game_name))
-        self.tables_file = "raw_stats.db"
-        if check_if_url_exists:
-            response = r.get(self.home_url, timeout=1)
-            response.raise_for_status()
+    URL_TO_TABLE = {
+            "characters/base-stats": "characters__base_stats",
+            "characters/growth-rates": "characters__growth_rates",
+            "classes/maximum-stats": "classes__maximum_stats",
+            "classes/promotion-gains": "classes__promotion_gains",
+            }
 
-    @property
-    def home_url(self):
+    def __init__(self, game_num: int):
         """
         """
-        return self._home_url
+        # all of these attributes are implicitly properties
+        self.game_num = game_num
+        self.page_dict = self.URL_TO_TABLE.copy()
+        self.game_name = self.NUM_TO_NAME[self.game_num]
+        self.home_dir = Path("data", self.game_name)
+        self.url_to_tables = {}
 
-    def scrape_tables(self, urlpath: str):
+    def get_datafile_path(self, filename: str):
         """
         """
-        if not isinstance(urlpath, str):
-            raise TypeError
-        table_url = "/".join([self.home_url, urlpath])
-        response = r.get(table_url, timeout=1)
-        response.raise_for_status()
-        self.url_to_tables[urlpath] = pd.read_html(response.text)
+        return self.home_dir.joinpath(filename)
 
-    def save_tables(self, urlpath: str):
+    def get_urlname(self, tablename: str):
         """
         """
-        tablename = self.page_dict[urlpath]
-        tableindex = 0
-        self.home_dir.mkdir(exist_ok=True, parents=True)
-        save_dir = str(self.home_dir.joinpath(self.tables_file))
-        while self.url_to_tables[urlpath]:
-            table = self.url_to_tables[urlpath].pop(0)
-            name = tablename + str(tableindex)
-            con = "sqlite:///" + save_dir
-            table.to_sql(name, con, index=False)
-            tableindex += 1
-        del self.url_to_tables[urlpath]
-
-    def load_tables(self, urlpath: str):
-        """
-        """
-        save_dir = str(self.home_dir.joinpath(self.tables_file))
-        tablename_root = self.page_dict[urlpath]
-        self.url_to_tables[urlpath] = []
-        tableindex = 0
-        while True:
-            table_name = tablename_root + str(tableindex)
-            con = "sqlite:///" + save_dir
-            try:
-                table = pd.read_sql_table(table_name, con)
-                tableindex += 1
-                self.url_to_tables[urlpath].append(table)
-            except ValueError:
-                break
+        urlname = tablename.replace("__", "/").replace("_", "-")
+        assert urlname in self.page_dict
+        return urlname
 
 if __name__ == '__main__':
     pass
