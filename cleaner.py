@@ -50,10 +50,10 @@ class SerenesCleaner( SerenesTranscriber ):
     def create_fieldrecon_file( self ):
         """
         """
-        fieldname_set = set()
         fieldrecon_json = self.home_dir.joinpath( self.fieldrecon_file )
         if fieldrecon_json.exists():
             raise FileExistsError
+        fieldname_set = set()
         for tableset in self.url_to_tables.values():
             for table in tableset:
                 fieldname_set.update( set( table.columns ) )
@@ -64,14 +64,25 @@ class SerenesCleaner( SerenesTranscriber ):
     def apply_fieldrecon_file( self ):
         """
         """
-        pass
+        fieldrecon_json = str( self.home_dir.joinpath( self.fieldrecon_file ) )
+        with open( fieldrecon_json , encoding='utf-8' ) as rfile:
+            fieldrecon_dict = json.load( rfile )
+        if None in fieldrecon_dict.values():
+            raise ValueError
+        for tablelist in self.url_to_tables.values():
+            for table in tablelist:
+                table.rename( columns=fieldrecon_dict , inplace=True )
+                try:
+                    table.drop( "DROP!" , inplace=True )
+                except KeyError:
+                    pass
 
-    def create_namerecon_file( self , ltable_columns: Tuple[str , str] , rtable_columns: Tuple[str , str] ):
+    def create_clsrecon_file( self , ltable_columns: Tuple[ str , str ] , rtable_columns: Tuple[ str , str ] ):
         """
         """
         pass
 
-    def verify_namerecon_file( self , ltable: str , rtable_columns: Tuple[str , str] ):
+    def verify_clsrecon_file( self , ltable: str , rtable_columns: Tuple[ str , str ] ):
         """
         """
         pass
