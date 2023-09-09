@@ -9,13 +9,19 @@ import pandas as pd
 from aenir.scraper import SerenesScraper
 
 class SerenesTranscriber( SerenesScraper ):
+    """
+    """
     
     def __init__( self , game_num: int ):
+        """
+        """
         SerenesScraper.__init__( self , game_num )
         self.home_dir = Path( "data" , self.game_name )
         self.tables_file = "raw_stats.db"
 
     def save_tables( self , urlpath: str ):
+        """
+        """
         # add in checks here
         if not self.url_to_tables[ urlpath ]:
             raise ValueError
@@ -38,6 +44,8 @@ class SerenesTranscriber( SerenesScraper ):
         del self.url_to_tables[ urlpath ]
 
     def load_tables( self , urlpath: str ):
+        """
+        """
         save_path = self.home_dir.joinpath( self.tables_file )
         if not save_path.exists():
             raise FileNotFoundError
@@ -56,6 +64,8 @@ class SerenesTranscriber( SerenesScraper ):
                 break
 
     def get_urlname_from_tablename( self , tablename: str ):
+        """
+        """
         urlname = tablename.replace( "__" , "/" ).replace( "_" , "-" )
         #!will raise AssertionError for invalid tablenames
         assert urlname in self.page_dict

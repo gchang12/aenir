@@ -11,12 +11,18 @@ from aenir.transcriber import SerenesTranscriber
 
 
 class TranscriberTest( unittest.TestCase ):
+    """
+    """
 
     def setUp( self ):
+        """
+        """
         self.sos_transcriber = SerenesTranscriber( 6 )
         self.sos_transcriber.tables_file = "MOCK-" + self.sos_transcriber.tables_file
 
     def tearDown( self ):
+        """
+        """
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
                 self.sos_transcriber.tables_file
                 )
@@ -28,6 +34,8 @@ class TranscriberTest( unittest.TestCase ):
             pass
 
     def test_save_tables__failures( self ):
+        """
+        """
         urlpath = "characters/base-stats"
         # main: fails because there are no tables
         self.sos_transcriber.url_to_tables[ urlpath ] = []
@@ -56,6 +64,8 @@ class TranscriberTest( unittest.TestCase ):
         self.assertFalse( self.sos_transcriber.home_dir.joinpath( tables_file ).exists() )
 
     def test_saveload_tables( self ):
+        """
+        """
         urlpath = "characters/base-stats"
         # compile tables
         self.sos_transcriber.scrape_tables( urlpath )
@@ -78,6 +88,8 @@ class TranscriberTest( unittest.TestCase ):
         self.assertTrue( all( saved_bases == loaded_bases ) )
 
     def test_load_tables__failures( self ):
+        """
+        """
         urlpath = "characters/base-stats"
         # main: fails because file does not exist
         self.sos_transcriber.tables_file = "nonexistent_file"
@@ -101,6 +113,8 @@ class TranscriberTest( unittest.TestCase ):
         self.assertListEqual( old_tablelist , new_tablelist )
 
     def test_get_urlname( self ):
+        """
+        """
         # get registered urlname
         tablename = "characters__base_stats"
         # expected output
@@ -112,6 +126,8 @@ class TranscriberTest( unittest.TestCase ):
         self.assertEqual( actual , expected )
 
     def test_get_urlname__dne( self ):
+        """
+        """
         # non-registered urlname
         tablename = "characters__baked_fat"
         # expected output

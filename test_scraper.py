@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+"""
+"""
 
 import unittest
 
@@ -8,12 +10,18 @@ import pandas as pd
 from aenir.scraper import SerenesScraper
 
 class ScraperTest( unittest.TestCase ):
+    """
+    """
 
     def setUp( self ):
+        """
+        """
         # create Scraper instance
         self.sos_scraper = SerenesScraper( 6 )
 
     def test_scrape_tables__failures( self ):
+        """
+        """
         # main: fails because argument is not a str
         with self.assertRaises( AssertionError ):
             self.sos_scraper.scrape_tables( None )
@@ -26,6 +34,8 @@ class ScraperTest( unittest.TestCase ):
         self.assertDictEqual( {} , self.sos_scraper.url_to_tables )
 
     def test_scrape_tables( self ):
+        """
+        """
         # scrape from this urlpath in {sf}/binding-blade
         urlpath = "characters/base-stats"
         # main
