@@ -19,6 +19,13 @@ class TranscriberTest( unittest.TestCase ):
         """
         self.sos_transcriber = SerenesTranscriber( 6 )
         self.sos_transcriber.tables_file = "MOCK-" + self.sos_transcriber.tables_file
+        try:
+            for fname in self.sos_transcriber.home_dir.iterdir():
+                fname.unlink()
+            self.sos_transcriber.home_dir.rmdir()
+            Path("data").rmdir()
+        except FileNotFoundError:
+            pass
 
     def tearDown( self ):
         """
