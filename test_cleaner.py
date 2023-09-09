@@ -190,7 +190,8 @@ class CleanerTest( unittest.TestCase ):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 new_fieldset.update( set( table.columns ) )
-        self.assertFalse( { "Affin" , "Weapon ranks" , "DROP!" }.issubset( new_fieldset ) )
+        self.assertFalse( { "Affin" , "Weapon ranks" }.issubset( new_fieldset ) )
+        self.assertNotIn( "DROP!" , new_fieldset )
         self.assertIn( "health-points" , new_fieldset )
 
     @patch( "pathlib.Path.exists" )
@@ -253,7 +254,7 @@ class CleanerTest( unittest.TestCase ):
     def test_verify_clsrecon_file__file_dne( self ):
         """
         """
-        ltable_url = "characters/base-stats"
+        ltable_url = "characters/growth-rates"
         rtable_columns = ( "classes/maximum-stats" , "Class" )
         with self.assertRaises( FileNotFoundError ):
             self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )

@@ -71,12 +71,11 @@ class SerenesCleaner( SerenesTranscriber ):
         if None in fieldrecon_dict.values():
             raise ValueError
         for tablelist in self.url_to_tables.values():
-            for table in tablelist:
-                table.rename( columns=fieldrecon_dict , inplace=True )
+            for index, table in enumerate(tablelist):
                 try:
-                    table.drop( "DROP!" , inplace=True )
+                    tablelist[ index ] = table.rename( columns=fieldrecon_dict ).drop( columns=["DROP!"] )
                 except KeyError:
-                    pass
+                    tablelist[ index ] = table.rename( columns=fieldrecon_dict )
 
     def create_clsrecon_file( self , ltable_columns: Tuple[ str , str ] , rtable_columns: Tuple[ str , str ] ):
         """
@@ -100,7 +99,7 @@ class SerenesCleaner( SerenesTranscriber ):
             clsrecon_dict.update(
                     {
                         primary_key: None for primary_key in
-                        ltable[ ~ltable[ fromcol_name ].isin( target_set ) ].iloc[ 0 , : ]
+                        ltable[ ~ltable[ fromcol_name ].isin( target_set ) ].iloc[ : , 0 ]
                         }
                     )
         # save: {result: null for result in resultset} |-> ltable-JOIN-rtable.json
