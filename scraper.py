@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+"""
+"""
 
 import requests
 import pandas as pd
@@ -7,8 +9,12 @@ from aenir._base import SerenesBase
 
 
 class SerenesScraper( SerenesBase ):
+    """
+    """
 
     def __init__( self , game_num: int ):
+        """
+        """
         SerenesBase.__init__( self , game_num )
         # list of default table-sets to scrape
         self.page_dict = {
@@ -21,6 +27,8 @@ class SerenesScraper( SerenesBase ):
         self.url_to_tables = {}
 
     def scrape_tables( self , urlpath: str ):
+        """
+        """
         #!will raise AssertionError if urlpath is not a str
         assert isinstance( urlpath , str )
         absolute_url = "/".join( [ self.URL_ROOT , self.game_name , urlpath ] )
