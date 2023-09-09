@@ -182,6 +182,7 @@ class CleanerTest( unittest.TestCase ):
         self.assertIn( "health-points" , new_fieldset )
 
 
+    # may have to mock some stuff
     def test_create_clsrecon_file__file_exists( self ):
         """
         """
@@ -196,10 +197,13 @@ class CleanerTest( unittest.TestCase ):
         # existing file is unchanged
         self.assertEqual( old_stat , clsrecon_file.stat() )
 
+
+    # may have to mock some stuff
     def test_create_clsrecon_file( self ):
         """
         """
         pass
+
 
     def test_verify_clsrecon_file( self ):
         """

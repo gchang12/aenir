@@ -80,6 +80,10 @@ class SerenesCleaner( SerenesTranscriber ):
     def create_clsrecon_file( self , ltable_columns: Tuple[ str , str ] , rtable_columns: Tuple[ str , str ] ):
         """
         """
+        ltable, fromcol_name = ltable_columns
+        rtable, tocol_name = rtable_columns
+        # resultset := (SELECT ltable.iloc[0, :] WHERE ltable[fromcol] NOT IN rtable[tocol]);
+        # save: {result: null for result in resultset} |-> ltable-JOIN-rtable.json
         pass
 
     def verify_clsrecon_file( self , ltable: str , rtable_columns: Tuple[ str , str ] ):
