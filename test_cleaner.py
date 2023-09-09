@@ -2,12 +2,22 @@
 """
 """
 
+import io
 import re
 import json
 import unittest
 from unittest.mock import patch
 
 from aenir.cleaner import SerenesCleaner
+
+class RewriteableIO( io.StringIO ):
+    """
+    """
+
+    def __exit__( self, *args, **kwargs ):
+        """
+        """
+        self.seek( 0 )
 
 
 class CleanerTest( unittest.TestCase ):
@@ -46,15 +56,15 @@ class CleanerTest( unittest.TestCase ):
         # check that all rows in a numeric column are numeric
         nonnumeric_columns = ( "Name" , "Class" , "Affin" , "Weapon ranks" )
         # for filter call
-        def is_numeric_col(col: object):
+        def is_numeric_col( col: object ):
             """
             """
             return col not in nonnumeric_columns
         # commence check
         for df in self.sos_cleaner.url_to_tables[ urlpath ]:
             for num_col in filter( is_numeric_col , df.columns ):
-                for stat in df.loc[:, num_col]:
-                    self.assertTrue( re.fullmatch( "[+-]?[0-9]+" , str(stat) ) is not None )
+                for stat in df.loc[ :, num_col ]:
+                    self.assertTrue( re.fullmatch( "[+-]?[0-9]+" , str( stat ) ) is not None )
 
     def test_replace_with_int_df( self ):
         """
@@ -71,14 +81,14 @@ class CleanerTest( unittest.TestCase ):
         # check that all rows in a numeric column are numeric
         nonnumeric_columns = ( "Name" , "Class" , "Affin" , "Weapon ranks" )
         # for filter call
-        def is_numeric_col(col: object):
+        def is_numeric_col( col: object ):
             """
             """
             return col not in nonnumeric_columns
         # commence check
         for df in self.sos_cleaner.url_to_tables[ urlpath ]:
             for num_col in filter( is_numeric_col , df.columns ):
-                for stat in df.loc[:, num_col]:
+                for stat in df.loc[ :, num_col ]:
                     # recall that non-numeric rows have not been dropped yet
                     if stat == num_col:
                         continue
@@ -182,37 +192,69 @@ class CleanerTest( unittest.TestCase ):
         self.assertFalse( { "Affin" , "Weapon ranks" , "DROP!" }.issubset( new_fieldset ) )
         self.assertIn( "health-points" , new_fieldset )
 
-    # may have to mock some io-stuff
-    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
+    @patch( "pathlib.Path.exists" )
     def test_create_clsrecon_file__file_exists( self , mock_clsrecon_file ):
         """
         """
         ltable_columns = ( "characters/base-stats" , "Class" )
-        rtable_columns = ( "characters/maximum-stats" , "Class" )
+        rtable_columns = ( "classes/maximum-stats" , "Class" )
         # 1: the file may already exist
         self.clsrecon_path.write_text( "" )
         old_stat = self.clsrecon_path.stat()
         # main: fails because the file exists
+        mock_clsrecon_file.return_value = True
         with self.assertRaises( FileExistsError ):
             self.sos_cleaner.create_clsrecon_file( ltable_columns , rtable_columns )
+        mock_clsrecon_file.assert_called()
         # existing file is unchanged
-        self.assertEqual( old_stat , clsrecon_file.stat() )
+        self.assertEqual( old_stat , self.clsrecon_path.stat() )
 
-    # may have to mock some stuff
-    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
-    def test_create_clsrecon_file( self , mock_clsrecon_file ):
+    def test_create_clsrecon_file__columns_dne( self ):
+        """
+        """
+        ltable_columns = ( "characters/base-stats" , "lass" )
+        rtable_columns = ( "classes/maximum-stats" , "Class" )
+        with self.assertRaises( KeyError ): # for pd.DataFrame_s
+            self.sos_cleaner.create_clsrecon_file( ltable_columns , rtable_columns )
+        self.assertFalse( self.clsrecon_path.exists() )
+
+    def test_create_clsrecon_file__tables_dne( self ):
+        """
+        """
+        ltable_columns = ( "characters/base-stats" , "Class" )
+        rtable_columns = ( "casses/maximum-stats" , "Class" )
+        with self.assertRaises( KeyError ): # for url_to_tables dict
+            self.sos_cleaner.create_clsrecon_file( ltable_columns , rtable_columns )
+        self.assertFalse( self.clsrecon_path.exists() )
+
+    @patch( "io.open" )
+    def test_create_clsrecon_file( self , mock_wfile ):
+        """
+        """
+        ltable_columns = ( "characters/base-stats" , "Class" )
+        rtable_columns = ( "classes/maximum-stats" , "Class" )
+        # creating a mock-file class
+        mock_wfile.return_value = RewriteableIO()
+        # main
+        self.sos_cleaner.create_clsrecon_file( ltable_columns , rtable_columns )
+        ltable = self.sos_cleaner.page_dict[ ltable_columns[ 0 ] ]
+        rtable = self.sos_cleaner.page_dict[ rtable_columns[ 0 ] ]
+        mock_wfile.assert_called_once_with(
+                f"data/binding-blade/{ltable}-JOIN-{rtable}.json",
+                mode="w",
+                encoding="utf-8",
+                )
+        clsrecon_dict = json.load( mock_wfile.return_value )
+        self.assertIsInstance( clsrecon_dict , dict )
+        self.assertSetEqual( set( clsrecon_dict.values() ) , { None } )
+        self.assertSetEqual( set( type( cls ) for cls in clsrecon_dict ) , { str } )
+
+    def test_verify_clsrecon_file__file_dne( self ):
         """
         """
         pass
 
-    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
-    def test_verify_clsrecon_file__file_dne( self , mock_clsrecon_file ):
-        """
-        """
-        pass
-
-    @patch( "aenir.cleaner.SerenesCleaner.home_dir.joinpath" )
-    def test_verify_clsrecon_file( self , mock_clsrecon_file ):
+    def test_verify_clsrecon_file( self ):
         """
         """
         # false positives
@@ -221,4 +263,13 @@ class CleanerTest( unittest.TestCase ):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    default_tests = [
+        "test_create_clsrecon_file__file_exists",
+        "test_create_clsrecon_file__tables_dne",
+        "test_create_clsrecon_file__columns_dne",
+        "test_create_clsrecon_file",
+    ]
+    unittest.main(
+            #defaultTest=default_tests,
+            #module=CleanerTest,
+            )
