@@ -5,6 +5,7 @@
 from typing import Tuple
 import re
 import json
+import io
 
 import pandas as pd
 
@@ -23,9 +24,9 @@ class SerenesCleaner( SerenesTranscriber ):
     def drop_nonnumeric_rows( self , urlpath: str , numeric_col: str = "Def" ):
         """
         """
-        for index, table in enumerate(self.url_to_tables[urlpath]):
-            self.url_to_tables[urlpath][index] = table[
-                    pd.to_numeric(table[numeric_col], errors='coerce').notnull()
+        for index, table in enumerate( self.url_to_tables[ urlpath] ):
+            self.url_to_tables[ urlpath][ index] = table[
+                    pd.to_numeric( table[ numeric_col], errors='coerce' ).notnull()
                     ]
 
     def replace_with_int_df( self , urlpath: str ):
@@ -80,13 +81,30 @@ class SerenesCleaner( SerenesTranscriber ):
     def create_clsrecon_file( self , ltable_columns: Tuple[ str , str ] , rtable_columns: Tuple[ str , str ] ):
         """
         """
-        ltable, fromcol_name = ltable_columns
-        rtable, tocol_name = rtable_columns
-        # resultset := (SELECT ltable.iloc[0, :] WHERE ltable[fromcol] NOT IN rtable[tocol]);
+        ltable_url, fromcol_name = ltable_columns
+        rtable_url, tocol_name = rtable_columns
+        ltable_name = self.page_dict[ ltable_url ]
+        rtable_name = self.page_dict[ rtable_url ]
+        clsrecon_json = self.home_dir.joinpath( f"{ltable_name}-JOIN-{rtable_name}.json" )
+        if clsrecon_json.exists():
+            raise FileExistsError
+        # resultset := (SELECT ltable.iloc[ 0, :] WHERE ltable[ fromcol] NOT IN rtable[tocol]);
+        target_set = set()
+        for rtable in self.url_to_tables[ rtable_url ]:
+            target_set.update( set( rtable.loc[ :, tocol_name ] ) )
+        clsrecon_dict = {}
+        for ltable in self.url_to_tables[ ltable_url ]:
+            clsrecon_dict.update(
+                    {
+                        primary_key: None for primary_key in
+                        ltable[ ~ltable[ fromcol_name ].isin( target_set ) ].iloc[ 0 , : ]
+                        }
+                    )
         # save: {result: null for result in resultset} |-> ltable-JOIN-rtable.json
-        pass
+        with io.open( str( clsrecon_json ) , mode="w", encoding="utf-8" ) as wfile:
+            json.dump( clsrecon_dict , wfile , indent=4 )
 
-    def verify_clsrecon_file( self , ltable: str , rtable_columns: Tuple[ str , str ] ):
+    def verify_clsrecon_file( self , ltable_url: str , rtable_columns: Tuple[ str , str ] ):
         """
         """
         pass
