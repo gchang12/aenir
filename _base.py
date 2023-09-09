@@ -22,7 +22,7 @@ class SerenesBase:
         """
         self._game_num = game_num
         #!will raise KeyError if not found
-        self._game_name = self.NUM_TO_NAME[ self.game_num ]
+        self._game_name = self.NUM_TO_NAME[ self._game_num ]
 
     @property
     def game_num( self ):

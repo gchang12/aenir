@@ -4,6 +4,7 @@
 
 import io
 import re
+import random
 import json
 import unittest
 from unittest.mock import patch
@@ -14,7 +15,7 @@ class RewriteableIO( io.StringIO ):
     """
     """
 
-    def __exit__( self, *args, **kwargs ):
+    def __exit__( self , *args , **kwargs ):
         """
         """
         self.seek( 0 )
@@ -63,7 +64,7 @@ class CleanerTest( unittest.TestCase ):
         # commence check
         for df in self.sos_cleaner.url_to_tables[ urlpath ]:
             for num_col in filter( is_numeric_col , df.columns ):
-                for stat in df.loc[ :, num_col ]:
+                for stat in df.loc[ : , num_col ]:
                     self.assertTrue( re.fullmatch( "[+-]?[0-9]+" , str( stat ) ) is not None )
 
     def test_replace_with_int_df( self ):
@@ -73,9 +74,9 @@ class CleanerTest( unittest.TestCase ):
         urlpath = "characters/base-stats"
         bases = self.sos_cleaner.url_to_tables[ urlpath ][ 0 ]
         former_hp = int( bases.at[ 0 , "HP" ] )
-        bases.at[ 0 , "HP" ] = str( bases.at[ 0, "HP" ] ) + " *"
+        bases.at[ 0 , "HP" ] = str( bases.at[ 0 , "HP" ] ) + " *"
         former_def = int( bases.at[ 0 , "Def" ] )
-        bases.at[ 0 , "Def" ] = "-" + str( bases.at[ 0, "Def" ] )
+        bases.at[ 0 , "Def" ] = "-" + str( bases.at[ 0 , "Def" ] )
         # main
         self.sos_cleaner.replace_with_int_df( urlpath )
         # check that all rows in a numeric column are numeric
@@ -88,11 +89,11 @@ class CleanerTest( unittest.TestCase ):
         # commence check
         for df in self.sos_cleaner.url_to_tables[ urlpath ]:
             for num_col in filter( is_numeric_col , df.columns ):
-                for stat in df.loc[ :, num_col ]:
+                for stat in df.loc[ : , num_col ]:
                     # recall that non-numeric rows have not been dropped yet
                     if stat == num_col:
                         continue
-                    self.assertIsInstance( stat, int )
+                    self.assertIsInstance( stat , int )
         bases = self.sos_cleaner.url_to_tables[ urlpath ][ 0 ]
         # nonnumerics stay intact
         self.assertEqual( bases.at[ 0 , "Name" ] , "Roy" )
@@ -155,7 +156,7 @@ class CleanerTest( unittest.TestCase ):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 self.assertNotIn( "health-points" , table.columns )
-        with open( fieldrecon_path , mode='w', encoding='utf-8' ) as wfile:
+        with open( fieldrecon_path , mode='w' , encoding='utf-8' ) as wfile:
             json.dump( fieldrecon_dict , wfile )
         with self.assertRaises( ValueError ):
             self.sos_cleaner.apply_fieldrecon_file()
@@ -252,24 +253,76 @@ class CleanerTest( unittest.TestCase ):
     def test_verify_clsrecon_file__file_dne( self ):
         """
         """
-        pass
+        ltable_url = "characters/base-stats"
+        rtable_columns = ( "classes/maximum-stats" , "Class" )
+        with self.assertRaises( FileNotFoundError ):
+            self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )
 
-    def test_verify_clsrecon_file( self ):
+    def test_verify_clsrecon_file__tables_dne( self ):
         """
         """
-        # false positives
-        # false negatives
-        pass
+        ltable_url = "characters/base-stats"
+        rtable_columns = ( "classes/mximum-stats" , "Class" )
+        with self.assertRaises( KeyError ):
+            self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )
 
+    @patch( "io.open" )
+    def test_verify_clsrecon_file__column_dne( self , mock_rfile ):
+        """
+        """
+        ltable_url = "characters/base-stats"
+        rtable_columns = ( "classes/maximum-stats" , "lass" )
+        json_io = io.StringIO()
+        json.dump( {} , json_io )
+        json_io.seek( 0 )
+        mock_rfile.return_value = json_io
+        with self.assertRaises( KeyError ):
+            self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )
+
+    @patch( "io.open" )
+    def test_verify_clsrecon_file( self , mock_wfile ):
+        """
+        """
+        ltable_url = "characters/base-stats"
+        rtable_columns = ( "classes/maximum-stats" , "Class" )
+        rtable_url, tocol_name = rtable_columns
+        # compile clsrecon_dict
+        clsrecon_dict = {}
+        for name in self.sos_cleaner.url_to_tables[ ltable_url ][ 0 ].loc[ : , "Name" ]:
+            clsrecon_dict[ name ] = random.choice(
+                    self.sos_cleaner.url_to_tables[ rtable_url ][ 0 ].loc[ : , tocol_name ]
+                    )
+        clsrecon_dict["Karel"] = None
+        # dump clsrecon_dict into virtual file
+        with RewriteableIO() as wfile:
+            json.dump( clsrecon_dict , wfile )
+        mock_wfile.return_value = wfile
+        # main
+        nomatch_set = self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )
+        self.assertSetEqual( nomatch_set , set() )
+        ltable_name = self.sos_cleaner.page_dict[ ltable_url ]
+        rtable_name = self.sos_cleaner.page_dict[ rtable_url ]
+        mock_wfile.assert_called_once_with(
+                f"data/binding-blade/{ltable_name}-JOIN-{rtable_name}.json",
+                encoding="utf-8",
+                )
+        # test that non-existent class fails the test
+        nonexistent_cls = "master-knight"
+        unmapped_name = self.sos_cleaner.url_to_tables[ ltable_url ][ 0 ].at[ 0 , "Name" ]
+        self.assertNotIn(
+                nonexistent_cls ,
+                self.sos_cleaner.url_to_tables[ rtable_url ][ 0 ].loc[ : , tocol_name ]
+                )
+        clsrecon_dict[unmapped_name] = nonexistent_cls
+        with RewriteableIO() as wfile:
+            json.dump( clsrecon_dict , wfile )
+        # main
+        mock_wfile.return_value = wfile
+        nomatch_set = self.sos_cleaner.verify_clsrecon_file( ltable_url , rtable_columns )
+        self.assertSetEqual( nomatch_set , { unmapped_name } )
 
 if __name__ == '__main__':
-    default_tests = [
-        "test_create_clsrecon_file__file_exists",
-        "test_create_clsrecon_file__tables_dne",
-        "test_create_clsrecon_file__columns_dne",
-        "test_create_clsrecon_file",
-    ]
     unittest.main(
-            #defaultTest=default_tests,
-            #module=CleanerTest,
+            defaultTest=[ test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file") ],
+            module=CleanerTest,
             )
