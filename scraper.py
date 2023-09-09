@@ -29,12 +29,6 @@ class SerenesScraper( SerenesBase ):
         response.raise_for_status()
         self.url_to_tables[ urlpath ] = pd.read_html( response.text )
 
-    def get_urlname_from_tablename( self , tablename: str ):
-        urlname = tablename.replace( "__" , "/" ).replace( "_" , "-" )
-        #!will raise AssertionError for invalid tablenames
-        assert urlname in self.page_dict
-        return urlname
-
 
 if __name__ == '__main__':
     pass

@@ -13,28 +13,6 @@ class ScraperTest( unittest.TestCase ):
         # create Scraper instance
         self.sos_scraper = SerenesScraper( 6 )
 
-    def test_get_urlname( self ):
-        # get registered urlname
-        tablename = "characters__base_stats"
-        # expected output
-        expected = "characters/base-stats"
-        # for developer's peace of mind
-        self.assertIn( expected , self.sos_scraper.page_dict )
-        # main
-        actual = self.sos_scraper.get_urlname_from_tablename( tablename )
-        self.assertEqual( actual , expected )
-
-    def test_get_urlname__dne( self ):
-        # non-registered urlname
-        tablename = "characters__baked_fat"
-        # expected output
-        expected = "characters/baked-fat"
-        # for developer's peace of mind
-        self.assertNotIn( expected , self.sos_scraper.page_dict )
-        # main: fails by AssertionError
-        with self.assertRaises( AssertionError ):
-            actual = self.sos_scraper.get_urlname_from_tablename( tablename )
-
     def test_scrape_tables__failures( self ):
         # main: fails because argument is not a str
         with self.assertRaises( AssertionError ):

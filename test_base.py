@@ -20,7 +20,7 @@ class BaseTest( unittest.TestCase ):
         with self.assertRaises( KeyError ):
             base = SerenesBase( None )
 
-    def test__init__SUCCESS( self ):
+    def test__init__( self ):
         # key is valid because it has been registered
         self.assertIn( 6 , SerenesBase._NUM_TO_NAME )
         # main
