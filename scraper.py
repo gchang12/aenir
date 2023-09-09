@@ -1,55 +1,40 @@
 #!/usr/bin/python3
-"""
-"""
-
-from pathlib import Path
-import logging
 
 import requests
 import pandas as pd
 
+from aenir._base import SerenesBase
 
-class SerenesScraper:
-    """
-    """
 
-    NUM_TO_NAME = {
-            4: "genealogy-of-the-holy-war",
-            5: "thracia-776",
-            6: "binding-blade",
-            7: "blazing-sword",
-            8: "the-sacred-stones",
-            9: "path-of-radiance",
-            }
+class SerenesScraper( SerenesBase ):
 
-    URL_TO_TABLE = {
-            "characters/base-stats": "characters__base_stats",
-            "characters/growth-rates": "characters__growth_rates",
-            "classes/maximum-stats": "classes__maximum_stats",
-            "classes/promotion-gains": "classes__promotion_gains",
-            }
-
-    def __init__(self, game_num: int):
-        """
-        """
-        # all of these attributes are implicitly properties
-        self.game_num = game_num
-        self.page_dict = self.URL_TO_TABLE.copy()
-        self.game_name = self.NUM_TO_NAME[self.game_num]
-        self.home_dir = Path("data", self.game_name)
+    def __init__( self , game_num: int ):
+        SerenesBase.__init__( self , game_num )
+        # list of default table-sets to scrape
+        self.page_dict = {
+                "characters/base-stats": "characters__base_stats",
+                "characters/growth-rates": "characters__growth_rates",
+                "classes/maximum-stats": "classes__maximum_stats",
+                "classes/promotion-gains": "classes__promotion_gains",
+                }
+        # stores the scraped tables
         self.url_to_tables = {}
 
-    def get_datafile_path(self, filename: str):
-        """
-        """
-        return self.home_dir.joinpath(filename)
+    def scrape_tables( self , urlpath: str ):
+        #!will raise AssertionError if urlpath is not a str
+        assert isinstance( urlpath , str )
+        absolute_url = "/".join( [ self.URL_ROOT , self.game_name , urlpath ] )
+        response = requests.get( absolute_url , timeout=1 )
+        #!will raise requests.exceptions.HTTPError if name does not exist
+        response.raise_for_status()
+        self.url_to_tables[ urlpath ] = pd.read_html( response.text )
 
-    def get_urlname(self, tablename: str):
-        """
-        """
-        urlname = tablename.replace("__", "/").replace("_", "-")
+    def get_urlname_from_tablename( self , tablename: str ):
+        urlname = tablename.replace( "__" , "/" ).replace( "_" , "-" )
+        #!will raise AssertionError for invalid tablenames
         assert urlname in self.page_dict
         return urlname
+
 
 if __name__ == '__main__':
     pass
