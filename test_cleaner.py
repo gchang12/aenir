@@ -183,6 +183,7 @@ class CleanerTest( unittest.TestCase ):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 old_fieldset.update( set( table.columns ) )
+        self.assertTrue( set( fieldrecon_dict ).issubset( old_fieldset ) )
         # main
         self.sos_cleaner.apply_fieldrecon_file()
         # compile new fieldset

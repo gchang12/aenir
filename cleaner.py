@@ -20,6 +20,13 @@ class SerenesCleaner( SerenesTranscriber ):
         """
         SerenesTranscriber.__init__( self , game_num )
         self.fieldrecon_file = "fieldrecon.json"
+        self.cls_recon_list = [
+                ( ( "characters/base-stats" , "Name" ) , ( "characters/growth-rates" , "Name" ) ),
+                ( ( "characters/base-stats" , "Class" ) , ( "classes/maximum-stats" , "Class" ) ),
+                ( ( "characters/base-stats" , "Class" ) , ( "classes/promotion-gains" , "Class" ) ),
+                ( ( "classes/promotion-gains" , "Promotion" ) , ( "classes/maximum-stats" , "Class" ) ),
+                ]
+
 
     def drop_nonnumeric_rows( self , urlpath: str , numeric_col: str = "Def" ):
         """
