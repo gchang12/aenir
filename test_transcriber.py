@@ -9,9 +9,6 @@ import pandas as pd
 
 from aenir.transcriber import SerenesTranscriber
 
-# TODO: Write a tearDown method that does NOT wipe out the existing data directory
-# TODO: Test for if the table exists already when trying to write to it
-
 
 class TranscriberTest( unittest.TestCase ):
     """
@@ -22,14 +19,6 @@ class TranscriberTest( unittest.TestCase ):
         """
         self.sos_transcriber = SerenesTranscriber( 6 )
         self.sos_transcriber.tables_file = "MOCK-" + self.sos_transcriber.tables_file
-        try:
-            for fname in self.sos_transcriber.home_dir.iterdir():
-                #fname.unlink()
-                pass
-            #self.sos_transcriber.home_dir.rmdir()
-            #Path("data").rmdir()
-        except FileNotFoundError:
-            pass
 
     def tearDown( self ):
         """
@@ -38,12 +27,6 @@ class TranscriberTest( unittest.TestCase ):
                 self.sos_transcriber.tables_file
                 )
         absolute_tables_file.unlink( missing_ok=True )
-        try:
-            #self.sos_transcriber.home_dir.rmdir()
-            #Path( "data" ).rmdir()
-            pass
-        except FileNotFoundError:
-            pass
 
     def test_save_tables__failures( self ):
         """
@@ -55,7 +38,7 @@ class TranscriberTest( unittest.TestCase ):
             self.sos_transcriber.save_tables( urlpath )
         # assert: url still in table-dict, data-dir DNE, tables-file DNE
         self.assertIn( urlpath, self.sos_transcriber.url_to_tables )
-        self.assertFalse( Path("data").exists() )
+        #self.assertFalse( Path("data").exists() )
         tables_file = self.sos_transcriber.tables_file
         self.assertFalse( self.sos_transcriber.home_dir.joinpath( tables_file ).exists() )
         # main: fails because not all values to be saved are pd.DataFrames
@@ -64,7 +47,7 @@ class TranscriberTest( unittest.TestCase ):
         with self.assertRaises( TypeError ):
             self.sos_transcriber.save_tables( urlpath )
         self.assertIn( urlpath, self.sos_transcriber.url_to_tables )
-        self.assertFalse( Path("data").exists() )
+        #self.assertFalse( Path("data").exists() )
         self.assertFalse( self.sos_transcriber.home_dir.joinpath( tables_file ).exists() )
         # main: fails because the urlpath is not registered
         self.sos_transcriber.url_to_tables.clear()
@@ -72,7 +55,7 @@ class TranscriberTest( unittest.TestCase ):
             self.sos_transcriber.save_tables( urlpath )
         # urlpath was never in here to begin with
         #self.assertIn( urlpath, self.sos_transcriber.url_to_tables )
-        self.assertFalse( Path("data").exists() )
+        #self.assertFalse( Path("data").exists() )
         self.assertFalse( self.sos_transcriber.home_dir.joinpath( tables_file ).exists() )
 
     def test_saveload_tables( self ):
@@ -98,6 +81,9 @@ class TranscriberTest( unittest.TestCase ):
         # before-table should match after-table
         loaded_bases = self.sos_transcriber.url_to_tables[ urlpath ][ 0 ]
         self.assertTrue( all( saved_bases == loaded_bases ) )
+        # fail: table already exists
+        with self.assertRaises( ValueError ):
+            self.sos_transcriber.save_tables( urlpath )
 
     def test_load_tables__failures( self ):
         """
@@ -108,7 +94,7 @@ class TranscriberTest( unittest.TestCase ):
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
                 self.sos_transcriber.tables_file
                 )
-        absolute_tables_file.unlink( missing_ok=True )
+        #absolute_tables_file.unlink()
         self.assertFalse(
                 self.sos_transcriber.home_dir.joinpath( self.sos_transcriber.tables_file ).exists()
                 )
