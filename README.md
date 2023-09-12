@@ -71,3 +71,10 @@ remove subclassing of aseMorph
 
 // 2023-09-07
 move scraper method to \_base.py
+
+// 2023-09-11
+branched promo: 5-Lara only, 8**
+map ALL bases-names to promo
+**
+Lara: Thief -> TF -> Dancer -> TF
+Thief -> Dancer -> TF
