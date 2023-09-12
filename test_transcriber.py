@@ -9,6 +9,9 @@ import pandas as pd
 
 from aenir.transcriber import SerenesTranscriber
 
+# TODO: Write a tearDown method that does NOT wipe out the existing data directory
+# TODO: Test for if the table exists already when trying to write to it
+
 
 class TranscriberTest( unittest.TestCase ):
     """
@@ -21,9 +24,10 @@ class TranscriberTest( unittest.TestCase ):
         self.sos_transcriber.tables_file = "MOCK-" + self.sos_transcriber.tables_file
         try:
             for fname in self.sos_transcriber.home_dir.iterdir():
-                fname.unlink()
-            self.sos_transcriber.home_dir.rmdir()
-            Path("data").rmdir()
+                #fname.unlink()
+                pass
+            #self.sos_transcriber.home_dir.rmdir()
+            #Path("data").rmdir()
         except FileNotFoundError:
             pass
 
@@ -35,8 +39,9 @@ class TranscriberTest( unittest.TestCase ):
                 )
         absolute_tables_file.unlink( missing_ok=True )
         try:
-            self.sos_transcriber.home_dir.rmdir()
-            Path( "data" ).rmdir()
+            #self.sos_transcriber.home_dir.rmdir()
+            #Path( "data" ).rmdir()
+            pass
         except FileNotFoundError:
             pass
 
