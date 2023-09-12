@@ -32,15 +32,12 @@ class SerenesTranscriber( SerenesScraper ):
         if urlpath in self.url_to_tables:
             # real program starts here
             tablename = self.page_dict[ urlpath ]
-            tableindex = 0
             self.home_dir.mkdir( exist_ok=True, parents=True )
             save_file = str( self.home_dir.joinpath( self.tables_file ) )
-        while self.url_to_tables[ urlpath ]:
-            table = self.url_to_tables[ urlpath ].pop(0)
+        for tableindex , table in enumerate( self.url_to_tables[ urlpath ] ):
             name = tablename + str( tableindex )
             con = "sqlite:///" + save_file
             table.to_sql( name, con, index=False )
-            tableindex += 1
         del self.url_to_tables[ urlpath ]
 
     def load_tables( self , urlpath: str ):
