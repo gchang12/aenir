@@ -82,8 +82,10 @@ class TranscriberTest( unittest.TestCase ):
         loaded_bases = self.sos_transcriber.url_to_tables[ urlpath ][ 0 ]
         self.assertTrue( all( saved_bases == loaded_bases ) )
         # fail: table already exists
+        url_to_tables = self.sos_transcriber.url_to_tables.copy()
         with self.assertRaises( ValueError ):
             self.sos_transcriber.save_tables( urlpath )
+        self.assertDictEqual( url_to_tables , self.sos_transcriber.url_to_tables )
 
     def test_load_tables__failures( self ):
         """
