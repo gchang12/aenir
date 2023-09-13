@@ -38,6 +38,7 @@ class SerenesTranscriber( SerenesScraper ):
             name = tablename + str( tableindex )
             con = "sqlite:///" + save_file
             table.to_sql( name, con, index=False )
+        self.url_to_tables[ urlpath ].clear()
         del self.url_to_tables[ urlpath ]
 
     def load_tables( self , urlpath: str ):
