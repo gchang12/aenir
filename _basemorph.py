@@ -7,14 +7,11 @@ from aenir.cleaner import SerenesCleaner
 class BaseMorph(SerenesCleaner):
     def __init__(self, game_num, unit_name):
         SerenesCleaner.__init__(self, game_num)
-        for urlpath in self.page_dict:
-            self.load_tables(urlpath)
-        for tbl_index, table in enumerate(self.url_to_tables["characters/base-stats"]):
-            if unit_name not in table.loc[:, "Name"]:
-                continue
-            break
-        self.tbl_index = tbl_index
+        # load it when you need it, man
+        #for urlpath in self.page_dict:
+            #self.load_tables(urlpath)
         self.current_clstype = "characters/base-stats"
+        self.load_tables( "characters/base-stats" )
         #self.current_stats = self.url_to_tables["characters/base-stats"][self.tbl_index].set_index("Name").loc[unit_name, :].copy()
         #self.current_lv = self.current_stats.pop("Lv")
         #self.current_cls = self.current_stats.pop("Class")
