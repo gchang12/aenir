@@ -17,33 +17,33 @@ class SerenesBase:
             9: "path-of-radiance",
             }
 
-    def __init__( self , game_num: int ):
+    def __init__(self, game_num: int):
         """
         """
         self._game_num = game_num
         #!will raise KeyError if not found
-        self._game_name = self.NUM_TO_NAME[ self._game_num ]
+        self._game_name = self.NUM_TO_NAME[self._game_num]
 
     @property
-    def game_num( self ):
+    def game_num(self):
         """
         """
         return self._game_num
 
     @property
-    def game_name( self ):
+    def game_name(self):
         """
         """
         return self._game_name
 
     @property
-    def URL_ROOT( self ):
+    def URL_ROOT(self):
         """
         """
         return self._URL_ROOT
 
     @property
-    def NUM_TO_NAME( self ):
+    def NUM_TO_NAME(self):
         """
         """
         return self._NUM_TO_NAME

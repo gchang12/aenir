@@ -78,3 +78,8 @@ map ALL bases-names to promo
 **
 Lara: Thief -> TF -> Dancer -> TF
 Thief -> Dancer -> TF
+
+// 2023-09-14
+Add docstrings
+Add logging
+Decide if mock-df is worth using in test_scraper module

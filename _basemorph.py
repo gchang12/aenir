@@ -2,42 +2,18 @@
 """
 """
 
-from aenir.cleaner import SerenesCleaner
+from aenir.transcriber import SerenesTranscriber
 
-class BaseMorph(SerenesCleaner):
+class BaseMorph(SerenesTranscriber):
     def __init__(self, game_num, unit_name):
+        # cheated: created this code before the test code
         SerenesCleaner.__init__(self, game_num)
-        # load it when you need it, man
-        #for urlpath in self.page_dict:
-            #self.load_tables(urlpath)
         self.current_clstype = "characters/base-stats"
-        self.load_tables( "characters/base-stats" )
-        #self.current_stats = self.url_to_tables["characters/base-stats"][self.tbl_index].set_index("Name").loc[unit_name, :].copy()
-        #self.current_lv = self.current_stats.pop("Lv")
-        #self.current_cls = self.current_stats.pop("Class")
-        #self.current_stats += 0.0
-
-    def level_up(self, num_levels):
-        # foreign key = Name
-        # try: json_dict[Name]
-        # except KeyError: foreign_iey =current_cls
-        # current_stats += (growths/100).setfield(bases).fillna(0)
-        # foreign key = Class
-        # constrain current_stats to maxes[Class]
-        pass
-
-    def promote(self):
-        # foreignkey = Class
-        # current_stats += promo_class[Class].setfield(bases).fillna(0)
-        # current_cls=promo_cls[Class]
-        # current_clstype=classes/max-stats
-        # foreignkey=Class
-        # constrain current_stats to maxes[Class]
-        # reset level
-        pass
-
-    def get_max_level(self):
-        pass
+        self.target_cls = None
+        self.tables_file = "cleaned_stats.db"
+        for urlpath in self.page_dict:
+            self.load_tables(urlpath)
+        # delete a bunch of methods
 
 if __name__ == '__main__':
     pass 
