@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Defines the CleanerTest class for SerenesCleaner class.
 """
 
 import io
@@ -13,20 +14,30 @@ from aenir.cleaner import SerenesCleaner
 
 class RewriteableIO(io.StringIO):
     """
+    Inherits: io.StringIO
+
+    Redefines the __exit__ method for mocking purposes.
     """
 
     def __exit__(self, *args, **kwargs):
         """
+        Overrides automatic close procedure when calling io.StringIO via context-manager.
+
+        As a bonus, the io.StringIO instance has its cursor moved back to the beginning.
         """
         self.seek(0)
 
 
 class CleanerTest(unittest.TestCase):
     """
+    Defines tests for the data clean-up methods.
     """
 
     def setUp(self):
         """
+        Initializes SerenesCleaner instance, and creates necessary tables_file if it doesn't exist.
+
+        Loads tables into register, and sets *recon_file_s to their mock-equivalents.
         """
         self.sos_cleaner = SerenesCleaner(6)
         # compile tables if they don't exist
@@ -43,12 +54,14 @@ class CleanerTest(unittest.TestCase):
 
     def tearDown(self):
         """
+        Deletes *recon_file_s.
         """
         self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file).unlink(missing_ok=True)
         self.clsrecon_path.unlink(missing_ok=True)
 
     def test_drop_nonnumeric_rows(self):
         """
+        Tests that all numeric columns contain [pseudo-]numeric data.
         """
         # nothing can go wrong
         urlpath = "characters/base-stats"
@@ -59,6 +72,7 @@ class CleanerTest(unittest.TestCase):
         # for filter call
         def is_numeric_col(col: object):
             """
+            Determines if a column is 'non-numeric'.
             """
             return col not in nonnumeric_columns
         # commence check
@@ -69,6 +83,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_replace_with_int_df(self):
         """
+        Tests that otherwise numeric stats have no extraneous trailing/leading non-numerics.
         """
         # nothing can go wrong
         urlpath = "characters/base-stats"
@@ -84,6 +99,7 @@ class CleanerTest(unittest.TestCase):
         # for filter call
         def is_numeric_col(col: object):
             """
+            Determines if a column is 'non-numeric'.
             """
             return col not in nonnumeric_columns
         # commence check
@@ -103,6 +119,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_create_fieldrecon_file__file_exists(self):
         """
+        Tests that the fieldrecon_file is untouched if it exists when the method is called.
         """
         # the file may already exist
         fieldrecon_path = self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file)
@@ -116,6 +133,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_create_fieldrecon_file(self):
         """
+        Tests that the fieldrecon_file is created, and that its dict-equivalent is of the desired form.
         """
         fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
         # compile fieldnames
@@ -132,6 +150,11 @@ class CleanerTest(unittest.TestCase):
 
     def test_apply_fieldrecon_file__failures(self):
         """
+        Documents/tests failures that may occur when calling apply_fieldrecon_file.
+
+        Exceptions:
+        - FileNotFoundError
+        - ValueError: Null-values found in JSON-dict
         """
         # 1: the file may not exist
         fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
@@ -198,6 +221,7 @@ class CleanerTest(unittest.TestCase):
     @patch("pathlib.Path.exists")
     def test_create_clsrecon_file__file_exists(self, mock_clsrecon_file):
         """
+        Tests that create_clsrecon_file fails if the file already exists.
         """
         ltable_columns = ("characters/base-stats", "Class")
         rtable_columns = ("classes/maximum-stats", "Class")
@@ -215,6 +239,7 @@ class CleanerTest(unittest.TestCase):
     @patch("pathlib.Path.exists")
     def test_create_clsrecon_file__columns_dne(self, mock_path):
         """
+        Tests that the create_clsrecon_file fails if the columns specified do not exist.
         """
         ltable_columns = ("characters/base-stats", "lass")
         rtable_columns = ("classes/maximum-stats", "Class")
@@ -225,6 +250,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_create_clsrecon_file__tables_dne(self):
         """
+        Tests that the create_clsrecon_file fails if the tables specified do not exist.
         """
         ltable_columns = ("characters/base-stats", "Class")
         rtable_columns = ("casses/maximum-stats", "Class")
@@ -235,6 +261,7 @@ class CleanerTest(unittest.TestCase):
     @patch("io.open")
     def test_create_clsrecon_file(self, mock_wfile):
         """
+        Tests that create_clsrecon_file succeeds.
         """
         ltable_columns = ("classes/maximum-stats", "Class")
         rtable_columns = ("classes/promotion-gains", "Promotion")
@@ -256,6 +283,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_verify_clsrecon_file__file_dne(self):
         """
+        Tests that the verify_clsrecon_file fails if the file is not found.
         """
         ltable_url = "characters/growth-rates"
         rtable_columns = ("classes/maximum-stats", "Class")
@@ -264,6 +292,7 @@ class CleanerTest(unittest.TestCase):
 
     def test_verify_clsrecon_file__tables_dne(self):
         """
+        Tests that the verify_clsrecon_file fails if the table(s) do not exist.
         """
         ltable_url = "characters/base-stats"
         rtable_columns = ("classes/mximum-stats", "Class")
@@ -273,6 +302,7 @@ class CleanerTest(unittest.TestCase):
     @patch("io.open")
     def test_verify_clsrecon_file__column_dne(self, mock_rfile):
         """
+        Tests that the verify_clsrecon_file fails if the column(s) do not exist.
         """
         ltable_url = "characters/base-stats"
         rtable_columns = ("classes/maximum-stats", "lass")
@@ -286,6 +316,7 @@ class CleanerTest(unittest.TestCase):
     @patch("io.open")
     def test_verify_clsrecon_file(self, mock_wfile):
         """
+        Tests that the verify_clsrecon_file works as intended.
         """
         ltable_url = "characters/base-stats"
         rtable_columns = ("classes/maximum-stats", "Class")

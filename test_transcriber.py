@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Defines TranscriberTest class for SerenesTranscriber class.
 """
 
 from pathlib import Path
@@ -12,16 +13,21 @@ from aenir.transcriber import SerenesTranscriber
 
 class TranscriberTest(unittest.TestCase):
     """
+    Defines methods to account for all scenarios when calling methods for IO-operations.
     """
 
     def setUp(self):
         """
+        Initializes SerenesTranscriber instance, and binds it to 'sos_transcriber'.
+
+        The tables_file parameter is set to a mock-file.
         """
         self.sos_transcriber = SerenesTranscriber(6)
         self.sos_transcriber.tables_file = "MOCK-" + self.sos_transcriber.tables_file
 
     def tearDown(self):
         """
+        Deletes the home_dir/tables_file.
         """
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
                 self.sos_transcriber.tables_file
@@ -30,6 +36,12 @@ class TranscriberTest(unittest.TestCase):
 
     def test_save_tables__failures(self):
         """
+        Tests/documents all possible failures the save_tables method can raise.
+
+        Errors:
+        - ValueError: urlpath not in url_to_tables (i.e. no tables to save).
+        - TypeError: Non-table in url_to_tables[urlpath].
+        - KeyError: urlpath not in url_to_tables.
         """
         urlpath = "characters/base-stats"
         # main: fails because there are no tables
@@ -47,19 +59,16 @@ class TranscriberTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.sos_transcriber.save_tables(urlpath)
         self.assertIn(urlpath, self.sos_transcriber.url_to_tables)
-        #self.assertFalse(Path("data").exists())
         self.assertFalse(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
         # main: fails because the urlpath is not registered
         self.sos_transcriber.url_to_tables.clear()
         with self.assertRaises(KeyError):
             self.sos_transcriber.save_tables(urlpath)
-        # urlpath was never in here to begin with
-        #self.assertIn(urlpath, self.sos_transcriber.url_to_tables)
-        #self.assertFalse(Path("data").exists())
         self.assertFalse(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
 
     def test_saveload_tables(self):
         """
+        Tests that save-load methods function in that the table saved is the same one loaded.
         """
         urlpath = "characters/base-stats"
         # compile tables
@@ -89,6 +98,10 @@ class TranscriberTest(unittest.TestCase):
 
     def test_load_tables__failures(self):
         """
+        Tests/documents all possible failures for load_tables method.
+
+        Exceptions:
+        - FileNotFoundError: home_dir/tables_file does not exist.
         """
         urlpath = "characters/base-stats"
         # main: fails because file does not exist
@@ -96,7 +109,6 @@ class TranscriberTest(unittest.TestCase):
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
                 self.sos_transcriber.tables_file
                 )
-        #absolute_tables_file.unlink()
         self.assertFalse(
                 self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).exists()
                 )
@@ -114,6 +126,7 @@ class TranscriberTest(unittest.TestCase):
 
     def test_get_urlname(self):
         """
+        Tests that get_urlname method succeeds.
         """
         # get registered urlname
         tablename = "characters__base_stats"
@@ -127,6 +140,7 @@ class TranscriberTest(unittest.TestCase):
 
     def test_get_urlname__dne(self):
         """
+        Tests that get_urlname method fails due to non-existent table-equivalent.
         """
         # non-registered urlname
         tablename = "characters__baked_fat"

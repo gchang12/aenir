@@ -1,11 +1,15 @@
 #!/usr/bin/python3
 """
+Defines the SerenesCleaner class.
+
+SerenesCleaner: Defines methods to clean up table data.
 """
 
 from typing import Tuple
 import re
 import json
 import io
+import logging
 
 import pandas as pd
 
@@ -13,10 +17,19 @@ from aenir.transcriber import SerenesTranscriber
 
 class SerenesCleaner(SerenesTranscriber):
     """
+    Defines methods to clean tabular data.
+
+    fieldrecon_file: File that stores the mapping of consolidated field names for all tables.
+    cls_recon_list: List of common arguments to pass to *_clsrecon_file methods.
     """
 
     def __init__(self, game_num: int):
         """
+        Extends: SerenesTranscriber.__init__
+
+        Parameters:
+        - fieldrecon_file
+        - cls_recon_list
         """
         SerenesTranscriber.__init__(self, game_num)
         self.fieldrecon_file = "fieldrecon.json"
@@ -30,14 +43,20 @@ class SerenesCleaner(SerenesTranscriber):
 
     def drop_nonnumeric_rows(self, urlpath: str, numeric_col: str = "Def"):
         """
+        Drops non-numeric rows in all tables mapped to the given urlpath.
+
+        Identifies numeric column, which can be specified via option,
+        filters to include rows containing non-numeric strings, and deletes those rows.
         """
         for index, table in enumerate(self.url_to_tables[urlpath]):
+            logging.info("Dropping rows for table #%d of '%s'", index, urlpath)
             self.url_to_tables[urlpath][index] = table[
                     pd.to_numeric(table[numeric_col], errors='coerce').notnull()
                     ]
 
     def replace_with_int_df(self, urlpath: str):
         """
+        Replaces each cell in a urlpath's tables with either itself or its numeric equivalent.
         """
 
         def replace_with_int(cell: str) -> int:
@@ -52,11 +71,16 @@ class SerenesCleaner(SerenesTranscriber):
             return cell
 
         for index, table in enumerate(self.url_to_tables[urlpath]):
+            logging.info("Converting table#%d of '%s' to numeric.", index, urlpath)
             int_df = table.applymap(replace_with_int)
             self.url_to_tables[urlpath][index] = int_df.convert_dtypes()
 
     def create_fieldrecon_file(self):
         """
+        Creates a JSON file to be referenced when mapping field names to a consistent standard.
+
+        Raises:
+        - FileExistsError: File exists.
         """
         fieldrecon_json = self.home_dir.joinpath(self.fieldrecon_file)
         if fieldrecon_json.exists():
@@ -68,24 +92,36 @@ class SerenesCleaner(SerenesTranscriber):
         fieldname_dict = { fieldname: None for fieldname in fieldname_set }
         with open(str(fieldrecon_json), mode='w', encoding='utf-8') as wfile:
             json.dump(fieldname_dict, wfile, indent=4)
+            logging.info("'%s' created.", str(fieldrecon_json))
 
     def apply_fieldrecon_file(self):
         """
+        Renames the fields in all tables, and drops those that have been renamed to 'DROP!'.
+
+        Raises:
+        - FileNotFoundError: By io.open (implicit), when create_fieldrecon_file has not been called.
+        - ValueError: Null-value is in the mapping-file.
         """
         fieldrecon_json = str(self.home_dir.joinpath(self.fieldrecon_file))
         with open(fieldrecon_json, encoding='utf-8') as rfile:
             fieldrecon_dict = json.load(rfile)
         if None in fieldrecon_dict.values():
             raise ValueError
-        for tablelist in self.url_to_tables.values():
+        for urlpath, tablelist in self.url_to_tables.items():
             for index, table in enumerate(tablelist):
                 try:
+                    logging.info("Attempting to rename and drop columns for '%s'[%d].", urlpath, index)
                     tablelist[index] = table.rename(columns=fieldrecon_dict).drop(columns=["DROP!"])
                 except KeyError:
+                    logging.info("No columns to drop for '%s'[%d]. Renaming...", urlpath, index)
                     tablelist[index] = table.rename(columns=fieldrecon_dict)
 
     def create_clsrecon_file(self, ltable_columns: Tuple[str, str], rtable_columns: Tuple[str, str]):
         """
+        Creates a mapping file for names in one table whose columns are not in another.
+
+        Raises:
+        - FileExistsError
         """
         # unpack variables
         ltable_url, fromcol_name = ltable_columns
@@ -112,9 +148,11 @@ class SerenesCleaner(SerenesTranscriber):
         # save: {result: null for result in resultset} |-> ltable-JOIN-rtable.json
         with io.open(str(clsrecon_json), mode="w", encoding="utf-8") as wfile:
             json.dump(clsrecon_dict, wfile, indent=4)
+            logging.info("'%s' created.", str(clsrecon_json))
 
     def verify_clsrecon_file(self, ltable_url: str, rtable_columns: Tuple[str, str]):
         """
+        Prints the mismatches in a given mapping-file as specified by arguments.
         """
         # unpack variables
         rtable_url, tocol_name = rtable_columns
