@@ -15,7 +15,7 @@ class SerenesCleaner(SerenesTranscriber):
     """
     """
 
-    def __init__(self, game_num):
+    def __init__(self, game_num: int):
         """
         """
         SerenesTranscriber.__init__(self, game_num)

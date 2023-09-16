@@ -3,6 +3,7 @@
 """
 
 import unittest
+import pandas as pd
 
 from aenir._basemorph import BaseMorph
 
@@ -21,11 +22,5 @@ class BaseMorphTest(unittest.TestCase):
         """
         pass
 
-    def test__init__(self):
-        """
-        """
-        pass
-
-
 if __name__ == '__main__':
-    pass
+    unittest.main()
