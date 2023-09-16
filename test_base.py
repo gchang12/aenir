@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Defines BaseTest to test SerenesBase class of _base.py
 """
 
 import unittest
@@ -9,20 +10,12 @@ from aenir._base import SerenesBase
 
 class BaseTest(unittest.TestCase):
     """
+    Defines tests to be run on SerenesBase.
     """
-
-    def setUp(self):
-        """
-        """
-        pass
-
-    def tearDown(self):
-        """
-        """
-        pass
 
     def test__init__KeyError(self):
         """
+        Tests that a KeyError is raised if the game number is not registered.
         """
         # key is invalid by virtue of not being registered
         self.assertNotIn(None , SerenesBase._NUM_TO_NAME)
@@ -32,6 +25,10 @@ class BaseTest(unittest.TestCase):
 
     def test__init__(self):
         """
+        Tests that initialization is successful.
+
+        Tests that the game_num parameter is valid.
+        Tests that AttributeError is raised for the parameters designated as properties.
         """
         # key is valid because it has been registered
         self.assertIn(6 , SerenesBase._NUM_TO_NAME)

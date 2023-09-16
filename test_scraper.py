@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Defines the ScraperTest class to test the aenir.SerenesScraper class.
 """
 
 import unittest
@@ -11,16 +12,23 @@ from aenir.scraper import SerenesScraper
 
 class ScraperTest(unittest.TestCase):
     """
+    Defines tests for aenir.SerenesScraper.scrape_tables method.
     """
 
     def setUp(self):
         """
+        Initializes SerenesScraper instance, and binds it to 'sos_scraper'.
         """
         # create Scraper instance
         self.sos_scraper = SerenesScraper(6)
 
     def test_scrape_tables__failures(self):
         """
+        Initiates tests for all possible failures, and to assert that url_to_tables is unaffected.
+
+        Failures identified:
+        - urlpath is not a string.
+        - urlpath is not valid
         """
         # main: fails because argument is not a str
         with self.assertRaises(AssertionError):
@@ -35,6 +43,11 @@ class ScraperTest(unittest.TestCase):
 
     def test_scrape_tables(self):
         """
+        Tests that the scraped tables are non-empty lists containing pd.DataFrame_s.
+
+        The following conditions must be satisfied:
+        - urlpath should exist in url_to_tables dict.
+        - url_to_tables[urlpath] is a non-empty list of non-empty pd.DataFrame_s.
         """
         # scrape from this urlpath in {sf}/binding-blade
         urlpath = "characters/base-stats"
@@ -42,8 +55,9 @@ class ScraperTest(unittest.TestCase):
         self.sos_scraper.scrape_tables(urlpath)
         # urlpath has been added to url_to_tables dict
         self.assertIn(urlpath, self.sos_scraper.url_to_tables)
-        # table collection is a list
+        # table collection is a non-empty list
         self.assertIsInstance(self.sos_scraper.url_to_tables[urlpath], list)
+        self.assertNotEqual(self.sos_scraper.url_to_tables[urlpath], [])
         # table contents are non-empty pd.DataFrames
         for table in self.sos_scraper.url_to_tables[urlpath]:
             self.assertIsInstance(table, pd.DataFrame)
