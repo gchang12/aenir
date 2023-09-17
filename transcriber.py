@@ -21,7 +21,14 @@ class SerenesTranscriber(SerenesScraper):
     - home_dir: Path object indicating the directory where all data is stored.
     - tables_file: The name of the database file that stores the scraped tables.
     """
-    
+    # list of default table-sets to scrape
+    page_dict = {
+            "characters/base-stats": "characters__base_stats",
+            "characters/growth-rates": "characters__growth_rates",
+            "classes/maximum-stats": "classes__maximum_stats",
+            "classes/promotion-gains": "classes__promotion_gains",
+            }
+
     def __init__(self, game_num: int):
         """
         Extends: SerenesScraper.__init__
@@ -32,13 +39,6 @@ class SerenesTranscriber(SerenesScraper):
         - tables_file
         """
         SerenesScraper.__init__(self, game_num)
-        # list of default table-sets to scrape
-        self.page_dict = {
-                "characters/base-stats": "characters__base_stats",
-                "characters/growth-rates": "characters__growth_rates",
-                "classes/maximum-stats": "classes__maximum_stats",
-                "classes/promotion-gains": "classes__promotion_gains",
-                }
         self.home_dir = Path("data", self.game_name)
         self.tables_file = "raw_stats.db"
 
