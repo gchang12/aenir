@@ -19,8 +19,9 @@ class SerenesCleaner(SerenesTranscriber):
     """
     Defines methods to clean tabular data.
 
-    fieldrecon_file: File that stores the mapping of consolidated field names for all tables.
-    cls_recon_list: List of common arguments to pass to *_clsrecon_file methods.
+    Parameters:
+    - fieldrecon_file: File that stores the mapping of consolidated field names for all tables.
+    - cls_recon_list: List of common arguments to pass to *_clsrecon_file methods.
     """
 
     def __init__(self, game_num: int):

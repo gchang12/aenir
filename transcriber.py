@@ -96,6 +96,7 @@ class SerenesTranscriber(SerenesScraper):
                 self.url_to_tables[urlpath].append(table)
                 logging.info("url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
             except ValueError:
+                logging.info("'%s'[%d] not found. Stopping...", urlpath, tableindex)
                 break
 
     def get_urlname_from_tablename(self, tablename: str):
