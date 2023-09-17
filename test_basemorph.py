@@ -15,7 +15,7 @@ class BaseMorphTest(unittest.TestCase):
     def setUp(self):
         """
         """
-        pass
+        self.roy = BaseMorph(6, "Roy")
 
     def tearDown(self):
         """
