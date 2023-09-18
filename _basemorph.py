@@ -12,10 +12,16 @@ from aenir.transcriber import SerenesTranscriber
 
 class BaseMorph(SerenesTranscriber):
     """
+    Defines methods to interface with stat database.
+
+    Parameters:
+    - current_clstype: Used in order to look-up name in class-recon dictionary.
+    - target_stats: Stores stats that have been looked-up and stored.
     """
 
     def __init__(self, game_num: int):
         """
+        Loads cleaned data, and sets parameters for class-lookup.
         """
         SerenesTranscriber.__init__(self, game_num)
         # load tables: Assume the cleaned_stats.db file exists
@@ -26,23 +32,24 @@ class BaseMorph(SerenesTranscriber):
         self.current_clstype = "characters/base-stats"
         self.target_stats = None
 
-    def set_targetstats(self, target_urlpath: str, source_pkey: Union[str, Tuple[str, str]], tableindex: int):
+    def set_targetstats(self, target_urlpath: str, source_pkeyname: Union[str, Tuple[str, str]], source_pkey: List[str, ...], tableindex: int):
         """
-        # reference JSON file
-        # figure out which target class to use to reference the target table
+        Looks up name in source table, and matches it to the target table via class-recon file.
+
+        Sets target_stats attribute to appropriate value, depending on mapping.
         """
         #!current_clstype may not exist
         ltable_name = self.page_dict[self.current_clstype]
-        rtable_name = self.page_dict[self.current_clstype]
+        rtable_name = self.page_dict[target_urlpath]
         # assume this file exists
         clsrecon_json = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
         with open(str(clsrecon_json), encoding='utf-8') as rfile:
             clsrecon_dict = json.load(rfile)
         try:
             #!source_pkey not in clsrecon_dict
-            target_cls = clsrecon_dict[source_pkey]
+            target_cls = clsrecon_dict[source_pkeyname]
         except KeyError:
-            target_cls = source_pkey
+            target_cls = source_pkeyname
         #!target_cls is None
         if target_cls is None:
             self.target_stats = None
