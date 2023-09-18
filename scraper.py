@@ -21,6 +21,8 @@ class SerenesScraper(SerenesBase):
     - url_to_tables: Stores the scraped tables in lists of pd.DataFrame_s.
     """
 
+    _URL_ROOT = "https://serenesforest.net"
+
     def __init__(self, game_num: int):
         """
         Extends: SerenesBase.__init__
@@ -50,6 +52,12 @@ class SerenesScraper(SerenesBase):
                 len(self.url_to_tables[urlpath]), urlpath
                 )
 
+    @property
+    def URL_ROOT(self):
+        """
+        URL of the website to be scraped.
+        """
+        return self._URL_ROOT
 
 if __name__ == '__main__':
     pass

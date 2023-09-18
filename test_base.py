@@ -40,8 +40,6 @@ class BaseTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             base.game_name = None
         with self.assertRaises(AttributeError):
-            base.URL_ROOT = None
-        with self.assertRaises(AttributeError):
             base.NUM_TO_NAME = None
 
 if __name__ == '__main__':
