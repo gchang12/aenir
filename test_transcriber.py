@@ -34,6 +34,13 @@ class TranscriberTest(unittest.TestCase):
                 )
         absolute_tables_file.unlink(missing_ok=True)
 
+    def test_pagedict_is_clsattr(self):
+        """
+        Tests that page_dict parameter is an attribute.
+        """
+        some_transcriber = SerenesTranscriber(5)
+        self.assertIs(some_transcriber.page_dict, self.sos_transcriber.page_dict)
+
     def test_save_tables__failures(self):
         """
         Tests/documents all possible failures the save_tables method can raise.

@@ -13,7 +13,6 @@ class SerenesBase:
     NUM_TO_NAME: Index that looks up FE title by game number.
     """
 
-    _URL_ROOT = "https://serenesforest.net"
     _NUM_TO_NAME = {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
@@ -44,13 +43,6 @@ class SerenesBase:
         The name of a FE game, given the number.
         """
         return self._game_name
-
-    @property
-    def URL_ROOT(self):
-        """
-        URL of the website to be scraped.
-        """
-        return self._URL_ROOT
 
     @property
     def NUM_TO_NAME(self):

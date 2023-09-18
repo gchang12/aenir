@@ -22,6 +22,14 @@ class ScraperTest(unittest.TestCase):
         # create Scraper instance
         self.sos_scraper = SerenesScraper(6)
 
+    def test__init__attr(self):
+        """
+        Tests that 'URL_ROOT' is a property.
+        """
+        self.assertIn("URL_ROOT", dir(self.sos_scraper))
+        with self.assertRaises(AttributeError):
+            self.sos_scraper.URL_ROOT = None
+
     def test_scrape_tables__failures(self):
         """
         Initiates tests for all possible failures, and to assert that url_to_tables is unaffected.
