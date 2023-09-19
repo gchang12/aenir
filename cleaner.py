@@ -6,9 +6,9 @@ SerenesCleaner: Defines methods to clean up table data.
 """
 
 from typing import Tuple
+import io
 import re
 import json
-import io
 import logging
 
 import pandas as pd
@@ -104,7 +104,7 @@ class SerenesCleaner(SerenesTranscriber):
         - ValueError: Null-value is in the mapping-file.
         """
         fieldrecon_json = str(self.home_dir.joinpath(self.fieldrecon_file))
-        with open(fieldrecon_json, encoding='utf-8') as rfile:
+        with io.open(fieldrecon_json, encoding='utf-8') as rfile:
             fieldrecon_dict = json.load(rfile)
         if None in fieldrecon_dict.values():
             raise ValueError

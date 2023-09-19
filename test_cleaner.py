@@ -4,6 +4,7 @@ Defines the CleanerTest class for SerenesCleaner class.
 """
 
 import io
+from pathlib import Path
 import re
 import random
 import json
@@ -268,9 +269,10 @@ class CleanerTest(unittest.TestCase):
         # creating a mock-file class
         mock_wfile.return_value = RewriteableIO()
         # main
-        self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
         ltable = self.sos_cleaner.page_dict[ltable_columns[0]]
         rtable = self.sos_cleaner.page_dict[rtable_columns[0]]
+        Path("data", "binding-blade", f"{ltable}-JOIN-{rtable}.json").unlink(missing_ok=True)
+        self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
         mock_wfile.assert_called_once_with(
                 f"data/binding-blade/{ltable}-JOIN-{rtable}.json",
                 mode="w",
