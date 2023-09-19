@@ -32,7 +32,7 @@ class BaseMorph(SerenesTranscriber):
         self.current_clstype = "characters/base-stats"
         self.target_stats = None
 
-    def set_targetstats(self, target_urlpath: str, source_pkeyname: Union[str, Tuple[str, str]], source_pkey: List[str, ...], tableindex: int):
+    def set_targetstats(self, target_urlpath: str, primarykey_value: Union[str, Tuple[str, str]], primarykey: List[str, ...], tableindex: int):
         """
         Looks up name in source table, and matches it to the target table via class-recon file.
 
@@ -47,14 +47,14 @@ class BaseMorph(SerenesTranscriber):
             clsrecon_dict = json.load(rfile)
         try:
             #!source_pkey not in clsrecon_dict
-            target_cls = clsrecon_dict[source_pkeyname]
+            target_cls = clsrecon_dict[primarykey_value]
         except KeyError:
-            target_cls = source_pkeyname
+            target_cls = primarykey_value
         #!target_cls is None
         if target_cls is None:
             self.target_stats = None
         else:
-            self.target_stats = self.url_to_tables[target_urlpath][tableindex].set_index(source_pkey).loc[target_cls, :]
+            self.target_stats = self.url_to_tables[target_urlpath][tableindex].set_index(primarykey).loc[target_cls, :]
 
 if __name__ == '__main__':
     pass
