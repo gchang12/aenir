@@ -48,14 +48,18 @@ class BaseMorph(SerenesTranscriber):
         with io.open(str(clsrecon_json), encoding='utf-8') as rfile:
             clsrecon_dict = json.load(rfile)
         try:
-            target_cls = clsrecon_dict[home_pval]
+            target_pval = clsrecon_dict[home_pval]
         except KeyError:
-            target_cls = self.current_cls
-        #!target_cls is None
-        if target_cls is None:
+            target_pval = home_pval
+        #!target_pval is None
+        if target_pval is None:
             self.target_stats = None
         else:
-            self.target_stats = self.url_to_tables[target_urlpath][tableindex].set_index(target_pkey).loc[target_cls, :]
+            try:
+                # fails for char-to-class joins
+                self.target_stats = self.url_to_tables[target_urlpath][tableindex].set_index(target_pkey).loc[target_pval, :]
+            except KeyError:
+                self.target_stats = self.url_to_tables[target_urlpath][tableindex].set_index(target_pkey).loc[self.current_cls, :]
 
 if __name__ == '__main__':
     pass
