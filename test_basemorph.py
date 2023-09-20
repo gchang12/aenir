@@ -38,7 +38,7 @@ class BaseMorphTest(unittest.TestCase):
                 self.assertIsInstance(table, pd.DataFrame)
                 self.assertFalse(table.empty)
 
-    def test_set_targetstats__failures(self):
+    def test_set_targetstats1(self):
         """
         """
         target_urlpath = "classes/maximum-stats"
@@ -64,7 +64,7 @@ class BaseMorphTest(unittest.TestCase):
         self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
         self.sos_unit.target_stats = None
         # 5: target_cls is None
-        #Marcus: Promoted
+        #Marcus: Promoted, and so would have no target class
         self.sos_unit.set_targetstats("classes/promotion-gains", "Marcus", target_pkey, 0)
         self.assertIsNone(self.sos_unit.target_stats)
         # 6: home_pval not found
@@ -72,6 +72,30 @@ class BaseMorphTest(unittest.TestCase):
         self.sos_unit.current_cls = "Lord"
         self.sos_unit.set_targetstats("classes/promotion-gains", "Roy", "Class", 0)
         self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+
+    def test_set_targetstats2(self):
+        """
+        """
+        # bases-to-maxes
+        target_urlpath = "classes/maximum-stats"
+        target_pkey = ["Class"]
+        self.sos_unit.set_targetstats(target_urlpath, "Marcus", target_pkey, 0)
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        # promo-to-maxes
+        self.sos_unit.current_clstype = "classes/promotion-gains"
+        self.sos_unit.current_cls = "Master Lord"
+        self.sos_unit.set_targetstats(target_urlpath, "Roy", target_pkey, 0)
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        # bases-to-promo
+        self.sos_unit.current_clstype = "characters/base-stats"
+        self.sos_unit.current_cls = "Cavalier"
+        self.sos_unit.set_targetstats("classes/promotion-gains", "Allen", target_pkey, 0)
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        # bases-to-promo: fail
+        self.sos_unit.current_clstype = "characters/base-stats"
+        self.sos_unit.current_cls = "Hero"
+        self.sos_unit.set_targetstats("classes/promotion-gains", "Echidna", target_pkey, 0)
+        self.assertIsNone(self.sos_unit.target_stats)
 
     @patch("io.open")
     def test_set_targetstats__filenotfound(self, mock_open):
