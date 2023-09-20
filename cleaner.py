@@ -151,7 +151,7 @@ class SerenesCleaner(SerenesTranscriber):
             json.dump(clsrecon_dict, wfile, indent=4)
             logging.info("'%s' created.", str(clsrecon_json))
 
-    def verify_clsrecon_file(self, ltable_url: str, rtable_columns: Tuple[str, str]):
+    def verify_clsrecon_file(self, ltable_url: str, rtable_columns: Tuple[str, str]) -> set:
         """
         Prints the mismatches in a given mapping-file as specified by arguments.
         """
