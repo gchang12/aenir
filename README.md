@@ -83,3 +83,7 @@ Thief -> Dancer -> TF
 Add docstrings
 Add logging
 Decide if mock-df is worth using in test_scraper module
+
+// 2023-09-19
+Morph family tree
+stat-matching -> init-bases -> growths, maxes, promo
