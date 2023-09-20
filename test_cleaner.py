@@ -358,6 +358,11 @@ class CleanerTest(unittest.TestCase):
         nomatch_set = self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
         self.assertSetEqual(nomatch_set, {unmapped_name})
 
+    def test_set_targetstats(self):
+        """
+        """
+        pass
+
 if __name__ == '__main__':
     unittest.main(
             #defaultTest=[test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file")],
