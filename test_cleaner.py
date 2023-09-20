@@ -1,172 +1,370 @@
 #!/usr/bin/python3
 """
+Defines the CleanerTest class for SerenesCleaner class.
 """
 
-import logging
-import unittest
-from datetime import datetime
+import io
+from pathlib import Path
+import re
+import random
 import json
-import pandas as pd
+import unittest
+from unittest.mock import patch
 
 from aenir.cleaner import SerenesCleaner
 
-
-class TestCleaner(unittest.TestCase):
+class RewriteableIO(io.StringIO):
     """
+    Inherits: io.StringIO
+
+    Redefines the __exit__ method for mocking purposes.
     """
 
-    def tearDown(self):
+    def __exit__(self, *args, **kwargs):
         """
+        Overrides automatic close procedure when calling io.StringIO via context-manager.
+
+        As a bonus, the io.StringIO instance has its cursor moved back to the beginning.
         """
-        fieldrecon_file = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
-        fieldrecon_file.unlink(missing_ok=True)
+        self.seek(0)
+
+
+class CleanerTest(unittest.TestCase):
+    """
+    Defines tests for the data clean-up methods.
+    """
 
     def setUp(self):
         """
+        Initializes SerenesCleaner instance, and creates necessary tables_file if it doesn't exist.
+
+        Loads tables into register, and sets *recon_file_s to their mock-equivalents.
         """
         self.sos_cleaner = SerenesCleaner(6)
-        self.sos_cleaner.fieldrecon_json = "MOCK-" + self.sos_cleaner.fieldrecon_json
-        self.sos_cleaner.tables_file = "MOCK-" + self.sos_cleaner.tables_file
-        fieldrecon_file = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
-        fieldrecon_file.unlink(missing_ok=True)
-        if not self.sos_cleaner.get_datafile_path(self.sos_cleaner.tables_file).exists():
+        # compile tables if they don't exist
+        if not self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.tables_file).exists():
             for urlpath in self.sos_cleaner.page_dict:
                 self.sos_cleaner.scrape_tables(urlpath)
                 self.sos_cleaner.save_tables(urlpath)
         for urlpath in self.sos_cleaner.page_dict:
             self.sos_cleaner.load_tables(urlpath)
+        self.sos_cleaner.fieldrecon_file = "MOCK-" + self.sos_cleaner.fieldrecon_file
+        self.clsrecon_path = self.sos_cleaner.home_dir.joinpath(
+                "MOCK-characters__base_stats-JOIN-classes__maximum_stats.json" 
+                )
 
-    def test_create_fieldrecon_file(self):
+    def tearDown(self):
         """
+        Deletes *recon_file_s.
         """
-        recon_file  = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
-        self.sos_cleaner.create_fieldrecon_file()
-        self.assertTrue(recon_file.exists())
-        with open(str(recon_file), encoding='utf-8') as rfile:
-            recon_dict = json.load(rfile)
-        fieldname_set = set()
-        for tableset in self.sos_cleaner.url_to_tables.values():
-            for table in tableset:
-                fieldname_set.update(set(table.columns))
-        my_recon_dict = {fieldname: None for fieldname in fieldname_set}
-        self.assertDictEqual(my_recon_dict, recon_dict)
-
-    def test_create_fieldrecon_file__file_exists(self):
-        """
-        """
-        json_path = self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json)
-        json_path.write_text("", encoding='utf-8')
-        with self.assertRaises(FileExistsError):
-            self.sos_cleaner.create_fieldrecon_file()
-        json_path.unlink()
+        self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file).unlink(missing_ok=True)
+        self.clsrecon_path.unlink(missing_ok=True)
 
     def test_drop_nonnumeric_rows(self):
         """
+        Tests that all numeric columns contain [pseudo-]numeric data.
         """
-        urlpath = "characters/growth-rates"
-        self.sos_cleaner.drop_nonnumeric_rows(urlpath, numeric_col="HP")
-        growths_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        self.assertTrue(
-                growths_table[pd.to_numeric(growths_table["HP"], errors="coerce").isnull()].empty
-                    )
+        # nothing can go wrong
+        urlpath = "characters/base-stats"
+        # main
+        self.sos_cleaner.drop_nonnumeric_rows(urlpath)
+        # check that all rows in a numeric column are numeric
+        nonnumeric_columns = ("Name", "Class", "Affin", "Weapon ranks")
+        # for filter call
+        def is_numeric_col(col: object):
+            """
+            Determines if a column is 'non-numeric'.
+            """
+            return col not in nonnumeric_columns
+        # commence check
+        for df in self.sos_cleaner.url_to_tables[urlpath]:
+            for num_col in filter(is_numeric_col, df.columns):
+                for stat in df.loc[:, num_col]:
+                    self.assertTrue(re.fullmatch("[+-]?[0-9]+", str(stat)) is not None)
 
-    def test_apply_fieldrecon_file__file_dne(self):
+    def test_replace_with_int_df(self):
         """
+        Tests that otherwise numeric stats have no extraneous trailing/leading non-numerics.
         """
+        # nothing can go wrong
+        urlpath = "characters/base-stats"
+        bases = self.sos_cleaner.url_to_tables[urlpath][0]
+        former_hp = int(bases.at[0, "HP"])
+        bases.at[0, "HP"] = str(bases.at[0, "HP"]) + " *"
+        former_def = int(bases.at[0, "Def"])
+        bases.at[0, "Def"] = "-" + str(bases.at[0, "Def"])
+        # main
+        self.sos_cleaner.replace_with_int_df(urlpath)
+        # check that all rows in a numeric column are numeric
+        nonnumeric_columns = ("Name", "Class", "Affin", "Weapon ranks")
+        # for filter call
+        def is_numeric_col(col: object):
+            """
+            Determines if a column is 'non-numeric'.
+            """
+            return col not in nonnumeric_columns
+        # commence check
+        for df in self.sos_cleaner.url_to_tables[urlpath]:
+            for num_col in filter(is_numeric_col, df.columns):
+                for stat in df.loc[:, num_col]:
+                    # recall that non-numeric rows have not been dropped yet
+                    if stat == num_col:
+                        continue
+                    self.assertIsInstance(stat, int)
+        bases = self.sos_cleaner.url_to_tables[urlpath][0]
+        # nonnumerics stay intact
+        self.assertEqual(bases.at[0, "Name"], "Roy")
+        # bad stats are replaced
+        self.assertEqual(bases.at[0, "HP"], former_hp)
+        self.assertEqual(bases.at[0, "Def"], -former_def)
+
+    def test_create_fieldrecon_file__file_exists(self):
+        """
+        Tests that the fieldrecon_file is untouched if it exists when the method is called.
+        """
+        # the file may already exist
+        fieldrecon_path = self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file)
+        fieldrecon_path.write_text("")
+        # saving old stat to compare against post-call result
+        old_stat = fieldrecon_path.stat()
+        with self.assertRaises(FileExistsError):
+            self.sos_cleaner.create_fieldrecon_file()
+        # file must remain untouched
+        self.assertEqual(old_stat, fieldrecon_path.stat())
+
+    def test_create_fieldrecon_file(self):
+        """
+        Tests that the fieldrecon_file is created, and that its dict-equivalent is of the desired form.
+        """
+        fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
+        # compile fieldnames
+        fieldnames = set()
+        for tablelist in self.sos_cleaner.url_to_tables.values():
+            for table in tablelist:
+                fieldnames.update(set(table.columns))
+        # main
+        self.sos_cleaner.create_fieldrecon_file()
+        with open(fieldrecon_path, encoding='utf-8') as rfile:
+            fieldrecon_dict = json.load(rfile)
+        self.assertSetEqual(set(fieldrecon_dict), fieldnames)
+        self.assertSetEqual(set(fieldrecon_dict.values()), {None})
+
+    def test_apply_fieldrecon_file__failures(self):
+        """
+        Documents/tests failures that may occur when calling apply_fieldrecon_file.
+
+        Exceptions:
+        - FileNotFoundError
+        - ValueError: Null-values found in JSON-dict
+        """
+        # 1: the file may not exist
+        fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
+        # compile before-fieldnames to check against after-fieldnames after failed call
+        old_fieldnames = set()
+        for tablelist in self.sos_cleaner.url_to_tables.values():
+            for table in tablelist:
+                old_fieldnames.update(set(table.columns))
+        # main: fails because the file does not exist
         with self.assertRaises(FileNotFoundError):
             self.sos_cleaner.apply_fieldrecon_file()
+        # compile after-fieldnames
+        new_fieldnames = set()
+        for tablelist in self.sos_cleaner.url_to_tables.values():
+            for table in tablelist:
+                new_fieldnames.update(set(table.columns))
+        # compare
+        self.assertSetEqual(new_fieldnames, old_fieldnames)
+        # 2: there may be nulls in the file
+        fieldrecon_dict = {"HP": "health-points", "Def": None}
+        # check that weird HP alias does not exist in the fieldname set
+        for tablelist in self.sos_cleaner.url_to_tables.values():
+            for table in tablelist:
+                self.assertNotIn("health-points", table.columns)
+        with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
+            json.dump(fieldrecon_dict, wfile)
+        with self.assertRaises(ValueError):
+            self.sos_cleaner.apply_fieldrecon_file()
+        # check that weird HP alias still does not exist in the fieldname set
+        for tablelist in self.sos_cleaner.url_to_tables.values():
+            for table in tablelist:
+                self.assertNotIn("health-points", table.columns)
 
     def test_apply_fieldrecon_file(self):
         """
         """
-        json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
-        fielddict = {"HP": "health-points", "Mov": "DROP"}
-        with open(json_path, mode='w', encoding='utf-8') as wfile:
-            json.dump(fielddict, wfile)
-        fieldset = set()
+        fieldrecon_dict = {
+                "Name": "Name",
+                "Class": "Class",
+                "Affin": "DROP!",
+                "Weapon ranks": "DROP!",
+                "HP": "health-points",
+                }
+        fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
+        with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
+            json.dump(fieldrecon_dict, wfile)
+        # compile old fieldset for comparison
+        old_fieldset = set()
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
-                fieldset.update(set(table.columns))
-        self.assertNotIn(fielddict["HP"], fieldset)
-        self.assertIn("Mov", fieldset)
+                old_fieldset.update(set(table.columns))
+        self.assertTrue(set(fieldrecon_dict).issubset(old_fieldset))
+        # main
         self.sos_cleaner.apply_fieldrecon_file()
-        for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
-            for index, table in enumerate(tablelist):
-                self.assertNotIn("Mov", table.columns)
-                self.assertNotIn("DROP", table.columns)
-                if {"HP", "health-points"}.isdisjoint(set(table.columns)):
-                    continue
-                self.assertNotIn("HP", table.columns)
-                self.assertIn("health-points", table.columns)
-
-    def test_apply_fieldrecon_file__contains_null(self):
-        """
-        """
-        json_path = str(self.sos_cleaner.get_datafile_path(self.sos_cleaner.fieldrecon_json))
-        fielddict = {"HP": "health-points", "Def": "Defense", "": None}
-        with open(json_path, mode='w', encoding='utf-8') as wfile:
-            json.dump(fielddict, wfile)
-        fieldset = set()
+        # compile new fieldset
+        new_fieldset = set()
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
-                fieldset.update(set(table.columns))
-        self.assertNotIn(fielddict["HP"], fieldset)
-        with self.assertRaises(ValueError):
-            self.sos_cleaner.apply_fieldrecon_file()
-        for urlpath, tablelist in self.sos_cleaner.url_to_tables.items():
-            for index, table in enumerate(tablelist):
-                if {"HP", "health-points"}.isdisjoint(set(table.columns)):
-                    continue
-                self.assertNotIn("health-points", table.columns)
-                self.assertIn("HP", table.columns)
+                new_fieldset.update(set(table.columns))
+        self.assertTrue({"Affin", "Weapon ranks"}.isdisjoint(new_fieldset))
+        self.assertNotIn("DROP!", new_fieldset)
+        self.assertIn("health-points", new_fieldset)
 
-    def test_replace_with_int_df(self):
+    @patch("pathlib.Path.exists")
+    def test_create_clsrecon_file__file_exists(self, mock_clsrecon_file):
         """
+        Tests that create_clsrecon_file fails if the file already exists.
         """
-        urlpath = "characters/base-stats"
-        columns = ["Class", "Name", "Affin", "Weapon ranks", "Name"]
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        bad_hp = "-" + str(bases_table.at[0, "HP"]) + " *"
-        bases_table.at[0, "HP"] = bad_hp
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0].copy()
-        self.sos_cleaner.replace_with_int_df(urlpath, columns)
-        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
-        self.assertTrue( all(new_bases_table == bases_table) )
-        self.assertTrue( all(new_bases_table.dtypes == new_bases_table.convert_dtypes().dtypes) )
-        self.assertTrue( new_bases_table.at[0, "HP"] < 0 )
-        self.assertNotIn(bad_hp, set(new_bases_table["HP"]))
+        ltable_columns = ("characters/base-stats", "Class")
+        rtable_columns = ("classes/maximum-stats", "Class")
+        # 1: the file may already exist
+        self.clsrecon_path.write_text("")
+        old_stat = self.clsrecon_path.stat()
+        # main: fails because the file exists
+        mock_clsrecon_file.return_value = True
+        with self.assertRaises(FileExistsError):
+            self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
+        mock_clsrecon_file.assert_called()
+        # existing file is unchanged
+        self.assertEqual(old_stat, self.clsrecon_path.stat())
 
-    def test_replace_with_int_df__column_dne(self):
+    @patch("pathlib.Path.exists")
+    def test_create_clsrecon_file__columns_dne(self, mock_path):
         """
+        Tests that the create_clsrecon_file fails if the columns specified do not exist.
         """
-        urlpath = "characters/base-stats"
-        columns = [""]
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        bad_hp = str(bases_table.at[0, "HP"]) + " *"
-        bases_table.at[0, "HP"] = bad_hp
-        with self.assertRaises(ValueError):
-            self.sos_cleaner.replace_with_int_df(urlpath, columns)
-        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
-        self.assertTrue( all(new_bases_table == bases_table) )
-        self.assertIn(bad_hp, set(new_bases_table.loc[:, "HP"]))
+        ltable_columns = ("characters/base-stats", "lass")
+        rtable_columns = ("classes/maximum-stats", "Class")
+        mock_path.return_value = False
+        with self.assertRaises(KeyError): # for pd.DataFrame_s
+            self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
+        self.assertFalse(self.clsrecon_path.exists())
 
-    def test_replace_with_int_df__not_all_columns_listed(self):
+    def test_create_clsrecon_file__tables_dne(self):
+        """
+        Tests that the create_clsrecon_file fails if the tables specified do not exist.
+        """
+        ltable_columns = ("characters/base-stats", "Class")
+        rtable_columns = ("casses/maximum-stats", "Class")
+        with self.assertRaises(KeyError): # for url_to_tables dict
+            self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
+        self.assertFalse(self.clsrecon_path.exists())
+
+    @patch("io.open")
+    def test_create_clsrecon_file(self, mock_wfile):
+        """
+        Tests that create_clsrecon_file succeeds.
+        """
+        ltable_columns = ("classes/maximum-stats", "Class")
+        rtable_columns = ("classes/promotion-gains", "Promotion")
+        # creating a mock-file class
+        mock_wfile.return_value = RewriteableIO()
+        # main
+        ltable = self.sos_cleaner.page_dict[ltable_columns[0]]
+        rtable = self.sos_cleaner.page_dict[rtable_columns[0]]
+        Path("data", "binding-blade", f"{ltable}-JOIN-{rtable}.json").unlink(missing_ok=True)
+        self.sos_cleaner.create_clsrecon_file(ltable_columns, rtable_columns)
+        mock_wfile.assert_called_once_with(
+                f"data/binding-blade/{ltable}-JOIN-{rtable}.json",
+                mode="w",
+                encoding="utf-8",
+                )
+        clsrecon_dict = json.load(mock_wfile.return_value)
+        self.assertIsInstance(clsrecon_dict, dict)
+        self.assertSetEqual(set(clsrecon_dict.values()), {None})
+        self.assertSetEqual(set(type(cls) for cls in clsrecon_dict), {str})
+
+    def test_verify_clsrecon_file__file_dne(self):
+        """
+        Tests that the verify_clsrecon_file fails if the file is not found.
+        """
+        ltable_url = "characters/growth-rates"
+        rtable_columns = ("classes/maximum-stats", "Class")
+        with self.assertRaises(FileNotFoundError):
+            self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
+
+    def test_verify_clsrecon_file__tables_dne(self):
+        """
+        Tests that the verify_clsrecon_file fails if the table(s) do not exist.
+        """
+        ltable_url = "characters/base-stats"
+        rtable_columns = ("classes/mximum-stats", "Class")
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
+
+    @patch("io.open")
+    def test_verify_clsrecon_file__column_dne(self, mock_rfile):
+        """
+        Tests that the verify_clsrecon_file fails if the column(s) do not exist.
+        """
+        ltable_url = "characters/base-stats"
+        rtable_columns = ("classes/maximum-stats", "lass")
+        json_io = io.StringIO()
+        json.dump({}, json_io)
+        json_io.seek(0)
+        mock_rfile.return_value = json_io
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
+
+    @patch("io.open")
+    def test_verify_clsrecon_file(self, mock_wfile):
+        """
+        Tests that the verify_clsrecon_file works as intended.
+        """
+        ltable_url = "characters/base-stats"
+        rtable_columns = ("classes/maximum-stats", "Class")
+        rtable_url, tocol_name = rtable_columns
+        # compile clsrecon_dict
+        clsrecon_dict = {}
+        for name in self.sos_cleaner.url_to_tables[ltable_url][0].loc[:, "Name"]:
+            clsrecon_dict[name] = random.choice(
+                    self.sos_cleaner.url_to_tables[rtable_url][0].loc[:, tocol_name]
+                    )
+        clsrecon_dict["Karel"] = None
+        # dump clsrecon_dict into virtual file
+        with RewriteableIO() as wfile:
+            json.dump(clsrecon_dict, wfile)
+        mock_wfile.return_value = wfile
+        # main
+        nomatch_set = self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
+        self.assertSetEqual(nomatch_set, set())
+        ltable_name = self.sos_cleaner.page_dict[ltable_url]
+        rtable_name = self.sos_cleaner.page_dict[rtable_url]
+        mock_wfile.assert_called_once_with(
+                f"data/binding-blade/{ltable_name}-JOIN-{rtable_name}.json",
+                encoding="utf-8",
+                )
+        # test that non-existent class fails the test
+        nonexistent_cls = "master-knight"
+        unmapped_name = self.sos_cleaner.url_to_tables[ltable_url][0].at[0, "Name"]
+        self.assertNotIn(
+                nonexistent_cls ,
+                self.sos_cleaner.url_to_tables[rtable_url][0].loc[:, tocol_name]
+                )
+        clsrecon_dict[unmapped_name] = nonexistent_cls
+        with RewriteableIO() as wfile:
+            json.dump(clsrecon_dict, wfile)
+        # main
+        mock_wfile.return_value = wfile
+        nomatch_set = self.sos_cleaner.verify_clsrecon_file(ltable_url, rtable_columns)
+        self.assertSetEqual(nomatch_set, {unmapped_name})
+
+    def test_set_targetstats(self):
         """
         """
-        urlpath = "characters/base-stats"
-        columns = ["Name"]
-        bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        bad_hp = str(bases_table.at[0, "HP"]) + " *"
-        bases_table.at[0, "HP"] = bad_hp
-        bases_table = bases_table.copy()
-        with self.assertRaises(TypeError):
-            self.sos_cleaner.replace_with_int_df(urlpath, columns)
-        new_bases_table = self.sos_cleaner.url_to_tables[urlpath][0]
-        self.assertTupleEqual(tuple(new_bases_table.columns), tuple(bases_table.columns))
-        self.assertTrue( all(new_bases_table == bases_table) )
-        self.assertIn(bad_hp, set(new_bases_table.loc[:, "HP"]))
+        pass
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(
+            #defaultTest=[test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file")],
+            #module=CleanerTest,
+            )

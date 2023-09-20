@@ -1,11 +1,16 @@
 #!/usr/bin/python3
 """
-"""
+Defines the SerenesBase class.
 
-from pathlib import Path
+SerenesBase: Defines parameters for web-scraping.
+"""
 
 class SerenesBase:
     """
+    Defines parameters for web-scraping serenesforest.net.
+
+    URL_ROOT: URL of the website to be scraped.
+    NUM_TO_NAME: Index that looks up FE title by game number.
     """
 
     _NUM_TO_NAME = {
@@ -17,75 +22,35 @@ class SerenesBase:
             9: "path-of-radiance",
             }
 
-    _URL_TO_TABLE = {
-            "characters/base-stats": "characters__base_stats",
-            "characters/growth-rates": "characters__growth_rates",
-            "classes/maximum-stats": "classes__maximum_stats",
-            "classes/promotion-gains": "classes__promotion_gains",
-            }
-
     def __init__(self, game_num: int):
         """
+        Defines parameters that identify a FE game.
         """
         self._game_num = game_num
-        self._page_dict = self.URL_TO_TABLE.copy()
+        #!will raise KeyError if not found
         self._game_name = self.NUM_TO_NAME[self._game_num]
-        self._home_dir = Path("data", self._game_name)
-        self._url_to_tables = {}
-
-    @property
-    def URL_TO_TABLE(self):
-        """
-        """
-        return self._URL_TO_TABLE
-
-    @property
-    def NUM_TO_NAME(self):
-        """
-        """
-        return self._NUM_TO_NAME
 
     @property
     def game_num(self):
         """
+        The number of a FE game in the series.
         """
         return self._game_num
 
     @property
-    def page_dict(self):
-        """
-        """
-        return self._page_dict
-
-    @property
     def game_name(self):
         """
+        The name of a FE game, given the number.
         """
         return self._game_name
 
     @property
-    def home_dir(self):
+    def NUM_TO_NAME(self):
         """
+        Index that looks up FE title by game number.
         """
-        return self._home_dir
+        return self._NUM_TO_NAME
 
-    @property
-    def url_to_tables(self):
-        """
-        """
-        return self._url_to_tables
-
-    def get_datafile_path(self, filename: str):
-        """
-        """
-        return self.home_dir.joinpath(filename)
-
-    def get_urlname(self, tablename: str):
-        """
-        """
-        urlname = tablename.replace("__", "/").replace("_", "-")
-        assert urlname in self.page_dict
-        return urlname
 
 if __name__ == '__main__':
     pass
