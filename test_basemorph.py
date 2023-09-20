@@ -40,6 +40,7 @@ class BaseMorphTest(unittest.TestCase):
 
     def test_set_targetstats1(self):
         """
+        Tests the function from top to bottom, and documents all failures and branches.
         """
         target_urlpath = "classes/maximum-stats"
         target_pkey = ["Class"]
@@ -75,6 +76,12 @@ class BaseMorphTest(unittest.TestCase):
 
     def test_set_targetstats2(self):
         """
+        Tests for all cases that will be encountered during program usage.
+
+        # bases-to-maxes
+        # promo-to-maxes
+        # bases-to-promo
+        # bases-to-promo: fail
         """
         # bases-to-maxes
         target_urlpath = "classes/maximum-stats"
@@ -100,6 +107,9 @@ class BaseMorphTest(unittest.TestCase):
     @patch("io.open")
     def test_set_targetstats__filenotfound(self, mock_open):
         """
+        Tests that the state of the BaseMorph remains the same if the file is not found.
+
+        This will be useful when referencing the static filetree on the web.
         """
         # 6: file not found
         target_urlpath = "classes/maximum-stats"
