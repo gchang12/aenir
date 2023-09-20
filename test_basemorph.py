@@ -79,15 +79,26 @@ class BaseMorphTest(unittest.TestCase):
         Tests for all cases that will be encountered during program usage.
 
         # bases-to-maxes
+        # bases-to-growths
+        # bases-to-growths: not in clsrecon_dict
         # promo-to-maxes
         # bases-to-promo
         # bases-to-promo: fail
         """
-        # bases-to-maxes
         target_urlpath = "classes/maximum-stats"
         target_pkey = ["Class"]
+        # bases-to-maxes
         self.sos_unit.set_targetstats(target_urlpath, "Marcus", target_pkey, 0)
         self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
+        # bases-to-growths
+        self.sos_unit.set_targetstats("characters/growth-rates", "Rutger (HM)", ["Name"], 0)
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
+        # bases-to-growths: not in clsrecon_dict
+        self.sos_unit.set_targetstats("characters/growth-rates", "Lance", ["Name"], 0)
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
         # promo-to-maxes
         self.sos_unit.current_clstype = "classes/promotion-gains"
         self.sos_unit.current_cls = "Master Lord"
