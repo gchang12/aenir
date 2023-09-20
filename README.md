@@ -72,6 +72,18 @@ remove subclassing of aseMorph
 // 2023-09-07
 move scraper method to \_base.py
 
+// 2023-09-11
+branched promo: 5-Lara only, 8**
+map ALL bases-names to promo
+**
+Lara: Thief -> TF -> Dancer -> TF
+Thief -> Dancer -> TF
+
+// 2023-09-14
+Add docstrings
+Add logging
+Decide if mock-df is worth using in test_scraper module
+
 // 2023-09-19
 Morph family tree
 stat-matching -> init-bases -> growths, maxes, promo
