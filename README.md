@@ -71,3 +71,7 @@ remove subclassing of aseMorph
 
 // 2023-09-07
 move scraper method to \_base.py
+
+// 2023-09-19
+Morph family tree
+stat-matching -> init-bases -> growths, maxes, promo

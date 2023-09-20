@@ -1,77 +1,63 @@
 #!/usr/bin/python3
 """
+Defines the SerenesScraper class.
+
+SerenesScraper: Defines a single method for web-scraping SF.net.
 """
 
 import logging
 
-import requests as r
+import requests
 import pandas as pd
 
 from aenir._base import SerenesBase
 
+
 class SerenesScraper(SerenesBase):
     """
+    Defines a scraper method, among other relevant parameters.
+
+    Parameters:
+    - url_to_tables: Stores the scraped tables in lists of pd.DataFrame_s.
     """
 
-    URL_ROOT = "https://serenesforest.net/"
+    _URL_ROOT = "https://serenesforest.net"
 
-    def __init__(self, game_num: int, check_if_url_exists=True):
+    def __init__(self, game_num: int):
         """
+        Extends: SerenesBase.__init__
+
+        Defines the following parameters:
+        - page_dict: Maps urlpaths to SQL table names.
+        - url_to_tables: Maps urlpaths to the tables contained in those urlpaths.
         """
         SerenesBase.__init__(self, game_num)
-        self._home_url = "/".join((self.URL_ROOT, self.game_name))
-        self.tables_file = "raw_stats.db"
-        if check_if_url_exists:
-            response = r.get(self.home_url, timeout=1)
-            response.raise_for_status()
-
-    @property
-    def home_url(self):
-        """
-        """
-        return self._home_url
+        # stores the scraped tables in lists of pd.DataFrame_s.
+        self.url_to_tables = {}
 
     def scrape_tables(self, urlpath: str):
         """
+        Maps url_to_tables[urlpath] to a list of tables obtained from web-scraping methods.
         """
-        if not isinstance(urlpath, str):
-            raise TypeError
-        table_url = "/".join([self.home_url, urlpath])
-        response = r.get(table_url, timeout=1)
+        assert isinstance(urlpath, str)
+        absolute_url = "/".join([self.URL_ROOT, self.game_name, urlpath])
+        logging.info("Now scraping from '%s'...", absolute_url)
+        response = requests.get(absolute_url, timeout=1)
+        #!will raise requests.exceptions.HTTPError if name does not exist
         response.raise_for_status()
+        logging.info("Scraping successful.")
         self.url_to_tables[urlpath] = pd.read_html(response.text)
+        logging.info(
+                "%d table(s) found, and loaded into url_to_tables['%s'].",
+                len(self.url_to_tables[urlpath]), urlpath
+                )
 
-    def save_tables(self, urlpath: str):
+    @property
+    def URL_ROOT(self):
         """
+        URL of the website to be scraped.
         """
-        tablename = self.page_dict[urlpath]
-        tableindex = 0
-        self.home_dir.mkdir(exist_ok=True, parents=True)
-        save_dir = str(self.home_dir.joinpath(self.tables_file))
-        while self.url_to_tables[urlpath]:
-            table = self.url_to_tables[urlpath].pop(0)
-            name = tablename + str(tableindex)
-            con = "sqlite:///" + save_dir
-            table.to_sql(name, con, index=False)
-            tableindex += 1
-        del self.url_to_tables[urlpath]
-
-    def load_tables(self, urlpath: str):
-        """
-        """
-        save_dir = str(self.home_dir.joinpath(self.tables_file))
-        tablename_root = self.page_dict[urlpath]
-        self.url_to_tables[urlpath] = []
-        tableindex = 0
-        while True:
-            table_name = tablename_root + str(tableindex)
-            con = "sqlite:///" + save_dir
-            try:
-                table = pd.read_sql_table(table_name, con)
-                tableindex += 1
-                self.url_to_tables[urlpath].append(table)
-            except ValueError:
-                break
+        return self._URL_ROOT
 
 if __name__ == '__main__':
     pass
