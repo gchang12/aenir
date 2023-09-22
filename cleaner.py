@@ -21,7 +21,7 @@ class SerenesCleaner(SerenesTranscriber):
 
     Parameters:
     - fieldrecon_file: File that stores the mapping of consolidated field names for all tables.
-    - cls_recon_list: List of common arguments to pass to *_clsrecon_file methods.
+    - clsrecon_list: List of common arguments to pass to *_clsrecon_file methods.
     """
 
     def __init__(self, game_num: int):
@@ -30,11 +30,11 @@ class SerenesCleaner(SerenesTranscriber):
 
         Parameters:
         - fieldrecon_file
-        - cls_recon_list
+        - clsrecon_list
         """
         SerenesTranscriber.__init__(self, game_num)
         self.fieldrecon_file = "fieldrecon.json"
-        self.cls_recon_list = [
+        self.clsrecon_list = [
                 (("characters/base-stats", "Name"), ("characters/growth-rates", "Name")),
                 (("characters/base-stats", "Class"), ("classes/maximum-stats", "Class")),
                 (("characters/base-stats", "Class"), ("classes/promotion-gains", "Class")),
