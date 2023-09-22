@@ -17,6 +17,7 @@ class BaseMorph(SerenesTranscriber):
 
     Parameters:
     - current_clstype: Used in order to look-up name in class-recon dictionary.
+    - current_cls: Indicates the Morph's current class.
     - target_stats: Stores stats that have been looked-up and stored.
     """
 
