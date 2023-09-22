@@ -4,9 +4,9 @@
 
 import unittest
 
-from aenir.protomorph import ProtoMorph
+from aenir.morph import Morph
 
-class ProtoMorphTest(unittest.TestCase):
+class MorphTest(unittest.TestCase):
     pass
 
 
