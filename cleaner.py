@@ -119,6 +119,11 @@ class SerenesCleaner(SerenesTranscriber):
 
     def create_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
+        Creates class-reconciliation dict for pseudo-foreign-key stat look-up.
+
+        Raises:
+        - FileExistsError
+        - KeyError: Keys provided are invalid
         """
         # unpack arguments
         ltable_url, lpkey, from_col = ltable_args
@@ -142,36 +147,9 @@ class SerenesCleaner(SerenesTranscriber):
         json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
         if json_path.exists():
             raise FileExistsError
-        with open(str(json_path), encoding='utf-8') as wfile:
+        with io.open(str(json_path), encoding='utf-8') as wfile:
             json.dump(clsrecon_dict, wfile, indent=4)
-
-    def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
-        """
-        """
-        # unpack arguments
-        ltable_url, lpkey, from_col = ltable_args
-        rtable_url, to_col = rtable_args
-        # load clsrecon_dict
-        ltable_name = self.page_dict[ltable_url]
-        rtable_name = self.page_dict[rtable_url]
-        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
-        with open(str(json_path), encoding='utf-8') as rfile:
-            clsrecon_dict = json.load(rfile)
-        # compile ltable pkey names
-        ltable_nameset = set()
-        for table in self.url_to_tables[ltable_url]:
-            ltable_nameset.update(set(table.loc[:, lpkey]))
-        # check difference; also, get better printing implementation
-        print(f"Names in clsrecon_file, but not in {ltable_url} table(s).")
-        print(set(clsrecon_dict) - ltable_nameset)
-        # compile rtable values
-        rtable_nameset = set()
-        for table in self.url_to_tables[rtable_url]:
-            rtable_nameset.update(set(table.loc[:, to_col]))
-        # check difference
-        ltable_valueset = set(clsrecon_dict.values())
-        print(f"Values in clsrecon_file, but not in {rtable_url} table(s).")
-        print((ltable_valueset - {None}) - rtable_nameset)
+            logging.info("'%s' has been created.", str(json_path))
 
 if __name__ == '__main__':
     pass
