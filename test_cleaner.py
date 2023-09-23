@@ -4,6 +4,7 @@ Defines the CleanerTest class for SerenesCleaner class.
 """
 
 import io
+import logging
 from pathlib import Path
 import re
 import random
@@ -64,6 +65,7 @@ class CleanerTest(unittest.TestCase):
         """
         Tests that all numeric columns contain [pseudo-]numeric data.
         """
+        logging.info("CleanerTest.test_drop_nonnumeric_rows(self)")
         # nothing can go wrong
         urlpath = "characters/base-stats"
         # main
@@ -87,6 +89,7 @@ class CleanerTest(unittest.TestCase):
         Tests that otherwise numeric stats have no extraneous trailing/leading non-numerics.
         """
         # nothing can go wrong
+        logging.info("CleanerTest.test_replace_with_int_df(self)")
         urlpath = "characters/base-stats"
         bases = self.sos_cleaner.url_to_tables[urlpath][0]
         former_hp = int(bases.at[0, "HP"])
@@ -122,6 +125,7 @@ class CleanerTest(unittest.TestCase):
         """
         Tests that the fieldrecon_file is untouched if it exists when the method is called.
         """
+        logging.info("CleanerTest.test_create_fieldrecon_file_exists(self)")
         # the file may already exist
         fieldrecon_path = self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file)
         fieldrecon_path.write_text("")
@@ -136,6 +140,7 @@ class CleanerTest(unittest.TestCase):
         """
         Tests that the fieldrecon_file is created, and that its dict-equivalent is of the desired form.
         """
+        logging.info("CleanerTest.test_create_fieldrecon_file(self)")
         fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
         # compile fieldnames
         fieldnames = set()
@@ -157,6 +162,7 @@ class CleanerTest(unittest.TestCase):
         - FileNotFoundError
         - ValueError: Null-values found in JSON-dict
         """
+        logging.info("CleanerTest.test_apply_fieldrecon_file__failures(self)")
         # 1: the file may not exist
         fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
         # compile before-fieldnames to check against after-fieldnames after failed call
@@ -193,6 +199,7 @@ class CleanerTest(unittest.TestCase):
         """
         Tests apply_fieldrecon_file method.
         """
+        logging.info("CleanerTest.test_apply_fieldrecon_file(self)")
         fieldrecon_dict = {
                 "Name": "Name",
                 "Class": "Class",
@@ -225,6 +232,7 @@ class CleanerTest(unittest.TestCase):
         """
         Lists everything that can go wrong when calling this function.
         """
+        logging.info("CleanerTest.test_create_clsrecon_file__failures(self)")
         ltable_url = "characters/base-stats"
         rtable_url = "classes/promotion-gains"
         lpkey = "Name"
@@ -300,6 +308,7 @@ class CleanerTest(unittest.TestCase):
         """
         An example of a successful run.
         """
+        logging.info("CleanerTest.test_create_clsrecon_file(self)")
         # initialize necessary variables
         ltable_url = "characters/base-stats"
         rtable_url = "classes/promotion-gains"

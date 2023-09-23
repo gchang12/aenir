@@ -37,6 +37,9 @@ class BaseMorph(SerenesCleaner):
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
+        Prints: clsrecon_dict.keys not in ltable[lpkey], clsrecon_dict.values not in rtable[to_col].
+
+        Note: In order for this method to work, logging.level must be set to logging.INFO.
         """
         logging.info("BaseMorph.verify_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
@@ -66,6 +69,37 @@ class BaseMorph(SerenesCleaner):
         logging.info("%d value(s) in '%s', but not in '%s.%s': ", len(check2), str(json_path), rtable_name, to_col)
         for name in check2:
             logging.info(name)
+
+    def verify_maximum_stats(self):
+        """
+        Prints columns that are in 'classes/maximum-stats' but not in 'characters/base-stats'.
+
+        Note: In order for this method to work, logging.level must be set to logging.INFO.
+        """
+        bases_name = "characters/base-stats"
+        maxes_name = "classes/maximum-stats"
+        bases = set(self.url_to_tables[bases_name][0].columns) - {"Name"}
+        maxes = set(self.url_to_tables[maxes_name][0].columns) - {"Class"}
+        # check1: bases - maxes
+        check1 = bases - maxes
+        logging.info("%d names in '%s' but not '%s': ", len(check1), bases_name, maxes_name)
+        for name in check1:
+            logging.info(name)
+        # check2: maxes - bases
+        check2 = bases - maxes
+        logging.info("%d names in '%s' but not '%s': ", len(check2), maxes_name, bases_name)
+        for name in check2:
+            logging.info(name)
+
+    def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str]):
+        """
+        Sets BaseMorph.target_stats to the pd.[DataFrame|Series] per clsrecon_dict.
+
+        ltable_url, lpkey = ltable_args
+        rtable_url, to_col = rtable_args
+        lpkey |-(clsrecon_dict)-> from_col === to_col
+        """
+        logging.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
 
 if __name__ == '__main__':
     pass
