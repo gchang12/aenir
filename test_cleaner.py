@@ -220,6 +220,28 @@ class CleanerTest(unittest.TestCase):
         self.assertNotIn("DROP!", new_fieldset)
         self.assertIn("health-points", new_fieldset)
 
+    def test_create_clsrecon_file(self):
+        """
+        """
+        # arguments are wrong
+        # rtable_url not in self.url_to_tables
+        # to_col not in ltable
+        # ltable_url not in self.url_to_tables
+        # from_col not in rtable
+        # [lr]table_url not in self.page_dict
+        # {ltable_name}-JOIN-{rtable_name}.json exists
+        pass
+
+    def test_verify_clsrecon_file(self):
+        """
+        """
+        # arguments are wrong
+        # [lr]table_url not in self.page_dict
+        # {ltable_name}-JOIN-{rtable_name}.json DNE
+        # lpkey not in ltable
+        # to_col not in rtable
+        pass
+
 if __name__ == '__main__':
     unittest.main(
             #defaultTest=[test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file")],

@@ -35,10 +35,10 @@ class SerenesCleaner(SerenesTranscriber):
         SerenesTranscriber.__init__(self, game_num)
         self.fieldrecon_file = "fieldrecon.json"
         self.clsrecon_list = [
-                (("characters/base-stats", "Name"), ("characters/growth-rates", "Name")),
-                (("characters/base-stats", "Class"), ("classes/maximum-stats", "Class")),
-                (("characters/base-stats", "Class"), ("classes/promotion-gains", "Class")),
-                (("classes/promotion-gains", "Promotion"), ("classes/maximum-stats", "Class")),
+                (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
+                (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
+                (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
+                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
                 ]
 
 
@@ -116,6 +116,62 @@ class SerenesCleaner(SerenesTranscriber):
                 except KeyError:
                     logging.info("No columns to drop for '%s'[%d]. Renaming...", urlpath, index)
                     tablelist[index] = table.rename(columns=fieldrecon_dict)
+
+    def create_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
+        """
+        """
+        # unpack arguments
+        ltable_url, lpkey, from_col = ltable_args
+        rtable_url, to_col = rtable_args
+        # compile names in to_col to see which names in from_col are not in the to_col
+        rtable_nameset = set()
+        for table in self.url_to_tables[rtable_url]:
+            rtable_nameset.update(set(table.loc[:, to_col]))
+        # map missing names to null, present names to themselves
+        clsrecon_dict = {}
+        for table in self.url_to_tables[ltable_url]:
+            # get all names, map missing to None
+            for pval, lrow in table.set_index(lpkey).iterrows():
+                from_val = lrow.pop(from_col)
+                if from_val not in rtable_nameset:
+                    from_val = None
+                clsrecon_dict[pval] = from_val
+        # dump dict into file
+        ltable_name = self.page_dict[ltable_url]
+        rtable_name = self.page_dict[rtable_url]
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        if json_path.exists():
+            raise FileExistsError
+        with open(str(json_path), encoding='utf-8') as wfile:
+            json.dump(clsrecon_dict, wfile, indent=4)
+
+    def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
+        """
+        """
+        # unpack arguments
+        ltable_url, lpkey, from_col = ltable_args
+        rtable_url, to_col = rtable_args
+        # load clsrecon_dict
+        ltable_name = self.page_dict[ltable_url]
+        rtable_name = self.page_dict[rtable_url]
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        with open(str(json_path), encoding='utf-8') as rfile:
+            clsrecon_dict = json.load(rfile)
+        # compile ltable pkey names
+        ltable_nameset = set()
+        for table in self.url_to_tables[ltable_url]:
+            ltable_nameset.update(set(table.loc[:, lpkey]))
+        # check difference; also, get better printing implementation
+        print(f"Names in clsrecon_file, but not in {ltable_url} table(s).")
+        print(set(clsrecon_dict) - ltable_nameset)
+        # compile rtable values
+        rtable_nameset = set()
+        for table in self.url_to_tables[rtable_url]:
+            rtable_nameset.update(set(table.loc[:, to_col]))
+        # check difference
+        ltable_valueset = set(clsrecon_dict.values())
+        print(f"Values in clsrecon_file, but not in {rtable_url} table(s).")
+        print((ltable_valueset - {None}) - rtable_nameset)
 
 if __name__ == '__main__':
     pass
