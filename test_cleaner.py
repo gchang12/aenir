@@ -220,30 +220,128 @@ class CleanerTest(unittest.TestCase):
         self.assertNotIn("DROP!", new_fieldset)
         self.assertIn("health-points", new_fieldset)
 
-    def test_create_clsrecon_file(self):
+    @patch("pathlib.Path.exists")
+    def test_create_clsrecon_file__failures(self, mock_exists):
         """
+        Lists everything that can go wrong when calling this function.
         """
-        # arguments are wrong
-        # rtable_url not in self.url_to_tables
-        # to_col not in ltable
+        ltable_url = "characters/base-stats"
+        rtable_url = "classes/promotion-gains"
+        lpkey = "Name"
+        from_col = "Class"
+        to_col = "Class"
         # ltable_url not in self.url_to_tables
-        # from_col not in rtable
-        # [lr]table_url not in self.page_dict
-        # {ltable_name}-JOIN-{rtable_name}.json exists
-        pass
-
-    def test_verify_clsrecon_file(self):
-        """
-        """
-        # arguments are wrong
-        # [lr]table_url not in self.page_dict
-        # {ltable_name}-JOIN-{rtable_name}.json DNE
-        # lpkey not in ltable
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.create_clsrecon_file(
+                    ("", lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+        # rtable_url not in self.url_to_tables
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    ("", to_col),
+                    )
         # to_col not in rtable
-        pass
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, ""),
+                    )
+        # ltable_url not in self.url_to_tables
+        with self.assertRaises(KeyError):
+            bases_list = self.sos_cleaner.url_to_tables.pop(ltable_url)
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+        self.sos_cleaner.url_to_tables[ltable_url] = bases_list
+        # rtable_url not in self.url_to_tables
+        with self.assertRaises(KeyError):
+            promo_list = self.sos_cleaner.url_to_tables.pop(rtable_url)
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+        self.sos_cleaner.url_to_tables[rtable_url] = promo_list
+        # from_col not in ltable
+        with self.assertRaises(KeyError):
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, ""),
+                    (rtable_url, to_col),
+                    )
+        # [lr]table_url not in self.page_dict
+        with self.assertRaises(KeyError):
+            ltable_name = self.sos_cleaner.page_dict.pop(ltable_url)
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+        self.sos_cleaner.page_dict[ltable_url] = ltable_name
+        # [lr]table_url not in self.page_dict
+        with self.assertRaises(KeyError):
+            rtable_name = self.sos_cleaner.page_dict.pop(rtable_url)
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+        self.sos_cleaner.page_dict[rtable_url] = rtable_name
+        # {ltable_name}-JOIN-{rtable_name}.json exists
+        mock_exists.return_value = True
+        with self.assertRaises(FileExistsError):
+            self.sos_cleaner.create_clsrecon_file(
+                    (ltable_url, lpkey, from_col),
+                    (rtable_url, to_col),
+                    )
+
+    @patch("io.open")
+    @patch("pathlib.Path.exists")
+    def test_create_clsrecon_file(self, mock_exists, mock_wfile):
+        """
+        An example of a successful run.
+        """
+        # initialize necessary variables
+        ltable_url = "characters/base-stats"
+        rtable_url = "classes/promotion-gains"
+        lpkey = "Name"
+        from_col = "Class"
+        to_col = "Class"
+        # safeguard against error-raiser
+        mock_exists.return_value = False
+        # create IO pool for function to send JSON to
+        mock_wfile.return_value = RewriteableIO()
+        # main
+        self.sos_cleaner.create_clsrecon_file(
+                (ltable_url, lpkey, from_col),
+                (rtable_url, to_col),
+                )
+        # load
+        clsrecon_dict = json.load(mock_wfile.return_value)
+        # check that keys match primary key-values in ltable
+        self.assertSetEqual(
+                set(self.sos_cleaner.url_to_tables[ltable_url][0].loc[:, lpkey]),
+                set(clsrecon_dict),
+                )
+        # check that unmapped lot are None, mapped lot are mapped to selves
+        bases_table = self.sos_cleaner.url_to_tables[ltable_url][0].set_index(lpkey)
+        to_series = self.sos_cleaner.url_to_tables[rtable_url][0].set_index(to_col).index
+        for pval, fromval in clsrecon_dict.items():
+            # recall that nonnumeric rows have yet to be dropped
+            if pval == "Name":
+                continue
+            if fromval is None:
+                self.assertNotIn(
+                        bases_table.at[pval, from_col],
+                        to_series,
+                        )
+            else:
+                self.assertIn(
+                        bases_table.at[pval, from_col],
+                        to_series,
+                        )
 
 if __name__ == '__main__':
     unittest.main(
-            #defaultTest=[test for test in dir(CleanerTest) if test.startswith("test_verify_clsrecon_file")],
-            #module=CleanerTest,
+            defaultTest="test_create_clsrecon_file",
+            module=CleanerTest,
             )
