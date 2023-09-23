@@ -29,11 +29,9 @@ class BaseMorph(SerenesCleaner):
         Defines: current_clstype, current_cls, target_stats, promo_index
         """
         SerenesCleaner.__init__(self, game_num)
+        logging.info("BaseMorph.__init__(self, %d)", game_num)
         # essential to set_targetstats method
-        self.current_clstype = "characters/base-stats"
-        self.current_cls = None
         self.target_stats = None
-        self.promo_index = None
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
@@ -76,9 +74,10 @@ class BaseMorph(SerenesCleaner):
 
         Note: In order for this method to work, logging.level must be set to logging.INFO.
         """
+        logging.info("BaseMorph.verify_maximum_stats(self)")
         bases_name = "characters/base-stats"
         maxes_name = "classes/maximum-stats"
-        bases = set(self.url_to_tables[bases_name][0].columns) - {"Name"}
+        bases = set(self.url_to_tables[bases_name][0].columns) - {"Name", "Class", "Lv"}
         maxes = set(self.url_to_tables[maxes_name][0].columns) - {"Class"}
         # check1: bases - maxes
         check1 = bases - maxes
@@ -91,7 +90,7 @@ class BaseMorph(SerenesCleaner):
         for name in check2:
             logging.info(name)
 
-    def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str]):
+    def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str], tableindex: int):
         """
         Sets BaseMorph.target_stats to the pd.[DataFrame|Series] per clsrecon_dict.
 
@@ -100,6 +99,20 @@ class BaseMorph(SerenesCleaner):
         lpkey |-(clsrecon_dict)-> from_col === to_col
         """
         logging.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
+        # unpack arguments
+        ltable_url, lpval = ltable_args
+        rtable_url, to_col = rtable_args
+        # load clsrecon_dict from json
+        ltable_name = self.page_dict[ltable_url]
+        rtable_name = self.page_dict[rtable_url]
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        with open(str(json_path), encoding='utf-8') as rfile:
+            clsrecon_dict = json.load(rfile)
+        from_col = clsrecon_dict[lpval]
+        if from_col is None:
+            self.target_stats = None
+        else:
+            self.target_stats = self.url_to_tables[rtable_url][tableindex].set_index(to_col).loc[from_col, :]
 
 if __name__ == '__main__':
     pass
