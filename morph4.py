@@ -11,7 +11,7 @@ import pandas as pd
 
 from aenir._basemorph import BaseMorph
 
-class Morph(BaseMorph):
+class Morph4(BaseMorph):
     """
     """
 
@@ -21,7 +21,7 @@ class Morph(BaseMorph):
 
     # declare max-level exceptions?
 
-    def __init__(self, game_num: int, unit_name: str, tableindex: int = 0):
+    def __init__(self, game_num: int, unit_name: str, unit_father: str):
         """
         """
         BaseMorph.__init__(self, game_num)
@@ -31,7 +31,7 @@ class Morph(BaseMorph):
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
         # initialize bases
-        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
+        temp_bases = self.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[(unit_name, unit_father), :]
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
         self.current_lv = temp_bases.pop("Lv")
@@ -48,18 +48,18 @@ class Morph(BaseMorph):
         """
         return self._BRANCHED_PROMO_EXCEPTIONS
 
-    def level_up(self, num_levels: int, tableindex: int = 0):
+    def level_up(self, num_levels: int):
         """
         """
         self.set_targetstats(
-                ("characters/base-stats", self.unit_name),
-                ("characters/growth-rates", "Name"),
-                tableindex,
+                ("characters/base-stats", (self.unit_name, self.unit_father),
+                ("characters/growth-rates", ["Name", "Father"]),
+                1,
                 )
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * num_levels
 
-    def promote(self, tableindex: int = 0):
+    def promote(self):
         """
         """
         if self.current_clstype == "characters/base-stats":
@@ -69,7 +69,7 @@ class Morph(BaseMorph):
         self.set_targetstats(
                 (self.current_clstype, lpval),
                 ("classes/promotion-gains", "Class"),
-                tableindex,
+                0,
                 )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
@@ -82,7 +82,7 @@ class Morph(BaseMorph):
         temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += temp_promo
 
-    def cap_stats(self, tableindex: int = 0):
+    def cap_stats(self):
         """
         """
         if self.current_clstype == "characters/base-stats":
@@ -92,7 +92,7 @@ class Morph(BaseMorph):
         self.set_targetstats(
                 (self.current_clstype, lpval),
                 ("classes/maximum-stats", "Class"),
-                tableindex,
+                0,
                 )
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats.mask(self.current_stats > temp_maxes, inplace=True)
