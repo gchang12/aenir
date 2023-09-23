@@ -40,6 +40,7 @@ class SerenesCleaner(SerenesTranscriber):
                 (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
                 (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
                 (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
+                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
                 ]
 
 

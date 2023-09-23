@@ -6,6 +6,8 @@ Tests the aenir._basemorph.BaseMorph class
 import unittest
 import logging
 
+import pandas as pd
+
 from aenir._basemorph import BaseMorph
 
 logging.basicConfig(level=logging.INFO)
@@ -45,7 +47,61 @@ class BaseMorphTest(unittest.TestCase):
         Tests the set_targetstats method.
         """
         logging.info("BaseMorphTest.test_set_targetstats(self)")
-        pass
+        # bases-to-growths
+        ltable_url, lpval = "characters/base-stats", "Fir (HM)"
+        rtable_url, to_col = "characters/growth-rates", "Name"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
+        # bases-to-maxes
+        rtable_url, to_col = "classes/maximum-stats", "Class"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
+        # bases-to-promo
+        rtable_url, to_col = "classes/promotion-gains", "Class"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        new_cls = self.sos_unit.target_stats.at["Promotion"]
+        self.sos_unit.target_stats = None
+        # promo-to-maxes
+        ltable_url, lpval = "classes/promotion-gains", new_cls
+        rtable_url, to_col = "classes/maximum-stats", "Class"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsInstance(self.sos_unit.target_stats, pd.Series)
+        self.sos_unit.target_stats = None
+        # promo-to-promo
+        rtable_url, to_col = "classes/promotion-gains", "Class"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsNone(self.sos_unit.target_stats)
+        # bases-to-promo: fail
+        ltable_url, lpval = "characters/base-stats", "Marcus"
+        self.sos_unit.set_targetstats(
+                (ltable_url, lpval),
+                (rtable_url, to_col),
+                0,
+                )
+        self.assertIsNone(self.sos_unit.target_stats)
 
 if __name__ == '__main__':
     unittest.main()
