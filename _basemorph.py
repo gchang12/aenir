@@ -32,6 +32,13 @@ class BaseMorph(SerenesCleaner):
         logging.info("BaseMorph.__init__(self, %d)", game_num)
         # essential to set_targetstats method
         self.target_stats = None
+        self.current_stats = None
+
+    def __repr__(self):
+        """
+        Uses the __repr__ method for the pd.Series object representing the current_stats.
+        """
+        return self.current_stats.__repr__()
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
