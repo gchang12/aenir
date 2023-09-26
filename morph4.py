@@ -2,7 +2,7 @@
 """
 Defines Morph class.
 
-Morph: Defines methods to simulate level-ups and promotions for FE units, excluding FE4 kids.
+Morph: Defines methods to simulate level-ups and promotions for FE4 kids.
 """
 
 import logging
@@ -21,17 +21,21 @@ class Morph4(BaseMorph):
 
     # declare max-level exceptions?
 
-    def __init__(self, game_num: int, unit_name: str, unit_father: str):
+    def __init__(self, unit_name: str, unit_father: str):
         """
         """
+        game_num = 4
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
+        self.unit_father = unit_father
         # load tables
+        #self.home_dir = Path
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
         # initialize bases
-        temp_bases = self.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[(unit_name, unit_father), :]
+        tableindex = 1
+        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index(["Name", "Father"]).loc[(unit_name, unit_father), :]
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
         self.current_lv = temp_bases.pop("Lv")
@@ -51,10 +55,11 @@ class Morph4(BaseMorph):
     def level_up(self, num_levels: int):
         """
         """
+        tableindex = 1
         self.set_targetstats(
-                ("characters/base-stats", (self.unit_name, self.unit_father),
+                ("characters/base-stats", (self.unit_name, self.unit_father)),
                 ("characters/growth-rates", ["Name", "Father"]),
-                1,
+                tableindex,
                 )
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * num_levels
@@ -66,10 +71,11 @@ class Morph4(BaseMorph):
             lpval = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
             lpval = self.current_cls
+        tableindex = 0
         self.set_targetstats(
                 (self.current_clstype, lpval),
                 ("classes/promotion-gains", "Class"),
-                0,
+                tableindex,
                 )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
@@ -89,10 +95,11 @@ class Morph4(BaseMorph):
             lpval = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
             lpval = self.current_cls
+        tableindex = 0
         self.set_targetstats(
                 (self.current_clstype, lpval),
                 ("classes/maximum-stats", "Class"),
-                0,
+                tableindex,
                 )
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats.mask(self.current_stats > temp_maxes, inplace=True)

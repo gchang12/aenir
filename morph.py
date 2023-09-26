@@ -27,6 +27,7 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
         # load tables
+        #self.home_dir = Path()
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
@@ -75,9 +76,11 @@ class Morph(BaseMorph):
             raise ValueError(f"{self.unit_name} has no available promotions.")
         if isinstance(self.target_stats, pd.DataFrame):
             self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
+            # raises KeyError for split-promotions; utilize to advantage
             self.current_cls = self.target_stats.name
         else:
             self.current_cls = self.target_stats.pop("Promotion")
+        self.promo_cls = None
         self.current_clstype = "classes/promotion-gains"
         temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += temp_promo
