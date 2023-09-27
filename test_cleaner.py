@@ -326,6 +326,7 @@ class CleanerTest(unittest.TestCase):
                 )
         # load
         clsrecon_dict = json.load(mock_wfile.return_value)
+        #mock_wfile.return_value.close()
         # check that keys match primary key-values in ltable
         self.assertSetEqual(
                 set(self.sos_cleaner.url_to_tables[ltable_url][0].loc[:, lpkey]),
