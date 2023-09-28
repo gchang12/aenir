@@ -17,9 +17,23 @@ class Morph(BaseMorph):
 
     # declare promo-branch exceptions here as a dict-attribute
     _BRANCHED_PROMO_EXCEPTIONS = {
+            (4, "Ira"): "Swordmaster",
+            (4, "Holyn"): "Forrest",
+            (4, "Radney"): "Swordmaster",
+            (4, "Roddlevan"): "Forrest",
+            (4, "Azel"): "Mage Knight",
+            (4, "Arthur"): "Mage Knight",
+            (4, "Tinny"): "Mage Fighter (F)",
+            (5, "Rifis"): "Thief Fighter",
+            (5, "Asvel"): "Sage",
+            (5, "Miranda"): "Mage Knight",
+            (5, "Tania"): "Sniper (F)",
+            (5, "Ronan"): "Sniper (M)",
+            (5, "Machua"): "Mercenary",
+            (5, "Shiva"): "Swordmaster",
+            (5, "Mareeta"): "Swordmaster",
+            (5, "Trewd"): "Swordmaster",
             }
-
-    # declare max-level exceptions?
 
     def __init__(self, game_num: int, unit_name: str, tableindex: int = 0):
         """
@@ -27,7 +41,7 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
         # load tables
-        #self.home_dir = Path()
+        #self.home_dir = Path() # In case I need to change the directory for when I upload this
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
@@ -49,7 +63,7 @@ class Morph(BaseMorph):
         """
         return self._BRANCHED_PROMO_EXCEPTIONS
 
-    def level_up(self, num_levels: int, tableindex: int = 0):
+    def level_up(self, target_lv: int, tableindex: int = 0):
         """
         """
         self.set_targetstats(
@@ -58,7 +72,38 @@ class Morph(BaseMorph):
                 tableindex,
                 )
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
-        self.current_stats += (temp_growths / 100) * num_levels
+        self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
+
+    def get_minpromolv(self):
+        """
+        """
+        if self.game_num == 4:
+            minpromolv = 20
+        elif (self.game_num, self.unit_name, self.promo_cls) == (5, "Lara", "Dancer"):
+            minpromolv = 1
+        else:
+            try:
+                minpromolv = {
+                        (6, "Roy"): 1,
+                        (7, "Hector"): 1,
+                        (7, "Eliwood"): 1,
+                        (5, "Linoan"): 1,
+                        (5, "Leif"): 1,
+                        }[(self.game_num, self.unit_name)]
+            except KeyError:
+                minpromolv = 10
+        return minpromolv
+
+    def get_maxlv(self):
+        """
+        """
+        if self.game_num == 4:
+            maxlv = 30
+        elif self.unit_name in ("Ross", "Amelia", "Ewan") and not self.history:
+            maxlv = 10
+        else:
+            maxlv = 20
+        return maxlv
 
     def promote(self, tableindex: int = 0):
         """
@@ -74,16 +119,20 @@ class Morph(BaseMorph):
                 )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
+        old_cls = self.current_cls
         if isinstance(self.target_stats, pd.DataFrame):
             self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
             # raises KeyError for split-promotions; utilize to advantage
             self.current_cls = self.target_stats.name
         else:
             self.current_cls = self.target_stats.pop("Promotion")
+        self.history.append( (self.old_cls, self.current_lv) )
         self.promo_cls = None
         self.current_clstype = "classes/promotion-gains"
         temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += temp_promo
+        if self.game_num != 4:
+            self.current_lv = 1
 
     def cap_stats(self, tableindex: int = 0):
         """
