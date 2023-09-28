@@ -43,6 +43,7 @@ class Morph6Test(unittest.TestCase):
         self.assertTrue(all(current_stat_copy + promo == self.roy.current_stats))
         self.assertEqual(self.roy.current_lv, 1)
         self.assertListEqual(self.roy.history, [("Lord", 1)])
+        self.assertEqual(self.roy.current_cls, "Master Lord")
 
     def test_roy(self):
         # https://serenesforest.net/binding-blade/characters/average-stats/normal-mode/roy/
@@ -103,6 +104,34 @@ class Morph6Test(unittest.TestCase):
                 unit.level_up(20)
                 unit.cap_stats()
             self.assertTrue(all(unit.current_stats >= bases.loc[unitname, :]))
+
+    def test_level_up__failures(self):
+        # 1: target_lv > maxlv
+        with self.assertRaises(ValueError):
+            self.roy.level_up(99)
+        # 2: target_lv < current_lv := 1
+        with self.assertRaises(ValueError):
+            self.roy.level_up(0)
+
+    def test_promote__failures(self):
+        # 1: promo-lv not high enough
+        with self.assertRaises(ValueError):
+            self.roy.current_lv = 0
+            self.roy.promote()
+        # 2: already promoted
+        self.roy.current_lv = 2
+        self.roy.promote()
+        history_copy = self.roy.history.copy()
+        stats_copy = self.roy.current_stats.copy()
+        cls_copy = self.roy.current_cls
+        lv_copy = self.roy.current_lv
+        with self.assertRaises(ValueError):
+            self.roy.promote()
+        self.assertListEqual(history_copy, self.roy.history)
+        self.assertTrue(all(stats_copy == self.roy.current_stats))
+        self.assertEqual(cls_copy, self.roy.current_cls)
+        self.assertEqual(lv_copy, self.roy.current_lv)
+
 
 if __name__ == '__main__':
     unittest.main()
