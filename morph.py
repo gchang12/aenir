@@ -66,6 +66,8 @@ class Morph(BaseMorph):
     def level_up(self, target_lv: int, tableindex: int = 0):
         """
         """
+        if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
+            raise ValueError
         self.set_targetstats(
                 ("characters/base-stats", self.unit_name),
                 ("characters/growth-rates", "Name"),
@@ -73,6 +75,7 @@ class Morph(BaseMorph):
                 )
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
+        self.current_lv = target_lv
 
     def get_minpromolv(self):
         """
@@ -108,6 +111,8 @@ class Morph(BaseMorph):
     def promote(self, tableindex: int = 0):
         """
         """
+        if self.current_lv < self.get_minpromolv():
+            raise ValueError
         if self.current_clstype == "characters/base-stats":
             lpval = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
@@ -126,10 +131,10 @@ class Morph(BaseMorph):
             self.current_cls = self.target_stats.name
         else:
             self.current_cls = self.target_stats.pop("Promotion")
-        self.history.append( (self.old_cls, self.current_lv) )
+        self.history.append( (old_cls, self.current_lv) )
         self.promo_cls = None
         self.current_clstype = "classes/promotion-gains"
-        temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
+        temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats += temp_promo
         if self.game_num != 4:
             self.current_lv = 1
@@ -146,8 +151,8 @@ class Morph(BaseMorph):
                 ("classes/maximum-stats", "Class"),
                 tableindex,
                 )
-        temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
-        self.current_stats.mask(self.current_stats > temp_maxes, inplace=True)
+        temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
+        self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
 
 if __name__ == '__main__':
     pass
