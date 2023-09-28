@@ -33,6 +33,8 @@ class BaseMorph(SerenesCleaner):
         # essential to set_targetstats method
         self.target_stats = None
         self.current_stats = None
+        # history (class, lv) tuples
+        self.history = []
 
     def __repr__(self):
         """
