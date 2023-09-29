@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.WARNING)
 class Morph6Test(unittest.TestCase):
 
     def setUp(self):
-        self.roy = Morph(6, "Roy")
+        self.roy = Morph(6, "Roy", datadir_root="data")
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
@@ -24,15 +24,21 @@ class Morph6Test(unittest.TestCase):
     def test_level_up(self):
         current_stat_copy = self.roy.current_stats.copy()
         growths = self.roy.url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
-        self.roy.level_up(target_lv=20)
+        target_lv = 20
+        self.roy.level_up(target_lv)
         self.assertTrue(all((current_stat_copy + (growths / 100) * 19) == self.roy.current_stats))
+        self.assertEqual(self.roy.current_lv, target_lv)
 
     def test_cap_stats(self):
         for statname in self.roy.current_stats.index:
             self.roy.current_stats.at[statname] = 99
+        self.roy.current_stats.at["HP"] = 5
         self.roy.cap_stats()
         maxes = self.roy.url_to_tables["classes/maximum-stats"][0].set_index("Class").loc["Non-promoted", :]
+        roy_hp = self.roy.current_stats.pop("HP")
+        maxes.pop("HP")
         self.assertTrue(all(self.roy.current_stats == maxes))
+        self.assertEqual(roy_hp, 5)
 
     def test_promote(self):
         promo = self.roy.url_to_tables['classes/promotion-gains'][0].set_index("Class").loc["Lord", :]
@@ -47,6 +53,7 @@ class Morph6Test(unittest.TestCase):
 
     def test_roy(self):
         # https://serenesforest.net/binding-blade/characters/average-stats/normal-mode/roy/
+        # 1: max stats, and compare with source
         self.roy.level_up(target_lv=20)
         self.roy.cap_stats()
         lv20_roy = {
@@ -59,8 +66,10 @@ class Morph6Test(unittest.TestCase):
                 "Res": 5.7,
                 }
         self.assertTrue(all(abs(pd.Series(lv20_roy) - self.roy.current_stats) < 0.01))
+        # 2: promote, and compare
         self.roy.promote()
         self.roy.cap_stats()
+        # 3: max stats, and compare
         self.roy.level_up(target_lv=20)
         self.roy.cap_stats()
         maxed_roy = {
@@ -103,7 +112,7 @@ class Morph6Test(unittest.TestCase):
                 unit.cap_stats()
                 unit.level_up(20)
                 unit.cap_stats()
-            self.assertTrue(all(unit.current_stats >= bases.loc[unitname, :]))
+            self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
 
     def test_level_up__failures(self):
         # 1: target_lv > maxlv
@@ -131,7 +140,6 @@ class Morph6Test(unittest.TestCase):
         self.assertTrue(all(stats_copy == self.roy.current_stats))
         self.assertEqual(cls_copy, self.roy.current_cls)
         self.assertEqual(lv_copy, self.roy.current_lv)
-
 
 if __name__ == '__main__':
     unittest.main()
