@@ -6,6 +6,7 @@ Morph: Defines methods to simulate level-ups and promotions for FE units, exclud
 """
 
 import logging
+from pathlib import Path
 
 import pandas as pd
 
@@ -35,13 +36,14 @@ class Morph(BaseMorph):
             (5, "Trewd"): "Swordmaster",
             }
 
-    def __init__(self, game_num: int, unit_name: str, tableindex: int = 0):
+    def __init__(self, game_num: int, unit_name: str, tableindex: int = 0, datadir_root: str = None):
         """
         """
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
         # load tables
-        #self.home_dir = Path() # In case I need to change the directory for when I upload this
+        if type(datadir_root) == str:
+            self.home_dir = Path(datadir_root).joinpath(self.game_name)
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
@@ -127,7 +129,7 @@ class Morph(BaseMorph):
         old_cls = self.current_cls
         if isinstance(self.target_stats, pd.DataFrame):
             self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
-            # raises KeyError for split-promotions; utilize to advantage
+            # raises KeyError for split-promotions; utilize to advantage (i.e. SELECT from target_stats.loc[:, "Promotion"])
             self.current_cls = self.target_stats.name
         else:
             self.current_cls = self.target_stats.pop("Promotion")
