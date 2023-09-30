@@ -19,14 +19,14 @@ class BaseMorph(SerenesCleaner):
     current_clstype: Determines which table to match from.
     current_cls: Value of the current class, to be matched.
     target_stats: Stores the stats to be retrieved.
-    promo_index: Determines which branch in a promotion the unit will choose.
+    history: Stores the history of a unit as a list of (Class, Lv) tuples.
     """
 
     def __init__(self, game_num: int):
         """
         Extends: SerenesCleaner.__init__(self, game_num)
 
-        Defines: current_clstype, current_cls, target_stats, promo_index
+        Defines: current_clstype, current_cls, target_stats
         """
         SerenesCleaner.__init__(self, game_num)
         logging.info("BaseMorph.__init__(self, %d)", game_num)
