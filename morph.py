@@ -14,6 +14,12 @@ from aenir._basemorph import BaseMorph
 
 class Morph(BaseMorph):
     """
+    Defines methods to simulate level-ups and promotions for interactive user session.
+
+    BRANCHED_PROMO_EXCEPTIONS: dict of fixed promotion paths, filled out manually.
+    unit_name: The name of the unit.
+    promo_cls: Determines which promotion path the unit must follow.
+    current_stats: Stores the unit's current stats; the centerpiece, and object of most operations.
     """
 
     # declare promo-branch exceptions here as a dict-attribute
@@ -36,8 +42,11 @@ class Morph(BaseMorph):
             (5, "Trewd"): "Swordmaster",
             }
 
-    def __init__(self, game_num: int, unit_name: str, tableindex: int = 0, datadir_root: str = None):
+    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None):
         """
+        Loads tables, and initializes bases among other things.
+
+        Defines: promo_cls, unit_name, current_stats
         """
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
@@ -62,11 +71,16 @@ class Morph(BaseMorph):
     @property
     def BRANCHED_PROMO_EXCEPTIONS(self):
         """
+        Resolves from_col name conflicts when promoting certain units.
         """
         return self._BRANCHED_PROMO_EXCEPTIONS
 
     def level_up(self, target_lv: int, tableindex: int = 0):
         """
+        Increases unit's level, and increments current_stats accordingly.
+
+        Raises:
+        - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
         """
         if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
             raise ValueError
@@ -81,10 +95,14 @@ class Morph(BaseMorph):
 
     def get_minpromolv(self):
         """
+        Determines the minimum promotion level for a given unit.
+
+        All exceptional units are logged here.
         """
         if self.game_num == 4:
             minpromolv = 20
         elif (self.game_num, self.unit_name, self.promo_cls) == (5, "Lara", "Dancer"):
+            # for Lara shenanigans
             minpromolv = 1
         else:
             try:
@@ -101,6 +119,7 @@ class Morph(BaseMorph):
 
     def get_maxlv(self):
         """
+        Determines the maximum level for a given unit.
         """
         if self.game_num == 4:
             maxlv = 30
@@ -112,6 +131,16 @@ class Morph(BaseMorph):
 
     def promote(self, tableindex: int = 0):
         """
+        Applies promotion bonuses, then changes classes.
+
+        Raises:
+        - ValueError: Minimum promotion level not attained.
+        - ValueError: Unit cannot promote.
+        Sets:
+        - current_stats += promo_bonus
+        - history += (old_class, old_lv)
+        - promo_cls = None
+        - current_clstype = 'classes/promotion-gains'
         """
         if self.current_lv < self.get_minpromolv():
             raise ValueError
@@ -143,6 +172,7 @@ class Morph(BaseMorph):
 
     def cap_stats(self, tableindex: int = 0):
         """
+        Caps a unit's current_stats in accordance with the class's maximum stats.
         """
         if self.current_clstype == "characters/base-stats":
             lpval = self.unit_name

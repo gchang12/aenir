@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Tests the aenir.morph.Morph class methods.
 """
 
 import unittest
@@ -14,14 +15,27 @@ from aenir.morph import Morph
 logging.basicConfig(level=logging.WARNING)
 
 class Morph6Test(unittest.TestCase):
+    """
+    Defines tests for leveling up, promoting, and capping stats.
+    """
 
     def setUp(self):
+        """
+        Creates a Morph object, with the option specified for full coverage.
+        """
         self.roy = Morph(6, "Roy", datadir_root="data")
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
 
     def test_level_up(self):
+        """
+        Tests that the current_lv and current_stats have been incremented.
+
+        Assert:
+        - current_lv = 20
+        - current_stats = base_stats + (growths/100) * 19
+        """
         current_stat_copy = self.roy.current_stats.copy()
         growths = self.roy.url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
         target_lv = 20
@@ -30,6 +44,13 @@ class Morph6Test(unittest.TestCase):
         self.assertEqual(self.roy.current_lv, target_lv)
 
     def test_cap_stats(self):
+        """
+        Tests that the stats are capped in accordance with the current class.
+
+        Sets the current stats to 99, except for HP, which is 5.
+        Assert:
+        - all stats are equal to max, except for HP, which is 5.
+        """
         for statname in self.roy.current_stats.index:
             self.roy.current_stats.at[statname] = 99
         self.roy.current_stats.at["HP"] = 5
@@ -41,6 +62,16 @@ class Morph6Test(unittest.TestCase):
         self.assertEqual(roy_hp, 5)
 
     def test_promote(self):
+        """
+        Tests that the promotion has been applied properly.
+
+        Assert:
+        - current_stats = current_stats + promo_bonus
+        - current_lv = 1
+        - history = (Lord, 1)
+        - current_cls = Master Lord
+        - current_clstype = 'classes/promotion-gains'
+        """
         promo = self.roy.url_to_tables['classes/promotion-gains'][0].set_index("Class").loc["Lord", :]
         promo.pop("Promotion")
         promo = promo.reindex(self.roy.current_stats.index, fill_value=0.0)
@@ -50,8 +81,16 @@ class Morph6Test(unittest.TestCase):
         self.assertEqual(self.roy.current_lv, 1)
         self.assertListEqual(self.roy.history, [("Lord", 1)])
         self.assertEqual(self.roy.current_cls, "Master Lord")
+        self.assertEqual(self.roy.current_clstype, "classes/promotion-gains")
 
     def test_roy(self):
+        """
+        In-depth test of leveling up and promoting Roy.
+
+        Tests for stat equality at the following checkpoints:
+        - Lv20 Lord
+        - Lv20 Master Lord
+        """
         # https://serenesforest.net/binding-blade/characters/average-stats/normal-mode/roy/
         # 1: max stats, and compare with source
         self.roy.level_up(target_lv=20)
@@ -84,6 +123,11 @@ class Morph6Test(unittest.TestCase):
         self.assertTrue(all(abs(pd.Series(maxed_roy) - self.roy.current_stats) < 0.01))
 
     def test_all_units(self):
+        """
+        Performs a shallow test: each unit is put through a maxing journey.
+
+        Assert: final > bases
+        """
         ltable = "characters__base_stats"
         rtable = "classes__promotion_gains"
         with open(
@@ -115,6 +159,9 @@ class Morph6Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
 
     def test_level_up__failures(self):
+        """
+        Verifies that the ValueError is raised in specific situations.
+        """
         # 1: target_lv > maxlv
         with self.assertRaises(ValueError):
             self.roy.level_up(99)
@@ -123,6 +170,9 @@ class Morph6Test(unittest.TestCase):
             self.roy.level_up(0)
 
     def test_promote__failures(self):
+        """
+        Verifies that the ValueError is raised in specific situations.
+        """
         # 1: promo-lv not high enough
         with self.assertRaises(ValueError):
             self.roy.current_lv = 0
@@ -136,6 +186,7 @@ class Morph6Test(unittest.TestCase):
         lv_copy = self.roy.current_lv
         with self.assertRaises(ValueError):
             self.roy.promote()
+        # verify that old data is retained.
         self.assertListEqual(history_copy, self.roy.history)
         self.assertTrue(all(stats_copy == self.roy.current_stats))
         self.assertEqual(cls_copy, self.roy.current_cls)
