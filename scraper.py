@@ -32,6 +32,7 @@ class SerenesScraper(SerenesBase):
         - url_to_tables: Maps urlpaths to the tables contained in those urlpaths.
         """
         SerenesBase.__init__(self, game_num)
+        logging.info("SerenesBase.__init__(self, %d)", game_num)
         # stores the scraped tables in lists of pd.DataFrame_s.
         self.url_to_tables = {}
 
@@ -40,12 +41,13 @@ class SerenesScraper(SerenesBase):
         Maps url_to_tables[urlpath] to a list of tables obtained from web-scraping methods.
         """
         assert isinstance(urlpath, str)
+        logging.info("SerenesScraper.scrape_tables(self, '%s')", urlpath)
         absolute_url = "/".join([self.URL_ROOT, self.game_name, urlpath])
-        logging.info("Now scraping from '%s'...", absolute_url)
+        logging.info("response = requests.get('%s', timeout=1)", absolute_url)
         response = requests.get(absolute_url, timeout=1)
         #!will raise requests.exceptions.HTTPError if name does not exist
         response.raise_for_status()
-        logging.info("Scraping successful.")
+        logging.info("SerenesScraper.url_to_tables['%s'] = pd.read_html(response.text)", urlpath)
         self.url_to_tables[urlpath] = pd.read_html(response.text)
         logging.info(
                 "%d table(s) found, and loaded into url_to_tables['%s'].",

@@ -33,12 +33,14 @@ class SerenesCleaner(SerenesTranscriber):
         - clsrecon_list
         """
         SerenesTranscriber.__init__(self, game_num)
+        logging.info("SerenesCleaner.__init__(self, %d)", game_num)
         self.fieldrecon_file = "fieldrecon.json"
         self.clsrecon_list = [
-                (("characters/base-stats", "Name"), ("characters/growth-rates", "Name")),
-                (("characters/base-stats", "Class"), ("classes/maximum-stats", "Class")),
-                (("characters/base-stats", "Class"), ("classes/promotion-gains", "Class")),
-                (("classes/promotion-gains", "Promotion"), ("classes/maximum-stats", "Class")),
+                (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
+                (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
+                (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
+                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
+                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
                 ]
 
 
@@ -49,8 +51,9 @@ class SerenesCleaner(SerenesTranscriber):
         Identifies numeric column, which can be specified via option,
         filters to include rows containing non-numeric strings, and deletes those rows.
         """
+        logging.info("SerenesCleaner.drop_nonnumeric_rows(self, '%s', numeric_col='%s'", urlpath, numeric_col)
         for index, table in enumerate(self.url_to_tables[urlpath]):
-            logging.info("Dropping rows for table #%d of '%s'", index, urlpath)
+            logging.info("Dropping rows in table '%s'.", self.page_dict[urlpath] + str(index))
             self.url_to_tables[urlpath][index] = table[
                     pd.to_numeric(table[numeric_col], errors='coerce').notnull()
                     ]
@@ -59,9 +62,11 @@ class SerenesCleaner(SerenesTranscriber):
         """
         Replaces each cell in a urlpath's tables with either itself or its numeric equivalent.
         """
+        logging.info("SerenesCleaner.replace_with_int_df(self, '%s')", urlpath)
 
         def replace_with_int(cell: str) -> int:
             """
+            Returns an object with its numeric equivalent; if none exists, returns the object itself.
             """
             # convert cell to str, then replace it with a numeric str
             new_cell = re.sub("[^0-9+-]*([-+]?[0-9]+).*", "\\1", str(cell))
@@ -72,7 +77,7 @@ class SerenesCleaner(SerenesTranscriber):
             return cell
 
         for index, table in enumerate(self.url_to_tables[urlpath]):
-            logging.info("Converting table#%d of '%s' to numeric.", index, urlpath)
+            logging.info("Replacing '%s' with numeric equivalent.", self.page_dict[urlpath] + str(index))
             int_df = table.applymap(replace_with_int)
             self.url_to_tables[urlpath][index] = int_df.convert_dtypes()
 
@@ -83,17 +88,20 @@ class SerenesCleaner(SerenesTranscriber):
         Raises:
         - FileExistsError: File exists.
         """
+        logging.info("SerenesCleaner.create_fieldrecon_file(self)")
         fieldrecon_json = self.home_dir.joinpath(self.fieldrecon_file)
         if fieldrecon_json.exists():
+            logging.warning("'%s' exists. Aborting.")
             raise FileExistsError
         fieldname_set = set()
         for tableset in self.url_to_tables.values():
             for table in tableset:
                 fieldname_set.update(set(table.columns))
-        fieldname_dict = { fieldname: None for fieldname in fieldname_set }
+        fieldname_dict = {fieldname: None for fieldname in fieldname_set}
+        logging.info("Saving fieldrecon_file to '%s'.", str(fieldrecon_json))
         with open(str(fieldrecon_json), mode='w', encoding='utf-8') as wfile:
             json.dump(fieldname_dict, wfile, indent=4)
-            logging.info("'%s' created.", str(fieldrecon_json))
+            logging.info("'%s' saved successfully.", str(fieldrecon_json))
 
     def apply_fieldrecon_file(self):
         """
@@ -103,82 +111,69 @@ class SerenesCleaner(SerenesTranscriber):
         - FileNotFoundError: By io.open (implicit), when create_fieldrecon_file has not been called.
         - ValueError: Null-value is in the mapping-file.
         """
+        logging.info("SerenesCleaner.apply_fieldrecon_file(self)")
         fieldrecon_json = str(self.home_dir.joinpath(self.fieldrecon_file))
+        logging.info("Loading '%s' into fieldrecon_dict.", fieldrecon_json)
         with io.open(fieldrecon_json, encoding='utf-8') as rfile:
             fieldrecon_dict = json.load(rfile)
         if None in fieldrecon_dict.values():
+            logging.warning("Null-value found in fieldrecon_dict.values(). Aborting.")
             raise ValueError
         for urlpath, tablelist in self.url_to_tables.items():
+            logging.info("Applying fieldrecon_file to tablelist := SerenesCleaner.url_to_tables['%s'].", urlpath)
             for index, table in enumerate(tablelist):
+                logging.info("Renaming and dropping columns in tablelist[%d]", index)
                 try:
-                    logging.info("Attempting to rename and drop columns for '%s'[%d].", urlpath, index)
                     tablelist[index] = table.rename(columns=fieldrecon_dict).drop(columns=["DROP!"])
+                    logging.info("Columns renamed. 'DROP!' columns found, and successfully dropped.")
                 except KeyError:
-                    logging.info("No columns to drop for '%s'[%d]. Renaming...", urlpath, index)
                     tablelist[index] = table.rename(columns=fieldrecon_dict)
+                    logging.info("Columns renamed.")
 
-    def create_clsrecon_file(self, ltable_columns: Tuple[str, str], rtable_columns: Tuple[str, str]):
+    def create_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
-        Creates a mapping file for names in one table whose columns are not in another.
+        Creates class-reconciliation dict for pseudo-foreign-key stat look-up.
 
         Raises:
         - FileExistsError
+        - KeyError: Keys provided are invalid
         """
-        # unpack variables
-        ltable_url, fromcol_name = ltable_columns
-        rtable_url, tocol_name = rtable_columns
-        # map urlpaths to tablenames
-        ltable_name = self.page_dict[ltable_url]
-        rtable_name = self.page_dict[rtable_url]
-        # create Path for write-destination
-        clsrecon_json = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
-        if clsrecon_json.exists():
-            raise FileExistsError
-        # resultset := (SELECT ltable.iloc[0, :] WHERE ltable[fromcol] NOT IN rtable[tocol]);
-        target_set = set()
-        for rtable in self.url_to_tables[rtable_url]:
-            target_set.update(set(rtable.loc[:, tocol_name]))
+        logging.info("SerenesCleaner.create_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
+        # unpack arguments
+        ltable_url, lpkey, from_col = ltable_args
+        rtable_url, to_col = rtable_args
+        # compile names in to_col to see which names in from_col are not in the to_col
+        rtable_nameset = set()
+        logging.info("Compiling nameset for rtable_url := '%s'.", rtable_url)
+        logging.info("pd.DataFrame.loc[:, '%s']", to_col)
+        for table in self.url_to_tables[rtable_url]:
+            rtable_nameset.update(set(table.loc[:, to_col]))
+        # map missing names to null, present names to themselves
         clsrecon_dict = {}
-        for ltable in self.url_to_tables[ltable_url]:
-            clsrecon_dict.update(
-                    {
-                        primary_key: None for primary_key in
-                        ltable[~ltable[fromcol_name].isin(target_set)].iloc[:, 0]
-                        }
-                    )
-        # save: {result: null for result in resultset} |-> ltable-JOIN-rtable.json
-        with io.open(str(clsrecon_json), mode="w", encoding="utf-8") as wfile:
-            json.dump(clsrecon_dict, wfile, indent=4)
-            logging.info("'%s' created.", str(clsrecon_json))
-
-    def verify_clsrecon_file(self, ltable_url: str, rtable_columns: Tuple[str, str]) -> set:
-        """
-        Prints the mismatches in a given mapping-file as specified by arguments.
-        """
-        # unpack variables
-        rtable_url, tocol_name = rtable_columns
-        # map urlpaths to tablenames
+        logging.info("Compiling clsrecon_dict for ltable_url := '%s'.", ltable_url)
+        for table in self.url_to_tables[ltable_url]:
+            # get all names, map missing to None
+            for pval, lrow in table.set_index(lpkey).iterrows():
+                # in case the from_col == pval
+                try:
+                    from_val = lrow.pop(from_col)
+                except KeyError:
+                    from_val = pval
+                if from_val not in rtable_nameset:
+                    from_val = None
+                clsrecon_dict[pval] = from_val
+                logging.info("clsrecon_dict['%s'] = '%s'", pval, from_val)
+        # dump dict into file
         ltable_name = self.page_dict[ltable_url]
         rtable_name = self.page_dict[rtable_url]
-        # create Path for write-destination
-        clsrecon_json = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
-        with io.open(str(clsrecon_json), encoding='utf-8') as rfile:
-            clsrecon_dict = json.load(rfile)
-        # compile list of names to compare against
-        rtable_set = set()
-        for rtable in self.url_to_tables[rtable_url]:
-            rtable_set.update(set(rtable.loc[:, tocol_name]))
-        nomatch_set = set()
-        for ltable in self.url_to_tables[ltable_url]:
-            # check if ltable-values are in rtable_set
-            for lkey in ltable.iloc[:, 0]:
-                try:
-                    if clsrecon_dict[lkey] is None or clsrecon_dict[lkey] in rtable_set:
-                        continue
-                    nomatch_set.add(lkey)
-                except KeyError:
-                    continue
-        return nomatch_set
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        if json_path.exists():
+            logging.warning("'%s' exists. Aborting.")
+            raise FileExistsError
+        logging.info("Saving clsrecon_dict to '%s'.", str(json_path))
+        with io.open(str(json_path), encoding='utf-8', mode='w') as wfile:
+            json.dump(clsrecon_dict, wfile, indent=4)
+            logging.info("'%s' has been saved successfully.", str(json_path))
 
 if __name__ == '__main__':
     pass

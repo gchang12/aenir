@@ -4,6 +4,7 @@ Defines the ScraperTest class to test the aenir.SerenesScraper class.
 """
 
 import unittest
+import logging
 
 import requests
 import pandas as pd
@@ -26,6 +27,7 @@ class ScraperTest(unittest.TestCase):
         """
         Tests that 'URL_ROOT' is a property.
         """
+        logging.info("ScraperTest.test_attr(self)")
         self.assertIn("URL_ROOT", dir(self.sos_scraper))
         with self.assertRaises(AttributeError):
             self.sos_scraper.URL_ROOT = None
@@ -38,6 +40,7 @@ class ScraperTest(unittest.TestCase):
         - urlpath is not a string.
         - urlpath is not valid
         """
+        logging.info("ScraperTest.test_scrape_tables__failures(self)")
         # main: fails because argument is not a str
         with self.assertRaises(AssertionError):
             self.sos_scraper.scrape_tables(None)
@@ -57,6 +60,7 @@ class ScraperTest(unittest.TestCase):
         - urlpath should exist in url_to_tables dict.
         - url_to_tables[urlpath] is a non-empty list of non-empty pd.DataFrame_s.
         """
+        logging.info("ScraperTest.test_scrape_tables(self)")
         # scrape from this urlpath in {sf}/binding-blade
         urlpath = "characters/base-stats"
         # main

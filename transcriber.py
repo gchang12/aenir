@@ -39,6 +39,7 @@ class SerenesTranscriber(SerenesScraper):
         - tables_file
         """
         SerenesScraper.__init__(self, game_num)
+        logging.info("SerenesTranscriber.__init__(self, %d)", game_num)
         self.home_dir = Path("data", self.game_name)
         self.tables_file = "raw_stats.db"
 
@@ -51,24 +52,29 @@ class SerenesTranscriber(SerenesScraper):
         - TypeError: Table-list contains something other than a pd.DataFrame.
         Note: url_to_tables[urlpath] is deleted upon successful completion.
         """
+        logging.info("SerenesTranscriber.save_tables(self, '%s')", urlpath)
         # add in checks here
         if not self.url_to_tables[urlpath]:
             # implicit: raise KeyError
+            logging.warning("SerenesTranscriber.url_to_tables['%s'] is empty. Aborting.", urlpath)
             raise ValueError
         for table in self.url_to_tables[urlpath]:
             if type(table) == pd.DataFrame:
                 continue
+            logging.warning("SerenesTranscriber.url_to_tables['%s'] contains a non-pd.Dataframe object. Aborting.", urlpath)
             raise TypeError
         # real program starts here
         tablename = self.page_dict[urlpath]
         self.home_dir.mkdir(exist_ok=True, parents=True)
         save_file = str(self.home_dir.joinpath(self.tables_file))
+        logging.info("Saving '%s' tables to '%s'.", urlpath, save_file)
         for tableindex, table in enumerate(self.url_to_tables[urlpath]):
             name = tablename + str(tableindex)
             con = "sqlite:///" + save_file
-            logging.info("Saving table='%s' to '%s'", name, con)
+            logging.info("pd.DataFrame.to_sql(self, '%s', '%s', index=False)", name, con)
             table.to_sql(name, con, index=False)
             # add in try-except clause if the table exists?
+        logging.info("del SerenesTranscriber.url_to_tables['%s']")
         del self.url_to_tables[urlpath]
 
     def load_tables(self, urlpath: str):
@@ -79,24 +85,28 @@ class SerenesTranscriber(SerenesScraper):
         - FileNotFoundError: tables_file does not exist.
         - KeyError: urlpath is not registered in page_dict.
         """
+        logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
         save_path = self.home_dir.joinpath(self.tables_file)
         if not save_path.exists():
+            logging.warning("'%s' exists. Aborting.")
             raise FileNotFoundError
         save_file = str(save_path)
         tablename_root = self.page_dict[urlpath]
+        logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)
         self.url_to_tables[urlpath] = []
-        logging.info("url_to_tables['%s'] cleared", urlpath)
         tableindex = 0
+        logging.info("Loading tables into SerenesTranscriber.url_to_tables['%s'].", urlpath)
         while True:
             table_name = tablename_root + str(tableindex)
             con = "sqlite:///" + save_file
             try:
+                logging.info("pd.read_sql_table('%s', '%s')", table_name, con)
                 table = pd.read_sql_table(table_name, con)
                 tableindex += 1
+                logging.info("SerenesTranscriber.url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
                 self.url_to_tables[urlpath].append(table)
-                logging.info("url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
             except ValueError:
-                logging.info("'%s'[%d] not found. Stopping...", urlpath, tableindex)
+                logging.info("%d tables have been loaded into SerenesTranscriber.url_to_tables['%s']", tableindex, urlpath)
                 break
 
     def get_urlname_from_tablename(self, tablename: str):
