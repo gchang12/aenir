@@ -83,7 +83,11 @@ class Morph(BaseMorph):
         - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
         """
         if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
-            raise ValueError
+            if target_lv > self.get_maxlv():
+                error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
+            else:
+                error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
+            raise ValueError(error_msg + " Aborting.")
         self.set_targetstats(
                 ("characters/base-stats", self.unit_name),
                 ("characters/growth-rates", "Name"),
@@ -142,8 +146,6 @@ class Morph(BaseMorph):
         - promo_cls = None
         - current_clstype = 'classes/promotion-gains'
         """
-        if self.current_lv < self.get_minpromolv():
-            raise ValueError
         if self.current_clstype == "characters/base-stats":
             lpval = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
@@ -155,6 +157,8 @@ class Morph(BaseMorph):
                 )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
+        if self.current_lv < self.get_minpromolv():
+            raise ValueError(f"{self.unit_name} must be at least level {self.get_minpromolv()} to promote. Current level: {self.current_lv}")
         old_cls = self.current_cls
         if isinstance(self.target_stats, pd.DataFrame):
             self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
