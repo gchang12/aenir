@@ -91,8 +91,8 @@ class SerenesCleaner(SerenesTranscriber):
         logging.info("SerenesCleaner.create_fieldrecon_file(self)")
         fieldrecon_json = self.home_dir.joinpath(self.fieldrecon_file)
         if fieldrecon_json.exists():
-            logging.warning("'%s' exists. Aborting.")
-            raise FileExistsError
+            logging.warning("'%s' exists. Aborting.", str(fieldrecon_json))
+            raise FileExistsError(f"'{str(fieldrecon_json)}' exists. Aborting.")
         fieldname_set = set()
         for tableset in self.url_to_tables.values():
             for table in tableset:
@@ -111,6 +111,7 @@ class SerenesCleaner(SerenesTranscriber):
         - FileNotFoundError: By io.open (implicit), when create_fieldrecon_file has not been called.
         - ValueError: Null-value is in the mapping-file.
         """
+        # really more of a field-consolidation file
         logging.info("SerenesCleaner.apply_fieldrecon_file(self)")
         fieldrecon_json = str(self.home_dir.joinpath(self.fieldrecon_file))
         logging.info("Loading '%s' into fieldrecon_dict.", fieldrecon_json)
@@ -118,7 +119,7 @@ class SerenesCleaner(SerenesTranscriber):
             fieldrecon_dict = json.load(rfile)
         if None in fieldrecon_dict.values():
             logging.warning("Null-value found in fieldrecon_dict.values(). Aborting.")
-            raise ValueError
+            raise ValueError("Null-value found in fieldrecon_dict.values(). Aborting.")
         for urlpath, tablelist in self.url_to_tables.items():
             logging.info("Applying fieldrecon_file to tablelist := SerenesCleaner.url_to_tables['%s'].", urlpath)
             for index, table in enumerate(tablelist):
@@ -168,8 +169,8 @@ class SerenesCleaner(SerenesTranscriber):
         rtable_name = self.page_dict[rtable_url]
         json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
         if json_path.exists():
-            logging.warning("'%s' exists. Aborting.")
-            raise FileExistsError
+            logging.warning(f"'{str(json_path)}' exists. Aborting.")
+            raise FileExistsError(f"'{str(json_path)}' exists. Aborting.")
         logging.info("Saving clsrecon_dict to '%s'.", str(json_path))
         with io.open(str(json_path), encoding='utf-8', mode='w') as wfile:
             json.dump(clsrecon_dict, wfile, indent=4)
