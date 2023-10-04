@@ -57,12 +57,12 @@ class SerenesTranscriber(SerenesScraper):
         if not self.url_to_tables[urlpath]:
             # implicit: raise KeyError
             logging.warning("SerenesTranscriber.url_to_tables['%s'] is empty. Aborting.", urlpath)
-            raise ValueError
+            raise ValueError(f"SerenesTranscriber.url_to_tables['{urlpath}'] is empty. Aborting.")
         for table in self.url_to_tables[urlpath]:
             if type(table) == pd.DataFrame:
                 continue
             logging.warning("SerenesTranscriber.url_to_tables['%s'] contains a non-pd.Dataframe object. Aborting.", urlpath)
-            raise TypeError
+            raise TypeError(f"SerenesTranscriber.url_to_tables['{urlpath}'] contains a non-pd.Dataframe object. Aborting.")
         # real program starts here
         tablename = self.page_dict[urlpath]
         self.home_dir.mkdir(exist_ok=True, parents=True)
@@ -88,8 +88,8 @@ class SerenesTranscriber(SerenesScraper):
         logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
         save_path = self.home_dir.joinpath(self.tables_file)
         if not save_path.exists():
-            logging.warning("'%s' exists. Aborting.")
-            raise FileNotFoundError
+            logging.warning("'%s' exists. Aborting.", str(save_path))
+            raise FileNotFoundError(f"'{str(save_path)}' exists. Aborting.")
         save_file = str(save_path)
         tablename_root = self.page_dict[urlpath]
         logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)

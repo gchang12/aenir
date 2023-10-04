@@ -1,3 +1,6 @@
+Deploy to internet
+- flask or django
+
 Create tests:
 - FE8: Split-promotions
 - FE4: Kiddos
