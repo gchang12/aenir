@@ -50,6 +50,7 @@ class Morph(BaseMorph):
         """
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
+        logging.info("Morph(%d, '%s')", game_num, unit_name)
         # load tables
         if type(datadir_root) == str:
             self.home_dir = Path(datadir_root).joinpath(self.game_name)
@@ -147,11 +148,11 @@ class Morph(BaseMorph):
         - current_clstype = 'classes/promotion-gains'
         """
         if self.current_clstype == "characters/base-stats":
-            lpval = self.unit_name
+            lindex_val = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
-            lpval = self.current_cls
+            lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lpval),
+                (self.current_clstype, lindex_val),
                 ("classes/promotion-gains", "Class"),
                 tableindex,
                 )
@@ -179,16 +180,77 @@ class Morph(BaseMorph):
         Caps a unit's current_stats in accordance with the class's maximum stats.
         """
         if self.current_clstype == "characters/base-stats":
-            lpval = self.unit_name
+            lindex_val = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
-            lpval = self.current_cls
+            lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lpval),
+                (self.current_clstype, lindex_val),
                 ("classes/maximum-stats", "Class"),
                 tableindex,
                 )
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
+
+    def is_maxed(self, tableindex: int = 0):
+        """
+        Returns a pd.Series showing which of the Morph's stats are maxed.
+        """
+        if self.current_clstype == "characters/base-stats":
+            lindex_val = self.unit_name
+        elif self.current_clstype == "classes/promotion-gains":
+            lindex_val = self.current_cls
+        self.set_targetstats(
+                (self.current_clstype, lindex_val),
+                ("classes/maximum-stats", "Class"),
+                tableindex,
+                )
+        temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
+        return temp_maxes == self.current_stats
+
+    def __getitem__(self, key):
+        """
+        Further allows Morph to mock pd.Series.
+        """
+        return self.current_stats[key]
+
+    def __lt__(self, other):
+        """
+        Returns a pd.DataFrame summarizing the difference between one Morph and another.
+
+        Raises:
+        - no errors, hurrah!
+
+        Returned pd.DataFrame is of the form:
+        - History
+        - Class
+        - Lv
+        - {numerical_stats}
+        """
+        diff = other.current_stats - self.current_stats
+        diff.name = 'is-less_than-by'
+        # create rows for class and level
+        self_clslv = [self.current_cls, self.current_lv]
+        other_clslv = [other.current_cls, other.current_lv]
+        # create rows for history
+        self_clslv.insert(0, tuple(self.history))
+        other_clslv.insert(0, tuple(other.history))
+        clslv_df = pd.DataFrame(
+            {
+                self.unit_name: self_clslv,
+                diff.name: ['-' for entry in self_clslv],
+                other.unit_name: other_clslv,
+            },
+            index=['History', 'Class', 'Lv']
+        )
+        stat_df = pd.concat(
+            [
+                self.current_stats,
+                diff,
+                other.current_stats,
+            ],
+            axis=1
+        )
+        return pd.concat([clslv_df, stat_df])
 
 if __name__ == '__main__':
     pass

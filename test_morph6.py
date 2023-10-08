@@ -192,5 +192,44 @@ class Morph6Test(unittest.TestCase):
         self.assertEqual(cls_copy, self.roy.current_cls)
         self.assertEqual(lv_copy, self.roy.current_lv)
 
+    def test_is_maxed(self):
+        """
+        Verifies that the pd.Series lists which stats are maxed (=True).
+
+        Case: Luck maxes out at 30
+        """
+        mock_maxed = pd.Series(index=self.roy.current_stats.index, data=[False for stat in self.roy.current_stats])
+        mock_maxed['Lck'] = True
+        self.roy.current_stats['Lck'] = 30
+        self.assertTrue(all(self.roy.is_maxed() == mock_maxed))
+
+    def test__getitem__(self):
+        """
+        Verifies that the Morph objects mocks the current_stats.__getitem__ method.
+        """
+        for statname in self.roy.current_stats.index:
+            self.assertEqual(self.roy[statname], self.roy.current_stats[statname])
+
+    def test__lt__(self):
+        """
+        Verifies that the pd.DataFrame returned summarizes the differences between Morph objects.
+        """
+        # max out Roy first
+        marcus = Morph(6, "Marcus")
+        comparison_df = self.roy < marcus
+        c_roy = comparison_df['Roy']
+        self.assertEqual(c_roy.pop("Class"), self.roy.current_cls)
+        self.assertEqual(c_roy.pop("Lv"), self.roy.current_lv)
+        self.assertListEqual(list(c_roy.pop("History")), self.roy.history)
+        self.assertTrue(all(c_roy == self.roy.current_stats))
+        c_marcus = comparison_df['Marcus']
+        self.assertEqual(c_marcus.pop("Class"), marcus.current_cls)
+        self.assertEqual(c_marcus.pop("Lv"), marcus.current_lv)
+        self.assertListEqual(list(c_marcus.pop("History")), marcus.history)
+        self.assertTrue(all(c_marcus == marcus.current_stats))
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(
+        defaultTest=["test__lt__", "test_is_maxed"],
+        module=Morph6Test,
+    )

@@ -3,8 +3,11 @@
 Tests the aenir._basemorph.BaseMorph class
 """
 
+import json
 import unittest
 import logging
+from unittest.mock import patch
+import io
 
 import pandas as pd
 
@@ -48,10 +51,10 @@ class BaseMorphTest(unittest.TestCase):
         """
         logging.info("BaseMorphTest.test_set_targetstats(self)")
         # bases-to-growths
-        ltable_url, lpval = "characters/base-stats", "Fir (HM)"
+        ltable_url, lindex_val = "characters/base-stats", "Fir (HM)"
         rtable_url, to_col = "characters/growth-rates", "Name"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
@@ -60,7 +63,7 @@ class BaseMorphTest(unittest.TestCase):
         # bases-to-maxes
         rtable_url, to_col = "classes/maximum-stats", "Class"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
@@ -69,7 +72,7 @@ class BaseMorphTest(unittest.TestCase):
         # bases-to-promo
         rtable_url, to_col = "classes/promotion-gains", "Class"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
@@ -77,10 +80,10 @@ class BaseMorphTest(unittest.TestCase):
         new_cls = self.sos_unit.target_stats.at["Promotion"]
         self.sos_unit.target_stats = None
         # promo-to-maxes
-        ltable_url, lpval = "classes/promotion-gains", new_cls
+        ltable_url, lindex_val = "classes/promotion-gains", new_cls
         rtable_url, to_col = "classes/maximum-stats", "Class"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
@@ -89,19 +92,60 @@ class BaseMorphTest(unittest.TestCase):
         # promo-to-promo
         rtable_url, to_col = "classes/promotion-gains", "Class"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
         self.assertIsNone(self.sos_unit.target_stats)
         # bases-to-promo: fail
-        ltable_url, lpval = "characters/base-stats", "Marcus"
+        ltable_url, lindex_val = "characters/base-stats", "Marcus"
         self.sos_unit.set_targetstats(
-                (ltable_url, lpval),
+                (ltable_url, lindex_val),
                 (rtable_url, to_col),
                 0,
                 )
         self.assertIsNone(self.sos_unit.target_stats)
 
+    def test_get_character_list(self):
+        """
+        Tests the get_character_list method.
+
+        Documents the errors that can be raised while callling this function.
+        - FileNotFoundError: not home_dir.joinpath("characters__base_stats-JOIN-characters__growth_rates.json").exists()
+        - json.decoder.JSONDecodeError: File is not in JSON form.
+        """
+        logging.info("BaseMorphTest.test_get_character_list(self)")
+        # file does not exist
+        with patch("pathlib.Path.joinpath") as mock_joinpath:
+            mock_joinpath.return_value = ""
+            with self.assertRaises(FileNotFoundError):
+                self.sos_unit.get_character_list()
+        # file is not in JSON format
+        with patch("io.open") as mock_open:
+            mock_open.return_value = io.StringIO()
+            with self.assertRaises(json.decoder.JSONDecodeError):
+                self.sos_unit.get_character_list()
+        # main: list must contain no duplicates, and be a subset of 'characters/base-stats'['Name']
+        chrlist = self.sos_unit.get_character_list()
+        self.assertEqual(len(chrlist), len(set(chrlist)))
+        bases_chrset = set()
+        for table in self.sos_unit.url_to_tables['characters/base-stats']:
+            bases_chrset.update(set(table.loc[:, "Name"]))
+        self.assertTrue(set(chrlist).issubset(bases_chrset))
+        trialmode_only = {
+            "Narshen",
+            "Gale",
+            "Hector",
+            "Brunya",
+            "Eliwood",
+            "Murdoch",
+            "Zephiel",
+            "Guinevere",
+            }
+        self.assertTrue(trialmode_only.isdisjoint(set(chrlist)))
+
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(
+        defaultTest="test_get_character_list",
+        module=BaseMorphTest,
+    )
