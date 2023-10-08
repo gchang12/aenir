@@ -87,7 +87,7 @@ class Morph(BaseMorph):
             if target_lv > self.get_maxlv():
                 error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
             else:
-                error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
+                error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
         self.set_targetstats(
                 ("characters/base-stats", self.unit_name),
