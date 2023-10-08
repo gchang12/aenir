@@ -50,7 +50,6 @@ class Morph(BaseMorph):
         """
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
-        logging.info("Morph(%d, '%s')", game_num, unit_name)
         # load tables
         if type(datadir_root) == str:
             self.home_dir = Path(datadir_root).joinpath(self.game_name)
@@ -58,6 +57,7 @@ class Morph(BaseMorph):
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
         # initialize bases
+        logging.info("Morph(%d, '%s')", game_num, unit_name)
         temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
