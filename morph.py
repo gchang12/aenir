@@ -264,5 +264,102 @@ class Morph(BaseMorph):
         )
         return pd.concat([clslv_df, stat_df])
 
+
+class Morph4(Morph):
+    """
+    """
+
+    def __init__(self, unit_name: str, father_name: str, *, datadir_root: str = None):
+        """
+        Loads tables, and initializes bases among other things.
+
+        Implements...
+        Defines: promo_cls, unit_name, current_stats
+        """
+        game_num = 4
+        try:
+            Morph.__init__(self, game_num, unit_name)
+        except KeyError:
+            pass
+        logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
+        self.father_name = father_name
+        # initialize bases
+        tableindex = 1
+        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+        self.current_clstype = "characters/base-stats"
+        self.current_cls = temp_bases.pop("Class")
+        self.current_lv = temp_bases.pop("Lv")
+        # implicitly convert to float
+        self.current_stats = temp_bases + 0.0
+        try:
+            self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
+        except KeyError:
+            self.promo_cls = None
+
+    def level_up(self, target_lv: int):
+        """
+        Increases unit's level, and increments current_stats accordingly.
+        Implements...
+
+        Raises:
+        - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
+        """
+        if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
+            if target_lv > self.get_maxlv():
+                error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
+            else:
+                error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
+            raise ValueError(error_msg + " Aborting.")
+        # target_stats is set directly instead via the usual method.
+        tableindex = 1
+        self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
+        temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
+        self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
+        self.current_lv = target_lv
+
+
+class Morph5(Morph):
+    """
+    """
+
+    def __init__(self, unit_name: str, *, datadir_root: str = None):
+        """
+        """
+        game_num = 5
+        tableindex = 0
+        Morph.__init__(game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+
+    def promote(self):
+        """
+        """
+        if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":
+            raise ValueError(f"{self.unit_name} has no available promotions.")
+        elif self.unit_name == "Lara" and len(self.history == 3):
+            raise ValueError(f"{self.unit_name} has no available promotions.")
+        Morph.promote()
+
+
+class Morph7(Morph):
+    """
+    Defines methods to simulate level-ups and promotions for interactive user session.
+ 
+    Inherits: Morph
+    - differs in that the Wallace exception is added.
+    """
+
+    def __init__(self, unit_name: str, lyn_mode: bool = False, *, datadir_root: str = None):
+        """
+        Implements: Morph.__init__
+
+        - Adds Wallace exception
+        - Allows user to choose Lyn Mode or otherwise
+        """
+        game_num = 7
+        tableindex = (0 if lyn_mode else 1)
+        Morph.__init__(self, 7, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+        if not lyn_mode and unit_name == "Wallace":
+            # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
+            self.current_clstype = "classes/promotion-gains"
+
 if __name__ == '__main__':
     pass
