@@ -213,6 +213,12 @@ class Morph(BaseMorph):
         """
         return self.current_stats[key]
 
+    def __setitem__(self, key, value):
+        """
+        Further allows Morph to mock pd.Series.
+        """
+        self.current_stats[key] = value
+
     def __lt__(self, other):
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
@@ -224,7 +230,7 @@ class Morph(BaseMorph):
         - History
         - Class
         - Lv
-        - {numerical_stats}
+        - {numeric_stats}
         """
         diff = other.current_stats - self.current_stats
         diff.name = 'is-less_than-by'
