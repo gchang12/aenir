@@ -20,7 +20,7 @@ class Morph5(Morph):
         """
         if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":
             raise ValueError(f"{self.unit_name} has no available promotions.")
-        if self.unit_name == "Lara" and len(self.history == 3):
+        elif self.unit_name == "Lara" and len(self.history == 3):
             raise ValueError(f"{self.unit_name} has no available promotions.")
         Morph.promote()
 
