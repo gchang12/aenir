@@ -94,6 +94,7 @@ class Morph(BaseMorph):
                 ("characters/growth-rates", "Name"),
                 tableindex,
                 )
+        logging.info("Morph.level_up(%d, tableindex=%d)", target_lv, tableindex)
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
         self.current_lv = target_lv
@@ -160,6 +161,7 @@ class Morph(BaseMorph):
             raise ValueError(f"{self.unit_name} has no available promotions.")
         if self.current_lv < self.get_minpromolv():
             raise ValueError(f"{self.unit_name} must be at least level {self.get_minpromolv()} to promote. Current level: {self.current_lv}")
+        logging.info("Morph.promote(tableindex=%d)", tableindex)
         old_cls = self.current_cls
         if isinstance(self.target_stats, pd.DataFrame):
             self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
@@ -188,6 +190,7 @@ class Morph(BaseMorph):
                 ("classes/maximum-stats", "Class"),
                 tableindex,
                 )
+        logging.info("Morph.cap_stats(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
 
@@ -204,6 +207,7 @@ class Morph(BaseMorph):
                 ("classes/maximum-stats", "Class"),
                 tableindex,
                 )
+        logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
 
@@ -303,6 +307,7 @@ class Morph4(Morph):
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
         tableindex = 1
+        logging.info("Morph4.level_up(%d)", target_lv)
         self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
@@ -330,6 +335,7 @@ class Morph5(Morph):
         - Thief -> Thief Fighter -> Dancer -> Thief Fighter
         - Thief -> Dancer -> Thief Fighter
         """
+        logging.info("Morph5.promote()")
         if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":
             raise ValueError(f"{self.unit_name} has no available promotions.")
         elif self.unit_name == "Lara" and len(self.history == 3):
@@ -349,6 +355,7 @@ class Morph7(Morph):
         - Adds promotion exception for Wallace
         - Allows user to choose Lyn Mode or otherwise
         """
+        logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         game_num = 7
         tableindex = (0 if lyn_mode else 1)
         Morph.__init__(self, 7, unit_name, tableindex=tableindex, datadir_root=datadir_root)
