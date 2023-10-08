@@ -22,6 +22,7 @@ class Morph7(Morph):
         - Adds Wallace exception
         - Allows user to choose Lyn Mode or otherwise
         """
+        game_num = 7
         tableindex = (1 if lyn_mode else 0)
         Morph.__init__(self, 7, unit_name, tableindex=tableindex, datadir_root=datadir_root)
         if not lyn_mode and unit_name == "Wallace":
