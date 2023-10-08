@@ -36,12 +36,6 @@ class BaseMorph(SerenesCleaner):
         # history (class, lv) tuples
         self.history = []
 
-    def __repr__(self):
-        """
-        Uses the __repr__ method for the pd.Series object representing the current_stats.
-        """
-        return self.current_stats.__repr__()
-
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
         Prints: clsrecon_dict.keys not in ltable[lindex_col], clsrecon_dict.values not in rtable[to_col].

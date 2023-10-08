@@ -207,18 +207,6 @@ class Morph(BaseMorph):
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
 
-    def __getitem__(self, key):
-        """
-        Further allows Morph to mock pd.Series.
-        """
-        return self.current_stats[key]
-
-    def __setitem__(self, key, value):
-        """
-        Further allows Morph to mock pd.Series.
-        """
-        self.current_stats[key] = value
-
     def __lt__(self, other):
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
