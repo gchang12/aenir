@@ -2,7 +2,10 @@
 """
 """
 
+import logging
+
 from aenir.morph import Morph
+from aenir._basemorph import BaseMorph
 
 class Morph4(Morph):
     """
@@ -16,16 +19,12 @@ class Morph4(Morph):
         Defines: promo_cls, unit_name, current_stats
         """
         game_num = 4
-        BaseMorph.__init__(self, game_num)
-        self.unit_name = unit_name
-        self.father_name = father_name
+        try:
+            Morph.__init__(self, game_num, unit_name)
+        except KeyError:
+            pass
         logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
-        # load tables
-        if type(datadir_root) == str:
-            self.home_dir = Path(datadir_root).joinpath(self.game_name)
-        self.tables_file = "cleaned_stats.db"
-        for urlpath in self.page_dict:
-            self.load_tables(urlpath)
+        self.father_name = father_name
         # initialize bases
         tableindex = 1
         temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
@@ -64,16 +63,16 @@ class Morph4(Morph):
         """
         Implements...
         """
+        self.unit_name = (self.unit_name, self.father_name)
+        if isinstance(other, Morph4):
+            other.unit_name = (other.unit_name, other.father_name)
         comparison_df = Morph.__lt__(self, other)
-        father_row = pd.DataFrame(
-            {
-                self.unit_name: [self.father_name],
-                comparison_df.iloc[:, 1].name: ['-'],
-                other.unit_name: [(other.father_name if isinstance(other, Morph4) else "-")],
-            },
-            index=['Father'],
-        )
-        return pd.concat( [father_row, comparison_df] )
+        self.unit_name = self.unit_name[0]
+        if isinstance(other.unit_name, tuple):
+            other.unit_name = other.unit_name[0]
+        return comparison_df
 
 if __name__ == '__main__':
-    pass
+    rana = Morph4('Rana', 'Arden')
+    roy = Morph(6, 'Roy')
+    print(roy > rana)
