@@ -72,6 +72,4 @@ class Morph4(Morph):
         return comparison_df
 
 if __name__ == '__main__':
-    rana = Morph4('Rana', 'Arden')
-    roy = Morph(6, 'Roy')
-    print(roy > rana)
+    pass
