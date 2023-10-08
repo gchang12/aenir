@@ -238,15 +238,21 @@ class Morph(BaseMorph):
         self_clslv = [self.current_cls, self.current_lv]
         other_clslv = [other.current_cls, other.current_lv]
         # create rows for history
-        self_clslv.insert(0, tuple(self.history))
-        other_clslv.insert(0, tuple(other.history))
+        max_histlen = max([len(self.history), len(other.history)])
+        for index in range(max_histlen):
+            self_clslv.insert(0, "-")
+            other_clslv.insert(0, "-")
+        for index, entry in enumerate(self.history):
+            self_clslv[index] = entry
+        for index, entry in enumerate(other.history):
+            other_clslv[index] = entry
         clslv_df = pd.DataFrame(
             {
                 self.unit_name: self_clslv,
                 diff.name: ['-' for entry in self_clslv],
                 other.unit_name: other_clslv,
             },
-            index=['History', 'Class', 'Lv']
+            index=["Previous" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
         )
         stat_df = pd.concat(
             [

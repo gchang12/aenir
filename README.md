@@ -16,3 +16,7 @@ x method for verifying clsrecon_file(s)
 x method for generating a list of characters
 x method for __getitem__
 x refactoring for lpkey -> lindex_col
+
+Create test cases for all involved
+Add docstrings
+Fix logging
