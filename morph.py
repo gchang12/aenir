@@ -248,9 +248,9 @@ class Morph(BaseMorph):
             other_clslv[index] = entry
         clslv_df = pd.DataFrame(
             {
-                self.unit_name: self_clslv,
+                self.current_stats.name: self_clslv,
                 diff.name: ['-' for entry in self_clslv],
-                other.unit_name: other_clslv,
+                other.current_stats.name: other_clslv,
             },
             index=["PrevClassLv" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
         )

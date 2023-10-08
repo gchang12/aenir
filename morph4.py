@@ -2,6 +2,7 @@
 """
 """
 
+import pandas as pd
 import logging
 
 from aenir.morph import Morph
@@ -58,18 +59,22 @@ class Morph4(Morph):
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
         self.current_lv = target_lv
 
+'''
     def __lt__(self, other):
         """
         Implements...
         """
-        self.unit_name = (self.unit_name, self.father_name)
-        if isinstance(other, Morph4):
-            other.unit_name = (other.unit_name, other.father_name)
         comparison_df = Morph.__lt__(self, other)
-        self.unit_name = self.unit_name[0]
-        if isinstance(other.unit_name, tuple):
-            other.unit_name = other.unit_name[0]
-        return comparison_df
+        father_row = pd.DataFrame(
+            {
+                self.unit_name: [self.father],
+                diff.name: ["-"],
+                other.unit_name: [other.father_name if not isinstance(other, Morph4) else "-"],
+            },
+            index=["Father"],
+        )
+        return pd.concat([father_row, comparison_df])
+'''
 
 if __name__ == '__main__':
     pass
