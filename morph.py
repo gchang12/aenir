@@ -57,8 +57,8 @@ class Morph(BaseMorph):
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
         # initialize bases
-        logging.info("Morph(%d, '%s')", game_num, unit_name)
         temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
+        logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
         self.current_lv = temp_bases.pop("Lv")
@@ -215,7 +215,7 @@ class Morph(BaseMorph):
         - no errors, hurrah!
 
         Returned pd.DataFrame is of the form:
-        - History
+        - {history}
         - Class
         - Lv
         - {numeric_stats}
@@ -248,29 +248,31 @@ class Morph(BaseMorph):
                 diff,
                 other.current_stats,
             ],
-            axis=1
+            axis=1,
         )
         return pd.concat([clslv_df, stat_df])
 
 
 class Morph4(Morph):
     """
+    Inherits: aenir.morph.Morph, and adapts some methods for FE4 kids.
     """
 
     def __init__(self, unit_name: str, father_name: str, *, datadir_root: str = None):
         """
-        Loads tables, and initializes bases among other things.
+        Semi-overrides: Morph.__init__.
 
-        Implements...
-        Defines: promo_cls, unit_name, current_stats
+        Loads tables, and initializes bases among other things.
+        Bases are initialized based on (unit_name, father_name) primary key.
+        Defines: father_name
         """
         game_num = 4
+        # executes the Morph.__init__ code up until the bases are loaded.
         try:
-            Morph.__init__(self, game_num, unit_name)
+            Morph.__init__(self, game_num, unit_name, tableindex=0)
         except KeyError:
-            pass
-        logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
-        self.father_name = father_name
+            logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
+            self.father_name = father_name
         # initialize bases
         tableindex = 1
         temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
@@ -286,9 +288,10 @@ class Morph4(Morph):
 
     def level_up(self, target_lv: int):
         """
-        Increases unit's level, and increments current_stats accordingly.
-        Implements...
+        Overrides: Morph.level_up.
 
+        Increases unit's level, and increments current_stats accordingly.
+        References (unit_name, father_name) as key rather than (unit_name) unlike Morph.level_up.
         Raises:
         - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
         """
@@ -308,10 +311,12 @@ class Morph4(Morph):
 
 class Morph5(Morph):
     """
+    Inherits: aenir.morph.Morph. Exists to wrap promote method for Lara.
     """
 
     def __init__(self, unit_name: str, *, datadir_root: str = None):
         """
+        Extends: Morph.__init__.
         """
         game_num = 5
         tableindex = 0
@@ -319,6 +324,11 @@ class Morph5(Morph):
 
     def promote(self):
         """
+        Extends: Morph.promote.
+
+        Defines exceptions for Lara, who has two different promotion paths:
+        - Thief -> Thief Fighter -> Dancer -> Thief Fighter
+        - Thief -> Dancer -> Thief Fighter
         """
         if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":
             raise ValueError(f"{self.unit_name} has no available promotions.")
@@ -329,17 +339,14 @@ class Morph5(Morph):
 
 class Morph7(Morph):
     """
-    Defines methods to simulate level-ups and promotions for interactive user session.
- 
-    Inherits: Morph
-    - differs in that the Wallace exception is added.
+    Inherits: aenir.morph.Morph. Serves mainly to accommodate for Lyn Mode units.
     """
 
     def __init__(self, unit_name: str, lyn_mode: bool = False, *, datadir_root: str = None):
         """
-        Implements: Morph.__init__
+        Extends: Morph.__init__.
 
-        - Adds Wallace exception
+        - Adds promotion exception for Wallace
         - Allows user to choose Lyn Mode or otherwise
         """
         game_num = 7
