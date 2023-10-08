@@ -30,10 +30,7 @@ class TranscriberTest(unittest.TestCase):
         """
         Deletes the home_dir/tables_file.
         """
-        absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
-                self.sos_transcriber.tables_file
-                )
-        absolute_tables_file.unlink(missing_ok=True)
+        self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).unlink(missing_ok=True)
 
     def test_pagedict_is_clsattr(self):
         """

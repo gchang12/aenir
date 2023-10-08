@@ -10,6 +10,7 @@ import io
 from typing import Tuple
 import json
 
+import pandas as pd
 from aenir.cleaner import SerenesCleaner
 
 class BaseMorph(SerenesCleaner):
@@ -29,7 +30,6 @@ class BaseMorph(SerenesCleaner):
         Defines: current_clstype, current_cls, target_stats
         """
         SerenesCleaner.__init__(self, game_num)
-        logging.info("BaseMorph.__init__(self, %d)", game_num)
         # essential to set_targetstats method
         self.target_stats = None
         self.current_stats = None
@@ -44,13 +44,13 @@ class BaseMorph(SerenesCleaner):
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
-        Prints: clsrecon_dict.keys not in ltable[lpkey], clsrecon_dict.values not in rtable[to_col].
+        Prints: clsrecon_dict.keys not in ltable[lindex_col], clsrecon_dict.values not in rtable[to_col].
 
         Note: In order for this method to work, logging.level must be set to logging.INFO.
         """
         logging.info("BaseMorph.verify_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
-        ltable_url, lpkey, from_col = ltable_args
+        ltable_url, lindex_col, from_col = ltable_args
         rtable_url, to_col = rtable_args
         # load clsrecon_dict
         ltable_name = self.page_dict[ltable_url]
@@ -61,21 +61,17 @@ class BaseMorph(SerenesCleaner):
         # compile ltable pkey names
         ltable_nameset = set()
         for table in self.url_to_tables[ltable_url]:
-            ltable_nameset.update(set(table.loc[:, lpkey]))
+            ltable_nameset.update(set(table.loc[:, lindex_col]))
         # compile rtable values
         rtable_nameset = set()
         for table in self.url_to_tables[rtable_url]:
             rtable_nameset.update(set(table.loc[:, to_col]))
         # check1: clsrecon_dict.keys subset of ltable_nameset
         check1 = set(clsrecon_dict) - ltable_nameset
-        logging.info("%d key(s) in '%s', but not in '%s.%s': ", len(check1), str(json_path), ltable_name, lpkey)
-        for name in check1:
-            logging.info(name)
+        logging.info("%d key(s) in '%s', but not in '%s.%s': %s", len(check1), str(json_path), ltable_name, lindex_col, check1)
         # check2: clsrecon_dict.values subset of rtable_nameset
         check2 = set(clsrecon_dict.values()) - {None} - rtable_nameset
-        logging.info("%d value(s) in '%s', but not in '%s.%s': ", len(check2), str(json_path), rtable_name, to_col)
-        for name in check2:
-            logging.info(name)
+        logging.info("%d value(s) in '%s', but not in '%s.%s': %s", len(check2), str(json_path), rtable_name, to_col, check2)
 
     def verify_maximum_stats(self):
         """
@@ -88,28 +84,20 @@ class BaseMorph(SerenesCleaner):
         maxes_name = "classes/maximum-stats"
         bases = set(self.url_to_tables[bases_name][0].columns) - {"Name", "Class", "Lv"}
         maxes = set(self.url_to_tables[maxes_name][0].columns) - {"Class"}
-        # check1: bases - maxes
-        check1 = bases - maxes
-        logging.info("%d names in '%s' but not '%s': ", len(check1), bases_name, maxes_name)
-        for name in check1:
-            logging.info(name)
-        # check2: maxes - bases
-        check2 = bases - maxes
-        logging.info("%d names in '%s' but not '%s': ", len(check2), maxes_name, bases_name)
-        for name in check2:
-            logging.info(name)
+        diff = maxes - bases
+        logging.info("%d names in '%s' but not in '%s': %s", len(check2), maxes_name, bases_name, diff)
 
     def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str], tableindex: int):
         """
         Sets BaseMorph.target_stats to the pd.[DataFrame|Series] per clsrecon_dict.
 
-        ltable_url, lpkey = ltable_args
+        ltable_url, lindex_col = ltable_args
         rtable_url, to_col = rtable_args
-        lpkey |-(clsrecon_dict)-> from_col === to_col
+        lindex_col |-(clsrecon_dict)-> from_col === to_col
         """
         logging.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
-        ltable_url, lpval = ltable_args
+        ltable_url, lindex_val = ltable_args
         rtable_url, to_col = rtable_args
         # load clsrecon_dict from json
         ltable_name = self.page_dict[ltable_url]
@@ -117,11 +105,40 @@ class BaseMorph(SerenesCleaner):
         json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
         with open(str(json_path), encoding='utf-8') as rfile:
             clsrecon_dict = json.load(rfile)
-        from_col = clsrecon_dict[lpval]
+        from_col = clsrecon_dict[lindex_val]
         if from_col is None:
             self.target_stats = None
         else:
             self.target_stats = self.url_to_tables[rtable_url][tableindex].set_index(to_col).loc[from_col, :]
+
+    def get_character_list(self):
+        """
+        Returns a List[str] of base!character names mapped to growths!character names.
+
+        Raises:
+        - FileNotFoundError: not home_dir.joinpath("characters__base_stats-JOIN-characters__growth_rates.json").exists()
+        - json.decoder.JSONDecodeError: File is not in JSON form.
+        """
+        logging.info("BaseMorph.get_character_list(self)")
+        ltable_url = "characters/base-stats"
+        rtable_url = "characters/growth-rates"
+        ltable_name = self.page_dict[ltable_url]
+        rtable_name = self.page_dict[rtable_url]
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        # query character list from JSON (FileNotFoundError may be raised before that)
+        with io.open(str(json_path), encoding='utf-8') as rfile:
+            clsrecon_dict = json.load(rfile)
+        chrlist = []
+        # filter to include non-None entries
+        for chrname, growth_equivalent in clsrecon_dict.items():
+            if growth_equivalent is None:
+                continue
+            if chrname in chrlist:
+                continue
+            chrlist.append(chrname)
+        # return keys mapped to non-None
+        logging.info("%d names found: %s", len(chrlist), chrlist)
+        return chrlist
 
 if __name__ == '__main__':
     pass

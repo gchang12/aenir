@@ -33,7 +33,6 @@ class SerenesCleaner(SerenesTranscriber):
         - clsrecon_list
         """
         SerenesTranscriber.__init__(self, game_num)
-        logging.info("SerenesCleaner.__init__(self, %d)", game_num)
         self.fieldrecon_file = "fieldrecon.json"
         self.clsrecon_list = [
                 (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
@@ -91,7 +90,6 @@ class SerenesCleaner(SerenesTranscriber):
         logging.info("SerenesCleaner.create_fieldrecon_file(self)")
         fieldrecon_json = self.home_dir.joinpath(self.fieldrecon_file)
         if fieldrecon_json.exists():
-            logging.warning("'%s' exists. Aborting.", str(fieldrecon_json))
             raise FileExistsError(f"'{str(fieldrecon_json)}' exists. Aborting.")
         fieldname_set = set()
         for tableset in self.url_to_tables.values():
@@ -118,7 +116,6 @@ class SerenesCleaner(SerenesTranscriber):
         with io.open(fieldrecon_json, encoding='utf-8') as rfile:
             fieldrecon_dict = json.load(rfile)
         if None in fieldrecon_dict.values():
-            logging.warning("Null-value found in fieldrecon_dict.values(). Aborting.")
             raise ValueError("Null-value found in fieldrecon_dict.values(). Aborting.")
         for urlpath, tablelist in self.url_to_tables.items():
             logging.info("Applying fieldrecon_file to tablelist := SerenesCleaner.url_to_tables['%s'].", urlpath)
@@ -141,7 +138,7 @@ class SerenesCleaner(SerenesTranscriber):
         """
         logging.info("SerenesCleaner.create_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
-        ltable_url, lpkey, from_col = ltable_args
+        ltable_url, lindex_col, from_col = ltable_args
         rtable_url, to_col = rtable_args
         # compile names in to_col to see which names in from_col are not in the to_col
         rtable_nameset = set()
@@ -154,27 +151,57 @@ class SerenesCleaner(SerenesTranscriber):
         logging.info("Compiling clsrecon_dict for ltable_url := '%s'.", ltable_url)
         for table in self.url_to_tables[ltable_url]:
             # get all names, map missing to None
-            for pval, lrow in table.set_index(lpkey).iterrows():
-                # in case the from_col == pval
+            for lindex_val, lrow in table.set_index(lindex_col).iterrows():
+                # in case the from_col == lindex_val
                 try:
                     from_val = lrow.pop(from_col)
                 except KeyError:
-                    from_val = pval
+                    from_val = lindex_val
                 if from_val not in rtable_nameset:
                     from_val = None
-                clsrecon_dict[pval] = from_val
-                logging.info("clsrecon_dict['%s'] = '%s'", pval, from_val)
+                clsrecon_dict[lindex_val] = from_val
+                logging.info("clsrecon_dict['%s'] = '%s'", lindex_val, from_val)
         # dump dict into file
         ltable_name = self.page_dict[ltable_url]
         rtable_name = self.page_dict[rtable_url]
         json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
         if json_path.exists():
-            logging.warning(f"'{str(json_path)}' exists. Aborting.")
             raise FileExistsError(f"'{str(json_path)}' exists. Aborting.")
         logging.info("Saving clsrecon_dict to '%s'.", str(json_path))
         with io.open(str(json_path), encoding='utf-8', mode='w') as wfile:
             json.dump(clsrecon_dict, wfile, indent=4)
             logging.info("'%s' has been saved successfully.", str(json_path))
+
+    def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
+        """
+        Checks that each target in the mapping belongs to rtable[to_col].
+
+        Raises:
+        - FileNotFoundError: File does not exist
+        - json.decoder.JSONDecodeError: File is not in JSON format.
+        - KeyError: rtable_url not in url_to_tables.
+        - KeyError: to_col not a column in rtable
+        """
+        logging.info("SerenesCleaner.verify_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
+        # initialize variables
+        ltable_url, lindex_col, from_col = ltable_args
+        rtable_url, to_col = rtable_args
+        ltable_name = self.page_dict[ltable_url]
+        rtable_name = self.page_dict[rtable_url]
+        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
+        # try to read JSON file (FileNotFoundError may be raised)
+        with io.open(str(json_path), encoding='utf-8') as rfile:
+            clsrecon_dict = json.load(rfile)
+        # try to query rtable (table not loaded error may be raised)
+        rtable_keys = set()
+        for table in self.url_to_tables[rtable_url]:
+            rtable_keys.update(set(table.loc[:, to_col]))
+        # check which values in JSON are not in rtable
+        ltable_values = set(rval for lindex_val, rval in clsrecon_dict.items() if rval is not None)
+        missing_items = ltable_values - rtable_keys
+        # report results, and return them
+        logging.info("%d items in '%s' that are not in '%s': %s", len(missing_items), ltable_url, rtable_url, missing_items)
+        return missing_items
 
 if __name__ == '__main__':
     pass

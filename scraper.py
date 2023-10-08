@@ -32,7 +32,6 @@ class SerenesScraper(SerenesBase):
         - url_to_tables: Maps urlpaths to the tables contained in those urlpaths.
         """
         SerenesBase.__init__(self, game_num)
-        logging.info("SerenesBase.__init__(self, %d)", game_num)
         # stores the scraped tables in lists of pd.DataFrame_s.
         self.url_to_tables = {}
 
