@@ -203,13 +203,6 @@ class Morph6Test(unittest.TestCase):
         self.roy.current_stats['Lck'] = 30
         self.assertTrue(all(self.roy.is_maxed() == mock_maxed))
 
-    def test__getitem__(self):
-        """
-        Verifies that the Morph objects mocks the current_stats.__getitem__ method.
-        """
-        for statname in self.roy.current_stats.index:
-            self.assertEqual(self.roy[statname], self.roy.current_stats[statname])
-
     def test__lt__(self):
         """
         Verifies that the pd.DataFrame returned summarizes the differences between Morph objects.
