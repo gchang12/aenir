@@ -252,7 +252,7 @@ class Morph(BaseMorph):
                 diff.name: ['-' for entry in self_clslv],
                 other.unit_name: other_clslv,
             },
-            index=["Previous" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
+            index=["PrevClassLv" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
         )
         stat_df = pd.concat(
             [
