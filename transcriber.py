@@ -85,7 +85,7 @@ class SerenesTranscriber(SerenesScraper):
         logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
         save_path = self.home_dir.joinpath(self.tables_file)
         if not save_path.exists():
-            raise FileNotFoundError(f"'{str(save_path)}' exists. Aborting.")
+            raise FileNotFoundError(f"'{str(save_path)}' does not exist. Aborting.")
         save_file = str(save_path)
         tablename_root = self.page_dict[urlpath]
         logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)

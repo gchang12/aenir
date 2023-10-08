@@ -5,7 +5,6 @@
 import logging
 
 from aenir.morph import Morph
-from aenir._basemorph import BaseMorph
 
 class Morph4(Morph):
     """
