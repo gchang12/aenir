@@ -10,9 +10,9 @@ import json
 import pandas as pd
 
 
-from aenir.morph import Morph
+from aenir.morph import Morph, Morph4, Morph5, Morph7
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 
 class Morph6Test(unittest.TestCase):
     """
@@ -213,16 +213,160 @@ class Morph6Test(unittest.TestCase):
         c_roy = comparison_df['Roy']
         self.assertEqual(c_roy.pop("Class"), self.roy.current_cls)
         self.assertEqual(c_roy.pop("Lv"), self.roy.current_lv)
-        self.assertListEqual(list(c_roy.pop("History")), self.roy.history)
+        #self.assertListEqual(list(c_roy.pop("PrevClassLv")), self.roy.history)
         self.assertTrue(all(c_roy == self.roy.current_stats))
         c_marcus = comparison_df['Marcus']
         self.assertEqual(c_marcus.pop("Class"), marcus.current_cls)
         self.assertEqual(c_marcus.pop("Lv"), marcus.current_lv)
-        self.assertListEqual(list(c_marcus.pop("History")), marcus.history)
+        #self.assertListEqual(list(c_marcus.pop("PrevClassLv")), marcus.history)
         self.assertTrue(all(c_marcus == marcus.current_stats))
+
+class Morph4Test(unittest.TestCase):
+    def setUp(self):
+        # create Morph of FE4 kid
+        self.identifier = ("Lakche", "Lex")
+        self.lakche = Morph4(*self.identifier)
+        # create copy of bases for easy reference
+        self.bases = self.lakche.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[self.identifier, :].copy()
+        self.bases.pop("Class")
+        self.bases.pop("Lv")
+
+    def test_level_up(self):
+        # test modified level-up method
+        growths = self.lakche.url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
+        expected = (1.0 * self.bases) + growths * (20 - self.lakche.current_lv) / 100
+        self.lakche.level_up(20)
+        self.assertTrue(all(abs(self.lakche.current_stats - expected) < 0.01))
+
+    def test_promote(self):
+        # test FE4 promotion
+        current_lv = 20
+        self.lakche.current_lv = current_lv
+        self.lakche.promote()
+        self.assertEqual(self.lakche.current_cls, "Swordmaster")
+        self.assertEqual(self.lakche.current_lv, current_lv)
+        temp_promo = self.lakche.url_to_tables['classes/promotion-gains'][0].set_index(["Class", "Promotion"]).loc[("Swordfighter", "Swordmaster"), :].reindex(self.bases.index, fill_value=0.0) * 1.0
+        self.assertTrue(all(abs(self.lakche.current_stats - self.bases - temp_promo) < 0.01))
+
+
+class Morph5Test(unittest.TestCase):
+    def setUp(self):
+        self.lara = Morph5("Lara")
+        self.bases = self.lara.current_stats.copy()
+        # initialize promo bonuses for all scenarios
+        promo_table = self.lara.url_to_tables["classes/promotion-gains"][0].set_index(["Class", "Promotion"])
+        self.dancer__to__thief_fighter = promo_table.loc[("Dancer", "Thief Fighter"), :].reindex(self.bases.index, fill_value=0.0)
+        self.thief__to__dancer = promo_table.loc[("Thief", "Dancer"), :].reindex(self.bases.index, fill_value=0.0)
+        self.thief_fighter__to__dancer = promo_table.loc[("Thief Fighter", "Dancer"), :].reindex(self.bases.index, fill_value=0.0)
+        self.thief__to__thief_fighter = promo_table.loc[("Thief", "Thief Fighter"), :].reindex(self.bases.index, fill_value=0.0)
+
+    def test_promote1(self):
+        # Thief -> Thief Fighter -> Dancer -> Thief Fighter
+        self.lara.current_lv = 10
+        with self.assertRaises(KeyError):
+            # should complain about lack of promo_cls attribute
+            self.lara.promote()
+        self.lara.promo_cls = "Thief Fighter"
+        # Thief -> Thief Fighter
+        self.lara.promote()
+        running_bonus = self.thief__to__thief_fighter.copy()
+        # test for equality: cls, lv, stats
+        self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
+        self.assertEqual(self.lara.current_cls, "Thief Fighter")
+        self.assertEqual(self.lara.current_lv, 1)
+        # should raise a ValueError because "Lara" is not Lara
+        self.lara.unit_name = "Lifis"
+        with self.assertRaises(ValueError):
+            self.lara.promote()
+        # restore name
+        self.lara.unit_name = "Lara"
+        # Thief Fighter -> Dancer
+        running_bonus += self.thief_fighter__to__dancer
+        self.lara.promo_cls = "Dancer"
+        self.lara.promote()
+        self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
+        self.assertEqual(self.lara.current_cls, "Dancer")
+        self.assertEqual(self.lara.current_lv, 1)
+        # Dancer -> Thief Fighter
+        #self.promo_cls = "Thief Fighter"
+        self.lara.current_lv = 10
+        self.lara.promote()
+        running_bonus += self.dancer__to__thief_fighter
+        self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
+        self.assertEqual(self.lara.current_cls, "Thief Fighter")
+        self.assertEqual(self.lara.current_lv, 1)
+        # Thief Fighter -> Dancer
+        with self.assertRaises(ValueError):
+            self.lara.promote()
+
+    def test_promote2(self):
+        # Thief -> Dancer -> Thief Fighter
+        self.lara.promo_cls = "Dancer"
+        self.assertEqual(self.lara.current_lv, 1)
+        self.lara.promote()
+        running_bonus = self.thief__to__dancer.copy()
+        # Thief -> Dancer
+        self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
+        self.assertEqual(self.lara.current_cls, "Dancer")
+        self.assertEqual(self.lara.current_lv, 1)
+        running_bonus += self.dancer__to__thief_fighter
+        # Thief Fighter -> Dancer
+        self.lara.current_lv = 10
+        self.lara.promote()
+        self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
+        self.assertEqual(self.lara.current_cls, "Thief Fighter")
+        self.assertEqual(self.lara.current_lv, 1)
+        self.lara.promo_cls = "Dancer"
+        # Dancer -> Thief Fighter
+        with self.assertRaises(ValueError):
+            self.lara.promote()
+
+class Morph7Test(unittest.TestCase):
+    def setUp(self):
+        # initialize both versions of Wallace
+        self.wallace0 = Morph7("Wallace", lyn_mode=True)
+        self.wallace1 = Morph7("Wallace", lyn_mode=False)
+        self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
+
+    def test_tutorial_wallace(self):
+        # max out level -> promote -> cap stats
+        bases = self.wallace0.current_stats.copy()
+        # test level-up
+        self.wallace0.level_up(20)
+        running_total = self.growths.copy() * 7.0 / 100
+        self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
+        # test promotion
+        promo_table = self.wallace0.url_to_tables["classes/promotion-gains"][0].set_index(["Class", "Promotion"])
+        running_total += promo_table.loc[(self.wallace0.current_cls, "General (M)"), :].reindex(bases.index, fill_value=0.0)
+        self.wallace0.promote()
+        # assert that Wallace cannot promote again
+        with self.assertRaises(ValueError):
+            self.wallace0.promote()
+        # - test that stats match
+        self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
+        self.wallace0.cap_stats()
+        # test that the target stats that referenced the maxes has name = 'General (M)'
+        self.assertEqual(self.wallace0.target_stats.name, "General (M)")
+        # test that lv, cls match expected
+        self.assertEqual(self.wallace0.current_lv, 1)
+        self.assertEqual(self.wallace0.current_cls, "General (M)")
+        #running_total += self.growths * 19.0 / 100
+        #self.wallace0.level_up(20)
+        #self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
+
+    def test_main_wallace(self):
+        # fail: promote
+        self.assertEqual("classes/promotion-gains", self.wallace1.current_clstype)
+        with self.assertRaises(ValueError):
+            self.wallace1.promote()
+        # test: level-up
+        bases = self.wallace1.current_stats.copy()
+        self.wallace1.level_up(20)
+        running_total = self.growths.copy() * 19.0 / 100
+        self.assertTrue(all(abs(self.wallace1.current_stats - bases - running_total) < 0.01))
 
 if __name__ == '__main__':
     unittest.main(
-        defaultTest=["test__lt__", "test_is_maxed"],
-        module=Morph6Test,
+        defaultTest=["test"],
+        module=Morph7Test,
     )

@@ -31,6 +31,8 @@ class Morph(BaseMorph):
             (4, "Azel"): "Mage Knight",
             (4, "Arthur"): "Mage Knight",
             (4, "Tinny"): "Mage Fighter (F)",
+            (4, "Lakche"): "Swordmaster",
+            (4, "Skasaher"): "Forrest",
             (5, "Rifis"): "Thief Fighter",
             (5, "Asvel"): "Sage",
             (5, "Miranda"): "Mage Knight",
@@ -326,7 +328,7 @@ class Morph5(Morph):
         Extends: Morph.__init__.
         """
         game_num = 5
-        Morph.__init__(game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
 
     def promote(self):
         """
@@ -339,11 +341,12 @@ class Morph5(Morph):
         Ensures that Lara receives the right promotions.
         """
         logging.info("Morph5.promote()")
+        clslist = (cls for cls, lv in self.history)
         if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":
             raise ValueError(f"{self.unit_name} has no available promotions.")
-        elif self.unit_name == "Lara" and len(self.history == 3):
+        elif self.unit_name == "Lara" and "Dancer" in clslist:
             raise ValueError(f"{self.unit_name} has no available promotions.")
-        Morph.promote()
+        Morph.promote(self)
 
 
 class Morph7(Morph):
