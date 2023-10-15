@@ -7,7 +7,7 @@ BaseMorph: Defines methods for verifying manual input, and matching it to the pr
 
 import logging
 import io
-from typing import Tuple
+from typing import Tuple, List
 import json
 
 import pandas as pd
@@ -105,7 +105,7 @@ class BaseMorph(SerenesCleaner):
         else:
             self.target_stats = self.url_to_tables[rtable_url][tableindex].set_index(to_col).loc[from_col, :]
 
-    def get_character_list(self):
+    def get_character_list(self) -> List[str]:
         """
         Returns a List[str] of base!character names mapped to growths!character names.
 
