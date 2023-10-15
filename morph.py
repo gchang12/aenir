@@ -259,6 +259,8 @@ class Morph(BaseMorph):
 
 class Morph4(Morph):
     """
+    Morph subclass meant ONLY For FE4 kids.
+
     Inherits: aenir.morph.Morph, and adapts some methods for FE4 kids.
     """
 
@@ -324,8 +326,7 @@ class Morph5(Morph):
         Extends: Morph.__init__.
         """
         game_num = 5
-        tableindex = 0
-        Morph.__init__(game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+        Morph.__init__(game_num, unit_name, tableindex=0, datadir_root=datadir_root)
 
     def promote(self):
         """
@@ -334,6 +335,8 @@ class Morph5(Morph):
         Defines exceptions for Lara, who has two different promotion paths:
         - Thief -> Thief Fighter -> Dancer -> Thief Fighter
         - Thief -> Dancer -> Thief Fighter
+        Ensures that Parne and Lifis don't promote into Dancers.
+        Ensures that Lara receives the right promotions.
         """
         logging.info("Morph5.promote()")
         if self.current_cls == "Thief Fighter" and self.unit_name != "Lara":

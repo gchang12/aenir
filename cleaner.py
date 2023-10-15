@@ -172,7 +172,7 @@ class SerenesCleaner(SerenesTranscriber):
             json.dump(clsrecon_dict, wfile, indent=4)
             logging.info("'%s' has been saved successfully.", str(json_path))
 
-    def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
+    def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]) -> set:
         """
         Checks that each target in the mapping belongs to rtable[to_col].
 
