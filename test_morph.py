@@ -10,10 +10,9 @@ import json
 import pandas as pd
 
 
-from aenir._basemorph import BaseMorph
 from aenir.morph import Morph, Morph4, Morph5, Morph7
 
-logging.basicConfig(level=logging.WARNING, filename="aenir-testing.log")
+logging.basicConfig(level=logging.WARNING)
 
 class Morph6Test(unittest.TestCase):
     """
