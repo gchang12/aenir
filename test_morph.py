@@ -233,6 +233,7 @@ class Morph6Test(unittest.TestCase):
                 fe4_unit.level_up(20)
             except ValueError as exc:
                 logging.warning("'%s' is at level 20 already.", fe4_unit.unit_name)
+            fe4_unit.cap_stats()
             try:
                 prevcls = fe4_unit.current_cls
                 fe4_unit.promote()
@@ -244,6 +245,7 @@ class Morph6Test(unittest.TestCase):
                 fe4_unit.level_up(30)
             except ValueError as exc:
                 logging.warning("'%s' is at level 30 already.", fe4_unit.unit_name)
+            fe4_unit.cap_stats()
 
     def test_fe9_units(self):
         game_num = 9
@@ -255,6 +257,7 @@ class Morph6Test(unittest.TestCase):
                 fe9_unit.level_up(20)
             except ValueError as exc:
                 logging.warning("'%s' is at level 20 already.", fe9_unit.unit_name)
+            fe9_unit.cap_stats()
             try:
                 prevcls = fe9_unit.current_cls
                 fe9_unit.promote()
@@ -262,11 +265,13 @@ class Morph6Test(unittest.TestCase):
                 logging.warning("Changed class of '%s' from '%s' to '%s'.", fe9_unit.unit_name, prevcls, fe9_unit.current_cls)
             except ValueError as exc:
                 logging.warning("'%s' cannot promote", fe9_unit.unit_name)
+            fe9_unit.cap_stats()
             try:
                 logging.warning("Leveling '%s' to level 20.", fe9_unit.unit_name)
                 fe9_unit.level_up(20)
             except ValueError as exc:
                 logging.warning("'%s' is at level 20 already.", fe9_unit.unit_name)
+            fe9_unit.cap_stats()
 
     def test_fe8_units(self):
         game_num = 8
@@ -285,6 +290,7 @@ class Morph6Test(unittest.TestCase):
                 fe8_unit.level_up(20)
             except ValueError as exc:
                 logging.warning("'%s' is at level 20 already.", fe8_unit.unit_name)
+            fe8_unit.cap_stats()
             try:
                 prevcls = fe8_unit.current_cls
                 fe8_unit.promote()
@@ -297,36 +303,101 @@ class Morph6Test(unittest.TestCase):
                     branched_promo[unit_name] = tuple(fe8_unit.target_stats["Promotion"])
                     logging.warning("'%s' has branched promotion. Deferring for later.", fe8_unit.unit_name)
                     continue
+            fe8_unit.cap_stats()
             try:
                 logging.warning("Leveling '%s' to level 20.", fe8_unit.unit_name)
                 fe8_unit.level_up(20)
             except ValueError as exc:
                 logging.warning("'%s' is at level 20 already.", fe8_unit.unit_name)
+            fe8_unit.cap_stats()
         for unit_name, promolist in branched_promo.items():
             for promocls in promolist:
                 fe8_unit = Morph(8, unit_name)
                 fe8_unit.level_up(20)
+                fe8_unit.cap_stats()
                 fe8_unit.promo_cls = promocls
                 fe8_unit.promote()
+                fe8_unit.cap_stats()
                 fe8_unit.level_up(20)
+                fe8_unit.cap_stats()
 
-    def test_fe8_scrubs(self):
-        # wip
-        scrubs = ("Ross", "Amelia", "Ewan")
-        promo_map = {}
-        for scrub in scrubs:
-            scrub.level_up(10)
-            try:
-                scrub.promote()
-            except ValueError:
-                promo_map[scrub.current_cls] = scrub.target_stats["Promotion"].to_list()
-            scrub.level_up(20)
-            for promocls in promo_map[scrub.current_cls]:
-                try:
-                    scrub.promo_cls = promocls
-                    scrub.promote()
-                except ValueError:
-                    promo_map[promocls] = scrub.target_stats["Promotion"].to_list()
+    def test_villager_ross(self):
+        game_num = 8
+        promo_paths = [
+            ["Fighter", "Warrior"],
+            ["Fighter", "Hero"],
+            ["Pirate", "Berserker"],
+            ["Pirate", "Warrior"],
+            ["Journeyman (2)", "Hero"],
+            ["Journeyman (2)", "Journeyman (3)"],
+        ]
+        for promo in promo_paths:
+            promocp = promo.copy()
+            ross = Morph(game_num, "Ross")
+            ross.level_up(10)
+            ross.cap_stats()
+            ross.promo_cls = promocp.pop(0)
+            ross.promote()
+            ross.cap_stats()
+            ross.level_up(20)
+            ross.cap_stats()
+            ross.promo_cls = promocp.pop(0)
+            ross.promote()
+            ross.cap_stats()
+            ross.level_up(20)
+            ross.cap_stats()
+
+    def test_villager_ewan(self):
+        game_num = 8
+        promo_paths = [
+            ["Mage (M)", "Sage (M)"],
+            ["Mage (M)", "Mage Knight (M)"],
+            ["Shaman (M)", "Druid"],
+            ["Shaman (M)", "Summoner"],
+            ["Pupil (2)", "Sage (M)"],
+            ["Pupil (2)", "Pupil (3)"],
+        ]
+        for promo in promo_paths:
+            promocp = promo.copy()
+            ewan = Morph(game_num, "Ewan")
+            ewan.level_up(10)
+            ewan.cap_stats()
+            ewan.promo_cls = promocp.pop(0)
+            ewan.promote()
+            ewan.cap_stats()
+            ewan.level_up(20)
+            ewan.cap_stats()
+            ewan.promo_cls = promocp.pop(0)
+            ewan.promote()
+            ewan.cap_stats()
+            ewan.level_up(20)
+            ewan.cap_stats()
+
+    def test_villager_amelia(self):
+        game_num = 8
+        promo_paths = [
+            ["Cavalier (F)", "Paladin (F)"],
+            ["Cavalier (F)", "Great Knight (F)"],
+            ["Knight (F)", "General (F)"],
+            ["Knight (F)", "Great Knight (F)"],
+            ["Recruit (2)", "Paladin (F)"],
+            ["Recruit (2)", "Recruit (3)"],
+        ]
+        for promo in promo_paths:
+            promocp = promo.copy()
+            amelia = Morph(game_num, "Amelia")
+            amelia.level_up(10)
+            amelia.cap_stats()
+            amelia.promo_cls = promocp.pop(0)
+            amelia.promote()
+            amelia.cap_stats()
+            amelia.level_up(20)
+            amelia.cap_stats()
+            amelia.promo_cls = promocp.pop(0)
+            amelia.promote()
+            amelia.cap_stats()
+            amelia.level_up(20)
+            amelia.cap_stats()
 
 class Morph4Test(unittest.TestCase):
     def setUp(self):
@@ -365,17 +436,20 @@ class Morph4Test(unittest.TestCase):
                     kid_unit.level_up(20)
                 except ValueError:
                     logging.warning("'%s!%s' is already at max-level.", kid_unit.father_name, kid_unit.unit_name)
+                kid_unit.cap_stats()
                 try:
                     prevcls = kid_unit.current_cls
                     kid_unit.promote()
                     logging.warning("Promoted '%s!%s' from '%s' to '%s'.", kid_unit.father_name, kid_unit.unit_name, prevcls, kid_unit.current_cls)
                 except ValueError as exc:
                     logging.warning("'%s!%s' cannot promote.", kid_unit.father_name, kid_unit.unit_name)
+                kid_unit.cap_stats()
                 try:
                     logging.warning("Maxing out the level of '%s!%s'.", kid_unit.father_name, kid_unit.unit_name)
                     kid_unit.level_up(20)
                 except ValueError:
                     logging.warning("'%s!%s' is already at max-level.", kid_unit.father_name, kid_unit.unit_name)
+                kid_unit.cap_stats()
 
 class Morph5Test(unittest.TestCase):
     def setUp(self):
@@ -491,6 +565,7 @@ class Morph7Test(unittest.TestCase):
         bases = self.wallace0.current_stats.copy()
         # test level-up
         self.wallace0.level_up(20)
+        fe7_unit.cap_stats()
         running_total = self.growths.copy() * 7.0 / 100
         self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
         # test promotion
@@ -522,6 +597,7 @@ class Morph7Test(unittest.TestCase):
         self.wallace1.level_up(20)
         running_total = self.growths.copy() * 19.0 / 100
         self.assertTrue(all(abs(self.wallace1.current_stats - bases - running_total) < 0.01))
+        self.wallace1.cap_stats()
 
     def test_all_units(self):
         for unit_name in self.wallace0.get_character_list():
@@ -542,6 +618,7 @@ class Morph7Test(unittest.TestCase):
                 logging.info(f"'{unit_name}' has been promoted from '{prevcls}' to '{fe7_unit.current_cls}'.")
             except ValueError:
                 logging.info(f"'{unit_name}' cannot promote.")
+            fe7_unit.cap_stats()
             if fe7_unit.current_lv < 20:
                 fe7_unit.level_up(20)
             else:
@@ -551,6 +628,6 @@ class Morph7Test(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=["test_fe8_units"],
+        defaultTest=[test for test in dir(Morph6Test) if "test_villager" in test],
         module=Morph6Test,
     )
