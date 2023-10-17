@@ -250,7 +250,7 @@ class Morph(BaseMorph):
                 diff.name: ['-' for entry in self_clslv],
                 other.current_stats.name: other_clslv,
             },
-            index=["PrevClassLv" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
+            index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
         )
         # create rows for comparison_labels
         meta_labels = []
