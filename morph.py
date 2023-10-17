@@ -228,7 +228,7 @@ class Morph(BaseMorph):
         - Lv
         - {numeric_stats}
         """
-        # TODO: Cannot compare Morph against self. Fix.
+        # Cannot compare Morph against own instance. Fix.
         if other.current_stats.name == self.current_stats.name:
             other.current_stats.name += " (2)"
         diff = other.current_stats - self.current_stats
@@ -287,7 +287,7 @@ class Morph(BaseMorph):
             ],
             axis=1,
         )
-        return pd.concat([metadata_rows, clslv_df, stat_df])
+        return pd.concat([meta_rows, clslv_df, stat_df])
 
 
 class Morph4(Morph):
@@ -307,7 +307,6 @@ class Morph4(Morph):
         """
         # TODO: Test this
         game_num = 4
-        kid_tableindex = 1
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
         # load tables
@@ -317,7 +316,8 @@ class Morph4(Morph):
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
         self.comparison_labels = {}
-        self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex].loc[:, "Name"]
+        kid_tableindex = 1
+        self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex].loc[:, "Name"].to_list()
         if self.is_kid:
             self.father_name = father_name
             # initialize bases

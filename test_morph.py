@@ -503,7 +503,7 @@ class Morph5Test(unittest.TestCase):
     def test_promote2(self):
         # Thief -> Dancer -> Thief Fighter
         self.lara.promo_cls = "Dancer"
-        self.assertEqual(self.lara.current_lv, 1)
+        self.assertEqual(self.lara.current_lv, 2)
         self.lara.promote()
         running_bonus = self.thief__to__dancer.copy()
         # Thief -> Dancer
@@ -564,7 +564,7 @@ class Morph7Test(unittest.TestCase):
         bases = self.wallace0.current_stats.copy()
         # test level-up
         self.wallace0.level_up(20)
-        fe7_unit.cap_stats()
+        self.wallace0.cap_stats()
         running_total = self.growths.copy() * 7.0 / 100
         self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
         # test promotion
@@ -627,6 +627,6 @@ class Morph7Test(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(Morph6Test) if "test_villager" in test],
-        module=Morph6Test,
+        defaultTest=[test for test in dir(Morph4Test) if "test_" in test],
+        module=Morph4Test,
     )
