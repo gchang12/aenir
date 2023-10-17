@@ -3,8 +3,6 @@
 Tests the aenir.morph.Morph class methods.
 """
 
-# TODO: Test __lt__ dunder with lyn_mode and FE4 kid units
-
 import unittest
 import logging
 import json
@@ -12,7 +10,7 @@ import json
 import pandas as pd
 
 
-from aenir.morph import Morph, Morph4, Morph5, Morph7
+from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -409,6 +407,21 @@ class Morph4Test(unittest.TestCase):
         self.bases = self.lakche.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[self.identifier, :].copy()
         self.bases.pop("Class")
         self.bases.pop("Lv")
+        self.sigurd = Morph4("Sigurd")
+
+    def test__lt__(self):
+        alec = Morph4("Alec")
+        alec.level_up(20)
+        alec.promote()
+        self.lakche.level_up(20)
+        self.lakche.promote()
+        alec_v_lakche = alec < self.lakche
+        self.assertIsInstance(alec_v_lakche, pd.DataFrame)
+        print(alec_v_lakche)
+        sigurd = Morph4("Sigurd")
+        sigurd_v_lakche = (sigurd < self.lakche)
+        self.assertIsInstance(alec_v_lakche, pd.DataFrame)
+        print(sigurd_v_lakche)
 
     def test_level_up(self):
         # test modified level-up method
@@ -561,6 +574,17 @@ class Morph7Test(unittest.TestCase):
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
         self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
+    def test__lt__(self):
+        lyn = Morph7("Lyn", lyn_mode=True)
+        guy = Morph7("Guy (HM)")
+        florina = Morph7("Florina")
+        lyn_v_guy = lyn < guy
+        lyn_v_florina = lyn < florina
+        self.assertIsInstance(lyn_v_guy, pd.DataFrame)
+        self.assertIsInstance(lyn_v_florina, pd.DataFrame)
+        print(lyn_v_guy)
+        print(lyn_v_florina)
+
     def test_tutorial_wallace(self):
         # max out level -> promote -> cap stats
         bases = self.wallace0.current_stats.copy()
@@ -626,9 +650,49 @@ class Morph7Test(unittest.TestCase):
                 logging.info(f"'{unit_name}' is already at max-level.")
             fe7_unit.cap_stats()
 
+class Morph8Test(unittest.TestCase):
+    def setUp(self):
+        self.amelia = Morph8("Amelia") 
+        self.amelia.level_up(10)
+        self.amelia.promo_cls = "Cavalier (F)"
+        self.amelia.promote()
+        self.amelia.level_up(20)
+        self.amelia.promo_cls = "Paladin (F)"
+        self.amelia.promote()
+        self.amelia.level_up(20)
+
+    def test__lt__0(self):
+        seth = Morph8("Seth") 
+        seth.level_up(20)
+        amelia_v_seth = self.amelia < seth
+        self.assertIsInstance(amelia_v_seth, pd.DataFrame)
+        print(amelia_v_seth)
+
+    def test__lt__1(self):
+        ephraim = Morph8("Ephraim")
+        ephraim.level_up(20)
+        ephraim.promote()
+        ephraim.level_up(20)
+        amelia_v_ephraim = self.amelia < ephraim
+        self.assertIsInstance(amelia_v_ephraim, pd.DataFrame)
+        print(amelia_v_ephraim)
+
+    def test__lt__2(self):
+        ross = Morph8("Ross") 
+        ross.level_up(10)
+        ross.promo_cls = "Pirate"
+        ross.promote()
+        ross.level_up(20)
+        ross.promo_cls = "Berserker"
+        ross.promote()
+        ross.level_up(20)
+        amelia_v_ross = self.amelia < ross
+        self.assertIsInstance(amelia_v_ross, pd.DataFrame)
+        print(amelia_v_ross)
+
 if __name__ == '__main__':
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(Morph4Test) if "test_" in test],
-        module=Morph4Test,
+        defaultTest=[test for test in dir(Morph8Test) if "test__lt" in test],
+        module=Morph8Test,
     )
