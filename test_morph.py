@@ -3,6 +3,8 @@
 Tests the aenir.morph.Morph class methods.
 """
 
+# TODO: Test __lt__ dunder with lyn_mode and FE4 kid units
+
 import unittest
 import logging
 import json
