@@ -1,5 +1,6 @@
 Add logging messages to new test methods
 Add docstrings to new test methods
+Test new Morph4 methods, and __lt__ dunder also
 Deploy to internet via either flask or django, preferably the latter
 - main application
 - directory
