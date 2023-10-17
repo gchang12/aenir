@@ -67,7 +67,6 @@ class Morph(BaseMorph):
         self.current_lv = temp_bases.pop("Lv")
         # implicitly convert to float
         self.current_stats = temp_bases + 0.0
-        self.current_stats.name = self.unit_name
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
@@ -265,6 +264,7 @@ class Morph(BaseMorph):
             meta_labels.append(row_label)
         meta_map = {
             self.current_stats.name: [],
+            diff.name: [],
             other.current_stats.name: [],
         }
         for row_label in meta_labels:
@@ -278,6 +278,7 @@ class Morph(BaseMorph):
             else:
                 comparison_val = "-"
             meta_map[other.current_stats.name].append(comparison_val)
+            meta_map[diff.name].append("-")
         meta_rows = pd.DataFrame(meta_map, index=meta_labels)
         stat_df = pd.concat(
             [
@@ -305,7 +306,6 @@ class Morph4(Morph):
         Bases are initialized based on (unit_name, father_name) primary key.
         Defines: father_name
         """
-        # TODO: Test this
         game_num = 4
         BaseMorph.__init__(self, game_num)
         self.unit_name = unit_name
@@ -315,7 +315,6 @@ class Morph4(Morph):
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
-        self.comparison_labels = {}
         kid_tableindex = 1
         self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex].loc[:, "Name"].to_list()
         if self.is_kid:
@@ -329,6 +328,7 @@ class Morph4(Morph):
             # implicitly convert to float
             self.current_stats = temp_bases + 0.0
             self.current_stats.name = self.unit_name
+            self.comparison_labels = {"Father": father_name}
         else:
             Morph.__init__(self, game_num, unit_name, tableindex=0)
         try:
@@ -352,15 +352,15 @@ class Morph4(Morph):
                 error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
+        tableindex = (1 if self.is_kid else 0)
         if self.is_kid:
-            kid_tableindex = 1
             logging.info("Morph4.level_up(%d)", target_lv)
-            self.target_stats = self.url_to_tables["characters/growth-rates"][kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
+            self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
             temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
             self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
             self.current_lv = target_lv
         else:
-            Morph.level_up(self, target_lv, tableindex=kid_tableindex)
+            Morph.level_up(self, target_lv, tableindex=tableindex)
 
 
 class Morph5(Morph):
@@ -406,11 +406,13 @@ class Morph7(Morph):
         - Adds promotion exception for Wallace
         - Allows user to choose Lyn Mode or otherwise
         """
-        logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         game_num = 7
         tableindex = (0 if lyn_mode else 1)
+        # if the user lists a non-LM unit, but puts lyn_mode=True, the program halts
         Morph.__init__(self, game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
-        self.comparison_labels["Campaign"] = ("Main" if not lyn_mode else "Tutorial")
+        logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
+        if unit_name in self.url_to_tables["characters/base-stats"][0].loc[:, "Name"].to_list():
+            self.comparison_labels = {"Campaign": ("Main" if not lyn_mode else "Tutorial")}
         if not lyn_mode and unit_name == "Wallace":
             # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
             self.current_clstype = "classes/promotion-gains"
