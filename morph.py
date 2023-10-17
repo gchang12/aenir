@@ -58,6 +58,7 @@ class Morph(BaseMorph):
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
+        self.comparison_labels = {}
         # initialize bases
         temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
         logging.info("Morph(%d, '%s')", game_num, unit_name)
@@ -66,6 +67,7 @@ class Morph(BaseMorph):
         self.current_lv = temp_bases.pop("Lv")
         # implicitly convert to float
         self.current_stats = temp_bases + 0.0
+        self.current_stats.name = self.unit_name
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
@@ -226,6 +228,9 @@ class Morph(BaseMorph):
         - Lv
         - {numeric_stats}
         """
+        # TODO: Cannot compare Morph against self. Fix.
+        if other.current_stats.name == self.current_stats.name:
+            other.current_stats.name += " (2)"
         diff = other.current_stats - self.current_stats
         diff.name = 'is-less_than-by'
         # create rows for class and level
@@ -248,6 +253,32 @@ class Morph(BaseMorph):
             },
             index=["PrevClassLv" + str(index) for index in range(max_histlen)] + ['Class', 'Lv']
         )
+        # create rows for comparison_labels
+        meta_labels = []
+        for row_label in self.comparison_labels:
+            if row_label in meta_labels:
+                continue
+            meta_labels.append(row_label)
+        for row_label in other.comparison_labels:
+            if row_label in meta_labels:
+                continue
+            meta_labels.append(row_label)
+        meta_map = {
+            self.current_stats.name: [],
+            other.current_stats.name: [],
+        }
+        for row_label in meta_labels:
+            if row_label in self.comparison_labels:
+                comparison_val = self.comparison_labels[row_label]
+            else:
+                comparison_val = "-"
+            meta_map[self.current_stats.name].append(comparison_val)
+            if row_label in other.comparison_labels:
+                comparison_val = other.comparison_labels[row_label]
+            else:
+                comparison_val = "-"
+            meta_map[other.current_stats.name].append(comparison_val)
+        meta_rows = pd.DataFrame(meta_map, index=meta_labels)
         stat_df = pd.concat(
             [
                 self.current_stats,
@@ -256,7 +287,7 @@ class Morph(BaseMorph):
             ],
             axis=1,
         )
-        return pd.concat([clslv_df, stat_df])
+        return pd.concat([metadata_rows, clslv_df, stat_df])
 
 
 class Morph4(Morph):
@@ -266,7 +297,7 @@ class Morph4(Morph):
     Inherits: aenir.morph.Morph, and adapts some methods for FE4 kids.
     """
 
-    def __init__(self, unit_name: str, father_name: str, *, datadir_root: str = None):
+    def __init__(self, unit_name: str, father_name: str = None, *, datadir_root: str = None):
         """
         Semi-overrides: Morph.__init__.
 
@@ -274,21 +305,32 @@ class Morph4(Morph):
         Bases are initialized based on (unit_name, father_name) primary key.
         Defines: father_name
         """
+        # TODO: Test this
         game_num = 4
-        # executes the Morph.__init__ code up until the bases are loaded.
-        try:
-            Morph.__init__(self, game_num, unit_name, tableindex=0)
-        except KeyError:
-            logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
+        kid_tableindex = 1
+        BaseMorph.__init__(self, game_num)
+        self.unit_name = unit_name
+        # load tables
+        if type(datadir_root) == str:
+            self.home_dir = Path(datadir_root).joinpath(self.game_name)
+        self.tables_file = "cleaned_stats.db"
+        for urlpath in self.page_dict:
+            self.load_tables(urlpath)
+        self.comparison_labels = {}
+        self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex].loc[:, "Name"]
+        if self.is_kid:
             self.father_name = father_name
-        # initialize bases
-        tableindex = 1
-        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
-        self.current_clstype = "characters/base-stats"
-        self.current_cls = temp_bases.pop("Class")
-        self.current_lv = temp_bases.pop("Lv")
-        # implicitly convert to float
-        self.current_stats = temp_bases + 0.0
+            # initialize bases
+            temp_bases = self.url_to_tables["characters/base-stats"][kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            logging.info("Morph(%d, '%s', '%s')", game_num, unit_name, father_name)
+            self.current_clstype = "characters/base-stats"
+            self.current_cls = temp_bases.pop("Class")
+            self.current_lv = temp_bases.pop("Lv")
+            # implicitly convert to float
+            self.current_stats = temp_bases + 0.0
+            self.current_stats.name = self.unit_name
+        else:
+            Morph.__init__(self, game_num, unit_name, tableindex=0)
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
@@ -310,12 +352,15 @@ class Morph4(Morph):
                 error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
-        tableindex = 1
-        logging.info("Morph4.level_up(%d)", target_lv)
-        self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
-        temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
-        self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
-        self.current_lv = target_lv
+        if self.is_kid:
+            kid_tableindex = 1
+            logging.info("Morph4.level_up(%d)", target_lv)
+            self.target_stats = self.url_to_tables["characters/growth-rates"][kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
+            temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
+            self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
+            self.current_lv = target_lv
+        else:
+            Morph.level_up(self, target_lv, tableindex=kid_tableindex)
 
 
 class Morph5(Morph):
@@ -364,10 +409,27 @@ class Morph7(Morph):
         logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         game_num = 7
         tableindex = (0 if lyn_mode else 1)
-        Morph.__init__(self, 7, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+        self.comparison_labels["Campaign"] = ("Main" if not lyn_mode else "Tutorial")
         if not lyn_mode and unit_name == "Wallace":
             # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
             self.current_clstype = "classes/promotion-gains"
+
+# to interface with web-deploy layer better.
+class Morph6(Morph):
+    def __init__(self, unit_name: str, datadir_root: str = None):
+        game_num = 6
+        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+
+class Morph8(Morph):
+    def __init__(self, unit_name: str, datadir_root: str = None):
+        game_num = 8
+        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+
+class Morph9(Morph):
+    def __init__(self, unit_name: str, datadir_root: str = None):
+        game_num = 9
+        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
 
 if __name__ == '__main__':
     pass
