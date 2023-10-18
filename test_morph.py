@@ -490,12 +490,6 @@ class Morph5Test(unittest.TestCase):
         self.assertTrue(all(abs(self.lara.current_stats - self.bases - running_bonus) < 0.01))
         self.assertEqual(self.lara.current_cls, "Thief Fighter")
         self.assertEqual(self.lara.current_lv, 1)
-        # should raise a ValueError because "Lara" is not Lara
-        self.lara.unit_name = "Lifis"
-        with self.assertRaises(ValueError):
-            self.lara.promote()
-        # restore name
-        self.lara.unit_name = "Lara"
         # Thief Fighter -> Dancer
         running_bonus += self.thief_fighter__to__dancer
         self.lara.promo_cls = "Dancer"
@@ -693,6 +687,6 @@ class Morph8Test(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(Morph8Test) if "test__lt" in test],
-        module=Morph8Test,
+        defaultTest=[test for test in dir(Morph7Test) if "test_" in test],
+        module=Morph7Test,
     )

@@ -9,6 +9,7 @@ import logging
 import io
 from typing import Tuple, List
 import json
+from pathlib import Path
 
 import pandas as pd
 from aenir.cleaner import SerenesCleaner
@@ -23,7 +24,7 @@ class BaseMorph(SerenesCleaner):
     history: Stores the history of a unit as a list of (Class, Lv) tuples.
     """
 
-    def __init__(self, game_num: int):
+    def __init__(self, game_num: int, datadir_root: str):
         """
         Extends: SerenesCleaner.__init__(self, game_num)
 
@@ -33,9 +34,16 @@ class BaseMorph(SerenesCleaner):
         # essential to set_targetstats method
         self.target_stats = None
         self.current_stats = None
-        # history (class, lv) tuples
+        # history (class, lv) tuples, and labels for comparison DataFrame
         self.history = []
-
+        self.comparison_labels = {}
+        # load tables
+        if type(datadir_root) == str:
+            self.home_dir = Path(datadir_root).joinpath(self.game_name)
+        self.tables_file = "cleaned_stats.db"
+        for urlpath in self.page_dict:
+            self.load_tables(urlpath)
+        
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
         Prints: clsrecon_dict.keys not in ltable[lindex_col], clsrecon_dict.values not in rtable[to_col].
@@ -79,7 +87,7 @@ class BaseMorph(SerenesCleaner):
         bases = set(self.url_to_tables[bases_name][0].columns) - {"Name", "Class", "Lv"}
         maxes = set(self.url_to_tables[maxes_name][0].columns) - {"Class"}
         diff = maxes - bases
-        logging.info("%d names in '%s' but not in '%s': %s", len(check2), maxes_name, bases_name, diff)
+        logging.info("%d names in '%s' but not in '%s': %s", len(diff), maxes_name, bases_name, diff)
 
     def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str], tableindex: int):
         """
