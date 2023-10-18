@@ -411,7 +411,6 @@ class Morph5(Morph):
                     error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
                 raise ValueError(error_msg + " Aborting.")
             temp_scrollbonus = pd.Series(index=self.current_stats.index, data=[0.0 for label in self.current_stats.index])
-            zero_stats = temp_scrollbonus.copy()
             # fetch table name, and table file
             save_path = self.home_dir.joinpath(self.tables_file)
             if not save_path.exists():
@@ -422,7 +421,7 @@ class Morph5(Morph):
             scroll_table = pd.read_sql_table(table_name, con).set_index("Name")
             for scroll_name in self.equipped_scrolls:
                 temp_scrollbonus += scroll_table.loc[scroll_name, :]
-            temp_scrollbonus.mask(temp_scrollbonus < 0, other=zero_stats, inplace=True)
+            temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)
             self.current_stats += (temp_scrollbonus / 100) * (target_lv - self.current_lv)
         Morph.level_up(self, target_lv)
 
