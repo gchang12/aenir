@@ -53,7 +53,10 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num, datadir_root)
         # initialize bases
         self._unit_name = unit_name
-        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
+        try:
+            temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
+        except KeyError:
+            breakpoint()
         logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
@@ -378,7 +381,7 @@ class Morph5(Morph):
         """
         game_num = 5
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
-        #self.equipped_scrolls = []
+        self.equipped_scrolls = []
 
     def promote(self):
         """
@@ -399,9 +402,29 @@ class Morph5(Morph):
         Morph.promote(self)
 
     def level_up(self, target_lv: int):
+        # pasted from Morph.level_up
+        if self.equipped_scrolls:
+            if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
+                if target_lv > self.get_maxlv():
+                    error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
+                else:
+                    error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
+                raise ValueError(error_msg + " Aborting.")
+            temp_scrollbonus = pd.Series(index=self.current_stats.index, data=[0.0 for label in self.current_stats.index])
+            zero_stats = temp_scrollbonus.copy()
+            # fetch table name, and table file
+            save_path = self.home_dir.joinpath(self.tables_file)
+            if not save_path.exists():
+                raise FileNotFoundError(f"'{str(save_path)}' does not exist. Aborting.")
+            save_file = str(save_path)
+            table_name = "crusader_scrolls"
+            con = "sqlite:///" + save_file
+            scroll_table = pd.read_sql_table(table_name, con).set_index("Name")
+            for scroll_name in self.equipped_scrolls:
+                temp_scrollbonus += scroll_table.loc[scroll_name, :]
+            temp_scrollbonus.mask(temp_scrollbonus < 0, other=zero_stats, inplace=True)
+            self.current_stats += (temp_scrollbonus / 100) * (target_lv - self.current_lv)
         Morph.level_up(self, target_lv)
-        # TODO: Level up with scrolls
-
 
 class Morph7(Morph):
     """
