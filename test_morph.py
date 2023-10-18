@@ -561,6 +561,15 @@ class Morph5Test(unittest.TestCase):
                 logging.warning(f"'{fe5_unit.unit_name}' is already at max-level.")
             fe5_unit.cap_stats()
 
+    def test_scroll_lvup(self):
+        self.lara.equipped_scrolls.append("Odo")
+        base_skl = self.lara.current_stats["Skl"]
+        skl_growth = 0.5
+        odo_skl_growth  = 0.3
+        num_levels = 10
+        self.lara.level_up(self.lara.current_lv + num_levels)
+        self.assertEqual(self.lara.current_stats["Skl"], base_skl + num_levels * (skl_growth + odo_skl_growth))
+
 class Morph7Test(unittest.TestCase):
     def setUp(self):
         # initialize both versions of Wallace
@@ -687,6 +696,6 @@ class Morph8Test(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(Morph7Test) if "test_" in test],
-        module=Morph7Test,
+        defaultTest=[test for test in dir(Morph5Test) if "test_scroll" in test],
+        module=Morph5Test,
     )

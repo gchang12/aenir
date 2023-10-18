@@ -4,7 +4,6 @@ Defines the SerenesCleaner class.
 
 SerenesCleaner: Defines methods to clean up table data.
 """
-# TODO: There is code that overwrites existing files
 
 from typing import Tuple
 import io
