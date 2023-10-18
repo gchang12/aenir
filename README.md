@@ -1,5 +1,6 @@
 Add logging messages to new test methods
 Add docstrings to new test methods and __lt__ dunder
+FE5 scroll support
 
 Deploy to internet via either flask or django, preferably the latter
 - home: explain what this is

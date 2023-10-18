@@ -273,12 +273,13 @@ class CleanerTest(unittest.TestCase):
                     (rtable_url, to_col),
                     )
         self.sos_cleaner.url_to_tables[rtable_url] = promo_list
-        # from_col not in ltable
-        with self.assertRaises(KeyError):
-            self.sos_cleaner.create_clsrecon_file(
-                    (ltable_url, lindex_col, ""),
-                    (rtable_url, to_col),
-                    )
+        # from_col not in ltable; no longer relevant since new code accounts for KeyError
+        #mock_exists.return_value = False
+        #with self.assertRaises(KeyError):
+            #self.sos_cleaner.create_clsrecon_file(
+                    #(ltable_url, lindex_col, ""),
+                    #(rtable_url, to_col),
+                    #)
         # [lr]table_url not in self.page_dict
         with self.assertRaises(KeyError):
             ltable_name = self.sos_cleaner.page_dict.pop(ltable_url)

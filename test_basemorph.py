@@ -25,10 +25,7 @@ class BaseMorphTest(unittest.TestCase):
         """
         Initialize BaseMorph object; assume 'cleaned_stats.db' exists.
         """
-        self.sos_unit = BaseMorph(6)
-        self.sos_unit.tables_file = "cleaned_stats.db"
-        for url in self.sos_unit.page_dict:
-            self.sos_unit.load_tables(url)
+        self.sos_unit = BaseMorph(6, "data")
 
     def test_verify_clsrecon_file(self):
         """
