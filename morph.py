@@ -70,6 +70,9 @@ class Morph(BaseMorph):
 
     @property
     def unit_name(self):
+        """
+        The name of the unit whose stats are to be queried.
+        """
         return self._unit_name
 
     @property
@@ -296,17 +299,16 @@ class Morph(BaseMorph):
 
 class Morph4(Morph):
     """
-    Morph subclass meant ONLY For FE4 kids.
+    Inherits: aenir.morph.Morph.
 
-    Inherits: aenir.morph.Morph, and adapts some methods for FE4 kids.
+    Modifies existing methods for collection of units in FE4.
     """
 
     def __init__(self, unit_name: str, father_name: str = None, *, datadir_root: str = None):
         """
-        Semi-overrides: Morph.__init__.
+        Extends: Morph.__init__ (conditionally).
 
-        Loads tables, and initializes bases among other things.
-        Bases are initialized based on (unit_name, father_name) primary key.
+        FE4 child unit parameters are reinitialized using methods adopted from Morph superclass.
         Defines: father_name
         """
         game_num = 4
@@ -337,18 +339,23 @@ class Morph4(Morph):
 
     @property
     def unit_name(self):
+        """
+        The name of the unit whose stats are to be queried.
+        """
         return self._unit_name
 
     @property
     def father_name(self):
+        """
+        The name of the father of the unit whose stats are to be queried.
+        """
         return self._father_name
 
     def level_up(self, target_lv: int):
         """
-        Overrides: Morph.level_up.
+        Extends: Morph.level_up (conditionally).
 
-        Increases unit's level, and increments current_stats accordingly.
-        References (unit_name, father_name) as key rather than (unit_name) unlike Morph.level_up.
+        Method for FE4 kids has a different implementation.
         Raises:
         - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
         """
@@ -372,12 +379,16 @@ class Morph4(Morph):
 
 class Morph5(Morph):
     """
-    Inherits: aenir.morph.Morph. Exists to wrap promote method for Lara.
+    Inherits: aenir.morph.Morph.
+   
+    Defines promotion exceptions, and extends level_up method.
     """
 
     def __init__(self, unit_name: str, *, datadir_root: str = None):
         """
         Extends: Morph.__init__.
+
+        Defines: equipped_scrolls := List[str]
         """
         game_num = 5
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
@@ -402,14 +413,19 @@ class Morph5(Morph):
         Morph.promote(self)
 
     def level_up(self, target_lv: int):
+        """
+        Extends: Morph.level_up
+
+        Enables user to simulate scroll-boosted level-ups if equipped_scrolls list parameter is valid.
+        """
         # pasted from Morph.level_up
+        if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
+            if target_lv > self.get_maxlv():
+                error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
+            else:
+                error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
+            raise ValueError(error_msg + " Aborting.")
         if self.equipped_scrolls:
-            if target_lv > self.get_maxlv() or target_lv <= self.current_lv:
-                if target_lv > self.get_maxlv():
-                    error_msg = f"The target level of {target_lv} exceeds the max level of {self.get_maxlv()}."
-                else:
-                    error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
-                raise ValueError(error_msg + " Aborting.")
             temp_scrollbonus = pd.Series(index=self.current_stats.index, data=[0.0 for label in self.current_stats.index])
             # fetch table name, and table file
             save_path = self.home_dir.joinpath(self.tables_file)
@@ -419,6 +435,7 @@ class Morph5(Morph):
             table_name = "crusader_scrolls"
             con = "sqlite:///" + save_file
             scroll_table = pd.read_sql_table(table_name, con).set_index("Name")
+            # accumulate bonuses
             for scroll_name in self.equipped_scrolls:
                 try:
                     temp_scrollbonus += scroll_table.loc[scroll_name, :]
@@ -427,7 +444,9 @@ class Morph5(Morph):
                     for crusader_name in scroll_table.index:
                         print("'" + crusader_name + "'")
                     raise keyerr
+            # cap bonus at zero if growths < 0
             temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)
+            # increment
             self.current_stats += (temp_scrollbonus / 100) * (target_lv - self.current_lv)
         Morph.level_up(self, target_lv)
 
@@ -454,23 +473,46 @@ class Morph7(Morph):
             # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
             self.current_clstype = "classes/promotion-gains"
 
+
 # to interface with web-deploy layer better.
 class Morph6(Morph):
     """
+    Inherits: aenir.morph.Morph
     """
     def __init__(self, unit_name: str, datadir_root: str = None):
+        """
+        Extends: Morph.__init__
+        - game_num: 6
+        """
         game_num = 6
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
 
+
 class Morph8(Morph):
+    """
+    Inherits: aenir.morph.Morph
+    """
     def __init__(self, unit_name: str, datadir_root: str = None):
+        """
+        Extends: Morph.__init__
+        - game_num: 8
+        """
         game_num = 8
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
 
+
 class Morph9(Morph):
+    """
+    Inherits: aenir.morph.Morph
+    """
     def __init__(self, unit_name: str, datadir_root: str = None):
+        """
+        Extends: Morph.__init__
+        - game_num: 9
+        """
         game_num = 9
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+
 
 if __name__ == '__main__':
     pass

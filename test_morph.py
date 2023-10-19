@@ -222,6 +222,9 @@ class Morph6Test(unittest.TestCase):
         self.assertTrue(all(c_marcus == marcus.current_stats))
 
     def test_fe4_units(self):
+        """
+        Verifies that all units can be leveled-up, stat-capped, and promoted.
+        """
         base = Morph(4, "Sigurd")
         def not_a_kid(name):
             return name not in base.url_to_tables["characters/base-stats"][1]["Name"]
@@ -247,6 +250,9 @@ class Morph6Test(unittest.TestCase):
             fe4_unit.cap_stats()
 
     def test_fe9_units(self):
+        """
+        Verifies that all units can be leveled-up, stat-capped, and promoted.
+        """
         game_num = 9
         base = Morph(game_num, "Ike")
         for unit_name in base.get_character_list():
@@ -273,6 +279,11 @@ class Morph6Test(unittest.TestCase):
             fe9_unit.cap_stats()
 
     def test_fe8_units(self):
+        """
+        Verifies that most units can be leveled-up, stat-capped, and promoted.
+
+        Exceptions: Ross, Amelia, Ewan
+        """
         game_num = 8
         base = Morph(game_num, "Ephraim")
         branched_promo = {}
@@ -321,6 +332,11 @@ class Morph6Test(unittest.TestCase):
                 fe8_unit.cap_stats()
 
     def test_villager_ross(self):
+        """
+        Verifies that Ross can be leveled-up, stat-capped, and promoted.
+
+        Covers all possible promotion paths he may take.
+        """
         game_num = 8
         promo_paths = [
             ["Fighter", "Warrior"],
@@ -347,6 +363,11 @@ class Morph6Test(unittest.TestCase):
             ross.cap_stats()
 
     def test_villager_ewan(self):
+        """
+        Verifies that Ewan can be leveled-up, stat-capped, and promoted.
+
+        Covers all possible promotion paths he may take.
+        """
         game_num = 8
         promo_paths = [
             ["Mage (M)", "Sage (M)"],
@@ -373,6 +394,11 @@ class Morph6Test(unittest.TestCase):
             ewan.cap_stats()
 
     def test_villager_amelia(self):
+        """
+        Verifies that Amelia can be leveled-up, stat-capped, and promoted.
+
+        Covers all possible promotion paths she may take.
+        """
         game_num = 8
         promo_paths = [
             ["Cavalier (F)", "Paladin (F)"],
@@ -399,7 +425,16 @@ class Morph6Test(unittest.TestCase):
             amelia.cap_stats()
 
 class Morph4Test(unittest.TestCase):
+    """
+    Defines methods to test FE4 kids and other sort of FE4 units.
+    """
+
     def setUp(self):
+        """
+        Creates a Morph of Lex!Lakche to simulate level-ups with.
+
+        Also creates mock bases, and a Morph of Sigurd.
+        """
         # create Morph of FE4 kid
         self.identifier = ("Lakche", "Lex")
         self.lakche = Morph4(*self.identifier)
@@ -410,6 +445,26 @@ class Morph4Test(unittest.TestCase):
         self.sigurd = Morph4("Sigurd")
 
     def test__lt__(self):
+        """
+        Confirms that __lt__ dunder output is as expected.
+
+        Lex!Lakche: Unpromoted with parent.
+        Arden!Rana: Unpromoted with parent (not equal to Lakche).
+        Arden!Lakche: Unpromoted with different parent.
+        Alec: Unpromoted.
+        Sigurd: Promoted.
+        """
+        # vs. Arden!Rana
+        rana = Morph4("Rana", "Arden")
+        rana_v_lakche = rana < self.lakche
+        self.assertIsInstance(rana_v_lakche, pd.DataFrame)
+        print(rana_v_lakche)
+        # vs. Arden!Lakche
+        arden_lakche = Morph4("Lakche", "Arden")
+        alakche_v_llakche = arden_lakche < self.lakche
+        self.assertIsInstance(alakche_v_llakche, pd.DataFrame)
+        print(alakche_v_llakche)
+        # vs. Alec
         alec = Morph4("Alec")
         alec.level_up(20)
         alec.promote()
@@ -418,12 +473,17 @@ class Morph4Test(unittest.TestCase):
         alec_v_lakche = alec < self.lakche
         self.assertIsInstance(alec_v_lakche, pd.DataFrame)
         print(alec_v_lakche)
+        # vs. Sigurd
         sigurd = Morph4("Sigurd")
+        sigurd.level_up(20)
         sigurd_v_lakche = (sigurd < self.lakche)
         self.assertIsInstance(alec_v_lakche, pd.DataFrame)
         print(sigurd_v_lakche)
 
     def test_level_up(self):
+        """
+        Tests the child-implementation of level_up method.
+        """
         # test modified level-up method
         growths = self.lakche.url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
         expected = (1.0 * self.bases) + growths * (20 - self.lakche.current_lv) / 100
@@ -431,6 +491,11 @@ class Morph4Test(unittest.TestCase):
         self.assertTrue(all(abs(self.lakche.current_stats - expected) < 0.01))
 
     def test_promote(self):
+        """
+        Tests the child-implementation of promote method.
+
+        Note: Not really necessary, since it's not affected.
+        """
         # test FE4 promotion
         current_lv = 20
         self.lakche.current_lv = current_lv
@@ -441,6 +506,9 @@ class Morph4Test(unittest.TestCase):
         self.assertTrue(all(abs(self.lakche.current_stats - self.bases - temp_promo) < 0.01))
 
     def test_all_units(self):
+        """
+        Tests that all units can be leveled-up, stat-capped, and promoted.
+        """
         father_list = set(self.lakche.url_to_tables["characters/base-stats"][1]["Father"])
         for unit_name in set(self.lakche.url_to_tables["characters/base-stats"][1]["Name"]):
             for father in father_list:
@@ -467,6 +535,9 @@ class Morph4Test(unittest.TestCase):
 
 class Morph5Test(unittest.TestCase):
     def setUp(self):
+        """
+        Sets up fixtures for Lara shenanigans. 
+        """
         self.lara = Morph5("Lara")
         self.bases = self.lara.current_stats.copy()
         # initialize promo bonuses for all scenarios
@@ -477,6 +548,10 @@ class Morph5Test(unittest.TestCase):
         self.thief__to__thief_fighter = promo_table.loc[("Thief", "Thief Fighter"), :].reindex(self.bases.index, fill_value=0.0)
 
     def test_promote1(self):
+        """
+        Tests longest promotion path:
+        - Thief -> Thief Fighter -> Dancer -> Thief Fighter
+        """
         # Thief -> Thief Fighter -> Dancer -> Thief Fighter
         self.lara.current_lv = 10
         with self.assertRaises(KeyError):
@@ -507,9 +582,14 @@ class Morph5Test(unittest.TestCase):
         self.assertEqual(self.lara.current_lv, 1)
         # Thief Fighter -> Dancer
         with self.assertRaises(ValueError):
+            # Lara can promote no further
             self.lara.promote()
 
     def test_promote2(self):
+        """
+        Tests shortest promotion path:
+        - Thief -> Dancer -> Thief Fighter
+        """
         # Thief -> Dancer -> Thief Fighter
         self.lara.promo_cls = "Dancer"
         self.assertEqual(self.lara.current_lv, 2)
@@ -529,9 +609,13 @@ class Morph5Test(unittest.TestCase):
         self.lara.promo_cls = "Dancer"
         # Dancer -> Thief Fighter
         with self.assertRaises(ValueError):
+            # Lara can promote no further
             self.lara.promote()
 
     def test_all_units(self):
+        """
+        Tests that all units can be leveled-up, stat-capped, and promoted.
+        """
         for unit_name in self.lara.get_character_list():
             if unit_name == "Lara":
                 continue
@@ -562,6 +646,9 @@ class Morph5Test(unittest.TestCase):
             fe5_unit.cap_stats()
 
     def test_scroll_lvup(self):
+        """
+        Verifies that scroll-boosted level-ups are simulated as expected.
+        """
         self.lara.equipped_scrolls.append("Odo")
         base_skl = self.lara.current_stats["Skl"]
         skl_growth = 0.5
@@ -570,28 +657,51 @@ class Morph5Test(unittest.TestCase):
         self.lara.level_up(self.lara.current_lv + num_levels)
         self.assertEqual(self.lara.current_stats["Skl"], base_skl + num_levels * (skl_growth + odo_skl_growth))
         self.lara.equipped_scrolls[0] = ""
+        # assert that this fails as expected
         with self.assertRaises(KeyError):
             self.lara.level_up(self.lara.current_lv + 1)
 
 class Morph7Test(unittest.TestCase):
+    """
+    Defines methods to test FE7-exclusive exceptions, as well as 'Campaign' rows in __lt__ dunder.
+
+    i.e. main!Wallace and tutorial!Wallace.
+    """
     def setUp(self):
+        """
+        Set up Wallace-Morphs here.
+        """
         # initialize both versions of Wallace
         self.wallace0 = Morph7("Wallace", lyn_mode=True)
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
         self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
     def test__lt__(self):
+        """
+        Test that the output contains a 'Campaign' row, and that that row lists the values appropriately.
+        """
         lyn = Morph7("Lyn", lyn_mode=True)
         guy = Morph7("Guy (HM)")
         florina = Morph7("Florina")
+        florina.level_up(20)
+        florina.promote()
+        lyn.level_up(20)
+        lyn.promote()
         lyn_v_guy = lyn < guy
         lyn_v_florina = lyn < florina
         self.assertIsInstance(lyn_v_guy, pd.DataFrame)
         self.assertIsInstance(lyn_v_florina, pd.DataFrame)
+        self.assertEqual(lyn_v_guy.at["Campaign", "Lyn"], "Tutorial")
+        self.assertEqual(lyn_v_guy.at["Campaign", "Guy (HM)"], "-")
+        self.assertEqual(lyn_v_florina.at["Campaign", "Lyn"], "Tutorial")
+        self.assertEqual(lyn_v_florina.at["Campaign", "Florina"], "Main")
         print(lyn_v_guy)
         print(lyn_v_florina)
 
     def test_tutorial_wallace(self):
+        """
+        Tests that Tutorial!Wallace can be leveled-up, stat-capped, and promoted.
+        """
         # max out level -> promote -> cap stats
         bases = self.wallace0.current_stats.copy()
         # test level-up
@@ -619,6 +729,9 @@ class Morph7Test(unittest.TestCase):
         #self.assertTrue(all(abs(self.wallace0.current_stats - bases - running_total)))
 
     def test_main_wallace(self):
+        """
+        Tests that Main!Wallace can be leveled-up, stat-capped, and promoted.
+        """
         # fail: promote
         self.assertEqual("classes/promotion-gains", self.wallace1.current_clstype)
         with self.assertRaises(ValueError):
@@ -631,6 +744,9 @@ class Morph7Test(unittest.TestCase):
         self.wallace1.cap_stats()
 
     def test_all_units(self):
+        """
+        Tests that all units can be leveled-up, stat-capped, and promoted.
+        """
         for unit_name in self.wallace0.get_character_list():
             if unit_name == "Nils":
                 continue
@@ -657,7 +773,14 @@ class Morph7Test(unittest.TestCase):
             fe7_unit.cap_stats()
 
 class Morph8Test(unittest.TestCase):
+    """
+    Defines tests for scrub units. Also defines tests to see output of __lt__ dunders for them.
+    """
+
     def setUp(self):
+        """
+        Sets Amelia up with a history of three two class changes.
+        """
         self.amelia = Morph8("Amelia") 
         self.amelia.level_up(10)
         self.amelia.promo_cls = "Cavalier (F)"
@@ -668,6 +791,11 @@ class Morph8Test(unittest.TestCase):
         self.amelia.level_up(20)
 
     def test__lt__0(self):
+        """
+        Prints output of __lt__ dunder with:
+        - A unit with two class changes
+        - A unit with no class changes
+        """
         seth = Morph8("Seth") 
         seth.level_up(20)
         amelia_v_seth = self.amelia < seth
@@ -675,6 +803,11 @@ class Morph8Test(unittest.TestCase):
         print(amelia_v_seth)
 
     def test__lt__1(self):
+        """
+        Prints output of __lt__ dunder with:
+        - A unit with two class changes
+        - A unit with one class change
+        """
         ephraim = Morph8("Ephraim")
         ephraim.level_up(20)
         ephraim.promote()
@@ -684,6 +817,11 @@ class Morph8Test(unittest.TestCase):
         print(amelia_v_ephraim)
 
     def test__lt__2(self):
+        """
+        Prints output of __lt__ dunder with:
+        - A unit with two class changes
+        - A unit with two class changes
+        """
         ross = Morph8("Ross") 
         ross.level_up(10)
         ross.promo_cls = "Pirate"
@@ -697,8 +835,9 @@ class Morph8Test(unittest.TestCase):
         print(amelia_v_ross)
 
 if __name__ == '__main__':
+    module = Morph4Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(Morph5Test) if "test_scroll" in test],
-        module=Morph5Test,
+        defaultTest=[test for test in dir(module) if "test_" in test],
+        module=module,
     )
