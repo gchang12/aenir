@@ -420,7 +420,13 @@ class Morph5(Morph):
             con = "sqlite:///" + save_file
             scroll_table = pd.read_sql_table(table_name, con).set_index("Name")
             for scroll_name in self.equipped_scrolls:
-                temp_scrollbonus += scroll_table.loc[scroll_name, :]
+                try:
+                    temp_scrollbonus += scroll_table.loc[scroll_name, :]
+                except KeyError as keyerr:
+                    print(f"'{scroll_name}' is not a valid Crusader name. Choose from the list:")
+                    for crusader_name in scroll_table.index:
+                        print("'" + crusader_name + "'")
+                    raise keyerr
             temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)
             self.current_stats += (temp_scrollbonus / 100) * (target_lv - self.current_lv)
         Morph.level_up(self, target_lv)
@@ -450,6 +456,8 @@ class Morph7(Morph):
 
 # to interface with web-deploy layer better.
 class Morph6(Morph):
+    """
+    """
     def __init__(self, unit_name: str, datadir_root: str = None):
         game_num = 6
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)

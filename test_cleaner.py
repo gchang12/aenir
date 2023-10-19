@@ -34,6 +34,10 @@ class RewriteableIO(io.StringIO):
 class CleanerTest(unittest.TestCase):
     """
     Defines tests for the data clean-up methods.
+
+    Write-methods:
+    - create_clsrecon_file
+    - create_fieldrecon_file
     """
 
     def setUp(self):

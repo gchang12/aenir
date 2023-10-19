@@ -569,6 +569,9 @@ class Morph5Test(unittest.TestCase):
         num_levels = 10
         self.lara.level_up(self.lara.current_lv + num_levels)
         self.assertEqual(self.lara.current_stats["Skl"], base_skl + num_levels * (skl_growth + odo_skl_growth))
+        self.lara.equipped_scrolls[0] = ""
+        with self.assertRaises(KeyError):
+            self.lara.level_up(self.lara.current_lv + 1)
 
 class Morph7Test(unittest.TestCase):
     def setUp(self):
