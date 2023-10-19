@@ -15,6 +15,9 @@ from aenir.transcriber import SerenesTranscriber
 class TranscriberTest(unittest.TestCase):
     """
     Defines methods to account for all scenarios when calling methods for IO-operations.
+
+    Write-methods:
+    - save_tables: Saves data tables
     """
 
     def setUp(self):

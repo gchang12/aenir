@@ -1,6 +1,6 @@
 Add logging messages to new test methods
 Add docstrings to new test methods and __lt__ dunder
-FE5 scroll support
+Redo docstrings after reading PEP257
 
 Deploy to internet via either flask or django, preferably the latter
 - home: explain what this is
@@ -16,3 +16,4 @@ Consider destroying bases/growths tables to economize on memory
 - Also, what about HM-bonus louts?
 Ask about why I need a full_history list parameter
 - I don't
+FE5 scroll support
