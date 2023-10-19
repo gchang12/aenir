@@ -467,8 +467,10 @@ class Morph7(Morph):
         # if the user lists a non-LM unit, but puts lyn_mode=True, the program halts
         Morph.__init__(self, game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
         logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
+        self.lyn_mode = None
         if unit_name in self.url_to_tables["characters/base-stats"][0].loc[:, "Name"].to_list():
             self.comparison_labels.update({"Campaign": ("Main" if not lyn_mode else "Tutorial")})
+            self.lyn_mode = lyn_mode
         if not lyn_mode and unit_name == "Wallace":
             # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
             self.current_clstype = "classes/promotion-gains"
