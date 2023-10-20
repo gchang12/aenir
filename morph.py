@@ -53,10 +53,7 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num, datadir_root)
         # initialize bases
         self._unit_name = unit_name
-        try:
-            temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
-        except KeyError:
-            breakpoint()
+        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
         logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
@@ -198,10 +195,7 @@ class Morph(BaseMorph):
                 )
         logging.info("Morph.cap_stats(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
-        try:
-            self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
-        except ValueError:
-            breakpoint()
+        self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
 
     def is_maxed(self, tableindex: int = 0):
         """
