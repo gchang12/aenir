@@ -838,6 +838,6 @@ if __name__ == '__main__':
     module = Morph4Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(module) if "test_" in test],
+        defaultTest=[test for test in dir(module) if "test__lt__" in test],
         module=module,
     )
