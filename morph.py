@@ -227,15 +227,23 @@ class Morph(BaseMorph):
         - Lv
         - {numeric_stats}
         """
-        # Cannot compare Morph against own instance. Fix.
+        # create stat_df
         if other.current_stats.name == self.current_stats.name:
             other.current_stats.name += " (2)"
         diff = other.current_stats - self.current_stats
         diff.name = 'is-less_than-by'
-        # create rows for class and level
+        stat_df = pd.concat(
+            [
+                self.current_stats,
+                diff,
+                other.current_stats,
+            ],
+            axis=1,
+        )
+        # create clslv_rows
         self_clslv = [self.current_cls, self.current_lv]
         other_clslv = [other.current_cls, other.current_lv]
-        # create rows for history
+        # create history_rows
         max_histlen = max([len(self.history), len(other.history)])
         for index in range(max_histlen):
             self_clslv.insert(0, "-")
@@ -280,14 +288,7 @@ class Morph(BaseMorph):
             meta_map[other.current_stats.name].append(comparison_val)
             meta_map[diff.name].append("-")
         meta_rows = pd.DataFrame(meta_map, index=meta_labels)
-        stat_df = pd.concat(
-            [
-                self.current_stats,
-                diff,
-                other.current_stats,
-            ],
-            axis=1,
-        )
+        other.current_stats.name = other.current_stats.name.replace(" (2)", "")
         return pd.concat([meta_rows, clslv_df, stat_df])
 
 
@@ -311,7 +312,10 @@ class Morph4(Morph):
         #self.unit_name = unit_name
         kid_tableindex = 1
         self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex]["Name"].to_list()
-        self._father_name = father_name
+        if self.is_kid:
+            self._father_name = father_name
+        else:
+            self._father_name = None
         logging.info("Morph4('%s', '%s')", unit_name, father_name)
         if self.is_kid:
             # initialize bases
@@ -360,7 +364,6 @@ class Morph4(Morph):
                 error_msg = f"The target level of {target_lv} is less than the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
-        tableindex = (1 if self.is_kid else 0)
         logging.info("Morph4.level_up(%d)", target_lv)
         if self.is_kid:
             self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
@@ -368,7 +371,7 @@ class Morph4(Morph):
             self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
             self.current_lv = target_lv
         else:
-            Morph.level_up(self, target_lv, tableindex=tableindex)
+            Morph.level_up(self, target_lv, tableindex=(1 if self.is_kid else 0))
 
 
 class Morph5(Morph):
@@ -457,9 +460,8 @@ class Morph7(Morph):
         - Allows user to choose Lyn Mode or otherwise
         """
         game_num = 7
-        tableindex = (0 if lyn_mode else 1)
         # if the user lists a non-LM unit, but puts lyn_mode=True, the program halts
-        Morph.__init__(self, game_num, unit_name, tableindex=tableindex, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1), datadir_root=datadir_root)
         logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         self.lyn_mode = None
         if unit_name in self.url_to_tables["characters/base-stats"][0].loc[:, "Name"].to_list():
