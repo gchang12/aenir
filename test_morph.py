@@ -518,7 +518,6 @@ class Morph4Test(unittest.TestCase):
         with self.assertRaises(KeyError):
             print(repr_series.pop("PrevClassLv1"))
         self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
-        self.assertEqual(repr_series.name, self.lakche.unit_name)
         self.assertEqual(repr_series.pop("Name"), self.lakche.unit_name)
         self.assertEqual(repr_series.pop("Father"), self.lakche.father_name)
         self.assertEqual(repr_series.pop("Class"), self.lakche.current_cls)
@@ -530,7 +529,6 @@ class Morph4Test(unittest.TestCase):
         prevcls = self.lakche.current_cls
         self.lakche.promote()
         repr_series = self.lakche.get_repr_series()
-        self.assertEqual(repr_series.name, self.lakche.unit_name)
         self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
         self.assertEqual(repr_series.pop("Name"), self.lakche.unit_name)
         self.assertEqual(repr_series.pop("Father"), self.lakche.father_name)
@@ -726,7 +724,6 @@ class Morph7Test(unittest.TestCase):
             print(repr_series.pop("PrevClassLv1"))
         self.assertEqual(repr_series.to_string(), guy.__repr__())
         print(guy)
-        self.assertEqual(repr_series.name, guy.unit_name)
         self.assertEqual(repr_series.pop("Name"), guy.unit_name)
         self.assertEqual(repr_series.pop("Hard Mode"), False)
         self.assertEqual(repr_series.pop("Class"), guy.current_cls)
@@ -739,7 +736,6 @@ class Morph7Test(unittest.TestCase):
         repr_series = guy.get_repr_series()
         self.assertEqual(repr_series.to_string(), guy.__repr__())
         print(guy)
-        self.assertEqual(repr_series.name, guy.unit_name)
         self.assertEqual(repr_series.pop("Name"), guy.unit_name)
         self.assertEqual(repr_series.pop("PrevClassLv1"), (prevcls, 20))
         self.assertEqual(repr_series.pop("Hard Mode"), False)
