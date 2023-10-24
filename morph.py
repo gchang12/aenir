@@ -243,14 +243,12 @@ class Morph(BaseMorph):
         # create header rows
         header_rows = OrderedDict()
         header_rows["Name"] = self.unit_name
+        header_rows.update(self.comparison_labels)
         for index, entry in enumerate(self.history):
             header_rows["PrevClassLv" + str(index + 1)] = entry
         header_rows["Class"] = self.current_cls
         header_rows["Lv"] = self.current_lv
-        header_rows.update(self.comparison_labels)
-        repr_series = pd.concat([pd.Series(header_rows), self.current_stats])
-        repr_series.name = self.unit_name
-        return repr_series
+        return pd.concat([pd.Series(header_rows), self.current_stats])
 
     def __lt__(self, other) -> pd.DataFrame:
         """
