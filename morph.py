@@ -234,6 +234,16 @@ class Morph(BaseMorph):
         """
         return self.get_repr_series().to_string()
 
+    def get_custom_stats(self, statdict: dict) -> pd.Series:
+        """
+        Returns a pd.Series containing stats from user input.
+        """
+        assert set(statdict) == set(self.current_stats.index)
+        custom_stats = pd.Series(index=self.current_stats.index)
+        for statname, statval in statdict.items():
+            custom_stats[statname] = statval
+        return custom_stats
+
     def get_repr_series(self) -> pd.Series:
         """
         Creates the pd.Series for implementation in the __repr__ dunder.
