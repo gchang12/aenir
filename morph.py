@@ -234,14 +234,33 @@ class Morph(BaseMorph):
         """
         return self.get_repr_series().to_string()
 
+    def get_blank_series(self, operator) -> pd.Series:
+        """
+        Returns a pd.Series containing nothing but the operator symbol in the middle.
+        """
+        repr_series = self.get_repr_series()
+        blank_series = pd.Series(index=repr_series.index)
+        midpoint = int(len(blank_series.index) / 2)
+        for index, label in enumerate(blank_series.index):
+            if index == midpoint:
+                blank_series[label] = operator
+            else:
+                blank_series[label] = ""
+        return blank_series
+
     def get_custom_stats(self, statdict: dict) -> pd.Series:
         """
         Returns a pd.Series containing stats from user input.
         """
+        repr_series = self.get_repr_series()
         assert set(statdict) == set(self.current_stats.index)
-        custom_stats = pd.Series(index=self.current_stats.index)
+        custom_stats = pd.Series(index=repr_series.index)
         for statname, statval in statdict.items():
             custom_stats[statname] = statval
+        for statname in custom_stats.index:
+            if statname in self.current_stats.index:
+                continue
+            custom_stats[statname] = ""
         return custom_stats
 
     def get_repr_series(self) -> pd.Series:
