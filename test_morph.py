@@ -514,9 +514,30 @@ class Morph4Test(unittest.TestCase):
         - Level
         - Stats
         """
+        repr_series = self.lakche.get_repr_series()
+        with self.assertRaises(KeyError):
+            print(repr_series.pop("PrevClassLv1"))
+        self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
+        self.assertEqual(repr_series.name, self.lakche.unit_name)
+        self.assertEqual(repr_series.pop("Name"), self.lakche.unit_name)
+        self.assertEqual(repr_series.pop("Father"), self.lakche.father_name)
+        self.assertEqual(repr_series.pop("Class"), self.lakche.current_cls)
+        self.assertEqual(repr_series.pop("Lv"), self.lakche.current_lv)
+        self.assertTrue(all(repr_series == self.lakche.current_stats))
         print(self.lakche)
+        # promote, then retest
         self.lakche.level_up(20)
+        prevcls = self.lakche.current_cls
         self.lakche.promote()
+        repr_series = self.lakche.get_repr_series()
+        self.assertEqual(repr_series.name, self.lakche.unit_name)
+        self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
+        self.assertEqual(repr_series.pop("Name"), self.lakche.unit_name)
+        self.assertEqual(repr_series.pop("Father"), self.lakche.father_name)
+        self.assertEqual(repr_series.pop("Class"), self.lakche.current_cls)
+        self.assertEqual(repr_series.pop("Lv"), self.lakche.current_lv)
+        self.assertEqual(repr_series.pop("PrevClassLv1"), (prevcls, self.lakche.current_lv))
+        self.assertTrue(all(repr_series == self.lakche.current_stats))
         print(self.lakche)
 
     def test_all_units(self):
@@ -699,7 +720,32 @@ class Morph7Test(unittest.TestCase):
         - Level
         - Stats
         """
-        print(Morph7("Guy"))
+        guy = Morph7("Guy")
+        repr_series = guy.get_repr_series()
+        with self.assertRaises(KeyError):
+            print(repr_series.pop("PrevClassLv1"))
+        self.assertEqual(repr_series.to_string(), guy.__repr__())
+        print(guy)
+        self.assertEqual(repr_series.name, guy.unit_name)
+        self.assertEqual(repr_series.pop("Name"), guy.unit_name)
+        self.assertEqual(repr_series.pop("Hard Mode"), False)
+        self.assertEqual(repr_series.pop("Class"), guy.current_cls)
+        self.assertEqual(repr_series.pop("Lv"), guy.current_lv)
+        self.assertTrue(all(repr_series == guy.current_stats))
+        # promote and retest
+        prevcls = guy.current_cls
+        guy.level_up(20)
+        guy.promote()
+        repr_series = guy.get_repr_series()
+        self.assertEqual(repr_series.to_string(), guy.__repr__())
+        print(guy)
+        self.assertEqual(repr_series.name, guy.unit_name)
+        self.assertEqual(repr_series.pop("Name"), guy.unit_name)
+        self.assertEqual(repr_series.pop("PrevClassLv1"), (prevcls, 20))
+        self.assertEqual(repr_series.pop("Hard Mode"), False)
+        self.assertEqual(repr_series.pop("Class"), guy.current_cls)
+        self.assertEqual(repr_series.pop("Lv"), guy.current_lv)
+        self.assertTrue(all(repr_series == guy.current_stats))
 
     def test__lt__(self):
         """
@@ -862,9 +908,9 @@ class Morph8Test(unittest.TestCase):
         print(amelia_v_ross)
 
 if __name__ == '__main__':
-    module = Morph7Test
+    module = Morph4Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(module) if "test__lt__" in test],
+        defaultTest=[test for test in dir(module) if "test__repr__" in test],
         module=module,
     )

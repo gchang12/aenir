@@ -220,25 +220,47 @@ class Morph(BaseMorph):
 
     def __repr__(self) -> str:
         """
-        Returns a pd.DataFrame summarizing the stats, history, and more about a Morph instance.
+        Returns a str(pd.DataFrame) summarizing the stats, history, and more about a Morph instance.
 
         Raises:
         - no errors, hurrah!
 
-        Returned pd.DataFrame-str is of the form:
+        Returns a str(pd.DataFrame) of the form:
         - {history}
         - Class
         - Lv
         - {numeric_stats}
         """
+        return self.get_repr_series().to_string()
+
+    def get_repr_series(self) -> pd.Series:
+        """
+        Returns a pd.DataFrame summarizing the stats, history, and more about a Morph instance.
+
+        Raises:
+        - no errors, hurrah!
+
+        Returns a pd.DataFrame of the form:
+        - {history}
+        - Class
+        - Lv
+        - {numeric_stats}
+
+        with name = self.unit_name.
+
+        Helper function for __repr__ dunder.
+        """
         # create header rows
         header_rows = OrderedDict()
+        header_rows["Name"] = self.unit_name
         for index, entry in enumerate(self.history):
             header_rows["PrevClassLv" + str(index + 1)] = entry
         header_rows["Class"] = self.current_cls
         header_rows["Lv"] = self.current_lv
         header_rows.update(self.comparison_labels)
-        return pd.concat([pd.Series(header_rows), self.current_stats]).to_string()
+        repr_series = pd.concat([pd.Series(header_rows), self.current_stats])
+        repr_series.name = self.unit_name
+        return repr_series
 
     def __lt__(self, other) -> pd.DataFrame:
         """
@@ -252,6 +274,8 @@ class Morph(BaseMorph):
         - Class
         - Lv
         - {numeric_stats}
+
+        with name = self.unit_name
         """
         # create stat_df
         if other.current_stats.name == self.current_stats.name:
