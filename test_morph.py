@@ -12,7 +12,7 @@ import pandas as pd
 
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.WARNING, filename="aenirtesting.log")
 
 class Morph6Test(unittest.TestCase):
     """
@@ -718,8 +718,8 @@ class Morph7Test(unittest.TestCase):
         self.assertIsInstance(lyn_v_florina, pd.DataFrame)
         self.assertEqual(lyn_v_guy.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_guy.at["Campaign", "Guy (HM)"], "-")
-        self.assertEqual(lyn_v_guy.at["Hard Mode", "Guy (HM)"], "True")
-        self.assertEqual(lyn_v_guy.at["Hard Mode", "Lyn"], "False")
+        self.assertEqual(lyn_v_guy.at["Hard Mode", "Guy (HM)"], True)
+        self.assertEqual(lyn_v_guy.at["Hard Mode", "Lyn"], "-")
         self.assertEqual(lyn_v_florina.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_florina.at["Campaign", "Florina"], "Main")
         print(lyn_v_guy)
@@ -865,6 +865,6 @@ if __name__ == '__main__':
     module = Morph7Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(module) if "test__repr__" in test],
+        defaultTest=[test for test in dir(module) if "test__lt__" in test],
         module=module,
     )
