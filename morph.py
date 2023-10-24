@@ -6,6 +6,7 @@ Morph: Defines methods to simulate level-ups and promotions for FE units, exclud
 """
 
 import logging
+from collections import OrderedDict
 from pathlib import Path
 
 import pandas as pd
@@ -64,6 +65,8 @@ class Morph(BaseMorph):
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
+        if unit_name + " (HM)" in self.get_character_list:
+            self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
 
     @property
     def unit_name(self):
@@ -213,6 +216,28 @@ class Morph(BaseMorph):
         logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
+
+    def __repr__(self):
+        """
+        Returns a pd.DataFrame summarizing the stats, history, and more about a Morph instance.
+
+        Raises:
+        - no errors, hurrah!
+
+        Returned pd.DataFrame-str is of the form:
+        - {history}
+        - Class
+        - Lv
+        - {numeric_stats}
+        """
+        # create header rows
+        header_rows = OrderedDict()
+        for index, entry in enumerate(self.history):
+            header_rows["PrevClassLv" + str(index + 1)] = entry
+        header_rows["Class"] = self.current_cls
+        header_rows["Lv"] = self.current_lv
+        header_rows.update(self.comparison_labels)
+        return pd.concat([pd.Series(header_rows), self.current_stats]).to_string()
 
     def __lt__(self, other):
         """
