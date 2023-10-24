@@ -903,10 +903,30 @@ class Morph8Test(unittest.TestCase):
         self.assertIsInstance(amelia_v_ross, pd.DataFrame)
         print(amelia_v_ross)
 
+    def test_get_custom_stats(self):
+        """
+        Asserts that get_custom_stats returns a pd.Series with the right index.
+        """
+        statdict = {}
+        for index, statlabel in enumerate(self.amelia.current_stats.index):
+            statval = (2 if index % 2 == 0 else 1)
+            statdict[statlabel] = statval
+        custom_stats = self.amelia.get_custom_stats(statdict)
+        self.assertIsInstance(custom_stats, pd.Series)
+        self.assertTrue(all(custom_stats.index == self.amelia.current_stats.index))
+        for index, statlabel in enumerate(self.amelia.current_stats.index):
+            statval = (2 if index % 2 == 0 else 1)
+            self.assertEqual(custom_stats[statlabel], statval)
+        statdict.pop("Def")
+        with self.assertRaises(AssertionError):
+            non_stats = self.amelia.get_custom_stats(statdict)
+        with self.assertRaises(NameError):
+            del non_stats
+
 if __name__ == '__main__':
-    module = Morph4Test
+    module = Morph8Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(module) if "test__repr__" in test],
+        defaultTest=[test for test in dir(module) if "custom" in test],
         module=module,
     )
