@@ -65,18 +65,19 @@ class Morph(BaseMorph):
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
-        if unit_name + " (HM)" in self.get_character_list():
+        # test if unit has HM bonus
+        if " (HM)" in unit_name or unit_name + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
 
     @property
-    def unit_name(self):
+    def unit_name(self) -> str:
         """
         The name of the unit whose stats are to be queried.
         """
         return self._unit_name
 
     @property
-    def BRANCHED_PROMO_EXCEPTIONS(self):
+    def BRANCHED_PROMO_EXCEPTIONS(self) -> dict:
         """
         Resolves from_col name conflicts when promoting certain units.
         """
@@ -105,7 +106,7 @@ class Morph(BaseMorph):
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
         self.current_lv = target_lv
 
-    def get_minpromolv(self):
+    def get_minpromolv(self) -> int:
         """
         Determines the minimum promotion level for a given unit.
 
@@ -129,7 +130,7 @@ class Morph(BaseMorph):
                 minpromolv = 10
         return minpromolv
 
-    def get_maxlv(self):
+    def get_maxlv(self) -> int:
         """
         Determines the maximum level for a given unit.
         """
@@ -200,7 +201,7 @@ class Morph(BaseMorph):
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
 
-    def is_maxed(self, tableindex: int = 0):
+    def is_maxed(self, tableindex: int = 0) -> pd.Series:
         """
         Returns a pd.Series showing which of the Morph's stats are maxed.
         """
@@ -217,7 +218,7 @@ class Morph(BaseMorph):
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Returns a pd.DataFrame summarizing the stats, history, and more about a Morph instance.
 
@@ -239,7 +240,7 @@ class Morph(BaseMorph):
         header_rows.update(self.comparison_labels)
         return pd.concat([pd.Series(header_rows), self.current_stats]).to_string()
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> pd.DataFrame:
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
 
@@ -361,14 +362,14 @@ class Morph4(Morph):
             self.promo_cls = None
 
     @property
-    def unit_name(self):
+    def unit_name(self) -> str:
         """
         The name of the unit whose stats are to be queried.
         """
         return self._unit_name
 
     @property
-    def father_name(self):
+    def father_name(self) -> str:
         """
         The name of the father of the unit whose stats are to be queried.
         """
