@@ -220,12 +220,13 @@ class Morph(BaseMorph):
 
     def __repr__(self) -> str:
         """
-        Returns a str(pd.DataFrame) summarizing the stats, history, and more about a Morph instance.
+        Returns a pd.Series-str summarizing the stats, history, and more about a Morph instance.
 
         Raises:
         - no errors, hurrah!
 
-        Returns a str(pd.DataFrame) of the form:
+        Returns a pd.Series-str of the form:
+        - Name
         - {history}
         - Class
         - Lv
@@ -235,20 +236,9 @@ class Morph(BaseMorph):
 
     def get_repr_series(self) -> pd.Series:
         """
-        Returns a pd.DataFrame summarizing the stats, history, and more about a Morph instance.
+        Creates the pd.Series for implementation in the __repr__ dunder.
 
-        Raises:
-        - no errors, hurrah!
-
-        Returns a pd.DataFrame of the form:
-        - {history}
-        - Class
-        - Lv
-        - {numeric_stats}
-
-        with name = self.unit_name.
-
-        Helper function for __repr__ dunder.
+        See Morph.__repr__ docstring for more information.
         """
         # create header rows
         header_rows = OrderedDict()
