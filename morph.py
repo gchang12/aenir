@@ -65,7 +65,7 @@ class Morph(BaseMorph):
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
-        if unit_name + " (HM)" in self.get_character_list:
+        if unit_name + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
 
     @property
@@ -390,13 +390,14 @@ class Morph4(Morph):
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
         logging.info("Morph4.level_up(%d)", target_lv)
+        tableindex = (1 if self.is_kid else 0)
         if self.is_kid:
             self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
             temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
             self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
             self.current_lv = target_lv
         else:
-            Morph.level_up(self, target_lv, tableindex=(1 if self.is_kid else 0))
+            Morph.level_up(self, target_lv, tableindex=tableindex)
 
 
 class Morph5(Morph):

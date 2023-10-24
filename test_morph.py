@@ -505,6 +505,20 @@ class Morph4Test(unittest.TestCase):
         temp_promo = self.lakche.url_to_tables['classes/promotion-gains'][0].set_index(["Class", "Promotion"]).loc[("Swordfighter", "Swordmaster"), :].reindex(self.bases.index, fill_value=0.0) * 1.0
         self.assertTrue(all(abs(self.lakche.current_stats - self.bases - temp_promo) < 0.01))
 
+    def test__repr__(self):
+        """
+        Tests that the __repr__ dunder returns a string containing:
+
+        - History
+        - Class
+        - Level
+        - Stats
+        """
+        print(self.lakche)
+        self.lakche.level_up(20)
+        self.lakche.promote()
+        print(self.lakche)
+
     def test_all_units(self):
         """
         Tests that all units can be leveled-up, stat-capped, and promoted.
@@ -676,6 +690,17 @@ class Morph7Test(unittest.TestCase):
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
         self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
+    def test__repr__(self):
+        """
+        Tests that the __repr__ dunder returns a string containing:
+
+        - History
+        - Class
+        - Level
+        - Stats
+        """
+        print(Morph7("Guy"))
+
     def test__lt__(self):
         """
         Test that the output contains a 'Campaign' row, and that that row lists the values appropriately.
@@ -693,6 +718,8 @@ class Morph7Test(unittest.TestCase):
         self.assertIsInstance(lyn_v_florina, pd.DataFrame)
         self.assertEqual(lyn_v_guy.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_guy.at["Campaign", "Guy (HM)"], "-")
+        self.assertEqual(lyn_v_guy.at["Hard Mode", "Guy (HM)"], "True")
+        self.assertEqual(lyn_v_guy.at["Hard Mode", "Lyn"], "False")
         self.assertEqual(lyn_v_florina.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_florina.at["Campaign", "Florina"], "Main")
         print(lyn_v_guy)
@@ -835,9 +862,9 @@ class Morph8Test(unittest.TestCase):
         print(amelia_v_ross)
 
 if __name__ == '__main__':
-    module = Morph4Test
+    module = Morph7Test
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
-        defaultTest=[test for test in dir(module) if "test__lt__" in test],
+        defaultTest=[test for test in dir(module) if "test__repr__" in test],
         module=module,
     )
