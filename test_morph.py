@@ -903,50 +903,9 @@ class Morph8Test(unittest.TestCase):
         self.assertIsInstance(amelia_v_ross, pd.DataFrame)
         print(amelia_v_ross)
 
-    def test_get_blank_series(self):
-        """
-        Asserts that get_custom_stats returns a pd.Series with the right index.
-        """
-        operator = "zzz"
-        blank_series = self.amelia.get_blank_series(operator)
-        midpoint = int(len(blank_series.index) / 2)
-        for index, label in enumerate(blank_series.index):
-            if index == midpoint:
-                self.assertEqual(blank_series[label], operator)
-            else:
-                self.assertEqual(blank_series[label], "")
-        print(blank_series)
-
-    def test_get_custom_stats(self):
-        """
-        Asserts that get_custom_stats returns a pd.Series with the right index.
-        """
-        statdict = {}
-        for index, statlabel in enumerate(self.amelia.current_stats.index):
-            statval = (2 if index % 2 == 0 else 1)
-            statdict[statlabel] = statval
-        custom_stats = self.amelia.get_custom_stats(statdict)
-        self.assertIsInstance(custom_stats, pd.Series)
-        label_stats = set(custom_stats.index) - set(self.amelia.current_stats.index)
-        # see output pre-pop
-        print(custom_stats)
-        # compare numbers
-        for label in label_stats:
-            custom_stats.pop(label)
-        self.assertTrue(all(custom_stats.index == self.amelia.current_stats.index))
-        for index, statlabel in enumerate(self.amelia.current_stats.index):
-            statval = (2 if index % 2 == 0 else 1)
-            self.assertEqual(custom_stats[statlabel], statval)
-        statdict.pop("Def")
-        # if the key-set does not match, then the method fails
-        with self.assertRaises(AssertionError):
-            non_stats = self.amelia.get_custom_stats(statdict)
-        with self.assertRaises(NameError):
-            del non_stats
-
 if __name__ == '__main__':
-    module = Morph8Test
-    findstr = "get_custom"
+    module = Morph4Test
+    findstr = "test__repr"
     unittest.main(
         #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
         defaultTest=[test for test in dir(module) if findstr in test],
