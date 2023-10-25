@@ -61,12 +61,13 @@ class Morph(BaseMorph):
         self.current_lv = temp_bases.pop("Lv")
         # implicitly convert to float
         self.current_stats = temp_bases + 0.0
+        self.current_stats.index = self.STAT_ORDERING[self.game_num]
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
         # test if unit has HM bonus
-        if " (HM)" in unit_name or unit_name + " (HM)" in self.get_character_list():
+        if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
 
     @property

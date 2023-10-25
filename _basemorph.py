@@ -22,7 +22,24 @@ class BaseMorph(SerenesCleaner):
     current_cls: Value of the current class, to be matched.
     target_stats: Stores the stats to be retrieved.
     history: Stores the history of a unit as a list of (Class, Lv) tuples.
+    STAT_ORDERING: Stores the order of stat labels.
     """
+
+    _STAT_ORDERING = {
+            4: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Res"],
+            5: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Con", "Mov"],
+            6: ["HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"],
+            7: ["HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"],
+            8: ["HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"],
+            9: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Res"],
+            }
+
+    @property
+    def STAT_ORDERING(self):
+        """
+        dict that determines order of stats to be displayed by game.
+        """
+        return self._STAT_ORDERING
 
     def __init__(self, game_num: int, datadir_root: str):
         """

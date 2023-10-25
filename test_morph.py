@@ -12,7 +12,7 @@ import pandas as pd
 
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
 
-logging.basicConfig(level=logging.WARNING, filename="aenirtesting.log")
+logging.basicConfig(level=logging.DEBUG, filename="aenirtesting.log")
 
 class Morph6Test(unittest.TestCase):
     """
@@ -24,6 +24,7 @@ class Morph6Test(unittest.TestCase):
         Creates a Morph object, with the option specified for full coverage.
         """
         self.roy = Morph(6, "Roy", datadir_root="data")
+        self.assertFalse(any(self.roy.current_stats.isnull()))
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
@@ -438,6 +439,7 @@ class Morph4Test(unittest.TestCase):
         # create Morph of FE4 kid
         self.identifier = ("Lakche", "Lex")
         self.lakche = Morph4(*self.identifier)
+        self.assertFalse(any(self.lakche.current_stats.isnull()))
         # create copy of bases for easy reference
         self.bases = self.lakche.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[self.identifier, :].copy()
         self.bases.pop("Class")
@@ -572,6 +574,7 @@ class Morph5Test(unittest.TestCase):
         Sets up fixtures for Lara shenanigans. 
         """
         self.lara = Morph5("Lara")
+        self.assertFalse(any(self.lara.current_stats.isnull()))
         self.bases = self.lara.current_stats.copy()
         # initialize promo bonuses for all scenarios
         promo_table = self.lara.url_to_tables["classes/promotion-gains"][0].set_index(["Class", "Promotion"])
@@ -707,6 +710,8 @@ class Morph7Test(unittest.TestCase):
         # initialize both versions of Wallace
         self.wallace0 = Morph7("Wallace", lyn_mode=True)
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
+        self.assertFalse(any(self.wallace0.current_stats.isnull()))
+        self.assertFalse(any(self.wallace1.current_stats.isnull()))
         self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
     def test__repr__(self):
@@ -851,6 +856,7 @@ class Morph8Test(unittest.TestCase):
         Sets Amelia up with a history of three two class changes.
         """
         self.amelia = Morph8("Amelia") 
+        self.assertFalse(any(self.amelia.current_stats.isnull()))
         self.amelia.level_up(10)
         self.amelia.promo_cls = "Cavalier (F)"
         self.amelia.promote()
@@ -903,11 +909,59 @@ class Morph8Test(unittest.TestCase):
         self.assertIsInstance(amelia_v_ross, pd.DataFrame)
         print(amelia_v_ross)
 
+
+class Morph9Test(unittest.TestCase):
+    """
+    Defines tests for leveling up, promoting, and capping stats.
+    """
+
+    def setUp(self):
+        """
+        Creates a Morph object, with the option specified for full coverage.
+        """
+        self.ike = Morph9("Ike", datadir_root="data")
+        self.assertFalse(any(self.ike.current_stats.isnull()))
+
+    def test_all_units(self):
+        """
+        Performs a shallow test: each unit is put through a maxing journey.
+
+        Assert: final > bases
+        """
+        ltable = "characters__base_stats"
+        rtable = "classes__promotion_gains"
+        with open(
+                str(self.ike.home_dir.joinpath(f"{ltable}-JOIN-{rtable}.json")),
+                encoding='utf-8') as rfile:
+            promocls_dict = json.load(rfile)
+        bases = self.ike.url_to_tables['characters/base-stats'][0].set_index("Name")
+        bases.pop("Class")
+        bases.pop("Lv")
+        for unitname in self.ike.url_to_tables['characters/growth-rates'][0]["Name"]:
+            unit = Morph(9, unitname)
+            promocls = promocls_dict[unitname]
+            if promocls is None:
+                with self.assertRaises(ValueError):
+                    unit.promote()
+                try:
+                    unit.level_up(target_lv=20)
+                    unit.cap_stats()
+                except ValueError:
+                    logging.info(f"{unitname} is already maxed.")
+                    continue
+            else:
+                unit.level_up(target_lv=20)
+                unit.cap_stats()
+                unit.promote()
+                unit.cap_stats()
+                unit.level_up(20)
+                unit.cap_stats()
+            self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
+
 if __name__ == '__main__':
-    module = Morph4Test
-    findstr = "test__repr"
+    module = Morph9Test
+    findstr = "test_"
     unittest.main(
-        #defaultTest=[test for test in dir(Morph7Test) if "wallace" in test],
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
     )
