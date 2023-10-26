@@ -233,9 +233,9 @@ class Morph(BaseMorph):
         - Lv
         - {numeric_stats}
         """
-        return self.get_repr_series().to_string()
+        return self.get_repr_series(["history", "comparison_labels"]).to_string()
 
-    def get_repr_series(self, detail_list=("history", "comparison_labels")) -> pd.Series:
+    def get_repr_series(self, detail_list=()) -> pd.Series:
         """
         Creates the pd.Series for implementation in the __repr__ dunder.
 
