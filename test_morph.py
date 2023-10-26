@@ -516,7 +516,7 @@ class Morph4Test(unittest.TestCase):
         - Level
         - Stats
         """
-        repr_series = self.lakche.get_repr_series()
+        repr_series = self.lakche.get_repr_series(["comparison_labels"])
         with self.assertRaises(KeyError):
             print(repr_series.pop("PrevClassLv1"))
         self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
@@ -530,7 +530,7 @@ class Morph4Test(unittest.TestCase):
         self.lakche.level_up(20)
         prevcls = self.lakche.current_cls
         self.lakche.promote()
-        repr_series = self.lakche.get_repr_series()
+        repr_series = self.lakche.get_repr_series(["comparison_labels", "history"])
         self.assertEqual(repr_series.to_string(), self.lakche.__repr__())
         self.assertEqual(repr_series.pop("Name"), self.lakche.unit_name)
         self.assertEqual(repr_series.pop("Father"), self.lakche.father_name)
@@ -724,7 +724,7 @@ class Morph7Test(unittest.TestCase):
         - Stats
         """
         guy = Morph7("Guy")
-        repr_series = guy.get_repr_series()
+        repr_series = guy.get_repr_series(['comparison_labels'])
         with self.assertRaises(KeyError):
             print(repr_series.pop("PrevClassLv1"))
         self.assertEqual(repr_series.to_string(), guy.__repr__())
@@ -738,7 +738,7 @@ class Morph7Test(unittest.TestCase):
         prevcls = guy.current_cls
         guy.level_up(20)
         guy.promote()
-        repr_series = guy.get_repr_series()
+        repr_series = guy.get_repr_series(['comparison_labels', 'history'])
         self.assertEqual(repr_series.to_string(), guy.__repr__())
         print(guy)
         self.assertEqual(repr_series.pop("Name"), guy.unit_name)
@@ -959,8 +959,8 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
 
 if __name__ == '__main__':
-    module = Morph9Test
-    findstr = "test_"
+    module = Morph7Test
+    findstr = "test__repr"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
