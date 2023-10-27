@@ -29,6 +29,14 @@ class Morph6Test(unittest.TestCase):
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
 
+    def test_cap_stats__statfloor(self):
+        """
+        Tests that negative stat bonusses do not put a character's stat below zero.
+        """
+        self.roy.current_stats["HP"] = -46
+        self.roy.cap_stats()
+        self.assertEqual(self.roy.current_stats["HP"], 0)
+
     def test_level_up(self):
         """
         Tests that the current_lv and current_stats have been incremented.
@@ -226,11 +234,11 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that all units can be leveled-up, stat-capped, and promoted.
         """
-        base = Morph(4, "Sigurd")
+        base = Morph4("Sigurd")
         def not_a_kid(name):
             return name not in base.url_to_tables["characters/base-stats"][1]["Name"]
         for unit_name in filter(not_a_kid, base.get_character_list()):
-            fe4_unit = Morph(4, unit_name)
+            fe4_unit = Morph4(unit_name)
             try:
                 logging.warning("Leveling '%s' to level 20.", fe4_unit.unit_name)
                 fe4_unit.level_up(20)
@@ -445,6 +453,16 @@ class Morph4Test(unittest.TestCase):
         self.bases.pop("Class")
         self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
+
+    def test_promote(self):
+        """
+        Tests that post-promotion, a unit's current level is retained.
+        """
+        target_lv = 20
+        self.lakche.level_up(target_lv)
+        self.assertEqual(self.lakche.current_lv, target_lv)
+        self.lakche.promote()
+        self.assertEqual(self.lakche.current_lv, target_lv)
 
     def test__lt__(self):
         """
@@ -960,7 +978,7 @@ class Morph9Test(unittest.TestCase):
 
 if __name__ == '__main__':
     module = Morph7Test
-    findstr = "test__repr"
+    findstr = "test_"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,

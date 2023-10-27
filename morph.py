@@ -182,8 +182,7 @@ class Morph(BaseMorph):
         self.current_clstype = "classes/promotion-gains"
         temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats += temp_promo
-        if self.game_num != 4:
-            self.current_lv = 1
+        self.current_lv = 1
 
     def cap_stats(self, tableindex: int = 0):
         """
@@ -201,6 +200,7 @@ class Morph(BaseMorph):
         logging.info("Morph.cap_stats(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
+        self.current_stats.mask(self.current_stats < 0, other=0, inplace=True)
 
     def is_maxed(self, tableindex: int = 0) -> pd.Series:
         """
@@ -415,6 +415,16 @@ class Morph4(Morph):
         else:
             Morph.level_up(self, target_lv, tableindex=tableindex)
 
+    def promote(self):
+        """
+        Extends: Morph.promote.
+
+        Resets level to previous state pre-promotion.
+        """
+        previous_lv = self.current_lv
+        Morph.promote(self, tableindex=0)
+        self.current_lv = previous_lv
+
 
 class Morph5(Morph):
     """
@@ -484,7 +494,7 @@ class Morph5(Morph):
                         print("'" + crusader_name + "'")
                     raise keyerr
             # cap bonus at zero if growths < 0
-            temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)
+            #temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)
             # increment
             self.current_stats += (temp_scrollbonus / 100) * (target_lv - self.current_lv)
         Morph.level_up(self, target_lv)
