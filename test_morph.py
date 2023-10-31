@@ -3,6 +3,7 @@
 Tests the aenir.morph.Morph class methods.
 """
 
+from unittest.mock import patch
 import unittest
 import logging
 import json
@@ -12,7 +13,7 @@ import pandas as pd
 
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
 
-logging.basicConfig(level=logging.DEBUG, filename="aenirtesting.log")
+logging.basicConfig(level=logging.DEBUG)
 
 class Morph6Test(unittest.TestCase):
     """
@@ -28,6 +29,65 @@ class Morph6Test(unittest.TestCase):
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
+
+    @patch("copy.deepcopy")
+    def test_copy(self, mock_copy):
+        """
+        Tests that the copy.deepcopy method was invoked in instance method.
+        """
+        logging.warning("Testing Morph.copy instance method.")
+        self.roy.copy()
+        logging.warning("Asserting that target_stats is None.")
+        self.assertIsNone(self.roy.target_stats)
+        logging.warning("target_stats is None.")
+        logging.warning("Asserting that copy.deepcopy was called with instance as argument.")
+        mock_copy.assert_called_once_with(self.roy)
+        logging.warning("copy.deepcopy was called with instance as argument.")
+
+    def test__eq__(self):
+        """
+        Tests that equality as defined fails and succeeds as expected.
+        """
+        marcus = Morph(6, "Marcus")
+        # unit_name attributes differ
+        self.assertFalse(marcus == self.roy)
+        sigurd = Morph4("Sigurd")
+        # stats are not compatible
+        self.assertFalse(marcus == self.roy)
+        # game_name attributes differ
+        eliwood = Morph7("Eliwood")
+        self.assertFalse(eliwood == self.roy)
+        # equality
+        roy = Morph6("Roy")
+        self.assertTrue(roy == self.roy)
+        # comparison_labels differ
+        roy.comparison_labels[''] = None
+        self.assertFalse(roy == self.roy)
+        roy.comparison_labels.pop('')
+        # history differs
+        roy.history.append(None)
+        self.assertFalse(roy == self.roy)
+        roy.history.pop()
+        # current_clstype attributes differ
+        old_clstype = roy.current_clstype
+        roy.current_clstype = ""
+        self.assertFalse(roy == self.roy)
+        roy.current_clstype = old_clstype
+        # current_stats differ
+        old_hp = roy.current_stats['HP']
+        roy.current_stats['HP'] = 99
+        self.assertFalse(roy == self.roy)
+        roy.current_stats['HP'] = old_hp
+        # current_lv attributes differ
+        old_lv = roy.current_lv
+        roy.current_lv = 20
+        self.assertFalse(roy == self.roy)
+        roy.current_lv = old_lv
+        # current_cls attributes differ
+        old_cls = roy.current_cls
+        roy.current_cls = ""
+        self.assertFalse(roy == self.roy)
+        roy.current_cls = old_cls
 
     def test_cap_stats__statfloor(self):
         """
@@ -977,8 +1037,8 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
 
 if __name__ == '__main__':
-    module = Morph7Test
-    findstr = "test_"
+    module = Morph6Test
+    findstr = "test__eq"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
