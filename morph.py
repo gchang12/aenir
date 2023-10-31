@@ -5,6 +5,7 @@ Defines Morph class.
 Morph: Defines methods to simulate level-ups and promotions for FE units, excluding FE4 kids.
 """
 
+import copy
 import logging
 from collections import OrderedDict
 from pathlib import Path
@@ -83,6 +84,45 @@ class Morph(BaseMorph):
         Resolves from_col name conflicts when promoting certain units.
         """
         return self._BRANCHED_PROMO_EXCEPTIONS
+
+    def copy(self):
+        """
+        Returns a copy of self, with stat attributes, history,  and so forth.
+
+        For use in web-development.
+        """
+        # economize on stuff to copy
+        self.target_stats = None
+        return copy.deepcopy(self)
+
+    def __eq__(self, other):
+        """
+        Defines how two Morph objects are equal.
+
+        Conditions:
+        - Stats are equal
+        - Game and unit names are the same
+        - Classes and levels are the same
+        - History is identical
+        - Other attributes are the same.
+        """
+        stats_are_compatible = all(self.current_stats.index == other.current_stats.index)
+        stats_are_equal = all(abs(self.current_stats - other.current_stats) < 0.01)
+        scalar_attrs = [
+                "unit_name",
+                "game_num",
+                "history",
+                "comparison_labels",
+                "current_cls",
+                "current_lv",
+                "current_clstype",
+                ]
+        equality_conditions = [stats_are_compatible, stats_are_equal]
+        for attr in scalar_attrs:
+            equality_conditions.append(
+                    getattr(self, attr) == getattr(other, attr)
+                    )
+        return all(equality_conditions)
 
     def level_up(self, target_lv: int, tableindex: int = 0):
         """

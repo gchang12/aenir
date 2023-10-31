@@ -45,7 +45,10 @@ class BaseMorph(SerenesCleaner):
         """
         Extends: SerenesCleaner.__init__(self, game_num)
 
-        Defines: current_clstype, current_cls, target_stats
+        Defines:
+        current_clstype - For use in cross-referencing names in tables.
+        current_cls - Stores current class
+        target_stats - Temporary store for stat-augmenting arrays
         """
         SerenesCleaner.__init__(self, game_num)
         # essential to set_targetstats method
@@ -60,7 +63,7 @@ class BaseMorph(SerenesCleaner):
         self.tables_file = "cleaned_stats.db"
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
-        
+
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
         Prints: clsrecon_dict.keys not in ltable[lindex_col], clsrecon_dict.values not in rtable[to_col].
