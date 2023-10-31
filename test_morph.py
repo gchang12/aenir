@@ -36,13 +36,27 @@ class Morph6Test(unittest.TestCase):
         Tests that the copy.deepcopy method was invoked in instance method.
         """
         logging.warning("Testing Morph.copy instance method.")
-        self.roy.copy()
+        logging.warning("Asserting that Morph.copy method returns copy.deepcopy(self).")
+        roy_copy = self.roy.copy()
+        self.assertIs(roy_copy, mock_copy.return_value)
+        logging.warning("Morph.copy method returns copy.deepcopy(self).")
         logging.warning("Asserting that target_stats is None.")
         self.assertIsNone(self.roy.target_stats)
         logging.warning("target_stats is None.")
         logging.warning("Asserting that copy.deepcopy was called with instance as argument.")
         mock_copy.assert_called_once_with(self.roy)
         logging.warning("copy.deepcopy was called with instance as argument.")
+
+    def test_copy2(self):
+        """
+        Tests that the copy method returns a Morph that can be compared to the original.
+        """
+        roy_copy = self.roy.copy()
+        comparison = roy_copy < self.roy
+        self.assertIsInstance(comparison, pd.DataFrame)
+        logging.debug("\n" + comparison.to_string())
+        self.assertEqual(self.roy.current_stats.name, self.roy.unit_name)
+        self.assertEqual(roy_copy.current_stats.name, roy_copy.unit_name)
 
     def test__eq__(self):
         """
@@ -289,6 +303,14 @@ class Morph6Test(unittest.TestCase):
         self.assertEqual(c_marcus.pop("Lv"), marcus.current_lv)
         #self.assertListEqual(list(c_marcus.pop("PrevClassLv")), marcus.history)
         self.assertTrue(all(c_marcus == marcus.current_stats))
+        roy = Morph(6, "Roy")
+        comparison = roy < self.roy
+        self.assertIsInstance(comparison, pd.DataFrame)
+        print(comparison)
+        with self.assertRaises(pd.errors.InvalidIndexError):
+            null = self.roy < self.roy
+        with self.assertRaises(NameError):
+            del null
 
     def test_fe4_units(self):
         """
@@ -1038,7 +1060,7 @@ class Morph9Test(unittest.TestCase):
 
 if __name__ == '__main__':
     module = Morph6Test
-    findstr = "test__eq"
+    findstr = "test__lt"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
