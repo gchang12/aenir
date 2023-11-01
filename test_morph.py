@@ -101,7 +101,7 @@ class Morph6Test(unittest.TestCase):
         old_cls = roy.current_cls
         roy.current_cls = ""
         self.assertFalse(roy == self.roy)
-        roy.current_cls = old_cls
+        #roy.current_cls = old_cls
 
     def test_cap_stats__statfloor(self):
         """
