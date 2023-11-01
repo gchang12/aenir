@@ -54,7 +54,7 @@ class Morph6Test(unittest.TestCase):
         roy_copy = self.roy.copy()
         comparison = roy_copy < self.roy
         self.assertIsInstance(comparison, pd.DataFrame)
-        logging.debug("\n" + comparison.to_string())
+        print(comparison)
         self.assertEqual(self.roy.current_stats.name, self.roy.unit_name)
         self.assertEqual(roy_copy.current_stats.name, roy_copy.unit_name)
 
@@ -306,7 +306,7 @@ class Morph6Test(unittest.TestCase):
         roy = Morph(6, "Roy")
         comparison = roy < self.roy
         self.assertIsInstance(comparison, pd.DataFrame)
-        logging.debug(comparison)
+        print(comparison)
         with self.assertRaises(pd.errors.InvalidIndexError):
             null = self.roy < self.roy
         with self.assertRaises(NameError):
@@ -560,12 +560,12 @@ class Morph4Test(unittest.TestCase):
         rana = Morph4("Rana", "Arden")
         rana_v_lakche = rana < self.lakche
         self.assertIsInstance(rana_v_lakche, pd.DataFrame)
-        logging.debug(rana_v_lakche)
+        print(rana_v_lakche)
         # vs. Arden!Lakche
         arden_lakche = Morph4("Lakche", "Arden")
         alakche_v_llakche = arden_lakche < self.lakche
         self.assertIsInstance(alakche_v_llakche, pd.DataFrame)
-        logging.debug(alakche_v_llakche)
+        print(alakche_v_llakche)
         # vs. Alec
         alec = Morph4("Alec")
         alec.level_up(20)
@@ -574,13 +574,13 @@ class Morph4Test(unittest.TestCase):
         self.lakche.promote()
         alec_v_lakche = alec < self.lakche
         self.assertIsInstance(alec_v_lakche, pd.DataFrame)
-        logging.debug(alec_v_lakche)
+        print(alec_v_lakche)
         # vs. Sigurd
         sigurd = Morph4("Sigurd")
         sigurd.level_up(20)
         sigurd_v_lakche = (sigurd < self.lakche)
         self.assertIsInstance(alec_v_lakche, pd.DataFrame)
-        logging.debug(sigurd_v_lakche)
+        print(sigurd_v_lakche)
 
     def test_level_up(self):
         """
@@ -625,7 +625,7 @@ class Morph4Test(unittest.TestCase):
         self.assertEqual(repr_series.pop("Class"), self.lakche.current_cls)
         self.assertEqual(repr_series.pop("Lv"), self.lakche.current_lv)
         self.assertTrue(all(repr_series == self.lakche.current_stats))
-        logging.debug(self.lakche)
+        print(self.lakche)
         # promote, then retest
         self.lakche.level_up(20)
         prevcls = self.lakche.current_cls
@@ -638,7 +638,7 @@ class Morph4Test(unittest.TestCase):
         self.assertEqual(repr_series.pop("Lv"), self.lakche.current_lv)
         self.assertEqual(repr_series.pop("PrevClassLv1"), (prevcls, self.lakche.current_lv))
         self.assertTrue(all(repr_series == self.lakche.current_stats))
-        logging.debug(self.lakche)
+        print(self.lakche)
 
     def test_all_units(self):
         """
@@ -828,7 +828,7 @@ class Morph7Test(unittest.TestCase):
         with self.assertRaises(KeyError):
             repr_series.pop("PrevClassLv1")
         self.assertEqual(repr_series.to_string(), guy.__repr__())
-        logging.debug(guy)
+        print(guy)
         self.assertEqual(repr_series.pop("Name"), guy.unit_name)
         self.assertEqual(repr_series.pop("Hard Mode"), False)
         self.assertEqual(repr_series.pop("Class"), guy.current_cls)
@@ -840,7 +840,7 @@ class Morph7Test(unittest.TestCase):
         guy.promote()
         repr_series = guy.get_repr_series(['comparison_labels', 'history'])
         self.assertEqual(repr_series.to_string(), guy.__repr__())
-        logging.debug(guy)
+        print(guy)
         self.assertEqual(repr_series.pop("Name"), guy.unit_name)
         self.assertEqual(repr_series.pop("PrevClassLv1"), (prevcls, 20))
         self.assertEqual(repr_series.pop("Hard Mode"), False)
@@ -869,8 +869,8 @@ class Morph7Test(unittest.TestCase):
         self.assertEqual(lyn_v_guy.at["Hard Mode", "Lyn"], "-")
         self.assertEqual(lyn_v_florina.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_florina.at["Campaign", "Florina"], "Main")
-        logging.debug(lyn_v_guy)
-        logging.debug(lyn_v_florina)
+        print(lyn_v_guy)
+        print(lyn_v_florina)
 
     def test_tutorial_wallace(self):
         """
@@ -975,7 +975,7 @@ class Morph8Test(unittest.TestCase):
         seth.level_up(20)
         amelia_v_seth = self.amelia < seth
         self.assertIsInstance(amelia_v_seth, pd.DataFrame)
-        logging.debug(amelia_v_seth)
+        print(amelia_v_seth)
 
     def test__lt__1(self):
         """
@@ -989,7 +989,7 @@ class Morph8Test(unittest.TestCase):
         ephraim.level_up(20)
         amelia_v_ephraim = self.amelia < ephraim
         self.assertIsInstance(amelia_v_ephraim, pd.DataFrame)
-        logging.debug(amelia_v_ephraim)
+        print(amelia_v_ephraim)
 
     def test__lt__2(self):
         """
@@ -1007,7 +1007,7 @@ class Morph8Test(unittest.TestCase):
         ross.level_up(20)
         amelia_v_ross = self.amelia < ross
         self.assertIsInstance(amelia_v_ross, pd.DataFrame)
-        logging.debug(amelia_v_ross)
+        print(amelia_v_ross)
 
 
 class Morph9Test(unittest.TestCase):
