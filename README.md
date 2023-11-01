@@ -1,8 +1,8 @@
-Deploy to internet via either flask or django, preferably the latter
+Deploy to internet via django
 - home: explain what this is
 - instructions: explain how to use, with screenshots
 - feedback: input box for how to improve, any bugs, etc.
-- application: game select | application | unit select / reserves
+- application: create | edit | compare | (how-to) | (home)
 
 DONE
 ====
