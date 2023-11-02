@@ -83,10 +83,10 @@ class SerenesTranscriber(SerenesScraper):
         - KeyError: urlpath is not registered in page_dict.
         """
         logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
-        save_path = self.home_dir.joinpath(self.tables_file)
-        if not save_path.exists():
-            raise FileNotFoundError(f"'{str(save_path)}' does not exist. Aborting.")
-        save_file = str(save_path)
+        load_path = self.home_dir.joinpath(self.tables_file)
+        if not load_path.exists():
+            raise FileNotFoundError(f"'{str(load_path)}' does not exist. Aborting.")
+        load_file = str(load_path)
         tablename_root = self.page_dict[urlpath]
         logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)
         self.url_to_tables[urlpath] = []
@@ -94,7 +94,7 @@ class SerenesTranscriber(SerenesScraper):
         logging.info("Loading tables into SerenesTranscriber.url_to_tables['%s'].", urlpath)
         while True:
             table_name = tablename_root + str(tableindex)
-            con = "sqlite:///" + save_file
+            con = "sqlite:///" + load_file
             try:
                 logging.info("pd.read_sql_table('%s', '%s')", table_name, con)
                 table = pd.read_sql_table(table_name, con)

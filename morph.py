@@ -519,12 +519,12 @@ class Morph5(Morph):
             assert len(self.equipped_scrolls) <= 7
             temp_scrollbonus = pd.Series(index=self.current_stats.index, data=[0.0 for label in self.current_stats.index])
             # fetch table name, and table file
-            save_path = self.home_dir.joinpath(self.tables_file)
-            if not save_path.exists():
-                raise FileNotFoundError(f"'{str(save_path)}' does not exist. Aborting.")
-            save_file = str(save_path)
+            load_path = self.home_dir.joinpath(self.tables_file)
+            if not load_path.exists():
+                raise FileNotFoundError(f"'{str(load_path)}' does not exist. Aborting.")
+            load_file = str(load_path)
             table_name = "crusader_scrolls"
-            con = "sqlite:///" + save_file
+            con = "sqlite:///" + load_file
             scroll_table = pd.read_sql_table(table_name, con).set_index("Name")
             # accumulate bonuses
             for scroll_name in self.equipped_scrolls:

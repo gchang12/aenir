@@ -92,7 +92,6 @@ class TranscriberTest(unittest.TestCase):
             self.sos_transcriber.save_tables(urlpath)
         self.assertFalse(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
 
-    # TODO: patch pd.read_sql_table, pd.{to_sql} methods to write to in-memory stream
     @patch("pathlib.Path.joinpath")
     def test_saveload_tables(self, mock_joinpath):
         """
