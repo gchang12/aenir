@@ -287,6 +287,20 @@ class Morph6Test(unittest.TestCase):
         self.roy.current_stats['Lck'] = 30
         self.assertTrue(all(self.roy.is_maxed() == mock_maxed))
 
+    def test_is_maxed1(self):
+        """
+        Verifies that the pd.Series lists which stats are maxed (=True).
+
+        Case: Luck maxes out at 30
+        """
+        mock_maxed = pd.Series(index=self.roy.current_stats.index, data=[False for stat in self.roy.current_stats])
+        mock_maxed['Lck'] = True
+        self.roy.current_stats['Lck'] = 30
+        # mock promotion
+        self.roy.current_clstype = "classes/promotion-gains"
+        self.roy.current_cls = "Master Lord"
+        self.assertTrue(all(self.roy.is_maxed() == mock_maxed))
+
     def test__lt__(self):
         """
         Verifies that the pd.DataFrame returned summarizes the differences between Morph objects.
@@ -583,6 +597,14 @@ class Morph4Test(unittest.TestCase):
         self.assertIsInstance(alec_v_lakche, pd.DataFrame)
         print(sigurd_v_lakche)
 
+    def test_level_up1(self):
+        """
+        Tests when an FE4 unit tries to level-up beyond max-level.
+        """
+        # test modified level-up method
+        with self.assertRaises(ValueError):
+            self.lakche.level_up(99)
+
     def test_level_up(self):
         """
         Tests the child-implementation of level_up method.
@@ -687,6 +709,26 @@ class Morph5Test(unittest.TestCase):
         self.thief__to__dancer = promo_table.loc[("Thief", "Dancer"), :].reindex(self.bases.index, fill_value=0.0)
         self.thief_fighter__to__dancer = promo_table.loc[("Thief Fighter", "Dancer"), :].reindex(self.bases.index, fill_value=0.0)
         self.thief__to__thief_fighter = promo_table.loc[("Thief", "Thief Fighter"), :].reindex(self.bases.index, fill_value=0.0)
+
+    @patch("pathlib.Path.exists")
+    def test_level_up__failures(self, mock_exists):
+        """
+        Tests the errors that can appear as a result of bad leveling-up.
+
+        1. target_lv > max_lv
+        2. target_lv < current_lv
+        3. scroll file DNE
+        """
+        mock_exists.return_value = False
+        with self.assertRaises(ValueError):
+            self.lara.level_up(99)
+        with self.assertRaises(ValueError):
+            self.lara.level_up(2)
+        self.lara.equipped_scrolls.append(None)
+        with self.assertRaises(FileNotFoundError):
+            self.lara.level_up(20)
+
+
 
     def test_promote1(self):
         """

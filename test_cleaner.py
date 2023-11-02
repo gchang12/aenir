@@ -368,6 +368,54 @@ class CleanerTest(unittest.TestCase):
                         to_series,
                         )
 
+    @patch("io.open")
+    @patch("pathlib.Path.exists")
+    def test_create_clsrecon_file1(self, mock_exists, mock_wfile):
+        """
+        Tests the file when values in an index column are compared to those in a column in another table.
+        """
+        logging.info("CleanerTest.test_create_clsrecon_file1(self)")
+        # initialize necessary variables
+        ltable_url = "classes/promotion-gains"
+        rtable_url = "classes/maximum-stats"
+        lindex_col = "Class"
+        from_col = "Class"
+        to_col = "Class"
+        # safeguard against error-raiser
+        mock_exists.return_value = False
+        # create IO pool for function to send JSON to
+        mock_wfile.return_value = RewriteableIO()
+        # main
+        self.sos_cleaner.create_clsrecon_file(
+                (ltable_url, lindex_col, from_col),
+                (rtable_url, to_col),
+                )
+        # load
+        clsrecon_dict = json.load(mock_wfile.return_value)
+        mock_wfile.return_value.close()
+        # check that keys match primary key-values in ltable
+        self.assertSetEqual(
+                set(self.sos_cleaner.url_to_tables[ltable_url][0].loc[:, lindex_col]),
+                set(clsrecon_dict),
+                )
+        # check that unmapped lot are None, mapped lot are mapped to selves
+        bases_table = self.sos_cleaner.url_to_tables[ltable_url][0].set_index(lindex_col)
+        to_series = self.sos_cleaner.url_to_tables[rtable_url][0].set_index(to_col).index
+        #print(bases_table)
+        for lindex_val, fromval in clsrecon_dict.items():
+            # recall that nonnumeric rows have yet to be dropped
+            if fromval is None:
+                self.assertNotIn(
+                        lindex_val,
+                        to_series,
+                        )
+            else:
+                self.assertIn(
+                        lindex_val,
+                        #bases_table.at[lindex_val, from_col],
+                        to_series,
+                        )
+
     def test_verify_clsrecon_file(self):
         """
         Documents all possible errors for the SerenesCleaner.verify_clsrecon_file method 
@@ -434,6 +482,6 @@ class CleanerTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(
-            defaultTest="test_create_fieldrecon_file",
+            defaultTest="test_create_clsrecon_file1",
             module=CleanerTest,
             )
