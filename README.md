@@ -3,6 +3,8 @@ Deploy to internet via django
 - instructions: explain how to use, with screenshots
 - feedback: input box for how to improve, any bugs, etc.
 - application: create | edit | compare | (how-to) | (home)
+- consider like image-scraping for the extra pizazz
+- segregate tables from Morph objects post-initialization
 
 DONE
 ====

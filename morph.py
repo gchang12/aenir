@@ -46,7 +46,7 @@ class Morph(BaseMorph):
             (5, "Trewd"): "Swordmaster",
             }
 
-    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None):
+    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, gtableindex: int = 0):
         """
         Loads tables, and initializes bases among other things.
 
@@ -55,7 +55,7 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num, datadir_root)
         # initialize bases
         self._unit_name = unit_name
-        temp_bases = self.url_to_tables["characters/base-stats"][tableindex].set_index("Name").loc[unit_name, :]
+        temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
         logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
@@ -70,6 +70,16 @@ class Morph(BaseMorph):
         # test if unit has HM bonus
         if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
+        # set growth rates
+        self.set_targetstats(
+                ("characters/base-stats", self.unit_name),
+                ("characters/growth-rates", "Name"),
+                gtableindex,
+                )
+        self.growth_rates = self.target_stats
+        self.target_stats = None
+        # must save memory
+        self.url_to_tables.pop("characters/growth-rates")
 
     @property
     def unit_name(self) -> str:
@@ -124,7 +134,7 @@ class Morph(BaseMorph):
                     )
         return all(equality_conditions)
 
-    def level_up(self, target_lv: int, tableindex: int = 0):
+    def level_up(self, target_lv: int):
         """
         Increases unit's level, and increments current_stats accordingly.
 
@@ -137,13 +147,8 @@ class Morph(BaseMorph):
             else:
                 error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
-        self.set_targetstats(
-                ("characters/base-stats", self.unit_name),
-                ("characters/growth-rates", "Name"),
-                tableindex,
-                )
-        logging.info("Morph.level_up(%d, tableindex=%d)", target_lv, tableindex)
-        temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
+        logging.info("Morph.level_up(%d)", target_lv)
+        temp_growths = self.growth_rates.reindex(self.current_stats.index, fill_value=0.0)
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
         self.current_lv = target_lv
 
@@ -400,7 +405,7 @@ class Morph4(Morph):
         logging.info("Morph4('%s', '%s')", unit_name, father_name)
         if self.is_kid:
             # initialize bases
-            temp_bases = self.url_to_tables["characters/base-stats"][kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
             self.current_cls = temp_bases.pop("Class")
             self.current_lv = temp_bases.pop("Lv")
             self.current_stats = temp_bases + 0.0
@@ -409,6 +414,7 @@ class Morph4(Morph):
             self.current_clstype = "characters/base-stats"
             # implicitly convert to float
             self.comparison_labels = {"Father": father_name}
+            self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
             Morph.__init__(self, game_num, unit_name, tableindex=0)
         try:
@@ -446,14 +452,12 @@ class Morph4(Morph):
             raise ValueError(error_msg + " Aborting.")
         # target_stats is set directly instead via the usual method.
         logging.info("Morph4.level_up(%d)", target_lv)
-        tableindex = (1 if self.is_kid else 0)
         if self.is_kid:
-            self.target_stats = self.url_to_tables["characters/growth-rates"][tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
-            temp_growths = self.target_stats.reindex(self.current_stats.index, fill_value=0.0)
+            temp_growths = self.growth_rates.reindex(self.current_stats.index, fill_value=0.0)
             self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
             self.current_lv = target_lv
         else:
-            Morph.level_up(self, target_lv, tableindex=tableindex)
+            Morph.level_up(self, target_lv)
 
     def promote(self):
         """
@@ -556,7 +560,22 @@ class Morph7(Morph):
         Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1), datadir_root=datadir_root)
         logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         self.lyn_mode = None
-        if unit_name in self.url_to_tables["characters/base-stats"][0].loc[:, "Name"].to_list():
+        lyndis_league = (
+                "Lyn",
+                "Sain",
+                "Kent",
+                "Florina",
+                "Wil",
+                "Dorcas",
+                "Serra",
+                "Erk",
+                "Rath",
+                "Matthew",
+                "Nils",
+                "Lucius"
+                "Wallace",
+                )
+        if unit_name in lyndis_league:
             self.comparison_labels.update({"Campaign": ("Main" if not lyn_mode else "Tutorial")})
             self.lyn_mode = lyn_mode
         if not lyn_mode and unit_name == "Wallace":

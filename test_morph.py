@@ -11,9 +11,10 @@ import json
 import pandas as pd
 
 
+from aenir._basemorph import BaseMorph
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 
 class Morph6Test(unittest.TestCase):
     """
@@ -57,6 +58,8 @@ class Morph6Test(unittest.TestCase):
         print(comparison)
         self.assertEqual(self.roy.current_stats.name, self.roy.unit_name)
         self.assertEqual(roy_copy.current_stats.name, roy_copy.unit_name)
+        self.assertIsNot(self.roy.current_stats, roy_copy.current_stats)
+        self.assertTrue(all(self.roy.current_stats == roy_copy.current_stats))
 
     def test__eq__(self):
         """
@@ -120,7 +123,7 @@ class Morph6Test(unittest.TestCase):
         - current_stats = base_stats + (growths/100) * 19
         """
         current_stat_copy = self.roy.current_stats.copy()
-        growths = self.roy.url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
+        growths = BaseMorph(6, "data").url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
         target_lv = 20
         self.roy.level_up(target_lv)
         self.assertTrue(all((current_stat_copy + (growths / 100) * 19) == self.roy.current_stats))
@@ -217,11 +220,9 @@ class Morph6Test(unittest.TestCase):
                 str(self.roy.home_dir.joinpath(f"{ltable}-JOIN-{rtable}.json")),
                 encoding='utf-8') as rfile:
             promocls_dict = json.load(rfile)
-        bases = self.roy.url_to_tables['characters/base-stats'][0].set_index("Name")
-        bases.pop("Class")
-        bases.pop("Lv")
-        for unitname in self.roy.url_to_tables['characters/growth-rates'][0]["Name"]:
+        for unitname in self.roy.get_character_list():
             unit = Morph(6, unitname)
+            bases = unit.current_stats.copy()
             promocls = promocls_dict[unitname]
             if promocls is None:
                 with self.assertRaises(ValueError):
@@ -239,7 +240,7 @@ class Morph6Test(unittest.TestCase):
                 unit.cap_stats()
                 unit.level_up(20)
                 unit.cap_stats()
-            self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
+            self.assertTrue(any(unit.current_stats > bases))
 
     def test_level_up__failures(self):
         """
@@ -318,7 +319,7 @@ class Morph6Test(unittest.TestCase):
         """
         base = Morph4("Sigurd")
         def not_a_kid(name):
-            return name not in base.url_to_tables["characters/base-stats"][1]["Name"]
+            return name not in BaseMorph(4, "data").url_to_tables["characters/base-stats"][1]["Name"]
         for unit_name in filter(not_a_kid, base.get_character_list()):
             fe4_unit = Morph4(unit_name)
             try:
@@ -531,9 +532,9 @@ class Morph4Test(unittest.TestCase):
         self.lakche = Morph4(*self.identifier)
         self.assertFalse(any(self.lakche.current_stats.isnull()))
         # create copy of bases for easy reference
-        self.bases = self.lakche.url_to_tables["characters/base-stats"][1].set_index(["Name", "Father"]).loc[self.identifier, :].copy()
-        self.bases.pop("Class")
-        self.bases.pop("Lv")
+        self.bases = self.lakche.current_stats.copy()
+        #self.bases.pop("Class")
+        #self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
 
     def test_promote(self):
@@ -587,7 +588,7 @@ class Morph4Test(unittest.TestCase):
         Tests the child-implementation of level_up method.
         """
         # test modified level-up method
-        growths = self.lakche.url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
+        growths = BaseMorph(4, "data").url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
         expected = (1.0 * self.bases) + growths * (20 - self.lakche.current_lv) / 100
         self.lakche.level_up(20)
         self.assertTrue(all(abs(self.lakche.current_stats - expected) < 0.01))
@@ -644,8 +645,12 @@ class Morph4Test(unittest.TestCase):
         """
         Tests that all units can be leveled-up, stat-capped, and promoted.
         """
-        father_list = set(self.lakche.url_to_tables["characters/base-stats"][1]["Father"])
-        for unit_name in set(self.lakche.url_to_tables["characters/base-stats"][1]["Name"]):
+        unit_factory = BaseMorph(4, "data")
+        src_tablename = "characters/base-stats"
+        father_list = set(unit_factory.url_to_tables[src_tablename][1].pop("Father"))
+        kid_list = set(unit_factory.url_to_tables[src_tablename][1].pop("Name"))
+        unit_factory.url_to_tables.clear()
+        for unit_name in kid_list:
             for father in father_list:
                 kid_unit = Morph4(unit_name, father)
                 try:
@@ -812,7 +817,7 @@ class Morph7Test(unittest.TestCase):
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
         self.assertFalse(any(self.wallace0.current_stats.isnull()))
         self.assertFalse(any(self.wallace1.current_stats.isnull()))
-        self.growths = self.wallace0.url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
+        self.growths = BaseMorph(7, "data").url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
     def test__repr__(self):
         """
@@ -1034,11 +1039,9 @@ class Morph9Test(unittest.TestCase):
                 str(self.ike.home_dir.joinpath(f"{ltable}-JOIN-{rtable}.json")),
                 encoding='utf-8') as rfile:
             promocls_dict = json.load(rfile)
-        bases = self.ike.url_to_tables['characters/base-stats'][0].set_index("Name")
-        bases.pop("Class")
-        bases.pop("Lv")
-        for unitname in self.ike.url_to_tables['characters/growth-rates'][0]["Name"]:
+        for unitname in self.ike.get_character_list():
             unit = Morph(9, unitname)
+            bases = unit.current_stats.copy()
             promocls = promocls_dict[unitname]
             if promocls is None:
                 with self.assertRaises(ValueError):
@@ -1056,11 +1059,11 @@ class Morph9Test(unittest.TestCase):
                 unit.cap_stats()
                 unit.level_up(20)
                 unit.cap_stats()
-            self.assertTrue(any(unit.current_stats > bases.loc[unitname, :]))
+            self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
     module = Morph6Test
-    findstr = "test__lt"
+    findstr = "test_copy"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
