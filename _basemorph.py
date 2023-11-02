@@ -41,7 +41,7 @@ class BaseMorph(SerenesCleaner):
         """
         return self._STAT_ORDERING
 
-    def __init__(self, game_num: int, datadir_root: str):
+    def __init__(self, game_num: int, datadir_root: str = "data"):
         """
         Extends: SerenesCleaner.__init__(self, game_num)
 

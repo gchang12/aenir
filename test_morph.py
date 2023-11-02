@@ -123,7 +123,7 @@ class Morph6Test(unittest.TestCase):
         - current_stats = base_stats + (growths/100) * 19
         """
         current_stat_copy = self.roy.current_stats.copy()
-        growths = BaseMorph(6, "data").url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
+        growths = BaseMorph(6).url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
         target_lv = 20
         self.roy.level_up(target_lv)
         self.assertTrue(all((current_stat_copy + (growths / 100) * 19) == self.roy.current_stats))
@@ -319,7 +319,7 @@ class Morph6Test(unittest.TestCase):
         """
         base = Morph4("Sigurd")
         def not_a_kid(name):
-            return name not in BaseMorph(4, "data").url_to_tables["characters/base-stats"][1]["Name"]
+            return name not in BaseMorph(4).url_to_tables["characters/base-stats"][1]["Name"]
         for unit_name in filter(not_a_kid, base.get_character_list()):
             fe4_unit = Morph4(unit_name)
             try:
@@ -588,7 +588,7 @@ class Morph4Test(unittest.TestCase):
         Tests the child-implementation of level_up method.
         """
         # test modified level-up method
-        growths = BaseMorph(4, "data").url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
+        growths = BaseMorph(4).url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
         expected = (1.0 * self.bases) + growths * (20 - self.lakche.current_lv) / 100
         self.lakche.level_up(20)
         self.assertTrue(all(abs(self.lakche.current_stats - expected) < 0.01))
@@ -645,7 +645,7 @@ class Morph4Test(unittest.TestCase):
         """
         Tests that all units can be leveled-up, stat-capped, and promoted.
         """
-        unit_factory = BaseMorph(4, "data")
+        unit_factory = BaseMorph(4)
         src_tablename = "characters/base-stats"
         father_list = set(unit_factory.url_to_tables[src_tablename][1].pop("Father"))
         kid_list = set(unit_factory.url_to_tables[src_tablename][1].pop("Name"))
@@ -817,7 +817,7 @@ class Morph7Test(unittest.TestCase):
         self.wallace1 = Morph7("Wallace", lyn_mode=False)
         self.assertFalse(any(self.wallace0.current_stats.isnull()))
         self.assertFalse(any(self.wallace1.current_stats.isnull()))
-        self.growths = BaseMorph(7, "data").url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
+        self.growths = BaseMorph(7).url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
     def test__repr__(self):
         """
