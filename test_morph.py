@@ -1111,7 +1111,7 @@ class Morph9Test(unittest.TestCase):
 
 if __name__ == '__main__':
     module = Morph5Test
-    findstr = "scroll"
+    findstr = "test_"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
