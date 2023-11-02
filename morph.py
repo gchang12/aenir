@@ -64,7 +64,7 @@ class Morph(BaseMorph):
         self.current_stats = temp_bases + 0.0
         self.current_stats.index = self.STAT_ORDERING[self.game_num]
         try:
-            self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
+            self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
         # test if unit has HM bonus
@@ -347,11 +347,7 @@ class Morph(BaseMorph):
             index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
         )
         # create rows for comparison_labels
-        meta_labels = []
-        for row_label in self.comparison_labels:
-            if row_label in meta_labels:
-                continue
-            meta_labels.append(row_label)
+        meta_labels = list(self.comparison_labels)
         for row_label in other.comparison_labels:
             if row_label in meta_labels:
                 continue
@@ -519,6 +515,8 @@ class Morph5(Morph):
                 error_msg = f"The target level of {target_lv} is less than or equal to the current level of {self.current_lv}."
             raise ValueError(error_msg + " Aborting.")
         if self.equipped_scrolls:
+            maximum_inventory_size = 7
+            assert len(self.equipped_scrolls) <= 7
             temp_scrollbonus = pd.Series(index=self.current_stats.index, data=[0.0 for label in self.current_stats.index])
             # fetch table name, and table file
             save_path = self.home_dir.joinpath(self.tables_file)
@@ -533,9 +531,7 @@ class Morph5(Morph):
                 try:
                     temp_scrollbonus += scroll_table.loc[scroll_name, :]
                 except KeyError as keyerr:
-                    print(f"'{scroll_name}' is not a valid Crusader name. Choose from the list:")
-                    for crusader_name in scroll_table.index:
-                        print("'" + crusader_name + "'")
+                    print(f"'{scroll_name}' is not a valid Crusader name. Choose from the list: {list(scroll_table.index)}")
                     raise keyerr
             # cap bonus at zero if growths < 0
             #temp_scrollbonus.mask(temp_scrollbonus < 0, other=0, inplace=True)

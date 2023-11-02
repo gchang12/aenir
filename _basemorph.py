@@ -155,8 +155,6 @@ class BaseMorph(SerenesCleaner):
         for chrname, growth_equivalent in clsrecon_dict.items():
             if growth_equivalent is None:
                 continue
-            if chrname in chrlist:
-                continue
             chrlist.append(chrname)
         # return keys mapped to non-None
         logging.info("%d names found: %s", len(chrlist), chrlist)

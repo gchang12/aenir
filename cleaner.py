@@ -97,7 +97,7 @@ class SerenesCleaner(SerenesTranscriber):
                 fieldname_set.update(set(table.columns))
         fieldname_dict = {fieldname: None for fieldname in fieldname_set}
         logging.info("Saving fieldrecon_file to '%s'.", str(fieldrecon_json))
-        with open(str(fieldrecon_json), mode='w', encoding='utf-8') as wfile:
+        with io.open(str(fieldrecon_json), mode='w', encoding='utf-8') as wfile:
             json.dump(fieldname_dict, wfile, indent=4)
             logging.info("'%s' saved successfully.", str(fieldrecon_json))
 
