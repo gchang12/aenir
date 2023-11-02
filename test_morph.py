@@ -801,6 +801,12 @@ class Morph5Test(unittest.TestCase):
         # assert that this fails as expected
         with self.assertRaises(KeyError):
             self.lara.level_up(self.lara.current_lv + 1)
+        for index in range(7):
+            self.lara.equipped_scrolls.append(None)
+        max_inventory_size = 7
+        self.assertGreater(len(self.lara.equipped_scrolls), max_inventory_size)
+        with self.assertRaises(AssertionError):
+            self.lara.level_up(self.lara.current_lv + 1)
 
 class Morph7Test(unittest.TestCase):
     """
@@ -1062,8 +1068,8 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
-    module = Morph6Test
-    findstr = "test_copy"
+    module = Morph5Test
+    findstr = "scroll"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,

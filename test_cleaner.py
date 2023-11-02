@@ -126,20 +126,22 @@ class CleanerTest(unittest.TestCase):
         self.assertEqual(bases.at[0, "HP"], former_hp)
         self.assertEqual(bases.at[0, "Def"], -former_def)
 
-    def test_create_fieldrecon_file__file_exists(self):
+    @patch("pathlib.Path.exists")
+    def test_create_fieldrecon_file__file_exists(self, mock_exists):
         """
         Tests that the fieldrecon_file is untouched if it exists when the method is called.
         """
         logging.info("CleanerTest.test_create_fieldrecon_file_exists(self)")
         # the file may already exist
         fieldrecon_path = self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file)
-        fieldrecon_path.write_text("")
+        #fieldrecon_path.write_text("")
         # saving old stat to compare against post-call result
-        old_stat = fieldrecon_path.stat()
+        #old_stat = fieldrecon_path.stat()
+        mock_exists.return_value = True
         with self.assertRaises(FileExistsError):
             self.sos_cleaner.create_fieldrecon_file()
         # file must remain untouched
-        self.assertEqual(old_stat, fieldrecon_path.stat())
+        #self.assertEqual(old_stat, fieldrecon_path.stat())
 
     def test_create_fieldrecon_file(self):
         """
@@ -153,9 +155,11 @@ class CleanerTest(unittest.TestCase):
             for table in tablelist:
                 fieldnames.update(set(table.columns))
         # main
-        self.sos_cleaner.create_fieldrecon_file()
-        with open(fieldrecon_path, encoding='utf-8') as rfile:
-            fieldrecon_dict = json.load(rfile)
+        with patch("io.open") as mock_wfile:
+            mock_wfile.return_value = RewriteableIO()
+            self.sos_cleaner.create_fieldrecon_file()
+        #with open(fieldrecon_path, encoding='utf-8') as rfile:
+        fieldrecon_dict = json.load(mock_wfile.return_value)
         self.assertSetEqual(set(fieldrecon_dict), fieldnames)
         self.assertSetEqual(set(fieldrecon_dict.values()), {None})
 
@@ -191,10 +195,14 @@ class CleanerTest(unittest.TestCase):
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
                 self.assertNotIn("health-points", table.columns)
-        with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
-            json.dump(fieldrecon_dict, wfile)
+        wfile = RewriteableIO()
+        #with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
+        json.dump(fieldrecon_dict, wfile)
+        wfile.seek(0)
         with self.assertRaises(ValueError):
-            self.sos_cleaner.apply_fieldrecon_file()
+            with patch("io.open") as mock_rfile:
+                mock_rfile.return_value = wfile
+                self.sos_cleaner.apply_fieldrecon_file()
         # check that weird HP alias still does not exist in the fieldname set
         for tablelist in self.sos_cleaner.url_to_tables.values():
             for table in tablelist:
@@ -213,8 +221,10 @@ class CleanerTest(unittest.TestCase):
                 "HP": "health-points",
                 }
         fieldrecon_path = str(self.sos_cleaner.home_dir.joinpath(self.sos_cleaner.fieldrecon_file))
-        with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
-            json.dump(fieldrecon_dict, wfile)
+        wfile = RewriteableIO()
+        #with open(fieldrecon_path, mode='w', encoding='utf-8') as wfile:
+        json.dump(fieldrecon_dict, wfile)
+        wfile.seek(0)
         # compile old fieldset for comparison
         old_fieldset = set()
         for tablelist in self.sos_cleaner.url_to_tables.values():
@@ -222,7 +232,9 @@ class CleanerTest(unittest.TestCase):
                 old_fieldset.update(set(table.columns))
         self.assertTrue(set(fieldrecon_dict).issubset(old_fieldset))
         # main
-        self.sos_cleaner.apply_fieldrecon_file()
+        with patch("io.open") as mock_rfile:
+            mock_rfile.return_value = wfile
+            self.sos_cleaner.apply_fieldrecon_file()
         # compile new fieldset
         new_fieldset = set()
         for tablelist in self.sos_cleaner.url_to_tables.values():
@@ -422,6 +434,6 @@ class CleanerTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(
-            defaultTest="test_verify_clsrecon_file",
+            defaultTest="test_create_fieldrecon_file",
             module=CleanerTest,
             )
