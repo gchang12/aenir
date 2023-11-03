@@ -2,22 +2,42 @@
 <html lang="en">
 <head>
     <meta>
-    <link rel="stylesheet" type="text/css" href="">
-    <title></title>
+    <link rel="stylesheet" type="text/css" href="{% static 'aenir3_web/style.css' %}">
+    <title>aenir - A Fire Emblem stat comparison tool</title>
 </head>
 <body>
-    <h1>aenir -- A Fire Emblem stat comparison tool</h1>
-    <nav><!-- Left-hand sidebar -->
-        <a>Create</a>
-        <a>Edit</a>
-        <a>Compare</a>
-        <!-- Might want to add in Contacts, About, How-To, etc. sections later onk-->
-    </nav>
-    <div><!-- Main content here--></div>
-    <div><!-- Right-hand sidebar here --></div>
 
-    <!-- Javascript may be a bit superfluous
-    <script src=""></script>
-        -->
+    <div><!-- Clickable header -->
+        <h1><!--Intro to what this is-->
+            <a href="{% url 'aenir3_web:index' %}">aenir</a>
+        </h1>
+    </div>
+
+    <div><!-- Left-hand sidebar -->
+        <nav>
+            <h2>
+                <!--A complete usage guide/demo-->
+                <a href="{% url 'stat_compare:index' %}">Stat Comparison</a>
+            </h2>
+            <a href="{% url 'stat_compare:create' %}">Create</a>
+            <a href="{% url 'stat_compare:edit' %}">Edit</a>
+            <a href="{% url 'stat_compare:compare' %}">Compare</a>
+        </nav>
+    <div>
+
+        <div><!-- Canvas where main content goes -->
+        {% block content required %}
+            <!-- Main content here; the stat arrays, the tables, the widgets and junk-->
+        {% endblock %}
+    </div>
+
+    <div><!-- Right sidebar -->
+        <nav>
+            <a href="{% url 'about:index' %}">About</a>
+            <a href="{% url 'credits:index' %}">Credits</a>
+            <a href="{% url 'contact:index' %}">Contact</a>
+        </nav>
+    </div>
+
 </body>
 </html>

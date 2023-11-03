@@ -18,9 +18,12 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 
+# import works. nothing to worry about regarding this.
+#from aenir.morph import Morph
+
 app_name = "aenir3_web"
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index),
+    path("admin/", admin.site.urls),
+    path("", views.index),
 ]
