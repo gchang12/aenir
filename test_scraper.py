@@ -33,8 +33,8 @@ class ScraperTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.sos_scraper.URL_ROOT = None
 
-    @patch("requests.Response.raise_for_status")
-    def test_scrape_tables__failures(self, mock_something):
+    @patch("requests.get")
+    def test_scrape_tables__failures(self, mock_response):
         """
         Initiates tests for all possible failures, and to assert that url_to_tables is unaffected.
 
@@ -49,7 +49,8 @@ class ScraperTest(unittest.TestCase):
         # affected parameters remain unchanged
         self.assertDictEqual({}, self.sos_scraper.url_to_tables)
         # main: fails because url is not found
-        mock_something.side_effect = requests.exceptions.HTTPError
+        mock_response.return_value = requests.Response()
+        mock_response.return_value.status_code = 404
         with self.assertRaises(requests.exceptions.HTTPError):
             # problem: sometimes raises timeout error, especially when running it for the first time.
             # - fixed via patch
