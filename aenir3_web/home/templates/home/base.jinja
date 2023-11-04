@@ -16,13 +16,10 @@
 
     <div><!-- Left-hand sidebar -->
         <nav>
-            <h2>
-                <!--A complete usage guide/demo-->
-                <a href="{% url 'stat_compare:index' %}">Stat Comparison</a>
-            </h2>
-            <a href="{% url 'stat_compare:create' %}">Create</a>
-            <a href="{% url 'stat_compare:edit' %}">Edit</a>
-            <a href="{% url 'stat_compare:compare' %}">Compare</a>
+            <a href="{% url 'stat_compare:index' %}">Stat Comparison</a>
+            <a href="{% url 'home:about' %}">About</a>
+            <a href="{% url 'home:credits' %}">Credits</a>
+            <a href="{% url 'home:contact' %}">Contact</a>
         </nav>
     <div>
 
@@ -30,14 +27,6 @@
         {% block content %}
             <!-- Main content here; the stat arrays, the tables, the widgets and junk-->
         {% endblock %}
-    </div>
-
-    <div><!-- Right sidebar -->
-        <nav>
-            <a href="{% url 'home:about' %}">About</a>
-            <a href="{% url 'home:credits' %}">Credits</a>
-            <a href="{% url 'home:contact' %}">Contact</a>
-        </nav>
     </div>
 
 </body>
