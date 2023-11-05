@@ -10,10 +10,10 @@ def index(request):
     return render(request, "home/index.html", {})
 
 def about(request):
-    return HttpResponse("about")
+    return render(request, "home/about.html", {})
 
 def credits(request):
-    return HttpResponse("credits")
+    return render(request, "home/credits.html", {})
 
 def contact(request):
-    return HttpResponse("contact")
+    return render(request, "home/contact.html", {})
