@@ -2,75 +2,75 @@
 
 {% block stat_compare %}
 <!--
-    <p>Select game; reload</p>
+  <p>Select game; reload</p>
 -->
 
 <form method="post">
-    <legend>
-        <h1>
-            Game Select
-        </h1>
-    </legend>
-    <!--conditionally set disabled attribute-->
-    <select name="game_name" id="game_name"
-        required disabled
-        >
-        {% for game_name in game_name__list %}
-            <option value="{actual name}">
-                display_name (with proper capitalization)
-            </option>
-        {% endfor %}
-    </select>
+  <legend>
+    <h1>
+      Game Select
+    </h1>
+  </legend>
+  <!--conditionally set disabled attribute-->
+  <select name="game_name" id="game_name"
+    required disabled
+    >
+    {% for game_name in game_name__list %}
+      <option value="{actual name}">
+      display_name (with proper capitalization)
+      </option>
+    {% endfor %}
+  </select>
 </form>
 
 <!--
-    Select unit here.
+  Select unit here.
 -->
 <form method="post">
-    <legend>
-        <h1>
-            Unit Select
-        </h1>
-    </legend>
-    <!--conditionally set disabled attribute-->
-    <select name="unit_name" id="unit_name"
-        required disabled
-        >
-        {% for unit_name in unit_name__list %}
-            <option value="{actual name}">
-                display_name (with proper capitalization and possibly with up-to-date names)
-            </option>
-        {% endfor %}
-    </select>
+  <legend>
+    <h1>
+      Unit Select
+    </h1>
+  </legend>
+  <!--conditionally set disabled attribute-->
+  <select name="unit_name" id="unit_name"
+    required disabled
+    >
+    {% for unit_name in unit_name__list %}
+      <option value="{actual name}">
+      display_name (with proper capitalization and possibly with up-to-date names)
+      </option>
+    {% endfor %}
+  </select>
 </form>
 
 <!--
-    Create Morph; load extra options (e.g. Lyn Mode, FE4 fathers) as necessary
+  Create Morph; load extra options (e.g. Lyn Mode, FE4 fathers) as necessary
 -->
 <table>
-    <thead>
-        {% for header in header_list %}
-            <th>header</th>
-        {% endfor %}
-    </thead>
-    <tbody>
-        {% for row in row_list %}
-            <th>stat label if first</th>
-            <td>stat value otherwise</td>
-        {% endfor %}
-    </tbody>
+  <thead>
+    {% for header in header_list %}
+      <th>header</th>
+    {% endfor %}
+  </thead>
+  <tbody>
+    {% for row in row_list %}
+      <th>stat label if first</th>
+      <td>stat value otherwise</td>
+    {% endfor %}
+  </tbody>
 </table>
 
 <!--
-    Confirm selection and junk, or cancel
+  Confirm selection and junk, or cancel
 -->
 <form>
-    <button>
-    Confirm and create
-    </button>
+  <button>
+  Confirm and create
+  </button>
 </form>
 
-    <!-- In a later edition, perhaps
-    <p>Let user modify stats.</p>
-    -->
+  <!-- In a later edition, perhaps
+  <p>Let user modify stats.</p>
+  -->
 {% endblock %}
