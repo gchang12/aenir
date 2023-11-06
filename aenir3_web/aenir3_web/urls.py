@@ -25,5 +25,5 @@ app_name = "aenir3_web"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("home.urls")),
-    path("", include("stat_compare.urls")),
+    path("stat_compare/", include("stat_compare.urls")),
 ]
