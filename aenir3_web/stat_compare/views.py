@@ -12,11 +12,8 @@ def index(request):
 def create(request):
     return render(request, "stat_compare/create.html", context={})
 
-def edit_index(request):
-    return render(request, "stat_compare/edit_index.html", context={})
-
-def edit_morph(request):
-    return render(request, "stat_compare/edit_morph.html", context={})
+def edit(request):
+    return render(request, "stat_compare/edit.html", context={})
 
 def compare(request):
     return render(request, "stat_compare/compare.html", context={})
