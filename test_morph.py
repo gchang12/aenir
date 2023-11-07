@@ -36,7 +36,7 @@ class Morph6Test(unittest.TestCase):
         """
         Tests that the copy.deepcopy method was invoked in instance method.
         """
-        logging.warning("Testing Morph.copy instance method.")
+        logging.info("Morph6Test.test_copy()")
         logging.warning("Asserting that Morph.copy method returns copy.deepcopy(self).")
         roy_copy = self.roy.copy()
         self.assertIs(roy_copy, mock_copy.return_value)
@@ -52,6 +52,7 @@ class Morph6Test(unittest.TestCase):
         """
         Tests that the copy method returns a Morph that can be compared to the original.
         """
+        logging.info("Morph6Test.test_copy2()")
         roy_copy = self.roy.copy()
         comparison = roy_copy < self.roy
         self.assertIsInstance(comparison, pd.DataFrame)
@@ -65,6 +66,7 @@ class Morph6Test(unittest.TestCase):
         """
         Tests that equality as defined fails and succeeds as expected.
         """
+        logging.info("Morph6Test.test__eq__()")
         marcus = Morph(6, "Marcus")
         # unit_name attributes differ
         self.assertFalse(marcus == self.roy)
@@ -110,6 +112,7 @@ class Morph6Test(unittest.TestCase):
         """
         Tests that negative stat bonusses do not put a character's stat below zero.
         """
+        logging.info("Morph6Test.test__cap_stats__statfloor()")
         self.roy.current_stats["HP"] = -46
         self.roy.cap_stats()
         self.assertEqual(self.roy.current_stats["HP"], 0)
@@ -122,6 +125,7 @@ class Morph6Test(unittest.TestCase):
         - current_lv = 20
         - current_stats = base_stats + (growths/100) * 19
         """
+        logging.info("Morph6Test.test_level_up()")
         current_stat_copy = self.roy.current_stats.copy()
         growths = BaseMorph(6).url_to_tables['characters/growth-rates'][0].set_index("Name").loc["Roy", :]
         target_lv = 20
@@ -137,6 +141,7 @@ class Morph6Test(unittest.TestCase):
         Assert:
         - all stats are equal to max, except for HP, which is 5.
         """
+        logging.info("Morph6Test.test_cap_stats()")
         for statname in self.roy.current_stats.index:
             self.roy.current_stats.at[statname] = 99
         self.roy.current_stats.at["HP"] = 5
@@ -158,6 +163,7 @@ class Morph6Test(unittest.TestCase):
         - current_cls = Master Lord
         - current_clstype = 'classes/promotion-gains'
         """
+        logging.info("Morph6Test.test_promote()")
         promo = self.roy.url_to_tables['classes/promotion-gains'][0].set_index("Class").loc["Lord", :]
         promo.pop("Promotion")
         promo = promo.reindex(self.roy.current_stats.index, fill_value=0.0)
@@ -177,6 +183,7 @@ class Morph6Test(unittest.TestCase):
         - Lv20 Lord
         - Lv20 Master Lord
         """
+        logging.info("Morph6Test.test_roy()")
         # https://serenesforest.net/binding-blade/characters/average-stats/normal-mode/roy/
         # 1: max stats, and compare with source
         self.roy.level_up(target_lv=20)
@@ -214,6 +221,7 @@ class Morph6Test(unittest.TestCase):
 
         Assert: final > bases
         """
+        logging.info("Morph6Test.test_all_units()")
         ltable = "characters__base_stats"
         rtable = "classes__promotion_gains"
         with open(
@@ -246,6 +254,7 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that the ValueError is raised in specific situations.
         """
+        logging.info("Morph6Test.test_level_up__failures()")
         # 1: target_lv > maxlv
         with self.assertRaises(ValueError):
             self.roy.level_up(99)
@@ -257,6 +266,7 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that the ValueError is raised in specific situations.
         """
+        logging.info("Morph6Test.test_promote__failures()")
         # 1: promo-lv not high enough
         with self.assertRaises(ValueError):
             self.roy.current_lv = 0
@@ -282,6 +292,7 @@ class Morph6Test(unittest.TestCase):
 
         Case: Luck maxes out at 30
         """
+        logging.info("Morph6Test.test_is_maxed()")
         mock_maxed = pd.Series(index=self.roy.current_stats.index, data=[False for stat in self.roy.current_stats])
         mock_maxed['Lck'] = True
         self.roy.current_stats['Lck'] = 30
@@ -293,6 +304,7 @@ class Morph6Test(unittest.TestCase):
 
         Case: Luck maxes out at 30
         """
+        logging.info("Morph6Test.test_is_maxed1()")
         mock_maxed = pd.Series(index=self.roy.current_stats.index, data=[False for stat in self.roy.current_stats])
         mock_maxed['Lck'] = True
         self.roy.current_stats['Lck'] = 30
@@ -305,6 +317,7 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that the pd.DataFrame returned summarizes the differences between Morph objects.
         """
+        logging.info("Morph6Test.test__lt__()")
         # max out Roy first
         marcus = Morph(6, "Marcus")
         comparison_df = self.roy < marcus
@@ -331,6 +344,7 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that all units can be leveled-up, stat-capped, and promoted.
         """
+        logging.info("Morph6Test.test_fe4_units()")
         base = Morph4("Sigurd")
         def not_a_kid(name):
             return name not in BaseMorph(4).url_to_tables["characters/base-stats"][1]["Name"]
@@ -359,6 +373,7 @@ class Morph6Test(unittest.TestCase):
         """
         Verifies that all units can be leveled-up, stat-capped, and promoted.
         """
+        logging.info("Morph6Test.test_fe9_units()")
         game_num = 9
         base = Morph(game_num, "Ike")
         for unit_name in base.get_character_list():
@@ -390,6 +405,7 @@ class Morph6Test(unittest.TestCase):
 
         Exceptions: Ross, Amelia, Ewan
         """
+        logging.info("Morph6Test.test_fe8_units()")
         game_num = 8
         base = Morph(game_num, "Ephraim")
         branched_promo = {}
@@ -443,6 +459,7 @@ class Morph6Test(unittest.TestCase):
 
         Covers all possible promotion paths he may take.
         """
+        logging.info("Morph6Test.test_villager_ross()")
         game_num = 8
         promo_paths = [
             ["Fighter", "Warrior"],
@@ -474,6 +491,7 @@ class Morph6Test(unittest.TestCase):
 
         Covers all possible promotion paths he may take.
         """
+        logging.info("Morph6Test.test_villager_ewan()")
         game_num = 8
         promo_paths = [
             ["Mage (M)", "Sage (M)"],
@@ -505,6 +523,7 @@ class Morph6Test(unittest.TestCase):
 
         Covers all possible promotion paths she may take.
         """
+        logging.info("Morph6Test.test_villager_amelia()")
         game_num = 8
         promo_paths = [
             ["Cavalier (F)", "Paladin (F)"],
@@ -555,6 +574,7 @@ class Morph4Test(unittest.TestCase):
         """
         Tests that post-promotion, a unit's current level is retained.
         """
+        logging.warning("Morph4Test.test_promote()")
         target_lv = 20
         self.lakche.level_up(target_lv)
         self.assertEqual(self.lakche.current_lv, target_lv)
@@ -571,6 +591,7 @@ class Morph4Test(unittest.TestCase):
         Alec: Unpromoted.
         Sigurd: Promoted.
         """
+        logging.warning("Morph4Test.test__lt__()")
         # vs. Arden!Rana
         rana = Morph4("Rana", "Arden")
         rana_v_lakche = rana < self.lakche
@@ -601,6 +622,7 @@ class Morph4Test(unittest.TestCase):
         """
         Tests when an FE4 unit tries to level-up beyond max-level.
         """
+        logging.warning("Morph4Test.test_level_up1()")
         # test modified level-up method
         with self.assertRaises(ValueError):
             self.lakche.level_up(99)
@@ -609,6 +631,7 @@ class Morph4Test(unittest.TestCase):
         """
         Tests the child-implementation of level_up method.
         """
+        logging.warning("Morph4Test.test_level_up()")
         # test modified level-up method
         growths = BaseMorph(4).url_to_tables["characters/growth-rates"][1].set_index(["Name", "Father"]).loc[self.identifier, :]
         expected = (1.0 * self.bases) + growths * (20 - self.lakche.current_lv) / 100
@@ -621,6 +644,7 @@ class Morph4Test(unittest.TestCase):
 
         Note: Not really necessary, since it's not affected.
         """
+        logging.warning("Morph4Test.test_promote()")
         # test FE4 promotion
         current_lv = 20
         self.lakche.current_lv = current_lv
@@ -639,6 +663,7 @@ class Morph4Test(unittest.TestCase):
         - Level
         - Stats
         """
+        logging.warning("Morph4Test.test__repr__()")
         repr_series = self.lakche.get_repr_series(["comparison_labels"])
         with self.assertRaises(KeyError):
             repr_series.pop("PrevClassLv1")
@@ -719,6 +744,7 @@ class Morph5Test(unittest.TestCase):
         2. target_lv < current_lv
         3. scroll file DNE
         """
+        logging.warning("Morph5Test.test_level_up__failures()")
         mock_exists.return_value = False
         with self.assertRaises(ValueError):
             self.lara.level_up(99)
@@ -735,6 +761,7 @@ class Morph5Test(unittest.TestCase):
         Tests longest promotion path:
         - Thief -> Thief Fighter -> Dancer -> Thief Fighter
         """
+        logging.warning("Morph5Test.test_promote1()")
         # Thief -> Thief Fighter -> Dancer -> Thief Fighter
         self.lara.current_lv = 10
         with self.assertRaises(KeyError):
@@ -773,6 +800,7 @@ class Morph5Test(unittest.TestCase):
         Tests shortest promotion path:
         - Thief -> Dancer -> Thief Fighter
         """
+        logging.warning("Morph5Test.test_promote2()")
         # Thief -> Dancer -> Thief Fighter
         self.lara.promo_cls = "Dancer"
         self.assertEqual(self.lara.current_lv, 2)
@@ -832,6 +860,7 @@ class Morph5Test(unittest.TestCase):
         """
         Verifies that scroll-boosted level-ups are simulated as expected.
         """
+        logging.warning("Morph5Test.test_scroll_lvup()")
         self.lara.equipped_scrolls.append("Odo")
         base_skl = self.lara.current_stats["Skl"]
         skl_growth = 0.5
@@ -876,6 +905,7 @@ class Morph7Test(unittest.TestCase):
         - Level
         - Stats
         """
+        logging.warning("Morph7Test.test__repr__()")
         guy = Morph7("Guy")
         repr_series = guy.get_repr_series(['comparison_labels'])
         with self.assertRaises(KeyError):
@@ -905,6 +935,7 @@ class Morph7Test(unittest.TestCase):
         """
         Test that the output contains a 'Campaign' row, and that that row lists the values appropriately.
         """
+        logging.warning("Morph7Test.test__lt__()")
         lyn = Morph7("Lyn", lyn_mode=True)
         guy = Morph7("Guy (HM)")
         florina = Morph7("Florina")
@@ -929,6 +960,7 @@ class Morph7Test(unittest.TestCase):
         """
         Tests that Tutorial!Wallace can be leveled-up, stat-capped, and promoted.
         """
+        logging.warning("Morph7Test.test_tutorial_wallace()")
         # max out level -> promote -> cap stats
         bases = self.wallace0.current_stats.copy()
         # test level-up
@@ -959,6 +991,7 @@ class Morph7Test(unittest.TestCase):
         """
         Tests that Main!Wallace can be leveled-up, stat-capped, and promoted.
         """
+        logging.warning("Morph7Test.test_main_wallace()")
         # fail: promote
         self.assertEqual("classes/promotion-gains", self.wallace1.current_clstype)
         with self.assertRaises(ValueError):
@@ -974,6 +1007,7 @@ class Morph7Test(unittest.TestCase):
         """
         Tests that all units can be leveled-up, stat-capped, and promoted.
         """
+        logging.warning("Morph7Test.test_all_units()")
         for unit_name in self.wallace0.get_character_list():
             if unit_name == "Nils":
                 continue
@@ -1024,6 +1058,7 @@ class Morph8Test(unittest.TestCase):
         - A unit with two class changes
         - A unit with no class changes
         """
+        logging.warning("Morph8Test.test__lt__0()")
         seth = Morph8("Seth") 
         seth.level_up(20)
         amelia_v_seth = self.amelia < seth
@@ -1036,6 +1071,7 @@ class Morph8Test(unittest.TestCase):
         - A unit with two class changes
         - A unit with one class change
         """
+        logging.warning("Morph8Test.test__lt__1()")
         ephraim = Morph8("Ephraim")
         ephraim.level_up(20)
         ephraim.promote()
@@ -1050,6 +1086,7 @@ class Morph8Test(unittest.TestCase):
         - A unit with two class changes
         - A unit with two class changes
         """
+        logging.warning("Morph8Test.test__lt__2()")
         ross = Morph8("Ross") 
         ross.level_up(10)
         ross.promo_cls = "Pirate"
@@ -1081,6 +1118,7 @@ class Morph9Test(unittest.TestCase):
 
         Assert: final > bases
         """
+        logging.warning("Morph9Test.test_all_units()")
         ltable = "characters__base_stats"
         rtable = "classes__promotion_gains"
         with open(

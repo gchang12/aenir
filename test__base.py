@@ -18,7 +18,7 @@ class BaseTest(unittest.TestCase):
         """
         Tests that a KeyError is raised if the game number is not registered.
         """
-        logging.info("BaseTest.test__init__KeyError(self)")
+        logging.info("BaseTest.test__init__KeyError()")
         # key is invalid by virtue of not being registered
         self.assertNotIn(None , SerenesBase._NUM_TO_NAME)
         # main: init fails because argument is not a valid key
@@ -32,7 +32,7 @@ class BaseTest(unittest.TestCase):
         Tests that the game_num parameter is valid.
         Tests that AttributeError is raised for the parameters designated as properties.
         """
-        logging.info("BaseTest.test__init__(self)")
+        logging.info("BaseTest.test__init__()")
         # key is valid because it has been registered
         self.assertIn(6 , SerenesBase._NUM_TO_NAME)
         # main

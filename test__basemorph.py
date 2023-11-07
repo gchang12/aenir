@@ -31,7 +31,7 @@ class BaseMorphTest(unittest.TestCase):
         """
         Displays names in clsrecon_dict that are not in their associated tables.
         """
-        logging.info("BaseMorphTest.test_verify_clsrecon_file(self)")
+        logging.info("BaseMorphTest.test_verify_clsrecon_file()")
         for clsrecon in self.sos_unit.clsrecon_list:
             self.sos_unit.verify_clsrecon_file(*clsrecon)
 
@@ -39,14 +39,14 @@ class BaseMorphTest(unittest.TestCase):
         """
         Displays columns in 'characters/base-stats' that are missing from 'classes/maximum-stats'.
         """
-        logging.info("BaseMorphTest.test_verify_maximum_stats(self)")
+        logging.info("BaseMorphTest.test_verify_maximum_stats()")
         self.sos_unit.verify_maximum_stats()
 
     def test_set_targetstats(self):
         """
         Tests the set_targetstats method.
         """
-        logging.info("BaseMorphTest.test_set_targetstats(self)")
+        logging.info("BaseMorphTest.test_set_targetstats()")
         # bases-to-growths
         ltable_url, lindex_val = "characters/base-stats", "Fir (HM)"
         rtable_url, to_col = "characters/growth-rates", "Name"
@@ -111,7 +111,7 @@ class BaseMorphTest(unittest.TestCase):
         - FileNotFoundError: not home_dir.joinpath("characters__base_stats-JOIN-characters__growth_rates.json").exists()
         - json.decoder.JSONDecodeError: File is not in JSON form.
         """
-        logging.info("BaseMorphTest.test_get_character_list(self)")
+        logging.info("BaseMorphTest.test_get_character_list()")
         # file does not exist
         with patch("pathlib.Path.joinpath") as mock_joinpath:
             mock_joinpath.return_value = ""

@@ -62,6 +62,8 @@ class Morph(BaseMorph):
         self.current_lv = temp_bases.pop("Lv")
         # implicitly convert to float
         self.current_stats = temp_bases + 0.0
+        assert set(self.STAT_ORDERING[self.game_num]) == set(self.current_stats.index)
+        assert len(self.STAT_ORDERING[self.game_num]) == len(self.current_stats.index)
         self.current_stats.index = self.STAT_ORDERING[self.game_num]
         try:
             self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
