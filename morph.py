@@ -398,6 +398,10 @@ class Morph4(Morph):
         BaseMorph.__init__(self, game_num, datadir_root)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
+        try:
+            assert unit_name in self.get_character_list()
+        except AssertionError:
+            raise KeyError(f"'{unit_name}' is not in the list of FE4 units: {self.get_character_list()}.")
         kid_tableindex = 1
         self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex]["Name"].to_list()
         if self.is_kid:
@@ -410,7 +414,7 @@ class Morph4(Morph):
             try:
                 temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
             except KeyError as unit_dne_err:
-                father_list = self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique().to_list()
+                father_list = list(self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique())
                 print(f"'{father_name}' is not in the list of FE4 fathers: {self.get_character_list()}.")
                 raise unit_dne_err
             self.current_cls = temp_bases.pop("Class")
