@@ -4,12 +4,10 @@
 <a href="{% url 'stat_compare:edit' %}">Edit</a>
 <a href="{% url 'stat_compare:compare' %}">Compare</a>
 
-{% block stat_compare %}{% endblock %}
-<!-- This is actually game-dependent.
-  <table>
-  <thead>
-  </thead>
-  </table>
--->
+{% block view_name %}{% endblock %}
+{% block widget %}{% endblock %}
+{% block about_unit %}{% endblock %}
+{% block unit_history %}{% endblock %}
+{% block stat_table %}{% endblock %}
 
 {% endblock %}

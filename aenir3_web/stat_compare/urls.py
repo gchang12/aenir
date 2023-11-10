@@ -5,8 +5,8 @@ from . import views
 app_name = "stat_compare"
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("create/", views.create, name="create"),
-    path("edit/", views.edit, name="edit"),
-    path("compare/", views.compare, name="compare"),
+    path("", views.StatCompare.index, name="index"),
+    path("create/", views.StatCompare.create, name="create"),
+    path("edit/", views.StatCompare.edit, name="edit"),
+    path("compare/", views.StatCompare.compare, name="compare"),
 ]
