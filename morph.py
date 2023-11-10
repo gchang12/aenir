@@ -46,7 +46,7 @@ class Morph(BaseMorph):
             (5, "Trewd"): "Swordmaster",
             }
 
-    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, gtableindex: int = 0):
+    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, growths_tableindex: int = 0):
         """
         Loads tables, and initializes bases among other things.
 
@@ -74,7 +74,7 @@ class Morph(BaseMorph):
         self.set_targetstats(
                 ("characters/base-stats", self.unit_name),
                 ("characters/growth-rates", "Name"),
-                gtableindex,
+                growths_tableindex,
                 )
         self.growth_rates = self.target_stats
         self.target_stats = None
