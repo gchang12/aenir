@@ -1,4 +1,7 @@
 Create a dictionary of old names to new names for FE{4..6}
+django.forms -- more than one submit button?
+Write views.
+Figure out how to store Morph objects.
 Deploy to internet via django
 - set up the index page and main design and layout
 - home: explain what this is

@@ -52,7 +52,7 @@ class Morph(BaseMorph):
 
         Defines: promo_cls, unit_name, current_stats
         """
-        BaseMorph.__init__(self, game_num, datadir_root)
+        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # initialize bases
         self._unit_name = unit_name
         temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
@@ -389,7 +389,7 @@ class Morph4(Morph):
         Defines: father_name
         """
         game_num = 4
-        BaseMorph.__init__(self, game_num, datadir_root)
+        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
         kid_tableindex = 1
@@ -412,7 +412,7 @@ class Morph4(Morph):
             self.comparison_labels = {"Father": father_name}
             self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
-            Morph.__init__(self, game_num, unit_name, tableindex=0)
+            Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
