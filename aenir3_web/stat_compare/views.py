@@ -10,6 +10,8 @@ def index(request):
     return render(request, "stat_compare/index.html", context={})
 
 def create(request):
+    # Implement global 'QUINTESSENCE' dict to create Morph object.
+    # Show like a different set of controls every time data is sent.
     return render(request, "stat_compare/create.html", context={})
 
 def edit(request):

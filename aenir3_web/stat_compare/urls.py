@@ -7,6 +7,6 @@ app_name = "stat_compare"
 urlpatterns = [
     path("", views.index, name="index"),
     path("create/", views.create, name="create"),
-    path("edit/", views.edit_index, name="edit"),
+    path("edit/", views.edit, name="edit"),
     path("compare/", views.compare, name="compare"),
 ]
