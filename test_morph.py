@@ -577,6 +577,13 @@ class Morph4Test(unittest.TestCase):
         #self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
 
+    def test__init__unit_dne(self):
+        """
+        Tests that an AssertionError is raised if the unit provided DNE.
+        """
+        with self.assertRaises(KeyError):
+            roy = Morph4("Roy", father_name="Eliwood")
+
     def test__init__father_dne(self):
         """
         Tests that a KeyError is raised if the unit is not found.
@@ -1163,7 +1170,7 @@ class Morph9Test(unittest.TestCase):
 
 if __name__ == '__main__':
     module = Morph4Test
-    findstr = "_dne"
+    findstr = "test_"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
