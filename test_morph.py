@@ -31,6 +31,13 @@ class Morph6Test(unittest.TestCase):
         # create a copy of everyone's stats
         # put them through the whole: level-up 'til max, try to promote: level-up 'til max
 
+    def test__init__unit_dne(self):
+        """
+        Tests that a KeyError is raised if the unit is not found.
+        """
+        with self.assertRaises(KeyError):
+            marth = Morph(6, "Marth")
+
     @patch("copy.deepcopy")
     def test_copy(self, mock_copy):
         """
@@ -569,6 +576,13 @@ class Morph4Test(unittest.TestCase):
         #self.bases.pop("Class")
         #self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
+
+    def test__init__father_dne(self):
+        """
+        Tests that a KeyError is raised if the unit is not found.
+        """
+        with self.assertRaises(KeyError):
+            eliwood = Morph4("Lakche", father_name="Sigurd")
 
     def test_promote(self):
         """
@@ -1148,8 +1162,8 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
-    module = Morph5Test
-    findstr = "test_"
+    module = Morph4Test
+    findstr = "_dne"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,

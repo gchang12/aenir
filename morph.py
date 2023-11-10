@@ -55,7 +55,11 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num, datadir_root)
         # initialize bases
         self._unit_name = unit_name
-        temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
+        try:
+            temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
+        except KeyError as unit_dne_err:
+            print(f"'{unit_name}' is not in the list of FE{game_num} units: {self.get_character_list()}.")
+            raise unit_dne_err
         logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
@@ -403,7 +407,12 @@ class Morph4(Morph):
         logging.info("Morph4('%s', '%s')", unit_name, father_name)
         if self.is_kid:
             # initialize bases
-            temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            try:
+                temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            except KeyError as unit_dne_err:
+                father_list = self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique().to_list()
+                print(f"'{father_name}' is not in the list of FE4 fathers: {self.get_character_list()}.")
+                raise unit_dne_err
             self.current_cls = temp_bases.pop("Class")
             self.current_lv = temp_bases.pop("Lv")
             self.current_stats = temp_bases + 0.0
