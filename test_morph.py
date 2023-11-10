@@ -1169,7 +1169,7 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
-    module = Morph4Test
+    module = Morph7Test
     findstr = "test_"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
