@@ -427,7 +427,7 @@ class Morph4(Morph):
             self.comparison_labels = {"Father": father_name}
             self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
-            Morph.__init__(self, game_num, unit_name, tableindex=0)
+            Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
         try:
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
