@@ -35,7 +35,7 @@ class StatCompare:
         print(os.getcwd())
         #BaseMorph(4, cls.datadir_root)
         sigurd = Morph4("Sigurd", datadir_root=cls.datadir_root)
-        return render(request, "stat_compare/index.html", context={})#{"view_name": sigurd.unit_name })
+        return render(request, "stat_compare/index.html", context={}
 
     @classmethod
     def create(cls, request):
