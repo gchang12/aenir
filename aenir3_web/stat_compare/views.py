@@ -31,11 +31,8 @@ class StatCompare:
         """
         Contains a compendium of links to the application to access.
         """
-        import os
-        print(os.getcwd())
-        #BaseMorph(4, cls.datadir_root)
-        sigurd = Morph4("Sigurd", datadir_root=cls.datadir_root)
-        return render(request, "stat_compare/index.html", context={}
+        context = {"view_name": ""}
+        return render(request, "stat_compare/index.html", context=context)
 
     @classmethod
     def create(cls, request):
@@ -43,16 +40,19 @@ class StatCompare:
         """
         # Implement global 'QUINTESSENCE' dict to create Morph object.
         # Show like a different set of controls every time data is sent.
-        return render(request, "stat_compare/create.html", context={})
+        context = {"view_name": "Create"}
+        return render(request, "stat_compare/create.html", context=context)
 
     @classmethod
     def edit(cls, request):
         """
         """
-        return render(request, "stat_compare/edit.html", context={})
+        context = {"view_name": "Edit"}
+        return render(request, "stat_compare/edit.html", context=context)
 
     @classmethod
     def compare(cls, request):
         """
         """
-        return render(request, "stat_compare/compare.html", context={})
+        context = {"view_name": "Compare"}
+        return render(request, "stat_compare/compare.html", context=context)
