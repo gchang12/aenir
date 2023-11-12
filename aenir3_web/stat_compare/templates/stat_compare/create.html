@@ -1,6 +1,13 @@
 {% extends 'stat_compare/stat_compare.jinja' %}
 
-{% block widget %}{% endblock %}
+{% block widget %}
+<form action="{% url 'stat_compare:create' %}" method="post">
+  {% csrf_token %}
+  {{ form }}
+  <input type="submit" />
+</form>
+{% endblock %}
+
 {% block about_unit %}{% endblock %}
 {% block unit_history %}{% endblock %}
 {% block stat_table %}
