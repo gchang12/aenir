@@ -10,7 +10,7 @@
 
   <div class="view-name">
     <h2>
-      {{ view_name }}
+      {% block view_name %}{% endblock %}
     </h2>
   </div>
 
@@ -23,7 +23,9 @@
       <thead>
         <th colspan="2">About</th>
       </thead>
-      {% block about_unit %}{% endblock %}
+      <tbody>
+        {% block about_unit %}{% endblock %}
+      </tbody>
     </table>
   </div>
 

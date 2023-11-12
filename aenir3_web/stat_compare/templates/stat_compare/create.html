@@ -1,5 +1,6 @@
 {% extends 'stat_compare/stat_compare.jinja' %}
 
+{% block view_name %}{{ view_name }}{% endblock %}
 {% block widget %}
 <form action="{% url 'stat_compare:create' %}" method="post">
   {% csrf_token %}
@@ -8,7 +9,14 @@
 </form>
 {% endblock %}
 
-{% block about_unit %}{% endblock %}
+{% block about_unit %}
+  {% for label, value in about_table %}
+    <tr>
+      <th>{{ label }}</th>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
 {% block unit_history %}{% endblock %}
 {% block stat_table %}
 <ul>
