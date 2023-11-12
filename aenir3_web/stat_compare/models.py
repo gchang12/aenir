@@ -5,7 +5,6 @@ from django.db import models
 class FireEmblemGame(models.Model):
     game_num = models.PositiveSmallIntegerField(
         primary_key=True,
-        verbose_name="ID",
         )
     # to NOT be displayed
     game_name = models.CharField(
