@@ -52,7 +52,7 @@ class Morph(BaseMorph):
 
         Defines: promo_cls, unit_name, current_stats
         """
-        BaseMorph.__init__(self, game_num, datadir_root)
+        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # initialize bases
         self._unit_name = unit_name
         try:
@@ -395,7 +395,7 @@ class Morph4(Morph):
         Defines: father_name
         """
         game_num = 4
-        BaseMorph.__init__(self, game_num, datadir_root)
+        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
         try:
