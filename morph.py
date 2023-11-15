@@ -599,7 +599,7 @@ class Morph6(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, datadir_root: str = None):
+    def __init__(self, unit_name: str, *, datadir_root: str = None):
         """
         Extends: Morph.__init__
         - game_num: 6
@@ -612,7 +612,7 @@ class Morph8(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, datadir_root: str = None):
+    def __init__(self, unit_name: str, *, datadir_root: str = None):
         """
         Extends: Morph.__init__
         - game_num: 8
@@ -625,7 +625,7 @@ class Morph9(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, datadir_root: str = None):
+    def __init__(self, unit_name: str, *, datadir_root: str = None):
         """
         Extends: Morph.__init__
         - game_num: 9
