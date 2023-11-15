@@ -2,7 +2,7 @@
 """
 """
 
-#from collections import OrderedDict
+from collections import OrderedDict
 
 #from django.http import HttpResponse
 # to render Jinja templates
@@ -25,6 +25,16 @@ class StatCompare:
     # for use in Morph methods
     DATADIR_ROOT = "./stat_compare/static/stat_compare/data/"
 
+    # for use in creating Morphs
+    QUINTESSENCE = OrderedDict()
+
+    # for use in storing Morphs
+    DRAGONS_GATE = tuple(None for index in range(6))
+
+    # for use in rendering the web page
+    about_info = {}
+    unit_history = {}
+
     @classmethod
     def index(cls, request):
         """
@@ -37,8 +47,6 @@ class StatCompare:
     def create(cls, request):
         """
         """
-        # Implement global 'QUINTESSENCE' dict to create Morph object.
-        # Show like a different set of controls every time data is sent.
         context = {"view_name": "Create"}
         return render(request, "stat_compare/create.html", context=context)
 
