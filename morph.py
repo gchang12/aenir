@@ -55,13 +55,19 @@ class Morph(BaseMorph):
         BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # initialize bases
         self._unit_name = unit_name
-        temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
+        try:
+            temp_bases = self.url_to_tables.pop("characters/base-stats")[tableindex].set_index("Name").loc[unit_name, :]
+        except KeyError as unit_dne_err:
+            print(f"'{unit_name}' is not in the list of FE{game_num} units: {self.get_character_list()}.")
+            raise unit_dne_err
         logging.info("Morph(%d, '%s')", game_num, unit_name)
         self.current_clstype = "characters/base-stats"
         self.current_cls = temp_bases.pop("Class")
         self.current_lv = temp_bases.pop("Lv")
         # implicitly convert to float
         self.current_stats = temp_bases + 0.0
+        assert set(self.STAT_ORDERING[self.game_num]) == set(self.current_stats.index)
+        assert len(self.STAT_ORDERING[self.game_num]) == len(self.current_stats.index)
         self.current_stats.index = self.STAT_ORDERING[self.game_num]
         try:
             self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
@@ -392,6 +398,10 @@ class Morph4(Morph):
         BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
+        try:
+            assert unit_name in self.get_character_list()
+        except AssertionError:
+            raise KeyError(f"'{unit_name}' is not in the list of FE4 units: {self.get_character_list()}.")
         kid_tableindex = 1
         self.is_kid = unit_name in self.url_to_tables["characters/base-stats"][kid_tableindex]["Name"].to_list()
         if self.is_kid:
@@ -401,7 +411,12 @@ class Morph4(Morph):
         logging.info("Morph4('%s', '%s')", unit_name, father_name)
         if self.is_kid:
             # initialize bases
-            temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            try:
+                temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+            except KeyError as unit_dne_err:
+                father_list = list(self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique())
+                print(f"'{father_name}' is not in the list of FE4 fathers: {self.get_character_list()}.")
+                raise unit_dne_err
             self.current_cls = temp_bases.pop("Class")
             self.current_lv = temp_bases.pop("Lv")
             self.current_stats = temp_bases + 0.0

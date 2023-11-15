@@ -55,7 +55,7 @@ class TranscriberTest(unittest.TestCase):
         """
         Tests that page_dict parameter is an attribute.
         """
-        logging.info("TranscriberTest.test_pagedict_is_clsattr(self)")
+        logging.info("TranscriberTest.test_pagedict_is_clsattr()")
         some_transcriber = SerenesTranscriber(5)
         self.assertIs(some_transcriber.page_dict, self.sos_transcriber.page_dict)
 
@@ -68,7 +68,7 @@ class TranscriberTest(unittest.TestCase):
         - TypeError: Non-table in url_to_tables[urlpath].
         - KeyError: urlpath not in url_to_tables.
         """
-        logging.info("TranscriberTest.test_save_tables__failures(self)")
+        logging.info("TranscriberTest.test_save_tables__failures()")
         urlpath = "characters/base-stats"
         # main: fails because there are no tables
         self.sos_transcriber.url_to_tables[urlpath] = []
@@ -135,7 +135,7 @@ class TranscriberTest(unittest.TestCase):
         Exceptions:
         - FileNotFoundError: home_dir/tables_file does not exist.
         """
-        logging.info("TranscriberTest.test_load_tables__failures(self)")
+        logging.info("TranscriberTest.test_load_tables__failures()")
         urlpath = "characters/base-stats"
         # main: fails because file does not exist
         self.sos_transcriber.tables_file = "nonexistent_file"
@@ -161,7 +161,7 @@ class TranscriberTest(unittest.TestCase):
         """
         Tests that get_urlname method succeeds.
         """
-        logging.info("TranscriberTest.test_get_urlname(self)")
+        logging.info("TranscriberTest.test_get_urlname()")
         # get registered urlname
         tablename = "characters__base_stats"
         # expected output
@@ -176,7 +176,7 @@ class TranscriberTest(unittest.TestCase):
         """
         Tests that get_urlname method fails due to non-existent table-equivalent.
         """
-        logging.info("TranscriberTest.test_get_urlname__dne(self)")
+        logging.info("TranscriberTest.test_get_urlname__dne()")
         # non-registered urlname
         tablename = "characters__baked_fat"
         # expected output
