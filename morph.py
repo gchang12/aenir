@@ -217,7 +217,11 @@ class Morph(BaseMorph):
         logging.info("Morph.promote(tableindex=%d)", tableindex)
         old_cls = self.current_cls
         if isinstance(self.target_stats, pd.DataFrame):
-            self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
+            try:
+                self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
+            except KeyError as key_err:
+                print("Please select a valid promotion class:", self.target_stats["Promotion"].to_list())
+                raise key_err
             # raises KeyError for split-promotions; utilize to advantage (i.e. SELECT from target_stats.loc[:, "Promotion"])
             self.current_cls = self.target_stats.name
         else:
