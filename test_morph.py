@@ -354,7 +354,7 @@ class Morph6Test(unittest.TestCase):
         logging.info("Morph6Test.test_fe4_units()")
         base = Morph4("Sigurd")
         def not_a_kid(name):
-            return name not in BaseMorph(4).url_to_tables["characters/base-stats"][1]["Name"]
+            return name not in BaseMorph(4).url_to_tables["characters/base-stats"][1]["Name"].to_list()
         for unit_name in filter(not_a_kid, base.get_character_list()):
             fe4_unit = Morph4(unit_name)
             try:
@@ -1073,6 +1073,16 @@ class Morph8Test(unittest.TestCase):
         self.amelia.promote()
         self.amelia.level_up(20)
 
+    def test_promote__nopromocls(self):
+        """
+        Asserts that KeyError is raised if the promo_cls attribute is not specified when required.
+        """
+        ross = Morph8("Ross")
+        self.assertIsNone(ross.promo_cls)
+        ross.level_up(10)
+        with self.assertRaises(KeyError):
+            ross.promote()
+
     def test__lt__0(self):
         """
         Prints output of __lt__ dunder with:
@@ -1169,7 +1179,7 @@ class Morph9Test(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
-    module = Morph7Test
+    module = Morph8Test
     findstr = "test_"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
