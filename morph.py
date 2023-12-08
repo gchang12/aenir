@@ -226,7 +226,7 @@ class Morph(BaseMorph):
             try:
                 self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
             except KeyError as key_err:
-                print("Please select a valid promotion class:", self.target_stats["Promotion"].to_list())
+                print("Please select a valid promotion class:", self.target_stats["Promotion"].drop_duplicates().to_list())
                 raise key_err
             # raises KeyError for split-promotions; utilize to advantage (i.e. SELECT from target_stats.loc[:, "Promotion"])
             self.current_cls = self.target_stats.name
@@ -363,23 +363,11 @@ class Morph(BaseMorph):
                 continue
             meta_labels.append(row_label)
         meta_map = {
-            self.current_stats.name: [],
-            diff.name: [],
-            other.current_stats.name: [],
+            self.current_stats.name: self.comparison_labels,
+            diff.name: {},
+            other.current_stats.name: other.comparison_labels,
         }
-        for row_label in meta_labels:
-            if row_label in self.comparison_labels:
-                comparison_val = self.comparison_labels[row_label]
-            else:
-                comparison_val = "-"
-            meta_map[self.current_stats.name].append(comparison_val)
-            if row_label in other.comparison_labels:
-                comparison_val = other.comparison_labels[row_label]
-            else:
-                comparison_val = "-"
-            meta_map[other.current_stats.name].append(comparison_val)
-            meta_map[diff.name].append("-")
-        meta_rows = pd.DataFrame(meta_map, index=meta_labels)
+        meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
         other.current_stats.name = other.current_stats.name.replace(" (2)", "")
         return pd.concat([meta_rows, clslv_df, stat_df])
 
@@ -416,7 +404,7 @@ class Morph4(Morph):
         if self.is_kid:
             # initialize bases
             try:
-                temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+                temp_bases = self.url_to_tables["characters/base-stats"][kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
             except KeyError as unit_dne_err:
                 father_list = list(self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique())
                 print(f"'{father_name}' is not in the list of FE4 fathers: {self.get_character_list()}.")
