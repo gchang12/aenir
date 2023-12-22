@@ -369,7 +369,8 @@ class Morph(BaseMorph):
         }
         meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
         other.current_stats.name = other.current_stats.name.replace(" (2)", "")
-        return pd.concat([meta_rows, clslv_df, stat_df])
+        comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
+        return comparison_df
 
 
 class Morph4(Morph):
