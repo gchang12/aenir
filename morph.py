@@ -73,9 +73,6 @@ class Morph(BaseMorph):
             self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
-        # test if unit has HM bonus
-        if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
-            self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
         # set growth rates
         self.set_targetstats(
                 ("characters/base-stats", self.unit_name),
@@ -84,6 +81,10 @@ class Morph(BaseMorph):
                 )
         self.growth_rates = self.target_stats
         self.target_stats = None
+        # test if unit has HM bonus
+        if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
+            self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
+            self.unit_name = self.unit_name.replace(" (HM)", "")
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
 
@@ -327,7 +328,7 @@ class Morph(BaseMorph):
         if other.current_stats.name == self.current_stats.name:
             other.current_stats.name += " (2)"
         diff = other.current_stats - self.current_stats
-        diff.name = 'is-less_than-by'
+        diff.name = 'diff'
         stat_df = pd.concat(
             [
                 self.current_stats,
