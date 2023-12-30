@@ -68,3 +68,6 @@ lara.promo_cls = "Thief Fighter"
 lara.level_up(10)
 lara.promote()
 ```
+
+# https://pyscaffold.org/en/stable/features.html#package-and-files-data
+# - where to put this code?
