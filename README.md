@@ -71,3 +71,4 @@ lara.promote()
 
 # https://pyscaffold.org/en/stable/features.html#package-and-files-data
 # - where to put this code?
+# Note to self: Segregate tests into unit and integration folders

@@ -84,7 +84,7 @@ class Morph(BaseMorph):
         # test if unit has HM bonus
         if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
-            self.unit_name = self.unit_name.replace(" (HM)", "")
+            #self.unit_name = self.unit_name.replace(" (HM)", "")
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
 
@@ -299,7 +299,7 @@ class Morph(BaseMorph):
         """
         # create header rows
         header_rows = OrderedDict()
-        header_rows["Name"] = self.unit_name
+        header_rows["Name"] = self.unit_name.replace(" (HM)", "")
         if "comparison_labels" in detail_list:
             header_rows.update(self.comparison_labels)
         if "history" in detail_list:
@@ -349,11 +349,13 @@ class Morph(BaseMorph):
             self_clslv[index] = entry
         for index, entry in enumerate(other.history):
             other_clslv[index] = entry
+        self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
+        other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
         clslv_df = pd.DataFrame(
             {
-                self.current_stats.name: self_clslv,
+                self_currentstats_name: self_clslv,
                 diff.name: ['-' for entry in self_clslv],
-                other.current_stats.name: other_clslv,
+                other_currentstats_name: other_clslv,
             },
             index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
         )
@@ -364,13 +366,15 @@ class Morph(BaseMorph):
                 continue
             meta_labels.append(row_label)
         meta_map = {
-            self.current_stats.name: self.comparison_labels,
+            self_currentstats_name: self.comparison_labels,
             diff.name: {},
-            other.current_stats.name: other.comparison_labels,
+            other_currentstats_name: other.comparison_labels,
         }
         meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
-        other.current_stats.name = other.current_stats.name.replace(" (2)", "")
+        stat_df[self.current_stats.name].name = self_currentstats_name
+        stat_df[other.current_stats.name].name = other_currentstats_name
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
+        other.current_stats.name = other.current_stats.name.replace(" (2)", "")
         return comparison_df
 
 

@@ -917,6 +917,14 @@ class Morph7Test(unittest.TestCase):
         self.assertFalse(any(self.wallace1.current_stats.isnull()))
         self.growths = BaseMorph(7).url_to_tables["characters/growth-rates"][0].set_index("Name").loc["Wallace", :]
 
+    def test_get_repr_series__comparison_labels(self):
+        """
+        Shows Hard Mode indicator when applicable.
+        """
+        guy = Morph7("Guy (HM)")
+        repr_series = guy.get_repr_series(["comparison_labels"])
+        self.assertIn("Hard Mode", repr_series.index)
+
     def test__repr__(self):
         """
         Tests that the __repr__ dunder returns a string containing:
@@ -969,8 +977,8 @@ class Morph7Test(unittest.TestCase):
         self.assertIsInstance(lyn_v_guy, pd.DataFrame)
         self.assertIsInstance(lyn_v_florina, pd.DataFrame)
         self.assertEqual(lyn_v_guy.at["Campaign", "Lyn"], "Tutorial")
-        self.assertEqual(lyn_v_guy.at["Campaign", "Guy (HM)"], "-")
-        self.assertEqual(lyn_v_guy.at["Hard Mode", "Guy (HM)"], True)
+        self.assertEqual(lyn_v_guy.at["Campaign", "Guy"], "-")
+        self.assertEqual(lyn_v_guy.at["Hard Mode", "Guy"], True)
         self.assertEqual(lyn_v_guy.at["Hard Mode", "Lyn"], "-")
         self.assertEqual(lyn_v_florina.at["Campaign", "Lyn"], "Tutorial")
         self.assertEqual(lyn_v_florina.at["Campaign", "Florina"], "Main")
@@ -1122,13 +1130,24 @@ class Morph8Test(unittest.TestCase):
         ross.level_up(10)
         ross.promo_cls = "Pirate"
         ross.promote()
+        print(ross.current_clstype)
         ross.level_up(20)
         ross.promo_cls = "Berserker"
         ross.promote()
         ross.level_up(20)
+        ross.cap_stats()
+        print(ross.is_maxed())
         amelia_v_ross = self.amelia < ross
         self.assertIsInstance(amelia_v_ross, pd.DataFrame)
         print(amelia_v_ross)
+
+    def test_is_maxed(self):
+        """
+        Tests that the the is_maxed call works properly.
+        """
+        self.amelia.cap_stats()
+        is_maxed = self.amelia.is_maxed()
+        self.assertEqual(is_maxed.dtype, bool)
 
 
 class Morph9Test(unittest.TestCase):
