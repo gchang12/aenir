@@ -1,11 +1,18 @@
 #!/usr/bin/python3
 """
+Contains the test to see if the same table saved is the same loaded.
 """
 
+import logging
+from pathlib import Path
 import unittest
 from unittest.mock import patch
+import tempfile # for use in testing successful save-load operation
+
+import pandas as pd
 
 from aenir.transcriber import SerenesTranscriber
+
 
 class MockPath(str):
     """
@@ -22,7 +29,7 @@ class MockPath(str):
 
 
 
-class TranscriberTest(unittest.TestCase):
+class TranscriberTestIntegration(unittest.TestCase):
     """
     Defines methods to account for all scenarios when calling methods for IO-operations.
 

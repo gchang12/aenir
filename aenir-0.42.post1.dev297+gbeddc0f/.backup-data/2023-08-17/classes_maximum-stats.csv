@@ -1,0 +1,32 @@
+Class,S/M,Skl,Spd,Def,Res,Con
+Non-promoted,20,20,20,20,20,20
+Master Lord,25,25,25,25,25,25
+Transporter,20,20,20,20,20,25
+Hero (M),25,30,26,25,22,20
+Hero (F),24,30,26,24,24,20
+Swordmaster (M),24,29,30,22,23,20
+Swordmaster (F),22,29,30,22,25,20
+Paladin (M),25,28,25,25,25,20
+Paladin (F),24,28,24,24,26,20
+General (M),27,25,21,30,25,20
+General (F),25,25,22,30,26,20
+Warrior,30,26,24,28,20,20
+Berserker,30,24,28,22,24,20
+Sniper (M),24,30,29,22,23,20
+Sniper (F),23,30,29,21,25,20
+Nomad Trooper (M),24,28,30,23,23,20
+Nomad Trooper (F),23,28,30,22,25,20
+Falcon Knight,23,25,28,24,28,20
+Wyvern Lord (M),26,26,23,30,22,21
+Wyvern Lord (F),25,26,23,29,23,22
+Sage (M),28,30,25,20,25,20
+Sage (F),30,28,25,20,25,20
+Druid (M),29,24,26,21,28,20
+Druid (F),29,24,26,20,29,20
+Bishop (M),25,26,25,22,30,20
+Bishop (F),26,25,26,21,30,20
+Valkyria,27,24,25,24,28,20
+Fire Dragon,30,28,28,30,28,25
+Divine Dragon,30,30,30,30,30,25
+Demon Dragon,30,30,30,30,30,25
+King,30,30,30,30,30,20

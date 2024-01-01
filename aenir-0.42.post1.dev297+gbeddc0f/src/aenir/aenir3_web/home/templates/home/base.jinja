@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta>
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'home/style.css' %}">
+  <title>aenir - A Fire Emblem stat comparison tool</title>
+</head>
+<body>
+
+  <div><!-- Clickable header -->
+    <h1><!--Intro to what this is-->
+      <a href="{% url 'home:index' %}">aenir</a>
+    </h1>
+  </div>
+
+  <div><!-- Left-hand sidebar -->
+    <nav>
+      <a href="{% url 'stat_compare:index' %}">Stat Comparison</a>
+      <a href="{% url 'home:about' %}">About</a>
+      <a href="{% url 'home:credits' %}">Credits</a>
+      <a href="{% url 'home:contact' %}">Contact</a>
+    </nav>
+  <div>
+
+  <div><!-- Canvas where main content goes -->
+    {% block content %}
+      <!-- Main content here; the stat arrays, the tables, the widgets and junk-->
+    {% endblock %}
+  </div>
+
+</body>
+</html>

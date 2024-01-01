@@ -1,0 +1,24 @@
+{% extends 'stat_compare/stat_compare.jinja' %}
+
+{% block view_name %}{{ view_name }}{% endblock %}
+{% block widget %}{% endblock %}
+{% block about_unit %}{% endblock %}
+{% block unit_history %}{% endblock %}
+{% block stat_table %}
+  <p>Display list of Morphs to edit, clickable via hyperlink</p>
+  <p>Level-Up!Button</p>
+  <p>Level-Up!IntegerSelect</p>
+  <p>Promote!Button</p>
+  <p>Promote!ListboxSelect</p>
+  <!-- Defer until all has been finalized.
+  <p>Equip Scroll (FE5 only)</p>
+  <p>Equip Scroll (FE5 only)</p>
+  -->
+  <p>Column that shows stat labels</p>
+  <p>Column that shows stat values for current stats</p>
+  <p>Blank column</p>
+  <p>Column that shows increment values</p>
+  <p>Blank column</p>
+  <p>Column that shows final result of operation</p>
+  <p>Section that shows history</p>
+{% endblock %}
