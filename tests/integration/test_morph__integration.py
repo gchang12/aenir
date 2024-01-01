@@ -3,9 +3,19 @@
 Contains integration tests for Morph* objects
 """
 
+from unittest.mock import patch
 import unittest
+import logging
+import json
 
+import pandas as pd
+
+
+from aenir._basemorph import BaseMorph
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
+
+logging.basicConfig(level=logging.CRITICAL)
+
 
 class Morph6IntegrationTest(unittest.TestCase):
     """
