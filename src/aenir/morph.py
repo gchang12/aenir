@@ -84,9 +84,10 @@ class Morph(BaseMorph):
         # test if unit has HM bonus
         if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
-            #self.unit_name = self.unit_name.replace(" (HM)", "")
+            #"""self.unit_name = self.unit_name.replace(" (HM)", "")"""
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
+        self.url_to_tables.pop("characters/base-stats")
 
     @property
     def unit_name(self) -> str:

@@ -72,3 +72,8 @@ lara.promote()
 # https://pyscaffold.org/en/stable/features.html#package-and-files-data
 # - where to put this code?
 # Note to self: Segregate tests into unit and integration folders
+
+Consider refactoring st Morph instance hasn't much luggage
+- character-{bases,growths}
+Consider polars over pandas for Morph functionality.
+- requires heavy refactoring perhaps
