@@ -577,7 +577,6 @@ class Morph7Test(unittest.TestCase):
         lyn = Morph7("Lyn", lyn_mode=True)
         guy = Morph7("Guy (HM)")
         florina = Morph7("Florina")
-        # TODO: rm level_up, promote
         florina.current_lv = 20
         florina.history.append( (florina.current_cls, florina.current_lv) )
         florina.current_cls = "Falcoknight"
@@ -621,7 +620,6 @@ class Morph7Test(unittest.TestCase):
         self.assertTrue(all(repr_series == guy.current_stats))
         # promote and retest
         prevcls = guy.current_cls
-        # TODO: rm level_up, promote
         guy.current_lv = 20
         guy.history.append( (guy.current_cls, guy.current_lv) )
         guy.current_cls = "Swordmaster"
@@ -671,7 +669,6 @@ class Morph8Test(unittest.TestCase):
         """
         logging.warning("Morph8Test.test__lt__0()")
         seth = Morph8("Seth") 
-        # TODO: rm level_up
         seth.current_lv = 20
         #seth.level_up(20)
         amelia_v_seth = self.amelia < seth
@@ -686,7 +683,6 @@ class Morph8Test(unittest.TestCase):
         """
         logging.warning("Morph8Test.test__lt__1()")
         ephraim = Morph8("Ephraim")
-        # TODO: rm level_up, promote
         ephraim.current_lv = 20
         #ephraim.level_up(20)
         ephraim.history.append( (ephraim.current_cls, ephraim.current_lv) )
@@ -705,7 +701,6 @@ class Morph8Test(unittest.TestCase):
         """
         logging.warning("Morph8Test.test__lt__2()")
         ross = Morph8("Ross") 
-        # TODO: rm level_up, promote
         ross.current_lv = 10
         #ross.level_up(10)
         ross.history.append( (ross.current_cls, ross.current_lv) )
@@ -758,8 +753,8 @@ class Morph9Test(unittest.TestCase):
         self.assertFalse(any(self.ike.current_stats.isnull()))
 
 if __name__ == '__main__':
-    module = Morph8Test
-    findstr = "test_"
+    module = Morph6Test
+    findstr = "test__eq__"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
