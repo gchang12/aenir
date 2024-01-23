@@ -77,3 +77,5 @@ Consider refactoring st Morph instance hasn't much luggage
 - character-{bases,growths}
 Consider polars over pandas for Morph functionality.
 - requires heavy refactoring perhaps
+Consider writing a user API that doesn't inherit from dev data-cleaning API
+Write get_morph method.
