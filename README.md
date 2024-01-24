@@ -74,7 +74,7 @@ lara.promote()
 # Note to self: Segregate tests into unit and integration folders
 
 Consider refactoring st Morph instance hasn't much luggage
-- character-{bases,growths}
+X character-{bases,growths} (DONE)
 Consider polars over pandas for Morph functionality.
 - requires heavy refactoring perhaps
 Consider writing a user API that doesn't inherit from dev data-cleaning API
