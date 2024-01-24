@@ -87,7 +87,7 @@ class Morph(BaseMorph):
             #"""self.unit_name = self.unit_name.replace(" (HM)", "")"""
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
-        self.url_to_tables.pop("characters/base-stats")
+        #self.url_to_tables.pop("characters/base-stats")
 
     @property
     def unit_name(self) -> str:
