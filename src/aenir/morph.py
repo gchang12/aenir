@@ -324,7 +324,7 @@ class Morph(BaseMorph):
 
         with name = self.unit_name
         """
-        # create stat_df
+        # naming logistics here
         self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
         other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
         if other_currentstats_name == self_currentstats_name:
@@ -334,6 +334,7 @@ class Morph(BaseMorph):
         old_selfname, old_othername = self.current_stats.name, other.current_stats.name
         self.current_stats.name = self_currentstats_name
         other.current_stats.name = other_currentstats_name
+        # create stat_df
         stat_df = pd.concat(
             [
                 self.current_stats,
@@ -376,6 +377,7 @@ class Morph(BaseMorph):
             other_currentstats_name: other.comparison_labels,
         }
         meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
+        # This does not fail because (*.current_stats.name == *_currentstats_name)
         #stat_df[self.current_stats.name].name = self_currentstats_name
         #stat_df[other.current_stats.name].name = other_currentstats_name
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
