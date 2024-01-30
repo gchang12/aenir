@@ -326,8 +326,11 @@ class Morph(BaseMorph):
         with name = self.unit_name
         """
         # create stat_df
-        if other.current_stats.name == self.current_stats.name:
-            other.current_stats.name += " (2)"
+        # TODO: If other is a non-HM version of self, then this fails.
+        self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
+        other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
+        if other_currentstats_name == self_currentstats_name:
+            other_currentstats_name += " (2)"
         diff = other.current_stats - self.current_stats
         diff.name = 'diff'
         stat_df = pd.concat(
@@ -338,6 +341,8 @@ class Morph(BaseMorph):
             ],
             axis=1,
         )
+        stat_df[self.current_stats.name].name = self_currentstats_name
+        stat_df[other.current_stats.name].name = other_currentstats_name
         # create clslv_rows
         self_clslv = [self.current_cls, self.current_lv]
         other_clslv = [other.current_cls, other.current_lv]
@@ -350,8 +355,8 @@ class Morph(BaseMorph):
             self_clslv[index] = entry
         for index, entry in enumerate(other.history):
             other_clslv[index] = entry
-        self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
-        other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
+        #self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
+        #other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
         clslv_df = pd.DataFrame(
             {
                 self_currentstats_name: self_clslv,
