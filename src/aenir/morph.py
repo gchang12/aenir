@@ -376,8 +376,8 @@ class Morph(BaseMorph):
             other_currentstats_name: other.comparison_labels,
         }
         meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
-        stat_df[self.current_stats.name].name = self_currentstats_name
-        stat_df[other.current_stats.name].name = other_currentstats_name
+        #stat_df[self.current_stats.name].name = self_currentstats_name
+        #stat_df[other.current_stats.name].name = other_currentstats_name
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
         #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
         self.current_stats.name, other.current_stats.name = old_selfname, old_othername
