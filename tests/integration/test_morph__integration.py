@@ -3,6 +3,8 @@
 Contains integration tests for Morph* objects
 """
 
+# TODO: Possibly add tests for all possible variants of FE4 kids
+
 from unittest.mock import patch
 import unittest
 import logging

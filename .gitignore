@@ -53,3 +53,4 @@ MANIFEST
 .conda*/
 .python-version
 .aenir_venv/
+src/aenir3/aenir3_web/

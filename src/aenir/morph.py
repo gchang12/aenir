@@ -84,7 +84,6 @@ class Morph(BaseMorph):
         # test if unit has HM bonus
         if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
-            #"""self.unit_name = self.unit_name.replace(" (HM)", "")"""
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
         #self.url_to_tables.pop("characters/base-stats")
@@ -326,13 +325,15 @@ class Morph(BaseMorph):
         with name = self.unit_name
         """
         # create stat_df
-        # TODO: If other is a non-HM version of self, then this fails.
         self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
         other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
         if other_currentstats_name == self_currentstats_name:
             other_currentstats_name += " (2)"
         diff = other.current_stats - self.current_stats
         diff.name = 'diff'
+        old_selfname, old_othername = self.current_stats.name, other.current_stats.name
+        self.current_stats.name = self_currentstats_name
+        other.current_stats.name = other_currentstats_name
         stat_df = pd.concat(
             [
                 self.current_stats,
@@ -341,8 +342,6 @@ class Morph(BaseMorph):
             ],
             axis=1,
         )
-        stat_df[self.current_stats.name].name = self_currentstats_name
-        stat_df[other.current_stats.name].name = other_currentstats_name
         # create clslv_rows
         self_clslv = [self.current_cls, self.current_lv]
         other_clslv = [other.current_cls, other.current_lv]
@@ -380,7 +379,8 @@ class Morph(BaseMorph):
         stat_df[self.current_stats.name].name = self_currentstats_name
         stat_df[other.current_stats.name].name = other_currentstats_name
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
-        other.current_stats.name = other.current_stats.name.replace(" (2)", "")
+        #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
+        self.current_stats.name, other.current_stats.name = old_selfname, old_othername
         return comparison_df
 
 

@@ -598,6 +598,14 @@ class Morph7Test(unittest.TestCase):
         print(lyn_v_guy)
         print(lyn_v_florina)
 
+    def test__lt__HM(self):
+        """
+        Tests __lt__ dunder for a HM and a non-HM variant of a unit.
+        """
+        guy = Morph7("Guy")
+        guy_hm = Morph7("Guy (HM)")
+        print(guy < guy_hm)
+
     def test__repr__(self):
         """
         Tests that the __repr__ dunder returns a string containing:
@@ -753,8 +761,8 @@ class Morph9Test(unittest.TestCase):
         self.assertFalse(any(self.ike.current_stats.isnull()))
 
 if __name__ == '__main__':
-    module = Morph6Test
-    findstr = "test__eq__"
+    module = Morph7Test
+    findstr = "test__lt__"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,
