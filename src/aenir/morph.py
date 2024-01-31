@@ -325,8 +325,8 @@ class Morph(BaseMorph):
         with name = self.unit_name
         """
         # naming logistics here
-        self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
-        other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
+        self_currentstats_name = self.unit_name.replace(" (HM)", "")
+        other_currentstats_name = other.unit_name.replace(" (HM)", "")
         if other_currentstats_name == self_currentstats_name:
             other_currentstats_name += " (2)"
         diff = other.current_stats - self.current_stats
