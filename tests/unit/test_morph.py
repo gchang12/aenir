@@ -13,6 +13,7 @@ import pandas as pd
 
 from aenir._basemorph import BaseMorph
 from aenir.morph import Morph, Morph4, Morph5, Morph6, Morph7, Morph8, Morph9
+from aenir.shortcuts import get_morph, get_character_list
 
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -759,6 +760,29 @@ class Morph9Test(unittest.TestCase):
         """
         self.ike = Morph9("Ike", datadir_root="data")
         self.assertFalse(any(self.ike.current_stats.isnull()))
+
+class MorphShortcutTest(unittest.TestCase):
+    """
+    Defines tests for the shortcut functions in the shortcuts module.
+    """
+
+    def test_getmorph(self):
+        """
+        Tests the getmorph function to see if it returns an identical result to
+        the results of a manual initialization.
+        """
+        roy = Morph6("Roy")
+        ourboy = get_morph(6, "Roy")
+        self.assertEqual(roy, ourboy)
+
+    def test_getcharlist(self):
+        """
+        Asserts the getcharacterlist function is identical to the BaseMorph method.
+        """
+        fe6charlist = BaseMorph(6).get_character_list()
+        otherlist = get_character_list(6)
+        self.assertListEqual(fe6charlist, otherlist)
+
 
 if __name__ == '__main__':
     module = Morph7Test
