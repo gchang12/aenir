@@ -133,6 +133,20 @@ class BaseMorph(SerenesCleaner):
         else:
             self.target_stats = self.url_to_tables[rtable_url][tableindex].set_index(to_col).loc[from_col, :]
 
+    def get_lynmode_options(self) -> List[str]:
+        """
+        Returns a List[str] of possible pseudo-booleans for a member of the Lyndis League.
+        """
+        lyn_options = [False, True]
+        return [str(option) for option in lyn_options]
+
+    def get_hardmode_options(self) -> List[str]:
+        """
+        Returns a List[str] of possible pseudo-booleans for a character with Hard Mode bonuses.
+        """
+        hm_options = [False, True]
+        return [str(option) for option in hm_options]
+
     def get_character_list(self) -> List[str]:
         """
         Returns a List[str] of base!character names mapped to growths!character names.

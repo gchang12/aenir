@@ -140,6 +140,18 @@ class BaseMorphTest(unittest.TestCase):
             "Guinevere",
             }
         self.assertTrue(trialmode_only.isdisjoint(set(chrlist)))
+        
+    def test_get_modeoptions(self):
+        """
+        Tests the get_*mode_options method.
+        - lyn, hard
+        Asserts that they return a list of str-booleans in the order of False, True
+        """
+        morph = BaseMorph(6)
+        expected_options = ["False", "True"]
+        self.assertListEqual(expected_options, morph.get_lynmode_options())
+        self.assertListEqual(expected_options, morph.get_hardmode_options())
+
 
 if __name__ == '__main__':
     unittest.main(
