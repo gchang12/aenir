@@ -79,5 +79,6 @@ Consider polars over pandas for Morph functionality.
 - requires heavy refactoring perhaps
 Consider writing a user API that doesn't inherit from dev data-cleaning API
 Write get_morph method.
-# TODO: Get 100% to pass on morph.py
-# TODO: Test get_morph method
+# TODO: Get 100% to pass on morph.py for coverage. Right now, the if-clauses are missing
+# TODO: Figure out how to add git submodule 'aenir3_web'
+# TODO: Make requirements.txt file
