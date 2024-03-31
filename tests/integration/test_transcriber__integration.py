@@ -66,7 +66,7 @@ class TranscriberTestIntegration(unittest.TestCase):
         self.assertTrue(self.sos_transcriber.home_dir.exists())
         tables_file = self.sos_transcriber.tables_file
         # tables-file should now exist
-        #self.assertTrue(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
+        self.assertTrue(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
         # main:
         with patch("__main__.list") as mocklist:
             mocklist.append.side_effect = ValueError
