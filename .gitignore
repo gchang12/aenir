@@ -54,4 +54,4 @@ MANIFEST
 .python-version
 .aenir_venv/
 #.aenir3_web-venv/
-.aenir3_web/
+.aenir_web/
