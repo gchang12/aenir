@@ -416,6 +416,51 @@ class Morph5IntegrationTest(unittest.TestCase):
                 logging.warning(f"'{fe5_unit.unit_name}' is already at max-level.")
             fe5_unit.cap_stats()
 
+    def test_lara(self):
+        """
+        Tests Lara's two promotion paths:
+        - Thief -> Dancer -> Thief Fighter
+        - Thief -> Thief Fighter -> Dancer -> Thief Fighter
+        """
+        # Thief
+        lara1 = Morph5("Lara")
+        self.assertLess(lara1.current_lv, 10)
+        lara1.promo_cls = "Dancer"
+        lara1.promote()
+        # Dancer
+        lara1.cap_stats()
+        lara1.level_up(10)
+        #lara1.promo_cls = "Thief Fighter"
+        # Thief Fighter
+        lara1.promote()
+        lara1.cap_stats()
+        with self.assertRaises(ValueError):
+            # (Still 'Thief Fighter')
+            lara1.level_up(10)
+            lara1.promote()
+
+        # Thief
+        lara2 = Morph5("Lara")
+        with self.assertRaises(ValueError):
+            lara2.promote()
+        lara2.level_up(10)
+        lara2.promo_cls = "Thief Fighter"
+        # Thief Fighter
+        lara2.promote()
+        lara2.cap_stats()
+        lara2.promo_cls = "Dancer"
+        # Dancer
+        lara2.promote()
+        lara2.cap_stats()
+        lara2.level_up(10)
+        # Thief Fighter
+        lara2.promote()
+        with self.assertRaises(ValueError):
+            # (Still 'Thief Fighter')
+            lara2.level_up(10)
+            lara2.promote()
+
+
 class Morph7IntegrationTest(unittest.TestCase):
     """
     Runs through potential simulations of stat comparisons.
@@ -578,4 +623,9 @@ class Morph9IntegrationTest(unittest.TestCase):
             self.assertTrue(any(unit.current_stats > bases))
 
 if __name__ == '__main__':
-    pass
+    module = Morph5IntegrationTest
+    findstr = "test_lara"
+    unittest.main(
+        defaultTest=[test for test in dir(module) if findstr in test],
+        module=module,
+    )

@@ -213,10 +213,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/promotion-gains", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/promotion-gains", "Class"),
+            tableindex,
+        )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
         if self.current_lv < self.get_minpromolv():
@@ -249,10 +249,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/maximum-stats", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/maximum-stats", "Class"),
+            tableindex,
+        )
         logging.info("Morph.cap_stats(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
