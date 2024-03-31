@@ -578,20 +578,20 @@ class Morph7(Morph):
         logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
         self.lyn_mode = None
         lyndis_league = (
-                "Lyn",
-                "Sain",
-                "Kent",
-                "Florina",
-                "Wil",
-                "Dorcas",
-                "Serra",
-                "Erk",
-                "Rath",
-                "Matthew",
-                "Nils",
-                "Lucius"
-                "Wallace",
-                )
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius"
+            "Wallace",
+        )
         if unit_name in lyndis_league:
             self.comparison_labels.update({"Campaign": ("Main" if not lyn_mode else "Tutorial")})
             self.lyn_mode = lyn_mode
