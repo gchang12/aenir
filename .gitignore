@@ -52,6 +52,6 @@ MANIFEST
 .venv*/
 .conda*/
 .python-version
-.aenir_venv/
+#.venv-/
 #.aenir3_web-venv/
 .aenir_web/
