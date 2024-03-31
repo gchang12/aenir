@@ -152,9 +152,57 @@ class BaseMorphTest(unittest.TestCase):
         self.assertListEqual(expected_options, morph.get_lynmode_options())
         self.assertListEqual(expected_options, morph.get_hardmode_options())
 
+    def test_get_fe4_unit_list(self):
+        """
+        Tests that the function retrieves a complete list
+        of the FE4 units of the indicated types.
+        """
+        # assert error is raised when the game is not FE4
+        for game_num in range(5, 10):
+            with self.assertRaises(AssertionError):
+                BaseMorph(game_num).get_fe4_unit_list("kid")
+        # assert error if unit type is not correct
+        with self.assertRaises(KeyError):
+            unit_type = ""
+            BaseMorph(4).get_fe4_unit_list(unit_type)
+        expected = [
+            "Rana",
+            "Lakche",
+            "Skasaher",
+            "Delmud",
+            "Lester",
+            "Fee",
+            "Arthur",
+            "Patty",
+            "Nanna",
+            "Leen",
+            "Tinny",
+            "Faval",
+            "Sety",
+            "Corpul",
+        ]
+        actual = BaseMorph(4).get_fe4_unit_list("kid")
+        self.assertListEqual(expected, actual)
+        expected = [
+            "Arden",
+            "Azel",
+            "Alec",
+            "Claude",
+            "Jamka",
+            "Dew",
+            "Noish",
+            "Fin",
+            "Beowolf",
+            "Holyn",
+            "Midayle",
+            "Levin",
+            "Lex",
+        ]
+        actual = BaseMorph(4).get_fe4_unit_list("father")
+        self.assertListEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main(
-        defaultTest="test_get_character_list",
+        defaultTest="test_get_fe4_unit_list",
         module=BaseMorphTest,
     )

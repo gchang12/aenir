@@ -174,5 +174,22 @@ class BaseMorph(SerenesCleaner):
         logging.info("%d names found: %s", len(chrlist), chrlist)
         return chrlist
 
+    def get_fe4_unit_list(self, unit_type: str) -> List[str]:
+        """
+        Shortcut function to get a list of either FE4 kids or fathers.
+        """
+        assert self.game_num == 4
+        tgt_colname = {
+            "kid": "Name",
+            "father": "Father",
+        }[unit_type]
+        tablename = "characters/growth-rates"
+        src_tablelist = self.url_to_tables[tablename]
+        src_table = src_tablelist[1]
+        src_column = src_table[tgt_colname].copy()
+        src_column.drop_duplicates(inplace=True)
+        unit_list = src_column.to_list()
+        return unit_list
+
 if __name__ == '__main__':
     pass
