@@ -26,25 +26,25 @@ class Morph(BaseMorph):
 
     # declare promo-branch exceptions here as a dict-attribute
     _BRANCHED_PROMO_EXCEPTIONS = {
-            (4, "Ira"): "Swordmaster",
-            (4, "Holyn"): "Forrest",
-            (4, "Radney"): "Swordmaster",
-            (4, "Roddlevan"): "Forrest",
-            (4, "Azel"): "Mage Knight",
-            (4, "Arthur"): "Mage Knight",
-            (4, "Tinny"): "Mage Fighter (F)",
-            (4, "Lakche"): "Swordmaster",
-            (4, "Skasaher"): "Forrest",
-            (5, "Rifis"): "Thief Fighter",
-            (5, "Asvel"): "Sage",
-            (5, "Miranda"): "Mage Knight",
-            (5, "Tania"): "Sniper (F)",
-            (5, "Ronan"): "Sniper (M)",
-            (5, "Machua"): "Mercenary",
-            (5, "Shiva"): "Swordmaster",
-            (5, "Mareeta"): "Swordmaster",
-            (5, "Trewd"): "Swordmaster",
-            }
+        (4, "Ira"): "Swordmaster",
+        (4, "Holyn"): "Forrest",
+        (4, "Radney"): "Swordmaster",
+        (4, "Roddlevan"): "Forrest",
+        (4, "Azel"): "Mage Knight",
+        (4, "Arthur"): "Mage Knight",
+        (4, "Tinny"): "Mage Fighter (F)",
+        (4, "Lakche"): "Swordmaster",
+        (4, "Skasaher"): "Forrest",
+        (5, "Rifis"): "Thief Fighter",
+        (5, "Asvel"): "Sage",
+        (5, "Miranda"): "Mage Knight",
+        (5, "Tania"): "Sniper (F)",
+        (5, "Ronan"): "Sniper (M)",
+        (5, "Machua"): "Mercenary",
+        (5, "Shiva"): "Swordmaster",
+        (5, "Mareeta"): "Swordmaster",
+        (5, "Trewd"): "Swordmaster",
+    }
 
     def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, growths_tableindex: int = 0):
         """
@@ -173,12 +173,12 @@ class Morph(BaseMorph):
         else:
             try:
                 minpromolv = {
-                        (6, "Roy"): 1,
-                        (7, "Hector"): 1,
-                        (7, "Eliwood"): 1,
-                        (5, "Linoan"): 1,
-                        (5, "Leif"): 1,
-                        }[(self.game_num, self.unit_name)]
+                    (6, "Roy"): 1,
+                    (7, "Hector"): 1,
+                    (7, "Eliwood"): 1,
+                    (5, "Linoan"): 1,
+                    (5, "Leif"): 1,
+                }[(self.game_num, self.unit_name)]
             except KeyError:
                 minpromolv = 10
         return minpromolv
@@ -267,10 +267,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/maximum-stats", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/maximum-stats", "Class"),
+            tableindex,
+        )
         logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
