@@ -75,10 +75,10 @@ class Morph(BaseMorph):
             self.promo_cls = None
         # set growth rates
         self.set_targetstats(
-                ("characters/base-stats", self.unit_name),
-                ("characters/growth-rates", "Name"),
-                growths_tableindex,
-                )
+            ("characters/base-stats", self.unit_name),
+            ("characters/growth-rates", "Name"),
+            growths_tableindex,
+        )
         self.growth_rates = self.target_stats
         self.target_stats = None
         # test if unit has HM bonus
