@@ -35,12 +35,12 @@ class SerenesCleaner(SerenesTranscriber):
         SerenesTranscriber.__init__(self, game_num)
         self.fieldrecon_file = "fieldrecon.json"
         self.clsrecon_list = [
-                (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
-                (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
-                (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
-                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
-                (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
-                ]
+            (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
+            (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
+            (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
+            (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
+            (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
+        ]
 
 
     def drop_nonnumeric_rows(self, urlpath: str, numeric_col: str = "Def"):
@@ -54,8 +54,8 @@ class SerenesCleaner(SerenesTranscriber):
         for index, table in enumerate(self.url_to_tables[urlpath]):
             logging.info("Dropping rows in table '%s'.", self.page_dict[urlpath] + str(index))
             self.url_to_tables[urlpath][index] = table[
-                    pd.to_numeric(table[numeric_col], errors='coerce').notnull()
-                    ]
+                pd.to_numeric(table[numeric_col], errors='coerce').notnull()
+            ]
 
     def replace_with_int_df(self, urlpath: str):
         """
@@ -202,6 +202,3 @@ class SerenesCleaner(SerenesTranscriber):
         # report results, and return them
         logging.info("%d items in '%s' that are not in '%s': %s", len(missing_items), ltable_url, rtable_url, missing_items)
         return missing_items
-
-if __name__ == '__main__':
-    pass

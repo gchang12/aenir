@@ -49,9 +49,9 @@ class SerenesScraper(SerenesBase):
         logging.info("SerenesScraper.url_to_tables['%s'] = pd.read_html(response.text)", urlpath)
         self.url_to_tables[urlpath] = pd.read_html(response.text)
         logging.info(
-                "%d table(s) found, and loaded into url_to_tables['%s'].",
-                len(self.url_to_tables[urlpath]), urlpath
-                )
+            "%d table(s) found, and loaded into url_to_tables['%s'].",
+            len(self.url_to_tables[urlpath]), urlpath
+        )
 
     @property
     def URL_ROOT(self):
@@ -59,6 +59,3 @@ class SerenesScraper(SerenesBase):
         URL of the website to be scraped.
         """
         return self._URL_ROOT
-
-if __name__ == '__main__':
-    pass
