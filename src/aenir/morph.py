@@ -126,19 +126,19 @@ class Morph(BaseMorph):
         stats_are_compatible = all(self.current_stats.index == other.current_stats.index)
         stats_are_equal = all(abs(self.current_stats - other.current_stats) < 0.01)
         scalar_attrs = [
-                "unit_name",
-                "game_num",
-                "history",
-                "comparison_labels",
-                "current_cls",
-                "current_lv",
-                "current_clstype",
-                ]
+            "unit_name",
+            "game_num",
+            "history",
+            "comparison_labels",
+            "current_cls",
+            "current_lv",
+            "current_clstype",
+        ]
         equality_conditions = [stats_are_compatible, stats_are_equal]
         for attr in scalar_attrs:
             equality_conditions.append(
-                    getattr(self, attr) == getattr(other, attr)
-                    )
+                getattr(self, attr) == getattr(other, attr)
+            )
         return all(equality_conditions)
 
     def level_up(self, target_lv: int):
@@ -309,6 +309,7 @@ class Morph(BaseMorph):
         header_rows["Lv"] = self.current_lv
         return pd.concat([pd.Series(header_rows), self.current_stats])
 
+    # TODO: Test this properly.
     def __lt__(self, other) -> pd.DataFrame:
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
@@ -331,15 +332,19 @@ class Morph(BaseMorph):
             other_currentstats_name += " (2)"
         diff = other.current_stats - self.current_stats
         diff.name = 'diff'
-        old_selfname, old_othername = self.current_stats.name, other.current_stats.name
-        self.current_stats.name = self_currentstats_name
-        other.current_stats.name = other_currentstats_name
+        #old_selfname, old_othername = self.current_stats.name, other.current_stats.name
+        self_current_stats = self.current_stats.copy()
+        other_current_stats = other.current_stats.copy()
+        self_current_stats.name = self_current_stats_name
+        other_current_stats.name = other_current_stats_name
+        #self.current_stats.name = self_currentstats_name
+        #other.current_stats.name = other_currentstats_name
         # create stat_df
         stat_df = pd.concat(
             [
-                self.current_stats,
+                self_current_stats,
                 diff,
-                other.current_stats,
+                other_current_stats,
             ],
             axis=1,
         )
@@ -382,7 +387,7 @@ class Morph(BaseMorph):
         #stat_df[other.current_stats.name].name = other_currentstats_name
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
         #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
-        self.current_stats.name, other.current_stats.name = old_selfname, old_othername
+        #self.current_stats.name, other.current_stats.name = old_selfname, old_othername
         return comparison_df
 
 
@@ -438,6 +443,23 @@ class Morph4(Morph):
             self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
+
+    def get_maxlv(self) -> int:
+        """
+        Determines the maximum level for a given unit.
+        """
+        # TODO: Still gotta test this.
+        self.set_targetstats(
+            (self.current_clstype, lindex_val),
+            ("classes/promotion-gains", "Class"),
+            tableindex,
+        )
+        if self.target_stats is None: # a.k.a. cannot promote
+            maxlv = 30
+        else:
+            maxlv = 20
+        return maxlv
+
 
     @property
     def unit_name(self) -> str:
@@ -638,7 +660,3 @@ class Morph9(Morph):
         """
         game_num = 9
         Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
-
-
-if __name__ == '__main__':
-    pass
