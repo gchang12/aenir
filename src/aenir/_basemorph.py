@@ -52,14 +52,14 @@ class BaseMorph(SerenesCleaner):
         """
 
         """ SerenesCleaner
-        self.fieldrecon_file = "fieldrecon.json"
+        self.fieldrecon_file = "fieldrecon.json" # not needed
         self.clsrecon_list = [
             (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
             (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
             (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
             (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
             (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
-        ]
+        ] # not needed
         """
 
         """ SerenesTranscriber
@@ -75,12 +75,12 @@ class BaseMorph(SerenesCleaner):
 
         """ SerenesScraper
         self.url_to_tables = {}
-        _URL_ROOT = "https://serenesforest.net"
-        self.URL_ROOT = "https://serenesforest.net"
+        _URL_ROOT = "https://serenesforest.net" # not needed
+        self.URL_ROOT = "https://serenesforest.net" # not needed
         """
 
         """ SerenesBase
-        self._NUM_TO_NAME = {
+        self._NUM_TO_NAME = { # not needed
         self.NUM_TO_NAME = {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
@@ -88,7 +88,7 @@ class BaseMorph(SerenesCleaner):
             7: "blazing-sword",
             8: "the-sacred-stones",
             9: "path-of-radiance",
-        }
+        } # not needed
         self.game_num = game_num
         self.game_name = game_name
         """
