@@ -309,7 +309,6 @@ class Morph(BaseMorph):
         header_rows["Lv"] = self.current_lv
         return pd.concat([pd.Series(header_rows), self.current_stats])
 
-    # TODO: Test this properly.
     def __lt__(self, other) -> pd.DataFrame:
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
@@ -335,8 +334,8 @@ class Morph(BaseMorph):
         #old_selfname, old_othername = self.current_stats.name, other.current_stats.name
         self_current_stats = self.current_stats.copy()
         other_current_stats = other.current_stats.copy()
-        self_current_stats.name = self_current_stats_name
-        other_current_stats.name = other_current_stats_name
+        self_current_stats.name = self_currentstats_name
+        other_current_stats.name = other_currentstats_name
         #self.current_stats.name = self_currentstats_name
         #other.current_stats.name = other_currentstats_name
         # create stat_df
@@ -448,7 +447,11 @@ class Morph4(Morph):
         """
         Determines the maximum level for a given unit.
         """
-        # TODO: Still gotta test this.
+        if self.current_clstype == "characters/base-stats":
+            lindex_val = self.unit_name
+        elif self.current_clstype == "classes/promotion-gains":
+            lindex_val = self.current_cls
+        tableindex = 0
         self.set_targetstats(
             (self.current_clstype, lindex_val),
             ("classes/promotion-gains", "Class"),

@@ -107,39 +107,6 @@ class BaseMorph(SerenesCleaner):
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
 
-    """
-    def load_tables(self, urlpath: str):
-        """
-        Loads the table-list into url_to_tables[urlpath] from home_dir/tables_file.
-
-        Raises:
-        - FileNotFoundError: tables_file does not exist.
-        - KeyError: urlpath is not registered in page_dict.
-        """
-        logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
-        load_path = self.home_dir.joinpath(self.tables_file)
-        if not load_path.exists():
-            raise FileNotFoundError(f"'{str(load_path)}' does not exist. Aborting.")
-        load_file = str(load_path)
-        tablename_root = self.page_dict[urlpath]
-        logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)
-        self.url_to_tables[urlpath] = []
-        tableindex = 0
-        logging.info("Loading tables into SerenesTranscriber.url_to_tables['%s'].", urlpath)
-        while True:
-            table_name = tablename_root + str(tableindex)
-            con = "sqlite:///" + load_file
-            try:
-                logging.info("pd.read_sql_table('%s', '%s')", table_name, con)
-                table = pd.read_sql_table(table_name, con)
-                tableindex += 1
-                logging.info("SerenesTranscriber.url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
-                self.url_to_tables[urlpath].append(table)
-            except ValueError:
-                logging.info("%d table(s) have been loaded into SerenesTranscriber.url_to_tables['%s']", tableindex, urlpath)
-                break
-    """
-
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
