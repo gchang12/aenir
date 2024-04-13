@@ -82,3 +82,6 @@ Write get_morph method.
 # TODO: Get 100% to pass on morph.py for coverage. Right now, the if-clauses are missing
 # TODO: Figure out how to add git submodule 'aenir3_web'
 # TODO: Make requirements.txt file
+# TODO: FE4 max level depends on promotion status. Edit code to reflect this.
+# TODO: Assert that repr series method does not change state
+# TODO: Segregate data access and cleaning.
