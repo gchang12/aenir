@@ -332,6 +332,18 @@ class Morph4IntegrationTest(unittest.TestCase):
         #self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
 
+    def test_get_maxlv(self):
+        """
+        Tests if setting targetstats attribute affects any operations.
+        """
+        maxlv = self.lakche.get_maxlv()
+        self.assertEqual(maxlv, 20)
+        self.lakche.level_up(20)
+        self.assertEqual(maxlv, 20)
+        self.lakche.promote()
+        maxlv = self.lakche.get_maxlv()
+        self.assertEqual(maxlv, 30)
+
     def test_all_units(self):
         """
         Tests that all units can be leveled-up, stat-capped, and promoted.
