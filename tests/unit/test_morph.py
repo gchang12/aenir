@@ -295,6 +295,15 @@ class Morph4Test(unittest.TestCase):
         #self.bases.pop("Lv")
         self.sigurd = Morph4("Sigurd")
 
+    def test_get_maxlv(self):
+        """
+        Tests that get_maxlv returns 20 for unpromoted units, and 30 for promoted units.
+        """
+        unpromoted_unit = self.lakche
+        self.assertEqual(unpromoted_unit.get_maxlv(), 20)
+        promoted_unit = Morph4("Sigurd")
+        self.assertEqual(promoted_unit.get_maxlv(), 30)
+
     def test__init__unit_dne(self):
         """
         Tests that an AssertionError is raised if the unit provided DNE.
