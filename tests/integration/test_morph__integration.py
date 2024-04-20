@@ -3,8 +3,6 @@
 Contains integration tests for Morph* objects
 """
 
-# TODO: Possibly add tests for all possible variants of FE4 kids
-
 from unittest.mock import patch
 import unittest
 import logging
@@ -28,7 +26,7 @@ class Morph6IntegrationTest(unittest.TestCase):
         """
         Creates a Morph object, with the option specified for full coverage.
         """
-        self.roy = Morph(6, "Roy", datadir_root="data")
+        self.roy = Morph(6, "Roy")
         self.assertFalse(any(self.roy.current_stats.isnull()))
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
@@ -344,9 +342,39 @@ class Morph4IntegrationTest(unittest.TestCase):
         maxlv = self.lakche.get_maxlv()
         self.assertEqual(maxlv, 30)
 
-    def test_all_units(self):
+    def test_static_units(self):
         """
-        Tests that all units can be leveled-up, stat-capped, and promoted.
+        All non-kid units can be levelled up, promoted, and such.
+        """
+        unit_factory = BaseMorph(4)
+        src_tablename = "characters/base-stats"
+        staticunit_list = unit_factory.url_to_tables[src_tablename][0]["Name"].to_list()
+        for unit_name in staticunit_list:
+            unit = Morph4(unit_name)
+            try:
+                logging.info("Trying to max out level for %s.", unit.unit_name)
+                unit.level_up(20)
+            except ValueError:
+                logging.warning("%s is already at max-level.", unit.unit_name)
+            unit.cap_stats()
+            try:
+                prevcls = unit.current_cls
+                logging.info("Trying to promote %s from %s to %s.", unit.unit_name, prevcls, unit.current_cls)
+                unit.promote()
+            except ValueError as exc:
+                logging.warning("%s cannot promote.", unit.unit_name)
+            unit.cap_stats()
+            try:
+                logging.warning("Trying to max out level for %s.", unit.unit_name)
+                unit.level_up(20)
+            except ValueError:
+                logging.warning("%s is already at max-level.", unit.unit_name)
+            unit.cap_stats()
+
+
+    def test_kid_units(self):
+        """
+        Tests that all kid units can be leveled-up, stat-capped, and promoted.
         """
         unit_factory = BaseMorph(4)
         src_tablename = "characters/base-stats"
@@ -597,7 +625,7 @@ class Morph9IntegrationTest(unittest.TestCase):
         """
         Creates a Morph object, with the option specified for full coverage.
         """
-        self.ike = Morph9("Ike", datadir_root="data")
+        self.ike = Morph9("Ike")
         self.assertFalse(any(self.ike.current_stats.isnull()))
 
     def test_all_units(self):

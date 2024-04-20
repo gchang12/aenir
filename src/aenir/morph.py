@@ -25,7 +25,7 @@ class Morph(BaseMorph):
     """
 
     # declare promo-branch exceptions here as a dict-attribute
-    _BRANCHED_PROMO_EXCEPTIONS = {
+    BRANCHED_PROMO_EXCEPTIONS = {
         (4, "Ira"): "Swordmaster",
         (4, "Holyn"): "Forrest",
         (4, "Radney"): "Swordmaster",
@@ -46,13 +46,13 @@ class Morph(BaseMorph):
         (5, "Trewd"): "Swordmaster",
     }
 
-    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, growths_tableindex: int = 0):
+    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, growths_tableindex: int = 0):
         """
         Loads tables, and initializes bases among other things.
 
         Defines: promo_cls, unit_name, current_stats
         """
-        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
+        BaseMorph.__init__(self, game_num)
         # initialize bases
         self._unit_name = unit_name
         try:
@@ -94,13 +94,6 @@ class Morph(BaseMorph):
         The name of the unit whose stats are to be queried.
         """
         return self._unit_name
-
-    @property
-    def BRANCHED_PROMO_EXCEPTIONS(self) -> dict:
-        """
-        Resolves from_col name conflicts when promoting certain units.
-        """
-        return self._BRANCHED_PROMO_EXCEPTIONS
 
     def copy(self):
         """
@@ -397,7 +390,7 @@ class Morph4(Morph):
     Modifies existing methods for collection of units in FE4.
     """
 
-    def __init__(self, unit_name: str, father_name: str = None, *, datadir_root: str = None):
+    def __init__(self, unit_name: str, father_name: str = None):
         """
         Extends: Morph.__init__ (conditionally).
 
@@ -405,7 +398,7 @@ class Morph4(Morph):
         Defines: father_name
         """
         game_num = 4
-        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
+        BaseMorph.__init__(self, game_num)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
         try:
@@ -437,9 +430,9 @@ class Morph4(Morph):
             self.comparison_labels = {"Father": father_name}
             self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
-            Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+            Morph.__init__(self, game_num, unit_name, tableindex=0)
         try:
-            self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
+            self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
 
@@ -519,14 +512,14 @@ class Morph5(Morph):
     Defines promotion exceptions, and extends level_up method.
     """
 
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__.
 
         Defines: equipped_scrolls := List[str]
         """
         game_num = 5
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
         self.equipped_scrolls = []
 
     def promote(self):
@@ -590,7 +583,7 @@ class Morph7(Morph):
     Inherits: aenir.morph.Morph. Serves mainly to accommodate for Lyn Mode units.
     """
 
-    def __init__(self, unit_name: str, lyn_mode: bool = False, *, datadir_root: str = None):
+    def __init__(self, unit_name: str, lyn_mode: bool = False):
         """
         Extends: Morph.__init__.
 
@@ -599,8 +592,8 @@ class Morph7(Morph):
         """
         game_num = 7
         # if the user lists a non-LM unit, but puts lyn_mode=True, the program halts
-        Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1), datadir_root=datadir_root)
-        logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1))
+        logging.info("Morph7.__init__('%s', %s)", unit_name, lyn_mode)
         self.lyn_mode = None
         lyndis_league = (
             "Lyn",
@@ -630,36 +623,36 @@ class Morph6(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 6
         """
         game_num = 6
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
 
 
 class Morph8(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 8
         """
         game_num = 8
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
 
 
 class Morph9(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 9
         """
         game_num = 9
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
