@@ -26,7 +26,7 @@ class Morph6Test(unittest.TestCase):
         """
         Creates a Morph object, with the option specified for full coverage.
         """
-        self.roy = Morph(6, "Roy", datadir_root="data")
+        self.roy = Morph(6, "Roy")
         self.assertFalse(any(self.roy.current_stats.isnull()))
         # create a copy of Roy's stats, level-up, cap, and assert that the bonuses have been applied
         # create a copy of everyone's stats
@@ -769,7 +769,7 @@ class Morph9Test(unittest.TestCase):
         """
         Creates a Morph object, with the option specified for full coverage.
         """
-        self.ike = Morph9("Ike", datadir_root="data")
+        self.ike = Morph9("Ike")
         self.assertFalse(any(self.ike.current_stats.isnull()))
 
 class MorphShortcutTest(unittest.TestCase):

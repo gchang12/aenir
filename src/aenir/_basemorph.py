@@ -12,9 +12,9 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from aenir.cleaner import SerenesCleaner
+#from aenir.cleaner import SerenesCleaner
 
-class BaseMorph(SerenesCleaner):
+class ProtoMorph:
     """
     Defines parameters and methods for stat look-up and name verification.
 
@@ -25,7 +25,8 @@ class BaseMorph(SerenesCleaner):
     STAT_ORDERING: Stores the order of stat labels.
     """
 
-    _STAT_ORDERING = {
+    DATADIR_ROOT = "data"
+    STAT_ORDERING = {
         4: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Res"],
         5: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Con", "Mov"],
         6: ["HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"],
@@ -34,17 +35,17 @@ class BaseMorph(SerenesCleaner):
         9: ["HP", "Str", "Mag", "Skl", "Spd", "Lck", "Def", "Res"],
     }
 
-    @property
-    def STAT_ORDERING(self):
-        """
-        dict that determines order of stats to be displayed by game.
-        """
-        return self._STAT_ORDERING
+    NUM_TO_NAME = {
+        4: "genealogy-of-the-holy-war",
+        5: "thracia-776",
+        6: "binding-blade",
+        7: "blazing-sword",
+        8: "the-sacred-stones",
+        9: "path-of-radiance",
+    }
 
-    def __init__(self, game_num: int, datadir_root: str = "data"):
+    def __init__(self, game_num: int):
         """
-        Extends: SerenesCleaner.__init__(self, game_num)
-
         Defines:
         current_clstype - For use in cross-referencing names in tables.
         current_cls - Stores current class
@@ -63,18 +64,17 @@ class BaseMorph(SerenesCleaner):
         """
 
         """ SerenesTranscriber
-        self.home_dir = Path("data", self.game_name)
-        self.tables_file = "raw_stats.db"
+        """
+        self.tables_file = "cleaned_stats.db"
         self.page_dict = {
             "characters/base-stats": "characters__base_stats",
             "characters/growth-rates": "characters__growth_rates",
             "classes/maximum-stats": "classes__maximum_stats",
             "classes/promotion-gains": "classes__promotion_gains",
         }
-        """
 
-        """ SerenesScraper
         self.url_to_tables = {}
+        """ SerenesScraper
         _URL_ROOT = "https://serenesforest.net" # not needed
         self.URL_ROOT = "https://serenesforest.net" # not needed
         """
@@ -89,11 +89,9 @@ class BaseMorph(SerenesCleaner):
             8: "the-sacred-stones",
             9: "path-of-radiance",
         } # not needed
-        self.game_num = game_num
-        self.game_name = game_name
         """
-
-        SerenesCleaner.__init__(self, game_num)
+        self.game_num = game_num
+        self.game_name = self.NUM_TO_NAME[game_num]
         # essential to set_targetstats method
         self.target_stats = None
         self.current_stats = None
@@ -101,18 +99,56 @@ class BaseMorph(SerenesCleaner):
         self.history = []
         self.comparison_labels = {}
         # load tables
-        if type(datadir_root) == str:
-            self.home_dir = Path(datadir_root).joinpath(self.game_name)
+        self.home_dir = Path(self.DATADIR_ROOT).joinpath(self.game_name)
         self.tables_file = "cleaned_stats.db"
+
+    def load_tables(self, urlpath: str):
+        """
+        Loads the table-list into url_to_tables[urlpath] from home_dir/tables_file.
+
+        Raises:
+        - FileNotFoundError: tables_file does not exist.
+        - KeyError: urlpath is not registered in page_dict.
+        """
+        logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
+        load_path = self.home_dir.joinpath(self.tables_file)
+        if not load_path.exists():
+            raise FileNotFoundError(f"'{str(load_path)}' does not exist. Aborting.")
+        load_file = str(load_path)
+        tablename_root = self.page_dict[urlpath]
+        logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)
+        self.url_to_tables[urlpath] = []
+        tableindex = 0
+        logging.info("Loading tables into SerenesTranscriber.url_to_tables['%s'].", urlpath)
+        while True:
+            table_name = tablename_root + str(tableindex)
+            con = "sqlite:///" + load_file
+            try:
+                logging.info("pd.read_sql_table('%s', '%s')", table_name, con)
+                table = pd.read_sql_table(table_name, con)
+                tableindex += 1
+                logging.info("SerenesTranscriber.url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
+                self.url_to_tables[urlpath].append(table)
+            except ValueError:
+                logging.info("%d table(s) have been loaded into SerenesTranscriber.url_to_tables['%s']", tableindex, urlpath)
+                break
+
+
+class BaseMorph(ProtoMorph):
+    """
+    """
+
+    def __init__(self, game_num: int):
+        ProtoMorph.__init__(self, game_num)
         for urlpath in self.page_dict:
             self.load_tables(urlpath)
-
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
         """
         Prints: clsrecon_dict.keys not in ltable[lindex_col], clsrecon_dict.values not in rtable[to_col].
 
         Note: In order for this method to work, logging.level must be set to logging.INFO.
+        Find cls-recon list in unittest.TestCase subclass for BaseMorph.
         """
         logging.info("BaseMorph.verify_clsrecon_file(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
@@ -234,3 +270,4 @@ class BaseMorph(SerenesCleaner):
         src_column.drop_duplicates(inplace=True)
         unit_list = src_column.to_list()
         return unit_list
+

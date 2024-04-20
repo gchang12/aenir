@@ -14,11 +14,11 @@ def get_morph(game_num: int, unit_name: str, **kwds):
     morph_inst = morph_cls(unit_name, **kwds)
     return morph_inst
 
-def get_character_list(game_num: int, *, datadir_root: str = "data"):
+def get_character_list(game_num: int):
     """
     Shortcut to get a list of characters.
     """
-    basemorph_inst = BaseMorph(game_num, datadir_root=datadir_root)
+    basemorph_inst = BaseMorph(game_num)
     return basemorph_inst.get_character_list()
 
 
