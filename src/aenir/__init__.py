@@ -1,9 +1,3 @@
-#!/usr/bin/python3
-"""
-Package for comparing the stats of FE[4-9] units.
-
-Simulates level-ups, promotions, among other things.
-"""
 import sys
 
 if sys.version_info[:2] >= (3, 8):
@@ -20,7 +14,3 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 finally:
     del version, PackageNotFoundError
-
-if __name__ == '__main__':
-    # https://github.com/gchang12/aenir
-    pass
