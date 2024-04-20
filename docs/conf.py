@@ -79,24 +79,13 @@ templates_path = ["_templates"]
 
 
 # Enable markdown
-extensions.append("myst_parser")
+#extensions.append("myst_parser")
 
 # Configure MyST-Parser
-myst_enable_extensions = [
-    "amsmath",
-    "colon_fence",
-    "deflist",
-    "dollarmath",
-    "html_image",
-    "linkify",
-    "replacements",
-    "smartquotes",
-    "substitution",
-    "tasklist",
-]
+#myst_enable_extensions = [ "amsmath", "colon_fence", "deflist", "dollarmath", "html_image", "linkify", "replacements", "smartquotes", "substitution", "tasklist", ]
 
 # The suffix of source filenames.
-source_suffix = [".rst", ".md"]
+source_suffix = [".rst"]
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
