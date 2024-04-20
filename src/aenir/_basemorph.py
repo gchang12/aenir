@@ -5,6 +5,8 @@ Defines the BaseMorph class.
 BaseMorph: Defines methods for verifying manual input, and matching it to the proper sources.
 """
 
+# TODO: Create docstrings. Organize documentation better.
+
 import logging
 import io
 from typing import Tuple, List
