@@ -67,7 +67,7 @@ class ProtoMorph:
 
         """ SerenesTranscriber
         """
-        self.tables_file = "cleaned_stats.db"
+        #self.tables_file = "cleaned_stats.db"
         self.page_dict = {
             "characters/base-stats": "characters__base_stats",
             "characters/growth-rates": "characters__growth_rates",
