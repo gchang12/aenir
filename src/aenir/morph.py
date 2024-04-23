@@ -427,7 +427,7 @@ class Morph4(Morph):
             self._unit_name = unit_name
             self.current_clstype = "characters/base-stats"
             # implicitly convert to float
-            self.comparison_labels = {"Father": father_name}
+            self.comparison_labels.update({"Father": father_name})
             self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
             Morph.__init__(self, game_num, unit_name, tableindex=0)

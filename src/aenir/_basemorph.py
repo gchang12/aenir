@@ -46,6 +46,48 @@ class ProtoMorph:
         9: "path-of-radiance",
     }
 
+    NUM_TO_FULLNAME = {
+        4: "Genealogy of the Holy War",
+        5: "Thracia 776",
+        6: "Sword of Seals",
+        7: "Blazing Sword",
+        8: "The Sacred Stones",
+        9: "Path of Radiance",
+    }
+
+    page_dict = {
+        "characters/base-stats": "characters__base_stats",
+        "characters/growth-rates": "characters__growth_rates",
+        "classes/maximum-stats": "classes__maximum_stats",
+        "classes/promotion-gains": "classes__promotion_gains",
+    }
+
+    tables_file = "cleaned_stats.db"
+
+    @property
+    def url_to_tables(self):
+        return self._url_to_tables
+
+    @property
+    def game_num(self):
+        return self._game_num
+
+    @property
+    def game_name(self):
+        return self._game_name
+
+    @property
+    def history(self):
+        return self._history
+
+    @property
+    def comparison_labels(self):
+        return self._comparison_labels
+
+    @property
+    def home_dir(self):
+        return self._home_dir
+
     def __init__(self, game_num: int):
         """
         Defines:
@@ -66,16 +108,12 @@ class ProtoMorph:
         """
 
         """ SerenesTranscriber
+        # To be edited never
+        self.tables_file = "cleaned_stats.db"
         """
-        #self.tables_file = "cleaned_stats.db"
-        self.page_dict = {
-            "characters/base-stats": "characters__base_stats",
-            "characters/growth-rates": "characters__growth_rates",
-            "classes/maximum-stats": "classes__maximum_stats",
-            "classes/promotion-gains": "classes__promotion_gains",
-        }
 
-        self.url_to_tables = {}
+        # To be edited only by program
+        self._url_to_tables = {}
         """ SerenesScraper
         _URL_ROOT = "https://serenesforest.net" # not needed
         self.URL_ROOT = "https://serenesforest.net" # not needed
@@ -92,17 +130,27 @@ class ProtoMorph:
             9: "path-of-radiance",
         } # not needed
         """
-        self.game_num = game_num
-        self.game_name = self.NUM_TO_NAME[game_num]
+        # To be edited never
+        self._game_num = game_num
+        # To be edited never
+        self._game_name = self.NUM_TO_NAME[game_num]
         # essential to set_targetstats method
+        # TODO: To be edited only by program. Is set by `set_targetstats` method.
+        #       How to restrict permissions on this field so that it can only be modified by `set_targetstats`?
+        #       Perhaps a pd-Series equivalent of list.append?
         self.target_stats = None
+        # Can be edited by user.
         self.current_stats = None
+        # To be edited only by program
         # history (class, lv) tuples, and labels for comparison DataFrame
-        self.history = []
-        self.comparison_labels = {}
+        self._history = []
+        # To be edited only by program
+        self._comparison_labels = {}
         # load tables
-        self.home_dir = Path(self.DATADIR_ROOT).joinpath(self.game_name)
-        self.tables_file = "cleaned_stats.db"
+        # To be edited never
+        self._home_dir = Path(self.DATADIR_ROOT).joinpath(self.game_name)
+        # To be edited by user. Turned into class attribute.
+        #self.tables_file = "cleaned_stats.db"
 
     def load_tables(self, urlpath: str):
         """
