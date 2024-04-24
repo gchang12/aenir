@@ -794,10 +794,68 @@ class MorphShortcutTest(unittest.TestCase):
         otherlist = get_character_list(6)
         self.assertListEqual(fe6charlist, otherlist)
 
+    def test_urltotables_are_clsattr(self):
+        """
+        Tests that the attribute `url_to_tables` is a class attribute for each Morph*.
+
+        Each of the `url_to_tables` of each subclass must be shared within that subclass only.
+        """
+        roy1 = Morph(6, "Roy")
+        roy2 = Morph(6, "Roy")
+        self.assertIs(roy1.url_to_tables, roy2.url_to_tables)
+        marcus1 = Morph6("Marcus")
+        marcus2 = Morph6("Marcus")
+        self.assertIs(marcus1.url_to_tables, marcus2.url_to_tables)
+        lyn1 = Morph7("Lyn")
+        lyn2 = Morph7("Lyn")
+        self.assertIs(lyn1.url_to_tables, lyn2.url_to_tables)
+        eirika1 = Morph8("Eirika")
+        eirika2 = Morph8("Eirika")
+        self.assertIs(eirika1.url_to_tables, eirika2.url_to_tables)
+        ike1 = Morph9("Ike")
+        ike2 = Morph9("Ike")
+        self.assertIs(ike1.url_to_tables, ike2.url_to_tables)
+        sigurd1 = Morph4("Sigurd")
+        sigurd2 = Morph4("Sigurd")
+        self.assertIs(sigurd1.url_to_tables, sigurd2.url_to_tables)
+        lakche1 = Morph4("Lakche", "Arden")
+        lakche2 = Morph4("Lakche", "Arden")
+        self.assertIs(lakche1.url_to_tables, lakche2.url_to_tables)
+        self.assertIs(lakche1.url_to_tables, sigurd1.url_to_tables)
+        leif1 = Morph5("Leaf")
+        leif2 = Morph5("Leaf")
+        self.assertIs(leif1.url_to_tables, leif2.url_to_tables)
+        # (4, {5,6,7,8,9})
+        self.assertIsNot(sigurd1.url_to_tables, leif1.url_to_tables)
+        self.assertIsNot(sigurd1.url_to_tables, marcus1.url_to_tables)
+        self.assertIsNot(sigurd1.url_to_tables, lyn1.url_to_tables)
+        self.assertIsNot(sigurd1.url_to_tables, eirika1.url_to_tables)
+        self.assertIsNot(sigurd1.url_to_tables, ike1.url_to_tables)
+        # (5, {6,7,8,9})
+        self.assertIsNot(leif1.url_to_tables, marcus1.url_to_tables)
+        self.assertIsNot(leif1.url_to_tables, lyn1.url_to_tables)
+        self.assertIsNot(leif1.url_to_tables, eirika1.url_to_tables)
+        self.assertIsNot(leif1.url_to_tables, ike1.url_to_tables)
+        # (6, {7,8,9})
+        self.assertIsNot(marcus1.url_to_tables, lyn1.url_to_tables)
+        self.assertIsNot(marcus1.url_to_tables, eirika1.url_to_tables)
+        self.assertIsNot(marcus1.url_to_tables, ike1.url_to_tables)
+        # (7, {8,9})
+        self.assertIsNot(lyn1.url_to_tables, eirika1.url_to_tables)
+        self.assertIsNot(lyn1.url_to_tables, ike1.url_to_tables)
+        # (8, {9})
+        self.assertIsNot(eirika1.url_to_tables, ike1.url_to_tables)
+        # (?, {4,5,6,7,8,9})
+        self.assertIsNot(roy1.url_to_tables, lakche1.url_to_tables)
+        self.assertIsNot(roy1.url_to_tables, leif1.url_to_tables)
+        self.assertIsNot(roy1.url_to_tables, marcus1.url_to_tables)
+        self.assertIsNot(roy1.url_to_tables, lyn1.url_to_tables)
+        self.assertIsNot(roy1.url_to_tables, eirika1.url_to_tables)
+        self.assertIsNot(roy1.url_to_tables, ike1.url_to_tables)
 
 if __name__ == '__main__':
-    module = Morph7Test
-    findstr = "test__lt__"
+    module = MorphShortcutTest
+    findstr = "urltotables"
     unittest.main(
         defaultTest=[test for test in dir(module) if findstr in test],
         module=module,

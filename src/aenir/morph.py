@@ -46,6 +46,8 @@ class Morph(BaseMorph):
         (5, "Trewd"): "Swordmaster",
     }
 
+    url_to_tables = {}
+
     def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, growths_tableindex: int = 0):
         """
         Loads tables, and initializes bases among other things.
@@ -390,6 +392,8 @@ class Morph4(Morph):
     Modifies existing methods for collection of units in FE4.
     """
 
+    url_to_tables = {}
+
     def __init__(self, unit_name: str, father_name: str = None):
         """
         Extends: Morph.__init__ (conditionally).
@@ -512,6 +516,8 @@ class Morph5(Morph):
     Defines promotion exceptions, and extends level_up method.
     """
 
+    url_to_tables = {}
+
     def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__.
@@ -583,6 +589,8 @@ class Morph7(Morph):
     Inherits: aenir.morph.Morph. Serves mainly to accommodate for Lyn Mode units.
     """
 
+    url_to_tables = {}
+
     def __init__(self, unit_name: str, lyn_mode: bool = False):
         """
         Extends: Morph.__init__.
@@ -623,6 +631,9 @@ class Morph6(Morph):
     """
     Inherits: aenir.morph.Morph
     """
+
+    url_to_tables = {}
+
     def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
@@ -636,6 +647,9 @@ class Morph8(Morph):
     """
     Inherits: aenir.morph.Morph
     """
+
+    url_to_tables = {}
+
     def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
@@ -649,6 +663,9 @@ class Morph9(Morph):
     """
     Inherits: aenir.morph.Morph
     """
+
+    url_to_tables = {}
+
     def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
@@ -656,3 +673,4 @@ class Morph9(Morph):
         """
         game_num = 9
         Morph.__init__(self, game_num, unit_name, tableindex=0)
+

@@ -65,10 +65,6 @@ class ProtoMorph:
     tables_file = "cleaned_stats.db"
 
     @property
-    def url_to_tables(self):
-        return self._url_to_tables
-
-    @property
     def game_num(self):
         return self._game_num
 
@@ -113,7 +109,7 @@ class ProtoMorph:
         """
 
         # To be edited only by program
-        self._url_to_tables = {}
+        self.url_to_tables = {}
         """ SerenesScraper
         _URL_ROOT = "https://serenesforest.net" # not needed
         self.URL_ROOT = "https://serenesforest.net" # not needed
@@ -188,9 +184,35 @@ class BaseMorph(ProtoMorph):
     """
     """
 
+    url_to_tables = {}
+
     def __init__(self, game_num: int):
         ProtoMorph.__init__(self, game_num)
+        # initialize instance attribute `url_to_tables`
+        del self.url_to_tables
+        # delete instance attribute `url_to_tables`, and allow class attribute `url_to_tables` to occupy namespace
+        #if not self.url_to_tables:
         for urlpath in self.page_dict:
+            # TODO: Find out why this generates an error
+            #if urlpath in self.url_to_tables: continue
+            """
+                FAILED tests/integration/test_morph__integration.py::Morph6IntegrationTest::test_fe8_units - KeyError: 'Non-promoted (foot)'
+                FAILED tests/integration/test_morph__integration.py::Morph6IntegrationTest::test_fe9_units - KeyError: 'Non-promoted physical'
+                FAILED tests/integration/test_morph__integration.py::Morph6IntegrationTest::test_villager_amelia - KeyError: 'Non-promoted (foot)'
+                FAILED tests/integration/test_morph__integration.py::Morph6IntegrationTest::test_villager_ewan - KeyError: 'Non-promoted (foot)'
+                FAILED tests/integration/test_morph__integration.py::Morph6IntegrationTest::test_villager_ross - KeyError: 'Non-promoted (foot)'
+                FAILED tests/integration/test_morph__integration.py::Morph7IntegrationTest::test_all_units - KeyError: 'Wallace'
+                FAILED tests/integration/test_morph__integration.py::Morph7IntegrationTest::test_main_wallace - KeyError: 'Wallace'
+                FAILED tests/integration/test_morph__integration.py::Morph7IntegrationTest::test_tutorial_wallace - KeyError: 'Wallace'
+                FAILED tests/integration/test_morph__integration.py::Morph9IntegrationTest::test_all_units - KeyError: 'Non-promoted physical'
+                FAILED tests/unit/test__basemorph.py::BaseMorphTest::test_get_character_list - AssertionError: False is not true
+                FAILED tests/unit/test__basemorph.py::BaseMorphTest::test_set_targetstats - KeyError: 'Fir'
+                FAILED tests/unit/test_morph.py::Morph6Test::test_level_up - KeyError: 'Roy'
+                FAILED tests/unit/test_morph.py::Morph7Test::test__lt__ - KeyError: 'Wallace'
+                FAILED tests/unit/test_morph.py::Morph7Test::test__lt__HM - KeyError: 'Wallace'
+                FAILED tests/unit/test_morph.py::Morph7Test::test__repr__ - KeyError: 'Wallace'
+                FAILED tests/unit/test_morph.py::Morph7Test::test_get_repr_series__comparison_labels - KeyError: 'Wallace'
+            """
             self.load_tables(urlpath)
 
     def verify_clsrecon_file(self, ltable_args: Tuple[str, str, str], rtable_args: Tuple[str, str]):
