@@ -50,3 +50,4 @@ information on PyScaffold see https://pyscaffold.org/.
 
 # TODO: Provide examples of how to use
 # TODO: Actually flesh out the pyscaffold files or whatever.
+# TODO: Configure sphinx-docs in here once all is well

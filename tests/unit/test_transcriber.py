@@ -104,11 +104,11 @@ class TranscriberTest(unittest.TestCase):
         # main: fails because file does not exist
         self.sos_transcriber.tables_file = "nonexistent_file"
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
-                self.sos_transcriber.tables_file
-                )
+            self.sos_transcriber.tables_file
+        )
         self.assertFalse(
-                self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).exists()
-                )
+            self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).exists()
+        )
         self.sos_transcriber.url_to_tables[urlpath] = []
         # assert that url_to_tables contents remain the same
         old_urldict = self.sos_transcriber.url_to_tables.copy()
