@@ -45,14 +45,14 @@ class Morph6IntegrationTest(unittest.TestCase):
         self.roy.level_up(target_lv=20)
         self.roy.cap_stats()
         lv20_roy = {
-                "HP": 33.2,
-                "Pow": 12.6,
-                "Skl": 14.5,
-                "Spd": 14.6,
-                "Lck": 18.4,
-                "Def": 9.75,
-                "Res": 5.7,
-                }
+            "HP": 33.2,
+            "Pow": 12.6,
+            "Skl": 14.5,
+            "Spd": 14.6,
+            "Lck": 18.4,
+            "Def": 9.75,
+            "Res": 5.7,
+        }
         self.assertTrue(all(abs(pd.Series(lv20_roy) - self.roy.current_stats) < 0.01))
         # 2: promote, and compare
         self.roy.promote()
@@ -61,14 +61,14 @@ class Morph6IntegrationTest(unittest.TestCase):
         self.roy.level_up(target_lv=20)
         self.roy.cap_stats()
         maxed_roy = {
-                "HP": 52.4,
-                "Pow": 22.2,
-                "Skl": 25,
-                "Spd": 24.2,
-                "Lck": 29.8,
-                "Def": 16.5,
-                "Res": 16.4,
-                }
+            "HP": 52.4,
+            "Pow": 22.2,
+            "Skl": 25,
+            "Spd": 24.2,
+            "Lck": 29.8,
+            "Def": 16.5,
+            "Res": 16.4,
+        }
         self.assertTrue(all(abs(pd.Series(maxed_roy) - self.roy.current_stats) < 0.01))
 
     def test_all_units(self):
@@ -81,7 +81,8 @@ class Morph6IntegrationTest(unittest.TestCase):
         rtable = "classes__promotion_gains"
         with open(
                 str(self.roy.home_dir.joinpath(f"{ltable}-JOIN-{rtable}.json")),
-                encoding='utf-8') as rfile:
+                encoding='utf-8'
+                ) as rfile:
             promocls_dict = json.load(rfile)
         for unitname in self.roy.get_character_list():
             unit = Morph(6, unitname)
@@ -638,7 +639,8 @@ class Morph9IntegrationTest(unittest.TestCase):
         rtable = "classes__promotion_gains"
         with open(
                 str(self.ike.home_dir.joinpath(f"{ltable}-JOIN-{rtable}.json")),
-                encoding='utf-8') as rfile:
+                encoding='utf-8'
+                ) as rfile:
             promocls_dict = json.load(rfile)
         for unitname in self.ike.get_character_list():
             unit = Morph(9, unitname)
