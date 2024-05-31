@@ -257,16 +257,21 @@ class Morph6Test(unittest.TestCase):
         c_roy = comparison_df['Roy']
         self.assertEqual(c_roy.pop("Class"), self.roy.current_cls)
         self.assertEqual(c_roy.pop("Lv"), self.roy.current_lv)
+        self.assertEqual(c_roy.pop("-Cumulative-"), "-")
         #self.assertListEqual(list(c_roy.pop("PrevClassLv")), self.roy.history)
         self.assertTrue(all(c_roy == self.roy.current_stats))
         c_marcus = comparison_df['Marcus']
         self.assertEqual(c_marcus.pop("Class"), marcus.current_cls)
         self.assertEqual(c_marcus.pop("Lv"), marcus.current_lv)
+        self.assertEqual(c_marcus.pop("-Cumulative-"), "-")
         #self.assertListEqual(list(c_marcus.pop("PrevClassLv")), marcus.history)
         self.assertTrue(all(c_marcus == marcus.current_stats))
         roy = Morph(6, "Roy")
         comparison = roy < self.roy
         self.assertIsInstance(comparison, pd.DataFrame)
+        cdiff = comparison.at['-Cumulative-', 'diff']
+        self.assertIsInstance(cdiff, float)
+        self.assertEqual(cdiff, round(cdiff, 2))
         print(comparison)
         """ After the __lt__ dunder was edited, this code no longer raises an error.
         with self.assertRaises(pd.errors.InvalidIndexError):
