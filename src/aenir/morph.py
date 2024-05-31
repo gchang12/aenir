@@ -379,7 +379,17 @@ class Morph(BaseMorph):
         # This does not fail because (*.current_stats.name == *_currentstats_name)
         #stat_df[self.current_stats.name].name = self_currentstats_name
         #stat_df[other.current_stats.name].name = other_currentstats_name
-        comparison_df = pd.concat([meta_rows, clslv_df, stat_df])
+        # Calculate cdiff.
+        # TODO: Test this!
+        csum_label = "-Cumulative-"
+        csum_row = pd.DataFrame(
+            {
+                self_currentstats_name: {csum_label: "-"},
+                diff.name: {csum_label: round(sum(diff), 2)},
+                other_currentstats_name: {csum_label: "-"},
+            }
+        )
+        comparison_df = pd.concat([meta_rows, clslv_df, stat_df, csum_row])
         #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
         #self.current_stats.name, other.current_stats.name = old_selfname, old_othername
         return comparison_df
