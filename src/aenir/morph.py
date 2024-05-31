@@ -304,7 +304,50 @@ class Morph(BaseMorph):
         header_rows["Lv"] = self.current_lv
         return pd.concat([pd.Series(header_rows), self.current_stats])
 
+    # TODO: Test this!
+    def override_stats(self):
+        """
+        Accepts user input to update 'current_stats' attribute.
+        """
+        stat_labels = self.current_stats.index
+        new_stats = {}
+        def is_float(user_str: str):
+            """
+            Returns True if 'user_str' is a valid, finite float.
+            """
+            try:
+                user_num = float(user_str)
+                illegal_nums = (float('inf'), float('-inf'), float('nan'))
+                return user_num not in illegal_nums
+            except ValueError:
+                return False
+        for stat_label in stat_labels:
+            new_stat = ""
+            while not is_float(new_stat):
+                new_stat = input("Please input a new '%s' value: " % stat_label)
+            new_numstat = float(new_stat)
+            new_stats[stat_label] = new_numstat
+        self.current_stats = pd.Series(data=new_stats)
+
     def __lt__(self, other) -> pd.DataFrame:
+        """
+        Returns a pd.DataFrame summarizing the difference between one Morph and another.
+
+        Raises:
+        - no errors, hurrah!
+
+        Returned pd.DataFrame is of the form:
+        - {history}
+        - Class
+        - Lv
+        - {numeric_stats}
+
+        with name = self.unit_name
+        """
+        # order is inverted.
+        return other.__gt__(self)
+
+    def __gt__(self, other) -> pd.DataFrame:
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
 
