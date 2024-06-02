@@ -344,7 +344,7 @@ class Morph(BaseMorph):
 
         with name = self.unit_name
         """
-        # order is inverted.
+        # TODO: Check out the orders and stuff. order is inverted.
         return other.__gt__(self)
 
     def __gt__(self, other) -> pd.DataFrame:
@@ -427,9 +427,9 @@ class Morph(BaseMorph):
         csum_label = "-Cumulative-"
         csum_row = pd.DataFrame(
             {
-                self_currentstats_name: {csum_label: "-"},
+                self_currentstats_name: {csum_label: ""},
                 diff.name: {csum_label: round(sum(diff), 2)},
-                other_currentstats_name: {csum_label: "-"},
+                other_currentstats_name: {csum_label: ""},
             }
         )
         comparison_df = pd.concat([meta_rows, clslv_df, stat_df, csum_row])
