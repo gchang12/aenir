@@ -8,3 +8,4 @@ Simulates level-ups, promotions, among other things.
 if __name__ == '__main__':
     # https://github.com/gchang12/aenir
     pass
+    # test
