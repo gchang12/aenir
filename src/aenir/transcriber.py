@@ -23,11 +23,11 @@ class SerenesTranscriber(SerenesScraper):
     """
     # list of default table-sets to scrape
     page_dict = {
-            "characters/base-stats": "characters__base_stats",
-            "characters/growth-rates": "characters__growth_rates",
-            "classes/maximum-stats": "classes__maximum_stats",
-            "classes/promotion-gains": "classes__promotion_gains",
-            }
+        "characters/base-stats": "characters__base_stats",
+        "characters/growth-rates": "characters__growth_rates",
+        "classes/maximum-stats": "classes__maximum_stats",
+        "classes/promotion-gains": "classes__promotion_gains",
+    }
 
     def __init__(self, game_num: int):
         """
@@ -117,7 +117,3 @@ class SerenesTranscriber(SerenesScraper):
         #!will raise AssertionError for invalid tablenames
         assert urlname in self.page_dict
         return urlname
-
-
-if __name__ == '__main__':
-    pass
