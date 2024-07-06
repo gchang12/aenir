@@ -77,7 +77,7 @@ class SerenesCleaner(SerenesTranscriber):
 
         for index, table in enumerate(self.url_to_tables[urlpath]):
             logging.info("Replacing '%s' with numeric equivalent.", self.page_dict[urlpath] + str(index))
-            int_df = table.applymap(replace_with_int)
+            int_df = table.map(replace_with_int)
             self.url_to_tables[urlpath][index] = int_df.convert_dtypes()
 
     def create_fieldrecon_file(self):
