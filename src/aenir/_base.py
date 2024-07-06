@@ -14,13 +14,13 @@ class SerenesBase:
     """
 
     _NUM_TO_NAME = {
-            4: "genealogy-of-the-holy-war",
-            5: "thracia-776",
-            6: "binding-blade",
-            7: "blazing-sword",
-            8: "the-sacred-stones",
-            9: "path-of-radiance",
-            }
+        4: "genealogy-of-the-holy-war",
+        5: "thracia-776",
+        6: "binding-blade",
+        7: "blazing-sword",
+        8: "the-sacred-stones",
+        9: "path-of-radiance",
+    }
 
     def __init__(self, game_num: int):
         """
@@ -50,7 +50,3 @@ class SerenesBase:
         Index that looks up FE title by game number.
         """
         return self._NUM_TO_NAME
-
-
-if __name__ == '__main__':
-    pass
