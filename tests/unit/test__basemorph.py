@@ -8,10 +8,12 @@ import unittest
 import logging
 from unittest.mock import patch
 import io
+import inspect
 
 import pandas as pd
 
 from aenir._basemorph import BaseMorph
+from aenir.transcriber import SerenesTranscriber
 
 logging.basicConfig(level=logging.INFO)
 
@@ -27,13 +29,30 @@ class BaseMorphTest(unittest.TestCase):
         """
         self.sos_unit = BaseMorph(6)
 
+    def test_load_tables(self):
+        """
+        BaseMorph.load_tables is identical to SerenesTranscriber.load_tables
+        """
+        basemorph_vers = inspect.getsource(BaseMorph.load_tables)
+        serenestranscriber_vers = inspect.getsource(SerenesTranscriber.load_tables)
+        self.assertEqual(basemorph_vers, serenestranscriber_vers)
+
     def test_verify_clsrecon_file(self):
         """
         Displays names in clsrecon_dict that are not in their associated tables.
         """
         logging.info("BaseMorphTest.test_verify_clsrecon_file()")
-        for clsrecon in self.sos_unit.clsrecon_list:
-            self.sos_unit.verify_clsrecon_file(*clsrecon)
+        clsrecon_list = [
+            (("characters/base-stats", "Name", "Name"), ("characters/growth-rates", "Name")),
+            (("characters/base-stats", "Name", "Class"), ("classes/maximum-stats", "Class")),
+            (("characters/base-stats", "Name", "Class"), ("classes/promotion-gains", "Class")),
+            (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/maximum-stats", "Class")),
+            (("classes/promotion-gains", "Promotion", "Promotion"), ("classes/promotion-gains", "Class")),
+        ] # not needed for data access.
+        for game_num in range(4, 10):
+            unit = BaseMorph(game_num)
+            for clsrecon in clsrecon_list:
+                unit.verify_clsrecon_file(*clsrecon)
 
     def test_verify_maximum_stats(self):
         """
@@ -140,9 +159,69 @@ class BaseMorphTest(unittest.TestCase):
             "Guinevere",
             }
         self.assertTrue(trialmode_only.isdisjoint(set(chrlist)))
+        
+    def test_get_modeoptions(self):
+        """
+        Tests the get_*mode_options method.
+        - lyn, hard
+        Asserts that they return a list of str-booleans in the order of False, True
+        """
+        morph = BaseMorph(6)
+        expected_options = ["False", "True"]
+        self.assertListEqual(expected_options, morph.get_lynmode_options())
+        self.assertListEqual(expected_options, morph.get_hardmode_options())
+
+    def test_get_fe4_unit_list(self):
+        """
+        Tests that the function retrieves a complete list
+        of the FE4 units of the indicated types.
+        """
+        # assert error is raised when the game is not FE4
+        for game_num in range(5, 10):
+            with self.assertRaises(AssertionError):
+                BaseMorph(game_num).get_fe4_unit_list("kid")
+        # assert error if unit type is not correct
+        with self.assertRaises(KeyError):
+            unit_type = ""
+            BaseMorph(4).get_fe4_unit_list(unit_type)
+        expected = [
+            "Rana",
+            "Lakche",
+            "Skasaher",
+            "Delmud",
+            "Lester",
+            "Fee",
+            "Arthur",
+            "Patty",
+            "Nanna",
+            "Leen",
+            "Tinny",
+            "Faval",
+            "Sety",
+            "Corpul",
+        ]
+        actual = BaseMorph(4).get_fe4_unit_list("kid")
+        self.assertListEqual(expected, actual)
+        expected = [
+            "Arden",
+            "Azel",
+            "Alec",
+            "Claude",
+            "Jamka",
+            "Dew",
+            "Noish",
+            "Fin",
+            "Beowolf",
+            "Holyn",
+            "Midayle",
+            "Levin",
+            "Lex",
+        ]
+        actual = BaseMorph(4).get_fe4_unit_list("father")
+        self.assertListEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main(
-        defaultTest="test_get_character_list",
+        defaultTest="test_get_fe4_unit_list",
         module=BaseMorphTest,
     )

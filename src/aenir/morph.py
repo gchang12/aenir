@@ -26,34 +26,36 @@ class Morph(BaseMorph):
     """
 
     # declare promo-branch exceptions here as a dict-attribute
-    _BRANCHED_PROMO_EXCEPTIONS = {
-            (4, "Ira"): "Swordmaster",
-            (4, "Holyn"): "Forrest",
-            (4, "Radney"): "Swordmaster",
-            (4, "Roddlevan"): "Forrest",
-            (4, "Azel"): "Mage Knight",
-            (4, "Arthur"): "Mage Knight",
-            (4, "Tinny"): "Mage Fighter (F)",
-            (4, "Lakche"): "Swordmaster",
-            (4, "Skasaher"): "Forrest",
-            (5, "Rifis"): "Thief Fighter",
-            (5, "Asvel"): "Sage",
-            (5, "Miranda"): "Mage Knight",
-            (5, "Tania"): "Sniper (F)",
-            (5, "Ronan"): "Sniper (M)",
-            (5, "Machua"): "Mercenary",
-            (5, "Shiva"): "Swordmaster",
-            (5, "Mareeta"): "Swordmaster",
-            (5, "Trewd"): "Swordmaster",
-            }
+    BRANCHED_PROMO_EXCEPTIONS = {
+        (4, "Ira"): "Swordmaster",
+        (4, "Holyn"): "Forrest",
+        (4, "Radney"): "Swordmaster",
+        (4, "Roddlevan"): "Forrest",
+        (4, "Azel"): "Mage Knight",
+        (4, "Arthur"): "Mage Knight",
+        (4, "Tinny"): "Mage Fighter (F)",
+        (4, "Lakche"): "Swordmaster",
+        (4, "Skasaher"): "Forrest",
+        (5, "Rifis"): "Thief Fighter",
+        (5, "Asvel"): "Sage",
+        (5, "Miranda"): "Mage Knight",
+        (5, "Tania"): "Sniper (F)",
+        (5, "Ronan"): "Sniper (M)",
+        (5, "Machua"): "Mercenary",
+        (5, "Shiva"): "Swordmaster",
+        (5, "Mareeta"): "Swordmaster",
+        (5, "Trewd"): "Swordmaster",
+    }
 
-    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, datadir_root: str = None, growths_tableindex: int = 0):
+    url_to_tables = {}
+
+    def __init__(self, game_num: int, unit_name: str, *, tableindex: int = 0, growths_tableindex: int = 0):
         """
         Loads tables, and initializes bases among other things.
 
         Defines: promo_cls, unit_name, current_stats
         """
-        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
+        BaseMorph.__init__(self, game_num)
         # initialize bases
         self._unit_name = unit_name
         try:
@@ -74,19 +76,20 @@ class Morph(BaseMorph):
             self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
+        # set growth rates
+        self.set_targetstats(
+            ("characters/base-stats", self.unit_name),
+            ("characters/growth-rates", "Name"),
+            growths_tableindex,
+        )
+        self.growth_rates = self.target_stats
+        self.target_stats = None
         # test if unit has HM bonus
         if unit_name.replace(" (HM)", "") + " (HM)" in self.get_character_list():
             self.comparison_labels["Hard Mode"] = " (HM)" in unit_name
-        # set growth rates
-        self.set_targetstats(
-                ("characters/base-stats", self.unit_name),
-                ("characters/growth-rates", "Name"),
-                growths_tableindex,
-                )
-        self.growth_rates = self.target_stats
-        self.target_stats = None
         # must save memory
         self.url_to_tables.pop("characters/growth-rates")
+        #self.url_to_tables.pop("characters/base-stats")
 
     @property
     def unit_name(self) -> str:
@@ -94,13 +97,6 @@ class Morph(BaseMorph):
         The name of the unit whose stats are to be queried.
         """
         return self._unit_name
-
-    @property
-    def BRANCHED_PROMO_EXCEPTIONS(self) -> dict:
-        """
-        Resolves from_col name conflicts when promoting certain units.
-        """
-        return self._BRANCHED_PROMO_EXCEPTIONS
 
     def copy(self):
         """
@@ -126,19 +122,19 @@ class Morph(BaseMorph):
         stats_are_compatible = all(self.current_stats.index == other.current_stats.index)
         stats_are_equal = all(abs(self.current_stats - other.current_stats) < 0.01)
         scalar_attrs = [
-                "unit_name",
-                "game_num",
-                "history",
-                "comparison_labels",
-                "current_cls",
-                "current_lv",
-                "current_clstype",
-                ]
+            "unit_name",
+            "game_num",
+            "history",
+            "comparison_labels",
+            "current_cls",
+            "current_lv",
+            "current_clstype",
+        ]
         equality_conditions = [stats_are_compatible, stats_are_equal]
         for attr in scalar_attrs:
             equality_conditions.append(
-                    getattr(self, attr) == getattr(other, attr)
-                    )
+                getattr(self, attr) == getattr(other, attr)
+            )
         return all(equality_conditions)
 
     def level_up(self, target_lv: int):
@@ -173,12 +169,12 @@ class Morph(BaseMorph):
         else:
             try:
                 minpromolv = {
-                        (6, "Roy"): 1,
-                        (7, "Hector"): 1,
-                        (7, "Eliwood"): 1,
-                        (5, "Linoan"): 1,
-                        (5, "Leif"): 1,
-                        }[(self.game_num, self.unit_name)]
+                    (6, "Roy"): 1,
+                    (7, "Hector"): 1,
+                    (7, "Eliwood"): 1,
+                    (5, "Linoan"): 1,
+                    (5, "Leif"): 1,
+                }[(self.game_num, self.unit_name)]
             except KeyError:
                 minpromolv = 10
         return minpromolv
@@ -213,10 +209,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/promotion-gains", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/promotion-gains", "Class"),
+            tableindex,
+        )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
         if self.current_lv < self.get_minpromolv():
@@ -227,7 +223,7 @@ class Morph(BaseMorph):
             try:
                 self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
             except KeyError as key_err:
-                print("Please select a valid promotion class:", self.target_stats["Promotion"].to_list())
+                print("Please select a valid promotion class:", self.target_stats["Promotion"].drop_duplicates().to_list())
                 raise key_err
             # raises KeyError for split-promotions; utilize to advantage (i.e. SELECT from target_stats.loc[:, "Promotion"])
             self.current_cls = self.target_stats.name
@@ -249,10 +245,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/maximum-stats", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/maximum-stats", "Class"),
+            tableindex,
+        )
         logging.info("Morph.cap_stats(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
@@ -267,10 +263,10 @@ class Morph(BaseMorph):
         elif self.current_clstype == "classes/promotion-gains":
             lindex_val = self.current_cls
         self.set_targetstats(
-                (self.current_clstype, lindex_val),
-                ("classes/maximum-stats", "Class"),
-                tableindex,
-                )
+            (self.current_clstype, lindex_val),
+            ("classes/maximum-stats", "Class"),
+            tableindex,
+        )
         logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
         temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         return temp_maxes == self.current_stats
@@ -299,7 +295,7 @@ class Morph(BaseMorph):
         """
         # create header rows
         header_rows = OrderedDict()
-        header_rows["Name"] = self.unit_name
+        header_rows["Name"] = self.unit_name.replace(" (HM)", "")
         if "comparison_labels" in detail_list:
             header_rows.update(self.comparison_labels)
         if "history" in detail_list:
@@ -308,6 +304,31 @@ class Morph(BaseMorph):
         header_rows["Class"] = self.current_cls
         header_rows["Lv"] = self.current_lv
         return pd.concat([pd.Series(header_rows), self.current_stats])
+
+    # TODO: Test this!
+    def override_stats(self):
+        """
+        Accepts user input to update 'current_stats' attribute.
+        """
+        stat_labels = self.current_stats.index
+        new_stats = {}
+        def is_float(user_str: str):
+            """
+            Returns True if 'user_str' is a valid, finite float.
+            """
+            try:
+                user_num = float(user_str)
+                illegal_nums = (float('inf'), float('-inf'), float('nan'))
+                return user_num not in illegal_nums
+            except ValueError:
+                return False
+        for stat_label in stat_labels:
+            new_stat = ""
+            while not is_float(new_stat):
+                new_stat = input("Please input a new '%s' value: " % stat_label)
+            new_numstat = float(new_stat)
+            new_stats[stat_label] = new_numstat
+        self.current_stats = pd.Series(data=new_stats)
 
     def __lt__(self, other) -> pd.DataFrame:
         """
@@ -324,16 +345,44 @@ class Morph(BaseMorph):
 
         with name = self.unit_name
         """
-        # create stat_df
-        if other.current_stats.name == self.current_stats.name:
-            other.current_stats.name += " (2)"
+        # TODO: Check out the orders and stuff. order is inverted.
+        return other.__gt__(self)
+
+    def __gt__(self, other) -> pd.DataFrame:
+        """
+        Returns a pd.DataFrame summarizing the difference between one Morph and another.
+
+        Raises:
+        - no errors, hurrah!
+
+        Returned pd.DataFrame is of the form:
+        - {history}
+        - Class
+        - Lv
+        - {numeric_stats}
+
+        with name = self.unit_name
+        """
+        # naming logistics here
+        self_currentstats_name = self.unit_name.replace(" (HM)", "")
+        other_currentstats_name = other.unit_name.replace(" (HM)", "")
+        if other_currentstats_name == self_currentstats_name:
+            other_currentstats_name += " (2)"
         diff = other.current_stats - self.current_stats
-        diff.name = 'is-less_than-by'
+        diff.name = 'diff'
+        #old_selfname, old_othername = self.current_stats.name, other.current_stats.name
+        self_current_stats = self.current_stats.copy()
+        other_current_stats = other.current_stats.copy()
+        self_current_stats.name = self_currentstats_name
+        other_current_stats.name = other_currentstats_name
+        #self.current_stats.name = self_currentstats_name
+        #other.current_stats.name = other_currentstats_name
+        # create stat_df
         stat_df = pd.concat(
             [
-                self.current_stats,
+                self_current_stats,
                 diff,
-                other.current_stats,
+                other_current_stats,
             ],
             axis=1,
         )
@@ -349,11 +398,13 @@ class Morph(BaseMorph):
             self_clslv[index] = entry
         for index, entry in enumerate(other.history):
             other_clslv[index] = entry
+        #self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
+        #other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
         clslv_df = pd.DataFrame(
             {
-                self.current_stats.name: self_clslv,
+                self_currentstats_name: self_clslv,
                 diff.name: ['-' for entry in self_clslv],
-                other.current_stats.name: other_clslv,
+                other_currentstats_name: other_clslv,
             },
             index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
         )
@@ -364,25 +415,28 @@ class Morph(BaseMorph):
                 continue
             meta_labels.append(row_label)
         meta_map = {
-            self.current_stats.name: [],
-            diff.name: [],
-            other.current_stats.name: [],
+            self_currentstats_name: self.comparison_labels,
+            diff.name: {},
+            other_currentstats_name: other.comparison_labels,
         }
-        for row_label in meta_labels:
-            if row_label in self.comparison_labels:
-                comparison_val = self.comparison_labels[row_label]
-            else:
-                comparison_val = "-"
-            meta_map[self.current_stats.name].append(comparison_val)
-            if row_label in other.comparison_labels:
-                comparison_val = other.comparison_labels[row_label]
-            else:
-                comparison_val = "-"
-            meta_map[other.current_stats.name].append(comparison_val)
-            meta_map[diff.name].append("-")
-        meta_rows = pd.DataFrame(meta_map, index=meta_labels)
-        other.current_stats.name = other.current_stats.name.replace(" (2)", "")
-        return pd.concat([meta_rows, clslv_df, stat_df])
+        meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
+        # This does not fail because (*.current_stats.name == *_currentstats_name)
+        #stat_df[self.current_stats.name].name = self_currentstats_name
+        #stat_df[other.current_stats.name].name = other_currentstats_name
+        # Calculate cdiff.
+        # TODO: Test this!
+        csum_label = "-Cumulative-"
+        csum_row = pd.DataFrame(
+            {
+                self_currentstats_name: {csum_label: ""},
+                diff.name: {csum_label: round(sum(diff), 2)},
+                other_currentstats_name: {csum_label: ""},
+            }
+        )
+        comparison_df = pd.concat([meta_rows, clslv_df, stat_df, csum_row])
+        #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
+        #self.current_stats.name, other.current_stats.name = old_selfname, old_othername
+        return comparison_df
 
 
 class Morph4(Morph):
@@ -392,7 +446,9 @@ class Morph4(Morph):
     Modifies existing methods for collection of units in FE4.
     """
 
-    def __init__(self, unit_name: str, father_name: str = None, *, datadir_root: str = None):
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str, father_name: str = None):
         """
         Extends: Morph.__init__ (conditionally).
 
@@ -400,7 +456,7 @@ class Morph4(Morph):
         Defines: father_name
         """
         game_num = 4
-        BaseMorph.__init__(self, game_num, datadir_root=datadir_root)
+        BaseMorph.__init__(self, game_num)
         # inherits from Morph, which declares this a property
         #self.unit_name = unit_name
         try:
@@ -417,7 +473,7 @@ class Morph4(Morph):
         if self.is_kid:
             # initialize bases
             try:
-                temp_bases = self.url_to_tables.pop("characters/base-stats")[kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
+                temp_bases = self.url_to_tables["characters/base-stats"][kid_tableindex].set_index(["Name", "Father"]).loc[(unit_name, father_name), :]
             except KeyError as unit_dne_err:
                 father_list = list(self.url_to_tables.pop("characters/base-stats")[kid_tableindex]["Father"].unique())
                 print(f"'{father_name}' is not in the list of FE4 fathers: {self.get_character_list()}.")
@@ -429,14 +485,35 @@ class Morph4(Morph):
             self._unit_name = unit_name
             self.current_clstype = "characters/base-stats"
             # implicitly convert to float
-            self.comparison_labels = {"Father": father_name}
+            self.comparison_labels.update({"Father": father_name})
             self.growth_rates = self.url_to_tables.pop("characters/growth-rates")[kid_tableindex].set_index(["Name", "Father"]).loc[(self.unit_name, self.father_name), :]
         else:
-            Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+            Morph.__init__(self, game_num, unit_name, tableindex=0)
         try:
-            self.promo_cls = self._BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
+            self.promo_cls = self.BRANCHED_PROMO_EXCEPTIONS[(game_num, unit_name)]
         except KeyError:
             self.promo_cls = None
+
+    def get_maxlv(self) -> int:
+        """
+        Determines the maximum level for a given unit.
+        """
+        if self.current_clstype == "characters/base-stats":
+            lindex_val = self.unit_name
+        elif self.current_clstype == "classes/promotion-gains":
+            lindex_val = self.current_cls
+        tableindex = 0
+        self.set_targetstats(
+            (self.current_clstype, lindex_val),
+            ("classes/promotion-gains", "Class"),
+            tableindex,
+        )
+        if self.target_stats is None: # a.k.a. cannot promote
+            maxlv = 30
+        else:
+            maxlv = 20
+        return maxlv
+
 
     @property
     def unit_name(self) -> str:
@@ -493,14 +570,16 @@ class Morph5(Morph):
     Defines promotion exceptions, and extends level_up method.
     """
 
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__.
 
         Defines: equipped_scrolls := List[str]
         """
         game_num = 5
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
         self.equipped_scrolls = []
 
     def promote(self):
@@ -564,7 +643,9 @@ class Morph7(Morph):
     Inherits: aenir.morph.Morph. Serves mainly to accommodate for Lyn Mode units.
     """
 
-    def __init__(self, unit_name: str, lyn_mode: bool = False, *, datadir_root: str = None):
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str, lyn_mode: bool = False):
         """
         Extends: Morph.__init__.
 
@@ -573,24 +654,24 @@ class Morph7(Morph):
         """
         game_num = 7
         # if the user lists a non-LM unit, but puts lyn_mode=True, the program halts
-        Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1), datadir_root=datadir_root)
-        logging.info("Morph7.__init__('%s', %s, %s)", unit_name, lyn_mode, datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=(0 if lyn_mode else 1))
+        logging.info("Morph7.__init__('%s', %s)", unit_name, lyn_mode)
         self.lyn_mode = None
         lyndis_league = (
-                "Lyn",
-                "Sain",
-                "Kent",
-                "Florina",
-                "Wil",
-                "Dorcas",
-                "Serra",
-                "Erk",
-                "Rath",
-                "Matthew",
-                "Nils",
-                "Lucius"
-                "Wallace",
-                )
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius"
+            "Wallace",
+        )
         if unit_name in lyndis_league:
             self.comparison_labels.update({"Campaign": ("Main" if not lyn_mode else "Tutorial")})
             self.lyn_mode = lyn_mode
@@ -604,40 +685,46 @@ class Morph6(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 6
         """
         game_num = 6
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
 
 
 class Morph8(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 8
         """
         game_num = 8
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
 
 
 class Morph9(Morph):
     """
     Inherits: aenir.morph.Morph
     """
-    def __init__(self, unit_name: str, *, datadir_root: str = None):
+
+    url_to_tables = {}
+
+    def __init__(self, unit_name: str):
         """
         Extends: Morph.__init__
         - game_num: 9
         """
         game_num = 9
-        Morph.__init__(self, game_num, unit_name, tableindex=0, datadir_root=datadir_root)
+        Morph.__init__(self, game_num, unit_name, tableindex=0)
 
-
-if __name__ == '__main__':
-    pass
