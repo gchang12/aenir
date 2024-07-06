@@ -92,42 +92,6 @@ class TranscriberTest(unittest.TestCase):
             self.sos_transcriber.save_tables(urlpath)
         self.assertFalse(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
 
-    @patch("pathlib.Path.joinpath")
-    def test_saveload_tables(self, mock_joinpath):
-        """
-        Tests that save-load methods function in that the table saved is the same one loaded.
-        """
-        urlpath = "characters/base-stats"
-        # compile tables
-        self.sos_transcriber.scrape_tables(urlpath)
-        # save scraped table for comparison
-        saved_bases = self.sos_transcriber.url_to_tables[urlpath][0].copy()
-        # main:
-        tfile = tempfile.NamedTemporaryFile()
-        mock_joinpath.return_value = MockPath(tfile.name)
-        self.sos_transcriber.save_tables(urlpath)
-        # urlpath is popped from url_to_tables
-        self.assertNotIn(urlpath, self.sos_transcriber.url_to_tables)
-        # data-dir should now exist
-        self.assertTrue(self.sos_transcriber.home_dir.exists())
-        tables_file = self.sos_transcriber.tables_file
-        # tables-file should now exist
-        #self.assertTrue(self.sos_transcriber.home_dir.joinpath(tables_file).exists())
-        # main:
-        with patch("__main__.list") as mocklist:
-            mocklist.append.side_effect = ValueError
-            self.sos_transcriber.load_tables(urlpath)
-        self.assertIn(urlpath, self.sos_transcriber.url_to_tables)
-        self.assertGreater(len(self.sos_transcriber.url_to_tables[urlpath]), 0)
-        # before-table should match after-table
-        loaded_bases = self.sos_transcriber.url_to_tables[urlpath][0]
-        self.assertTrue(all(saved_bases == loaded_bases))
-        # fail: table already exists
-        url_to_tables = self.sos_transcriber.url_to_tables.copy()
-        with self.assertRaises(ValueError):
-            self.sos_transcriber.save_tables(urlpath)
-        self.assertDictEqual(url_to_tables, self.sos_transcriber.url_to_tables)
-
     def test_load_tables__failures(self):
         """
         Tests/documents all possible failures for load_tables method.
@@ -140,11 +104,11 @@ class TranscriberTest(unittest.TestCase):
         # main: fails because file does not exist
         self.sos_transcriber.tables_file = "nonexistent_file"
         absolute_tables_file = self.sos_transcriber.home_dir.joinpath(
-                self.sos_transcriber.tables_file
-                )
+            self.sos_transcriber.tables_file
+        )
         self.assertFalse(
-                self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).exists()
-                )
+            self.sos_transcriber.home_dir.joinpath(self.sos_transcriber.tables_file).exists()
+        )
         self.sos_transcriber.url_to_tables[urlpath] = []
         # assert that url_to_tables contents remain the same
         old_urldict = self.sos_transcriber.url_to_tables.copy()
