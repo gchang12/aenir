@@ -14,4 +14,4 @@ requests==2.32.3
 tomli==2.0.1
 tox==4.16.0
 urllib3==2.2.2
-virtualenv==20.26.3
+virtualenv>=20.26.6
