@@ -8,11 +8,26 @@ class AbstractStats(abc.ABC):
     """
     #STAT_LIST = None
 
+    @classmethod
     @abc.abstractmethod
     def STAT_LIST(self):
         """
         """
-        return ()
+
+    def __init__(self, stat_dict):
+        for stat in self.STAT_LIST():
+            setattr(self, stat, stat_dict.pop(stat))
+
+    @classmethod
+    def __lt__(cls, self, other):
+        """
+        """
+        stat_dict = {}
+        for stat in cls.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat < other_stat
+        return cls(**stat_dict)
 
     def __iadd__(self, other):
         """
@@ -37,9 +52,18 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
 
+    def __repr__(self):
+        """
+        """
+        stat_dict = []
+        for stat in self.STAT_LIST():
+            stat_dict.append((stat, getattr(self, stat))
+        return str(stat_dict)
+
 class GenealogyStats(AbstractStats):
 
-    def STAT_LIST(self):
+    @classmethod
+    def STAT_LIST(cls):
         """
         """
         # constant
@@ -54,24 +78,13 @@ class GenealogyStats(AbstractStats):
             "Res",
         )
 
-    def __init__(self, HP, Str, Mag, Skl, Spd, Lck, Def, Res):
-        """
-        """
-        self.HP = HP
-        self.Str = Str
-        self.Mag = Mag
-        self.Skl = Skl
-        self.Spd = Spd
-        self.Lck = Lck
-        self.Def = Def
-        self.Res = Res
-
 
 class ThraciaStats(AbstractStats):
     """
     """
 
-    def STAT_LIST(self):
+    @classmethod
+    def STAT_LIST(cls):
         """
         """
         # constant
@@ -86,26 +99,14 @@ class ThraciaStats(AbstractStats):
             "Con",
             "Mov",
         )
-
-    def __init__(self, HP, Str, Mag, Skl, Spd, Lck, Def, Con, Mov):
-        """
-        """
-        self.HP = HP
-        self.Str = Str
-        self.Mag = Mag
-        self.Skl = Skl
-        self.Spd = Spd
-        self.Lck = Lck
-        self.Def = Def
-        self.Con = Con
-        self.Mov = Mov
 
 
 class GBAStats(AbstractStats):
     """
     """
 
-    def STAT_LIST(self):
+    @classmethod
+    def STAT_LIST(cls):
         """
         """
         # constant
@@ -120,16 +121,4 @@ class GBAStats(AbstractStats):
             "Con",
             "Mov",
         )
-
-    def __init__(self, HP, Pow, Skl, Spd, Lck, Def, Res):
-        """
-        """
-        # stat attributes have private access
-        self.HP = HP
-        self.Pow = Pow
-        self.Skl = Skl
-        self.Spd = Spd
-        self.Lck = Lck
-        self.Def = Def
-        self.Res = Res
 
