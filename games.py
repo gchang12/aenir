@@ -1,3 +1,6 @@
+"""
+"""
+
 import enum
 
 class FireEmblemGame(enum.IntEnum):
