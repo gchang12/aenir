@@ -1,12 +1,14 @@
 """
 """
 
+import logging
 import abc
+
+from exceptions import InvalidStatsExceptions
 
 class AbstractStats(abc.ABC):
     """
     """
-    #STAT_LIST = None
 
     @classmethod
     @abc.abstractmethod
@@ -14,15 +16,52 @@ class AbstractStats(abc.ABC):
         """
         """
 
-    def __init__(self, stat_dict):
+    @classmethod
+    def get_stat_dict(cls, fill_value):
+        """
+        """
+        stat_dict = dict(
+            map(lambda stat: (stat_fill_value), cls.STAT_LIST())
+        )
+        #stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
+        for stat in cls.STAT_LIST():
+            stat_dict[stat] = fill_value
+        return stat_dict
+
+    def __init__(self, **stat_dict):
+        # check if statlist in statdict
+        expected_stats = set(self.STAT_LIST())
+        actual_stats = set(stat_dict)
+        if not expected_stats.issubset(actual_stats):
+            # get list of missing keywords and report to user
+            statlist = self.STAT_LIST()
+            def by_statlist_ordering(stat):
+                """
+                Gets index of `stat` in `STAT_LIST` class method return-value.
+                """
+                return statlist.index(stat)
+            missing_stats = sorted(
+                expected_stats - actual_stats,
+                key=by_statlist_ordering,
+            )
+            raise TypeError("Please supply values for the following stats: %s" % missing_stats)
+        # initialize
         for stat in self.STAT_LIST():
-            setattr(self, stat, stat_dict.pop(stat))
+            stat_value = stat_dict.pop(stat)
+            setattr(self, stat, stat_value)
+        # warn user of unused kwargs
+        if stat_dict:
+            logging.warning("These keyword arguments have gone unused: %s", stat_dict)
 
     @classmethod
     def __lt__(cls, self, other):
         """
         """
         stat_dict = {}
+        #try:
+        assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
         for stat in cls.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -32,13 +71,23 @@ class AbstractStats(abc.ABC):
     def __iadd__(self, other):
         """
         """
+        #try:
+        assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
         for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            setattr(self, stat, other_stat)
+            new_stat = self_stat + other_stat
+            setattr(self, stat, new_stat)
 
     def min(self, other):
         """
         """
+        #try:
+        assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -47,6 +96,10 @@ class AbstractStats(abc.ABC):
     def max(self, other):
         """
         """
+        #try:
+        assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -57,10 +110,13 @@ class AbstractStats(abc.ABC):
         """
         stat_dict = []
         for stat in self.STAT_LIST():
-            stat_dict.append((stat, getattr(self, stat))
+            self_stat = getattr(self, stat)
+            stat_dict.append((stat, self_stat))
         return str(stat_dict)
 
 class GenealogyStats(AbstractStats):
+    """
+    """
 
     @classmethod
     def STAT_LIST(cls):
@@ -112,8 +168,7 @@ class GBAStats(AbstractStats):
         # constant
         return (
             "HP",
-            "Str",
-            "Mag",
+            "Pow",
             "Skl",
             "Spd",
             "Lck",
