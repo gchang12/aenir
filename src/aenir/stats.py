@@ -4,7 +4,7 @@
 import logging
 import abc
 
-from exceptions import InvalidStatsExceptions
+#from exceptions import InvalidStatsExceptions
 
 class AbstractStats(abc.ABC):
     """
@@ -20,15 +20,15 @@ class AbstractStats(abc.ABC):
     def get_stat_dict(cls, fill_value):
         """
         """
-        stat_dict = dict(
-            map(lambda stat: (stat_fill_value), cls.STAT_LIST())
-        )
-        #stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
-        for stat in cls.STAT_LIST():
-            stat_dict[stat] = fill_value
+        #stat_dict = dict( map(lambda stat: (fill_value), cls.STAT_LIST()))
+        stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
+        #for stat in cls.STAT_LIST():
+            #stat_dict[stat] = fill_value
         return stat_dict
 
     def __init__(self, **stat_dict):
+        """
+        """
         # check if statlist in statdict
         expected_stats = set(self.STAT_LIST())
         actual_stats = set(stat_dict)
