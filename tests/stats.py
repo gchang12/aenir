@@ -12,7 +12,6 @@ from aenir.stats import (
 )
 from aenir.logging import logger
 
-# TODO: refactor s.t. dummy subclass is used instead of implemented one.
 # TODO: Pare down on list of fields in  source files.
 
 class AbstractStatsTests(unittest.TestCase):
@@ -28,7 +27,7 @@ class AbstractStatsTests(unittest.TestCase):
 
     class NonTupleStats(AbstractStats):
         """
-        Where 'STAT_LIST' does not return tuple.
+        Where 'STAT_LIST' returns a non-tuple.
         """
 
         @classmethod
@@ -46,7 +45,7 @@ class AbstractStatsTests(unittest.TestCase):
         @classmethod
         def STAT_LIST(cls):
             """
-            Returns non-tuple.
+            Returns a tuple containing at least one non-str.
             """
             return (
                 "a",
