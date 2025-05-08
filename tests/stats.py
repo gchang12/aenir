@@ -111,7 +111,7 @@ class StatsTests(unittest.TestCase):
         )
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
-        actual_stats = stats1.lt(stats1, stats2)
+        actual_stats = stats1.lt(stats2)
         for attrname in ("a", "b", "c", "d", "e", "f", "g"):
             actual = getattr(actual_stats, attrname)
             expected = getattr(expected_stats, attrname)
@@ -152,9 +152,9 @@ class StatsTests(unittest.TestCase):
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
         with self.assertRaises(AssertionError):
-            stats1.lt(stats2, stats1)
+            stats1.lt(stats2)
         with self.assertRaises(AssertionError):
-            stats2.lt(stats1, stats2)
+            stats2.lt(stats1)
 
     def test_iadd__different_classes(self):
         """
