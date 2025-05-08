@@ -5,7 +5,6 @@ import abc
 
 from aenir.logging import logger
 
-#from exceptions import InvalidStatsExceptions
 
 class AbstractStats(abc.ABC):
     """
@@ -60,23 +59,7 @@ class AbstractStats(abc.ABC):
         if stat_dict:
             logger.warning("These keyword arguments have gone unused: %s", stat_dict)
 
-    @classmethod
-    def __lt__(cls, self, other):
-        """
-        Returns *Stats<bool> indicating which stats in `self` < `other`.
-        """
-        stat_dict = {}
-        #try:
-        assert type(self) == type(other)
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
-        for stat in cls.STAT_LIST():
-            self_stat = getattr(self, stat)
-            other_stat = getattr(other, stat)
-            stat_dict[stat] = self_stat < other_stat
-        return cls(**stat_dict)
-
-    def __iadd__(self, other):
+    def iadd(self, other):
         """
         Increments values of `self` by corresponding values in `other`.
         """
@@ -115,6 +98,37 @@ class AbstractStats(abc.ABC):
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
+
+    @classmethod
+    def lt(cls, self, other):
+        """
+        Returns *Stats<bool> indicating which stats in `self` < `other`.
+        """
+        #try:
+        assert isinstance(self, cls)
+        assert isinstance(other, cls)
+        stat_dict = {}
+        #assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
+        for stat in cls.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat < other_stat
+        return cls(**stat_dict)
+
+    @classmethod
+    def eq(cls, self, other):
+        """
+        """
+        assert isinstance(self, cls)
+        assert isinstance(other, cls)
+        values_match = {}
+        for statname in cls.STAT_LIST():
+            self_val = getattr(self, statname)
+            other_val = getattr(other, statname)
+            values_match[statname] = self_val == other_val
+        return cls(**values_match)
 
     def __repr__(self):
         """
