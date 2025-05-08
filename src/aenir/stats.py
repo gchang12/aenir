@@ -117,19 +117,6 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat < other_stat
         return cls(**stat_dict)
 
-    @classmethod
-    def eq(cls, self, other):
-        """
-        """
-        assert isinstance(self, cls)
-        assert isinstance(other, cls)
-        values_match = {}
-        for statname in cls.STAT_LIST():
-            self_val = getattr(self, statname)
-            other_val = getattr(other, statname)
-            values_match[statname] = self_val == other_val
-        return cls(**values_match)
-
     def __repr__(self):
         """
         """
