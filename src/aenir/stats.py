@@ -59,9 +59,7 @@ class AbstractStats(abc.ABC):
         if stat_dict:
             logger.warning("These keyword arguments have gone unused: %s", stat_dict)
 
-    # TODO: To be tested
-
-    def min(self, other):
+    def imin(self, other):
         """
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
@@ -74,7 +72,7 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, min(self_stat, other_stat))
 
-    def max(self, other):
+    def imax(self, other):
         """
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
@@ -86,8 +84,6 @@ class AbstractStats(abc.ABC):
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
-
-    # END: TODO
 
     def iadd(self, other):
         """
