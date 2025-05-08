@@ -1,24 +1,28 @@
 """
 """
 
-import logging
 import abc
+
+from aenir.logging import logger
 
 #from exceptions import InvalidStatsExceptions
 
 class AbstractStats(abc.ABC):
     """
+    Defines methods for comparison, setting, and incrementation of numerical stats.
     """
 
     @classmethod
     @abc.abstractmethod
     def STAT_LIST(self):
         """
+        The kernel of the class; differs for each subclass.
         """
 
     @classmethod
     def get_stat_dict(cls, fill_value):
         """
+        Returns `kwargs` for initialization; each key mapped to `fill_value`.
         """
         #stat_dict = dict( map(lambda stat: (fill_value), cls.STAT_LIST()))
         stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
@@ -28,8 +32,11 @@ class AbstractStats(abc.ABC):
 
     def __init__(self, **stat_dict):
         """
+        Alerts user of which stats want declaration if `stat_dict` is incomplete.
+        Warns user about unused kwargs.
         """
         # check if statlist in statdict
+        assert isinstance(self.STAT_LIST(), tuple)
         expected_stats = set(self.STAT_LIST())
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
@@ -37,7 +44,7 @@ class AbstractStats(abc.ABC):
             statlist = self.STAT_LIST()
             def by_statlist_ordering(stat):
                 """
-                Gets index of `stat` in `STAT_LIST` class method return-value.
+                Returns position of `stat` in `cls.STAT_LIST()`.
                 """
                 return statlist.index(stat)
             missing_stats = sorted(
@@ -51,11 +58,12 @@ class AbstractStats(abc.ABC):
             setattr(self, stat, stat_value)
         # warn user of unused kwargs
         if stat_dict:
-            logging.warning("These keyword arguments have gone unused: %s", stat_dict)
+            logger.warning("These keyword arguments have gone unused: %s", stat_dict)
 
     @classmethod
     def __lt__(cls, self, other):
         """
+        Returns *Stats<bool> indicating which stats in `self` < `other`.
         """
         stat_dict = {}
         #try:
@@ -70,6 +78,7 @@ class AbstractStats(abc.ABC):
 
     def __iadd__(self, other):
         """
+        Increments values of `self` by corresponding values in `other`.
         """
         #try:
         assert type(self) == type(other)
@@ -83,6 +92,7 @@ class AbstractStats(abc.ABC):
 
     def min(self, other):
         """
+        Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
         #try:
         assert type(self) == type(other)
@@ -95,6 +105,7 @@ class AbstractStats(abc.ABC):
 
     def max(self, other):
         """
+        Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
         #try:
         assert type(self) == type(other)
@@ -108,6 +119,7 @@ class AbstractStats(abc.ABC):
     def __repr__(self):
         """
         """
+        raise NotImplementedError("Yet to decide on how to display stats.")
         stat_dict = []
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
