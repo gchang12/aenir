@@ -59,19 +59,7 @@ class AbstractStats(abc.ABC):
         if stat_dict:
             logger.warning("These keyword arguments have gone unused: %s", stat_dict)
 
-    def iadd(self, other):
-        """
-        Increments values of `self` by corresponding values in `other`.
-        """
-        #try:
-        assert type(self) == type(other)
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
-        for stat in self.STAT_LIST():
-            self_stat = getattr(self, stat)
-            other_stat = getattr(other, stat)
-            new_stat = self_stat + other_stat
-            setattr(self, stat, new_stat)
+    # TODO: To be tested
 
     def min(self, other):
         """
@@ -99,23 +87,38 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
 
-    @classmethod
-    def lt(cls, self, other):
+    # END: TODO
+
+    def iadd(self, other):
+        """
+        Increments values of `self` by corresponding values in `other`.
+        """
+        #try:
+        assert type(self) == type(other)
+        #except AssertionError as assert_err:
+            #raise NotImplementedError
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            new_stat = self_stat + other_stat
+            setattr(self, stat, new_stat)
+
+    def lt(self, other):
         """
         Returns *Stats<bool> indicating which stats in `self` < `other`.
         """
         #try:
-        assert isinstance(self, cls)
-        assert isinstance(other, cls)
+        #assert isinstance(self, cls)
+        #assert isinstance(other, cls)
+        assert type(self) == type(other)
         stat_dict = {}
-        #assert type(self) == type(other)
         #except AssertionError as assert_err:
             #raise NotImplementedError
-        for stat in cls.STAT_LIST():
+        for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat < other_stat
-        return cls(**stat_dict)
+        return self.__class__(**stat_dict)
 
     def __repr__(self):
         """
