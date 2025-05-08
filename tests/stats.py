@@ -94,6 +94,82 @@ class StatsTests(unittest.TestCase):
             "g": 0,
         }
 
+    def test_imin(self):
+        """
+        Tests that imin sets calling stats of calling object to minimum of self's
+        attributes and other's.
+        """
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats(**self.statdict2)
+        expected_stats = self.FunctionalStats(
+            **{
+                "a": min(stats1.a, stats2.a),
+                "b": min(stats1.b, stats2.b),
+                "c": min(stats1.c, stats2.c),
+                "d": min(stats1.d, stats2.d),
+                "e": min(stats1.e, stats2.e),
+                "f": min(stats1.f, stats2.f),
+                "g": min(stats1.g, stats2.g),
+            }
+        )
+        stats1.imin(stats2)
+        actual_stats = stats1
+        for attrname in ("a", "b", "c", "d", "e", "f", "g"):
+            actual = getattr(actual_stats, attrname)
+            expected = getattr(expected_stats, attrname)
+            self.assertEqual(actual, expected)
+
+    def test_imax(self):
+        """
+        Tests that imax sets calling stats of calling object to minimum of self's
+        attributes and other's.
+        """
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats(**self.statdict2)
+        expected_stats = self.FunctionalStats(
+            **{
+                "a": max(stats1.a, stats2.a),
+                "b": max(stats1.b, stats2.b),
+                "c": max(stats1.c, stats2.c),
+                "d": max(stats1.d, stats2.d),
+                "e": max(stats1.e, stats2.e),
+                "f": max(stats1.f, stats2.f),
+                "g": max(stats1.g, stats2.g),
+            }
+        )
+        stats1.imax(stats2)
+        actual_stats = stats1
+        for attrname in ("a", "b", "c", "d", "e", "f", "g"):
+            actual = getattr(actual_stats, attrname)
+            expected = getattr(expected_stats, attrname)
+            self.assertEqual(actual, expected)
+
+    def test_imax__different_classes(self):
+        """
+        Tests that imax only works for Stats objects of same type, even if the
+        STAT_LIST methods return identical tuples.
+        """
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats2(**self.statdict2)
+        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
+        with self.assertRaises(AssertionError):
+            stats1.imax(stats2)
+        with self.assertRaises(AssertionError):
+            stats2.imax(stats1)
+
+    def test_imin__different_classes(self):
+        """
+        Tests that imin only works for Stats objects of same type, even if the
+        STAT_LIST methods return identical tuples.
+        """
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats2(**self.statdict2)
+        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
+        with self.assertRaises(AssertionError):
+            stats1.imin(stats2)
+        with self.assertRaises(AssertionError):
+            stats2.imin(stats1)
+
     def test_lt(self):
         """
         Tests that a Stats object of booleans is returned.
