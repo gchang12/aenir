@@ -35,7 +35,8 @@ class AbstractStats(abc.ABC):
         Warns user about unused kwargs.
         """
         # check if statlist in statdict
-        assert isinstance(self.STAT_LIST(), tuple)
+        if not isinstance(self.STAT_LIST(), tuple):
+            raise TypeError("`STAT_LIST` must return a tuple; instead it returns a %r", type(self.STAT_LIST()))
         expected_stats = set(self.STAT_LIST())
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
@@ -64,7 +65,8 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
         #try:
-        assert type(self) == type(other)
+        if not type(self) == type(other):
+            raise TypeError("")
         #except AssertionError as assert_err:
             #raise NotImplementedError
         for stat in self.STAT_LIST():
@@ -77,7 +79,9 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
         #try:
-        assert type(self) == type(other)
+        #assert type(self) == type(other)
+        if not type(self) == type(other):
+            raise TypeError("")
         #except AssertionError as assert_err:
             #raise NotImplementedError
         for stat in self.STAT_LIST():
@@ -90,7 +94,9 @@ class AbstractStats(abc.ABC):
         Increments values of `self` by corresponding values in `other`.
         """
         #try:
-        assert type(self) == type(other)
+        #assert type(self) == type(other)
+        if not type(self) == type(other):
+            raise TypeError("")
         #except AssertionError as assert_err:
             #raise NotImplementedError
         for stat in self.STAT_LIST():
@@ -106,7 +112,9 @@ class AbstractStats(abc.ABC):
         #try:
         #assert isinstance(self, cls)
         #assert isinstance(other, cls)
-        assert type(self) == type(other)
+        #assert type(self) == type(other)
+        if not type(self) == type(other):
+            raise TypeError("")
         stat_dict = {}
         #except AssertionError as assert_err:
             #raise NotImplementedError

@@ -152,9 +152,9 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats1.imax(stats2)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats2.imax(stats1)
 
     def test_imin__different_classes(self):
@@ -165,9 +165,9 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats1.imin(stats2)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats2.imin(stats1)
 
     def test_lt(self):
@@ -227,9 +227,9 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats1.lt(stats2)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats2.lt(stats1)
 
     def test_iadd__different_classes(self):
@@ -241,9 +241,9 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats1.iadd(stats2)
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             stats2.iadd(stats1)
 
     def test_get_stat_dict__eq_stat_list(self):
@@ -423,7 +423,7 @@ class AbstractStatsTests(unittest.TestCase):
         """
         Asserts that 'STAT_LIST' class method must return tuple.
         """
-        with self.assertRaises(AssertionError) as assert_err:
+        with self.assertRaises(TypeError) as assert_err:
             self.NonTupleStats()
 
     def test_cannot_initialize(self):
