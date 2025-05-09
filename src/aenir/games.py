@@ -27,7 +27,7 @@ class FireEmblemGame(enum.IntEnum):
         }[self.value]
 
     @property
-    def display_name(self):
+    def formal_name(self):
         """
         """
         return {
