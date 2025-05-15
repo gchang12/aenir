@@ -268,7 +268,7 @@ class StatsTests(unittest.TestCase):
         kwargs = self.init_kwargs
         hp = kwargs.pop('a')
         test_class = self.stats_class
-        with self.assertRaises(TypeError) as type_err:
+        with self.assertRaises(AttributeError) as type_err:
             test_class(**kwargs)
 
     def test_init__unexpected_kwarg(self):
@@ -423,7 +423,7 @@ class AbstractStatsTests(unittest.TestCase):
         """
         Asserts that 'STAT_LIST' class method must return tuple.
         """
-        with self.assertRaises(TypeError) as assert_err:
+        with self.assertRaises(NotImplementedError) as assert_err:
             self.NonTupleStats()
 
     def test_cannot_initialize(self):

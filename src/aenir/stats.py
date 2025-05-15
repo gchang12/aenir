@@ -36,7 +36,7 @@ class AbstractStats(abc.ABC):
         """
         # check if statlist in statdict
         if not isinstance(self.STAT_LIST(), tuple):
-            raise TypeError("`STAT_LIST` must return a tuple; instead it returns a %r", type(self.STAT_LIST()))
+            raise NotImplementedError("`STAT_LIST` must return a tuple; instead it returns a %r", type(self.STAT_LIST()))
         expected_stats = set(self.STAT_LIST())
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
@@ -51,7 +51,7 @@ class AbstractStats(abc.ABC):
                 expected_stats - actual_stats,
                 key=by_statlist_ordering,
             )
-            raise TypeError("Please supply values for the following stats: %s" % missing_stats)
+            raise AttributeError("Please supply values for the following stats: %s" % missing_stats)
         # initialize
         for stat in self.STAT_LIST():
             stat_value = stat_dict.pop(stat)
