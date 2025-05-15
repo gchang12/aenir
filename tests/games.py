@@ -68,3 +68,4 @@ class FireEmblemGameTest(unittest.TestCase):
             expected = formal_name
             actual = game.formal_name
             self.assertEqual(actual, expected)
+
