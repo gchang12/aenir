@@ -49,17 +49,20 @@ class BaseMorph(abc.ABC):
             path_to_db: str,
             table: str,
             fields: tuple[str],
-            filters: dict[str, str]
+            filters: dict[str, str] = None,
         ):
         """
         """
-        conditions = ", ".join(
-            [
-                (str(field) + "='" + str(value) "'")
-                for field, value in filters.items()
-            ]
-        )
-        query = f"SELECT {', '.join(fields)} FROM {table} WHERE {conditions};"
+        query = f"SELECT {', '.join(fields)} FROM {table}"
+        if filters is not None:
+            conditions = " WHERE " + ", ".join(
+                [
+                    (str(field) + "='" + str(value) "'")
+                    for field, value in filters.items()
+                ]
+            )
+            query += conditions
+        query += ";"
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
             return cnxn.execute(query)
@@ -127,18 +130,20 @@ class Morph(BaseMorph):
     def CHARACTER_LIST(cls):
         """
         """
+        # NOTE: FE4 will use a different implementation
+        path_to_db = cls.path_to("cleaned_stats.db")
+        table = "characters__base_stats0"
+        fields = ["Name"]
+        query_results = query_db(
+            path_to_db,
+            table,
+            fields,
+        )
+        character_list = [result['Name'] for result in query_results]
+        return character_list
 
-    def promote(self, *args):
-        """
-        """
-        page_dict = {
-            "classes/promotion-gains": "classes__promotion_gains",
-        }
-        promo_gains = None
-
-    def __init__(self):
-        self.game = FireEmblemGame(game)
-        self.unit_name = unit_name
+    def __init__(self, unit: str):
+        self.unit = unit
         # TODO: get bases, growths, max stats
         #self.current_stats = None
         #self.growth_rates = None
@@ -151,19 +156,188 @@ class Morph(BaseMorph):
             "classes/maximum-stats": "classes__maximum_stats",
         }
 
-    def level_up(self, num_levels, *args):
-        """
-        """
-
     def cap_stats(self, *args):
         """
         """
 
-#class Morph4(Morph):
-    @classmethod
-    def get_character_list(cls):
+    def get_maxlv(self) -> int:
+        """
+        Determines the maximum level for a given unit.
+        """
+        if self.game_num == 4:
+            maxlv = 30
+        elif self.unit_name in ("Ross", "Amelia", "Ewan") and not self.history:
+            maxlv = 10
+        else:
+            maxlv = 20
+        return maxlv
+
+    def level_up(self, num_levels, *args):
         """
         """
+
+    def get_minpromolv(self) -> int:
+        """
+        Determines the minimum promotion level for a given unit.
+        All exceptional units are logged here.
+        """
+        if self.game_num == 4:
+            minpromolv = 20
+        elif (self.game_num, self.unit_name, self.promo_cls) == (5, "Lara", "Dancer"):
+            # for Lara shenanigans
+            minpromolv = 1
+        else:
+            try:
+                minpromolv = {
+                    (6, "Roy"): 1,
+                    (7, "Hector"): 1,
+                    (7, "Eliwood"): 1,
+                    (5, "Linoan"): 1,
+                    (5, "Leif"): 1,
+                }[(self.game_num, self.unit_name)]
+            except KeyError:
+                minpromolv = 10
+        return minpromolv
+
+    def promote(self, *args):
+        """
+        """
+        page_dict = {
+            "classes/promotion-gains": "classes__promotion_gains",
+        }
+        promo_gains = None
+
+    def __eq__(self, other):
+        """
+        Defines how two Morph objects are equal.
+        Conditions:
+        - Stats are equal
+        - Game and unit names are the same
+        - Classes and levels are the same
+        - History is identical
+        - Other attributes are the same.
+        """
+        stats_are_compatible = all(self.current_stats.index == other.current_stats.index)
+        stats_are_equal = all(abs(self.current_stats - other.current_stats) < 0.01)
+        scalar_attrs = [
+            "unit_name",
+            "game_num",
+            "history",
+            "comparison_labels",
+            "current_cls",
+            "current_lv",
+            "current_clstype",
+        ]
+        equality_conditions = [stats_are_compatible, stats_are_equal]
+        for attr in scalar_attrs:
+            equality_conditions.append(
+                getattr(self, attr) == getattr(other, attr)
+            )
+        return all(equality_conditions)
+
+    def is_maxed(self, tableindex: int = 0) -> pd.Series:
+        """
+        Returns a pd.Series showing which of the Morph's stats are maxed.
+        """
+        if self.current_clstype == "characters/base-stats":
+            lindex_val = self.unit_name
+        elif self.current_clstype == "classes/promotion-gains":
+            lindex_val = self.current_cls
+        self.set_targetstats(
+            (self.current_clstype, lindex_val),
+            ("classes/maximum-stats", "Class"),
+            tableindex,
+        )
+        logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
+        temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
+        return temp_maxes == self.current_stats
+
+    def __gt__(self, other) -> pd.DataFrame:
+        """
+        Returns a pd.DataFrame summarizing the difference between one Morph and another.
+        Raises:
+        - no errors, hurrah!
+        Returned pd.DataFrame is of the form:
+        - {history}
+        - Class
+        - Lv
+        - {numeric_stats}
+        with name = self.unit_name
+        """
+        # naming logistics here
+        self_currentstats_name = self.unit_name.replace(" (HM)", "")
+        other_currentstats_name = other.unit_name.replace(" (HM)", "")
+        if other_currentstats_name == self_currentstats_name:
+            other_currentstats_name += " (2)"
+        diff = other.current_stats - self.current_stats
+        diff.name = 'diff'
+        #old_selfname, old_othername = self.current_stats.name, other.current_stats.name
+        self_current_stats = self.current_stats.copy()
+        other_current_stats = other.current_stats.copy()
+        self_current_stats.name = self_currentstats_name
+        other_current_stats.name = other_currentstats_name
+        #self.current_stats.name = self_currentstats_name
+        #other.current_stats.name = other_currentstats_name
+        # create stat_df
+        stat_df = pd.concat(
+            [
+                self_current_stats,
+                diff,
+                other_current_stats,
+            ],
+            axis=1,
+        )
+        # create clslv_rows
+        self_clslv = [self.current_cls, self.current_lv]
+        other_clslv = [other.current_cls, other.current_lv]
+        # create history_rows
+        max_histlen = max([len(self.history), len(other.history)])
+        for index in range(max_histlen):
+            self_clslv.insert(0, "-")
+            other_clslv.insert(0, "-")
+        for index, entry in enumerate(self.history):
+            self_clslv[index] = entry
+        for index, entry in enumerate(other.history):
+            other_clslv[index] = entry
+        #self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
+        #other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
+        clslv_df = pd.DataFrame(
+            {
+                self_currentstats_name: self_clslv,
+                diff.name: ['-' for entry in self_clslv],
+                other_currentstats_name: other_clslv,
+            },
+            index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
+        )
+        # create rows for comparison_labels
+        meta_labels = list(self.comparison_labels)
+        for row_label in other.comparison_labels:
+            if row_label in meta_labels:
+                continue
+            meta_labels.append(row_label)
+        meta_map = {
+            self_currentstats_name: self.comparison_labels,
+            diff.name: {},
+            other_currentstats_name: other.comparison_labels,
+        }
+        meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
+        # This does not fail because (*.current_stats.name == *_currentstats_name)
+        #stat_df[self.current_stats.name].name = self_currentstats_name
+        #stat_df[other.current_stats.name].name = other_currentstats_name
+        # Calculate cdiff.
+        # TODO: Test this!
+        csum_label = "-Cumulative-"
+        csum_row = pd.DataFrame(
+            {
+                self_currentstats_name: {csum_label: ""},
+                diff.name: {csum_label: round(sum(diff), 2)},
+                other_currentstats_name: {csum_label: ""},
+            }
+        )
+        comparison_df = pd.concat([meta_rows, clslv_df, stat_df, csum_row])
+        #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
+        #self.current_stats.name, other.current_stats.name = old_selfname, old_othername
+        return comparison_df
 
 class ProtoMorph:
     """
@@ -365,46 +539,15 @@ class Morph(BaseMorph):
     def copy(self):
         """
         Returns a copy of self, with stat attributes, history,  and so forth.
-
         For use in web-development.
         """
         # economize on stuff to copy
         self.target_stats = None
         return copy.deepcopy(self)
 
-    def __eq__(self, other):
-        """
-        Defines how two Morph objects are equal.
-
-        Conditions:
-        - Stats are equal
-        - Game and unit names are the same
-        - Classes and levels are the same
-        - History is identical
-        - Other attributes are the same.
-        """
-        stats_are_compatible = all(self.current_stats.index == other.current_stats.index)
-        stats_are_equal = all(abs(self.current_stats - other.current_stats) < 0.01)
-        scalar_attrs = [
-            "unit_name",
-            "game_num",
-            "history",
-            "comparison_labels",
-            "current_cls",
-            "current_lv",
-            "current_clstype",
-        ]
-        equality_conditions = [stats_are_compatible, stats_are_equal]
-        for attr in scalar_attrs:
-            equality_conditions.append(
-                getattr(self, attr) == getattr(other, attr)
-            )
-        return all(equality_conditions)
-
     def level_up(self, target_lv: int):
         """
         Increases unit's level, and increments current_stats accordingly.
-
         Raises:
         - ValueError: (target_lv <= current_lv) or (target_lv > max_lv)
         """
@@ -419,46 +562,9 @@ class Morph(BaseMorph):
         self.current_stats += (temp_growths / 100) * (target_lv - self.current_lv)
         self.current_lv = target_lv
 
-    def get_minpromolv(self) -> int:
-        """
-        Determines the minimum promotion level for a given unit.
-
-        All exceptional units are logged here.
-        """
-        if self.game_num == 4:
-            minpromolv = 20
-        elif (self.game_num, self.unit_name, self.promo_cls) == (5, "Lara", "Dancer"):
-            # for Lara shenanigans
-            minpromolv = 1
-        else:
-            try:
-                minpromolv = {
-                    (6, "Roy"): 1,
-                    (7, "Hector"): 1,
-                    (7, "Eliwood"): 1,
-                    (5, "Linoan"): 1,
-                    (5, "Leif"): 1,
-                }[(self.game_num, self.unit_name)]
-            except KeyError:
-                minpromolv = 10
-        return minpromolv
-
-    def get_maxlv(self) -> int:
-        """
-        Determines the maximum level for a given unit.
-        """
-        if self.game_num == 4:
-            maxlv = 30
-        elif self.unit_name in ("Ross", "Amelia", "Ewan") and not self.history:
-            maxlv = 10
-        else:
-            maxlv = 20
-        return maxlv
-
     def promote(self, tableindex: int = 0):
         """
         Applies promotion bonuses, then changes classes.
-
         Raises:
         - ValueError: Minimum promotion level not attained.
         - ValueError: Unit cannot promote.
@@ -518,30 +624,11 @@ class Morph(BaseMorph):
         self.current_stats.mask(self.current_stats > temp_maxes, other=temp_maxes, inplace=True)
         self.current_stats.mask(self.current_stats < 0, other=0, inplace=True)
 
-    def is_maxed(self, tableindex: int = 0) -> pd.Series:
-        """
-        Returns a pd.Series showing which of the Morph's stats are maxed.
-        """
-        if self.current_clstype == "characters/base-stats":
-            lindex_val = self.unit_name
-        elif self.current_clstype == "classes/promotion-gains":
-            lindex_val = self.current_cls
-        self.set_targetstats(
-            (self.current_clstype, lindex_val),
-            ("classes/maximum-stats", "Class"),
-            tableindex,
-        )
-        logging.info("Morph.is_maxed(tableindex=%d)", tableindex)
-        temp_maxes = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
-        return temp_maxes == self.current_stats
-
     def __repr__(self) -> str:
         """
         Returns a pd.Series-str summarizing the stats, history, and more about a Morph instance.
-
         Raises:
         - no errors, hurrah!
-
         Returns a pd.Series-str of the form:
         - Name
         - {history}
@@ -554,7 +641,6 @@ class Morph(BaseMorph):
     def get_repr_series(self, detail_list=()) -> pd.Series:
         """
         Creates the pd.Series for implementation in the __repr__ dunder.
-
         See Morph.__repr__ docstring for more information.
         """
         # create header rows
@@ -597,110 +683,17 @@ class Morph(BaseMorph):
     def __lt__(self, other) -> pd.DataFrame:
         """
         Returns a pd.DataFrame summarizing the difference between one Morph and another.
-
         Raises:
         - no errors, hurrah!
-
         Returned pd.DataFrame is of the form:
         - {history}
         - Class
         - Lv
         - {numeric_stats}
-
         with name = self.unit_name
         """
         # TODO: Check out the orders and stuff. order is inverted.
         return other.__gt__(self)
-
-    def __gt__(self, other) -> pd.DataFrame:
-        """
-        Returns a pd.DataFrame summarizing the difference between one Morph and another.
-
-        Raises:
-        - no errors, hurrah!
-
-        Returned pd.DataFrame is of the form:
-        - {history}
-        - Class
-        - Lv
-        - {numeric_stats}
-
-        with name = self.unit_name
-        """
-        # naming logistics here
-        self_currentstats_name = self.unit_name.replace(" (HM)", "")
-        other_currentstats_name = other.unit_name.replace(" (HM)", "")
-        if other_currentstats_name == self_currentstats_name:
-            other_currentstats_name += " (2)"
-        diff = other.current_stats - self.current_stats
-        diff.name = 'diff'
-        #old_selfname, old_othername = self.current_stats.name, other.current_stats.name
-        self_current_stats = self.current_stats.copy()
-        other_current_stats = other.current_stats.copy()
-        self_current_stats.name = self_currentstats_name
-        other_current_stats.name = other_currentstats_name
-        #self.current_stats.name = self_currentstats_name
-        #other.current_stats.name = other_currentstats_name
-        # create stat_df
-        stat_df = pd.concat(
-            [
-                self_current_stats,
-                diff,
-                other_current_stats,
-            ],
-            axis=1,
-        )
-        # create clslv_rows
-        self_clslv = [self.current_cls, self.current_lv]
-        other_clslv = [other.current_cls, other.current_lv]
-        # create history_rows
-        max_histlen = max([len(self.history), len(other.history)])
-        for index in range(max_histlen):
-            self_clslv.insert(0, "-")
-            other_clslv.insert(0, "-")
-        for index, entry in enumerate(self.history):
-            self_clslv[index] = entry
-        for index, entry in enumerate(other.history):
-            other_clslv[index] = entry
-        #self_currentstats_name = self.current_stats.name.replace(" (HM)", "")
-        #other_currentstats_name = other.current_stats.name.replace(" (HM)", "")
-        clslv_df = pd.DataFrame(
-            {
-                self_currentstats_name: self_clslv,
-                diff.name: ['-' for entry in self_clslv],
-                other_currentstats_name: other_clslv,
-            },
-            index=["PrevClassLv" + str(index + 1) for index in range(max_histlen)] + ['Class', 'Lv']
-        )
-        # create rows for comparison_labels
-        meta_labels = list(self.comparison_labels)
-        for row_label in other.comparison_labels:
-            if row_label in meta_labels:
-                continue
-            meta_labels.append(row_label)
-        meta_map = {
-            self_currentstats_name: self.comparison_labels,
-            diff.name: {},
-            other_currentstats_name: other.comparison_labels,
-        }
-        meta_rows = pd.DataFrame(meta_map, index=meta_labels).fillna("-")
-        # This does not fail because (*.current_stats.name == *_currentstats_name)
-        #stat_df[self.current_stats.name].name = self_currentstats_name
-        #stat_df[other.current_stats.name].name = other_currentstats_name
-        # Calculate cdiff.
-        # TODO: Test this!
-        csum_label = "-Cumulative-"
-        csum_row = pd.DataFrame(
-            {
-                self_currentstats_name: {csum_label: ""},
-                diff.name: {csum_label: round(sum(diff), 2)},
-                other_currentstats_name: {csum_label: ""},
-            }
-        )
-        comparison_df = pd.concat([meta_rows, clslv_df, stat_df, csum_row])
-        #other.current_stats.name = other.current_stats.name.replace(" (2)", "")
-        #self.current_stats.name, other.current_stats.name = old_selfname, old_othername
-        return comparison_df
 
 
 class Morph4(Morph):
