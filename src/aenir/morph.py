@@ -1,20 +1,142 @@
 """
 """
 
+import abc
+import sqlite3
+
 from aenir.games import FireEmblemGame
 from aenir.stats import (
     GenealogyStats,
     GBAStats,
     ThraciaStats,
+    AbstractStats,
 )
+from aenir.logging import logger
 
-class BaseMorph:
+class BaseMorph(abc.ABC):
     """
     """
 
-    def __init__(self, game: int, unit_name: str):
+    @classmethod
+    @abc.abstractmethod
+    def GAME(cls):
         """
         """
+        # should return instance of FireEmblemGame
+        raise NotImplementedError
+
+    @classmethod
+    def STATS(cls):
+        """
+        """
+        return {
+            4: GenealogyStats,
+            5: ThraciaStats,
+            6: GBAStats,
+            7: GBAStats,
+            8: GBAStats,
+            9: GenealogyStats,
+        }[cls.GAME().value]
+
+    @classmethod
+    def path_to(cls, file: str):
+        """
+        """
+        return "/".join(("static", cls.GAME().url_name, file))
+
+    @staticmethod
+    def query_db(
+            path_to_db: str,
+            table: str,
+            fields: tuple[str],
+            filters: dict[str, str]
+        ):
+        """
+        """
+        conditions = ", ".join(
+            [
+                (str(field) + "='" + str(value) "'")
+                for field, value in filters.items()
+            ]
+        )
+        query = f"SELECT {', '.join(fields)} FROM {table} WHERE {conditions};"
+        with sqlite3.connect(path_to_db) as cnxn:
+            cnxn.row_factory = sqlite3.Row
+            return cnxn.execute(query)
+
+    @classmethod
+    def get_stats(cls, table: str, index_key: dict[str, str]) -> AbstractStats:
+        """
+        """
+        path_to_db = cls.path_to("cleaned_stats.db")
+        stat_cls = cls.STATS()
+        fields = stat_cls.STAT_LIST()
+        filters = index_key
+        query_result = query_db(
+            path_to_db,
+            table,
+            fields,
+            filters,
+        )
+        stats = []
+        for i in range(which + 1):
+            stat_dict = query_result.fetchone()
+            stats.append(stat_cls(**stat_dict))
+        return stats
+
+    def __init__(self):
+        """
+        """
+        self.target_stats = None
+
+    def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str], tableindex: int):
+        """
+        """
+        logger.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
+        # unpack arguments
+        ltable, lindex_val = ltable_args
+        rtable, to_col = rtable_args
+        # load clsrecon_dict from json
+        #ltable_name = self.page_dict[ltable_url]
+        #rtable_name = self.page_dict[rtable_url]
+        json_path = self.path_to(f"{ltable}-JOIN-{rtable}.json")
+        with open(str(json_path), encoding='utf-8') as rfile:
+            from_col = json.load(rfile).pop(lindex_val)
+        if from_col is None:
+            self.target_stats = None
+        else:
+            table = rtable + str(tableindex)
+            index_key = {to_col: from_col}
+            self.target_stats = get_stats(
+                table,
+                index_key,
+            )
+
+class Morph(BaseMorph):
+    """
+    """
+    game_no = None
+
+    @classmethod
+    def GAME(cls):
+        """
+        """
+        return FireEmblemGame(game_no)
+
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+
+    def promote(self, *args):
+        """
+        """
+        page_dict = {
+            "classes/promotion-gains": "classes__promotion_gains",
+        }
+        promo_gains = None
+
+    def __init__(self):
         self.game = FireEmblemGame(game)
         self.unit_name = unit_name
         # TODO: get bases, growths, max stats
@@ -29,14 +151,6 @@ class BaseMorph:
             "classes/maximum-stats": "classes__maximum_stats",
         }
 
-    def promote(self, *args):
-        """
-        """
-        page_dict = {
-            "classes/promotion-gains": "classes__promotion_gains",
-        }
-        promo_gains = None
-
     def level_up(self, num_levels, *args):
         """
         """
@@ -44,70 +158,6 @@ class BaseMorph:
     def cap_stats(self, *args):
         """
         """
-
-    def load_stats(self, urlpath: str, stat: str, *args):
-        """
-        """
-        DATADIR_ROOT = "data"
-        tables_file = "cleaned_stats.db"
-
-    def load_tables(self, urlpath: str):
-        """
-        Loads the table-list into url_to_tables[urlpath] from home_dir/tables_file.
-        Raises:
-        - FileNotFoundError: tables_file does not exist.
-        - KeyError: urlpath is not registered in page_dict.
-        """
-        logging.info("SerenesTranscriber.load_tables(self, '%s')", urlpath)
-        load_path = self.home_dir.joinpath(self.tables_file)
-        if not load_path.exists():
-            raise FileNotFoundError(f"'{str(load_path)}' does not exist. Aborting.")
-        load_file = str(load_path)
-        tablename_root = self.page_dict[urlpath]
-        logging.info("SerenesTranscriber.url_to_tables['%s'] = []", urlpath)
-        self.url_to_tables[urlpath] = []
-        tableindex = 0
-        logging.info("Loading tables into SerenesTranscriber.url_to_tables['%s'].", urlpath)
-        while True:
-            table_name = tablename_root + str(tableindex)
-            con = "sqlite:///" + load_file
-            try:
-                logging.info("pd.read_sql_table('%s', '%s')", table_name, con)
-                table = pd.read_sql_table(table_name, con)
-                tableindex += 1
-                logging.info("SerenesTranscriber.url_to_tables['%s'].append(tables[%d])", urlpath, tableindex-1)
-                self.url_to_tables[urlpath].append(table)
-            except ValueError:
-                logging.info("%d table(s) have been loaded into SerenesTranscriber.url_to_tables['%s']", tableindex, urlpath)
-                break
-
-    def set_targetstats(self, ltable_args: Tuple[str, str], rtable_args: Tuple[str, str], tableindex: int):
-        """
-        Sets BaseMorph.target_stats to the pd.[DataFrame|Series] per clsrecon_dict.
-        ltable_url, lindex_col = ltable_args
-        rtable_url, to_col = rtable_args
-        lindex_col |-(clsrecon_dict)-> from_col === to_col
-        """
-        logging.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
-        # unpack arguments
-        ltable_url, lindex_val = ltable_args
-        rtable_url, to_col = rtable_args
-        # load clsrecon_dict from json
-        ltable_name = self.page_dict[ltable_url]
-        rtable_name = self.page_dict[rtable_url]
-        json_path = self.home_dir.joinpath(f"{ltable_name}-JOIN-{rtable_name}.json")
-        with open(str(json_path), encoding='utf-8') as rfile:
-            clsrecon_dict = json.load(rfile)
-        from_col = clsrecon_dict[lindex_val]
-        if from_col is None:
-            self.target_stats = None
-        else:
-            self.target_stats = self.url_to_tables[rtable_url][tableindex].set_index(to_col).loc[from_col, :]
-
-
-class Morph(BaseMorph):
-    """
-    """
 
 #class Morph4(Morph):
     @classmethod
@@ -163,7 +213,6 @@ class ProtoMorph:
 class BaseMorph(ProtoMorph):
     """
     """
-
     def __init__(self, game_num: int):
         ProtoMorph.__init__(self, game_num)
         # initialize instance attribute `url_to_tables`
