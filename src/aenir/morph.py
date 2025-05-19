@@ -59,8 +59,7 @@ class BaseMorph(abc.ABC):
         if filters:
             conditions = ", ".join(
                 [
-                    (str(field) + "='" + str(value) + "'")
-                    for field, value in filters.items()
+                    (f"{field}='{value}'") for field, value in filters.items()
                 ]
             )
             query += " WHERE " + conditions
@@ -69,35 +68,46 @@ class BaseMorph(abc.ABC):
             cnxn.row_factory = sqlite3.Row
             return cnxn.execute(query)
 
+    def __init__(self):
+        """
+        """
+        self.game_no = game.value
+        self.Stats = self.STATS()
+
     def lookup(
             self,
-            ltable_args: Tuple[str, str],
-            rtable_args: Tuple[str, str],
-            tableindex: int
+            home_data: Tuple[str, str],
+            target_data: Tuple[str, str],
+            tableindex: int,
         ):
         """
         """
         logger.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
         # unpack arguments
-        ltable, lindex_val = ltable_args
-        rtable, to_col = rtable_args
-        path_to_json = self.path_to(f"{ltable}-JOIN-{rtable}.json")
+        home_table, value_to_lookup = home_data
+        target_table, field_to_scan = target_data
+        path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
         with open(path_to_json, encoding='utf-8') as rfile:
-            from_col = json.load(rfile).pop(lindex_val)
+            aliased_value = json.load(rfile).pop(value_to_lookup)
         if from_col is None:
             resultset = None
         else:
-            table = rtable + str(tableindex)
-            index_key = {to_col: from_col}
-            resultset = self.get_stats(
+            table = target_table + str(tableindex)
+            filters = {field_to_scan: aliased_value}
+            path_to_db = self.path_to("cleaned_stats.db")
+            fields = self.STATS().STAT_LIST()
+            resultset = self.query_db(
+                path_to_db,
                 table,
-                index_key,
+                fields,
+                filters,
             )
         return resultset
 
 class Morph(BaseMorph):
     """
     """
+    # NOTE: game_no to be set in each subclass of this class.
     game_no = None
 
     @classmethod
@@ -118,21 +128,19 @@ class Morph(BaseMorph):
 
     def __init__(self, unit: str, *, which_bases: int, which_growths: int):
         super().__init__()
-        game = self.GAME()
-        self.game_no = game.value
-        self.Stats = self.STATS()
         self.unit = unit
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats0"
-        fields = game.STAT_LIST() + ("Class", "Lv")
+        fields = self.Stats.STAT_LIST() + ("Class", "Lv")
         filters = {"Name": unit}
-        stat_dict = self.query_db(
+        basestats_query = self.query_db(
             path_to_db,
             table,
             fields,
             filters,
-        ).fetchone()
+        ).fetchall()
+        stat_dict = basestats_query.pop(which_bases)
         self.current_cls = stat_dict.pop("Class")
         self.current_lv = stat_dict.pop("Lv")
         # bases
@@ -143,7 +151,7 @@ class Morph(BaseMorph):
             ("characters__growth_rates", "Name"),
             which_growths,
         )
-        self.growth_rates = resultset.pop()
+        self.growth_rates = resultset.pop(which_growths)
         # maximum
         self.current_clstype = "characters__base_stats"
         self.lookup(
@@ -155,6 +163,6 @@ class Morph(BaseMorph):
         # (miscellany)
         self.history = []
         self.comparison_labels = {}
-        if unit.replace(" (HM", "") + " (HM)" in self.CHARACTER_LIST():
+        if unit.replace(" (HM)", "") + " (HM)" in self.CHARACTER_LIST():
             self.comparison_labels['Hard Mode'] = " (HM)" in unit
 
