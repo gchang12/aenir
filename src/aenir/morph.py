@@ -3,6 +3,7 @@
 
 import abc
 import sqlite3
+import json
 from typing import Tuple
 
 from aenir.games import FireEmblemGame
@@ -109,29 +110,33 @@ class Morph(BaseMorph):
     def CHARACTER_LIST(cls):
         """
         """
-        # NOTE: FE4 will use a different implementation
-        path_to_db = cls.path_to("cleaned_stats.db")
+        filename = "characters__base_stats-JOIN-characters__growth_rates.json"
+        path_to_json = cls.path_to(filename)
+        with open(str(json_path), encoding='utf-8') as rfile:
+            character_list = list(json.load(rfile))
+            return character_list
+
+    def __init__(self, unit: str, *, which_bases: int, which_growths: int):
+        super().__init__()
+        game = self.GAME()
+        self.game_no = game.value
+        self.Stats = self.STATS()
+        self.unit = unit
+        # class and level
+        path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats0"
-        fields = ["Name"]
-        filters = None
-        query_results = query_db(
+        fields = game.STAT_LIST() + ("Class", "Lv")
+        filters = {"Name": unit}
+        stat_dict = self.query_db(
             path_to_db,
             table,
             fields,
             filters,
-        )
-        character_list = [result['Name'] for result in query_results]
-        return character_list
-
-    def __init__(self, unit: str, *, which_bases: int, which_growths: int):
-        super().__init__()
-        self.game_no = self.GAME().value
-        self.unit = unit
+        ).fetchone()
+        self.current_cls = stat_dict.pop("Class")
+        self.current_lv = stat_dict.pop("Lv")
         # bases
-        self.current_stats = self.lookup(
-            "characters__base_stats0",
-            {"Name": unit},
-        ).pop(which_bases)
+        self.current_stats = self.Stats(**stat_dict)
         # growths
         resultset = self.lookup(
             ("characters__base_stats", unit),
@@ -147,19 +152,6 @@ class Morph(BaseMorph):
             tableindex=0,
         )
         self.max_stats = resultset.pop()
-        # class and level
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "characters__base_stats0",
-        fields = ["Class", "Lv"]
-        filters = {"Name": unit}
-        clslv_query_results = self.query_db(
-            path_to_db,
-            table,
-            fields,
-            filters,
-        )
-        self.current_cls = clslv_query_results.pop("Class")
-        self.current_lv = clslv_query_results.pop("Lv")
         # (miscellany)
         self.history = []
         self.comparison_labels = {}
