@@ -12,9 +12,6 @@ from aenir.stats import (
 )
 from aenir.logging import logger
 
-# TODO: Pare down on list of fields in  source files.
-# TODO: To be tested = [lt, iadd, min, max]
-
 class StatsTests(unittest.TestCase):
     """
     Demo of methods of a functional subclass of AbstractStats.
