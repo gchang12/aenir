@@ -50,7 +50,7 @@ class BaseMorph(abc.ABC):
     def query_db(
             path_to_db: str,
             table: str,
-            fields: tuple[str],
+            fields: Tuple[str],
             filters: dict[str, str],
         ):
         """
@@ -71,7 +71,7 @@ class BaseMorph(abc.ABC):
     def __init__(self):
         """
         """
-        self.game_no = game.value
+        self.game = self.GAME()
         self.Stats = self.STATS()
 
     def lookup(
@@ -82,20 +82,20 @@ class BaseMorph(abc.ABC):
         ):
         """
         """
-        logger.info("BaseMorph.set_targetstats(self, %s, %s)", ltable_args, rtable_args)
+        logger.info("BaseMorph.lookup(self, %s, %s)", home_data, target_data)
         # unpack arguments
         home_table, value_to_lookup = home_data
         target_table, field_to_scan = target_data
         path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
         with open(path_to_json, encoding='utf-8') as rfile:
             aliased_value = json.load(rfile).pop(value_to_lookup)
-        if from_col is None:
+        if aliased_value is None:
             resultset = None
         else:
             table = target_table + str(tableindex)
             filters = {field_to_scan: aliased_value}
             path_to_db = self.path_to("cleaned_stats.db")
-            fields = self.STATS().STAT_LIST()
+            fields = self.Stats.STAT_LIST()
             resultset = self.query_db(
                 path_to_db,
                 table,
@@ -154,12 +154,12 @@ class Morph(BaseMorph):
         self.growth_rates = resultset.pop(which_growths)
         # maximum
         self.current_clstype = "characters__base_stats"
-        self.lookup(
+        maxes_resultset = self.lookup(
             (self.current_clstype, unit),
             ("classes__maximum_stats", "Class"),
             tableindex=0,
         )
-        self.max_stats = resultset.pop()
+        self.max_stats = maxes_resultset.pop()
         # (miscellany)
         self.history = []
         self.comparison_labels = {}
