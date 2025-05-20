@@ -104,7 +104,7 @@ class BaseMorph(abc.ABC):
         if aliased_value is None:
             resultset = None
         else:
-            table = target_table + str(tableindex)
+            table = "%s%d" % (target_table, tableindex)
             filters = {field_to_scan: aliased_value}
             path_to_db = self.path_to("cleaned_stats.db")
             fields = self.Stats.STAT_LIST()
@@ -134,9 +134,9 @@ class Morph(BaseMorph):
         """
         """
         if cls.__name__ == "Morph":
-            # TODO: Figure out what to warn the user about.
-            logger.warning("")
-        return FireEmblemGame(game_no)
+            # TODO: Figure out what specifically to warn the user about.
+            logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
+        return FireEmblemGame(cls.game_no)
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -144,16 +144,22 @@ class Morph(BaseMorph):
         """
         filename = "characters__base_stats-JOIN-characters__growth_rates.json"
         path_to_json = cls.path_to(filename)
-        with open(str(json_path), encoding='utf-8') as rfile:
+        with open(path_to_json, encoding='utf-8') as rfile:
             character_list = list(json.load(rfile))
         return character_list
 
     def __init__(self, unit: str, *, which_bases: int, which_growths: int):
         super().__init__()
+        character_list = self.CHARACTER_LIST()
+        if unit not in character_list:
+            raise ValueError(
+                "'%s' not found. List of Fire Emblem: %r characters: %r" \
+                % (unit, self.game.formal_name, character_list)
+            )
         self.unit = unit
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
-        table = "characters__base_stats0"
+        table = "characters__base_stats%d" % which_bases
         fields = self.Stats.STAT_LIST() + ("Class", "Lv")
         filters = {"Name": unit}
         basestats_query = self.query_db(
@@ -162,9 +168,9 @@ class Morph(BaseMorph):
             fields,
             filters,
         ).fetchall()
-        stat_dict = basestats_query.pop(which_bases)
-        self.current_cls = stat_dict.pop("Class")
-        self.current_lv = stat_dict.pop("Lv")
+        stat_dict = basestats_query.pop()
+        self.current_cls = stat_dict["Class"]
+        self.current_lv = stat_dict["Lv"]
         # bases
         self.current_stats = self.Stats(**stat_dict)
         # growths
@@ -172,19 +178,19 @@ class Morph(BaseMorph):
             ("characters__base_stats", unit),
             ("characters__growth_rates", "Name"),
             which_growths,
-        )
-        self.growth_rates = resultset.pop(which_growths)
+        ).fetchall()
+        self.growth_rates = self.Stats(**resultset.pop(which_growths))
         # maximum
         self.current_clstype = "characters__base_stats"
         maxes_resultset = self.lookup(
             (self.current_clstype, unit),
             ("classes__maximum_stats", "Class"),
             tableindex=0,
-        )
-        self.max_stats = maxes_resultset.pop()
+        ).fetchall()
+        self.max_stats = self.Stats(**maxes_resultset.pop())
         # (miscellany)
         self.history = []
         self.comparison_labels = {}
-        if unit.replace(" (HM)", "") + " (HM)" in self.CHARACTER_LIST():
+        if unit.replace(" (HM)", "") + " (HM)" in character_list:
             self.comparison_labels['Hard Mode'] = " (HM)" in unit
 
