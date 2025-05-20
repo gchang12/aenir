@@ -56,7 +56,7 @@ class BaseMorph(abc.ABC):
         """
         """
         query = f"SELECT {', '.join(fields)} FROM {table}"
-        if filters:
+        if filters is not None:
             conditions = ", ".join(
                 [
                     (f"{field}='{value}'") for field, value in filters.items()
@@ -86,9 +86,21 @@ class BaseMorph(abc.ABC):
         # unpack arguments
         home_table, value_to_lookup = home_data
         target_table, field_to_scan = target_data
+        logger.debug(
+            "Checking if '%s' from %s[index] has an equivalent in %s[%s].",
+            value_to_lookup, home_table, target_table, field_to_scan,
+        )
         path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
+        logger.debug(
+            "Checking if '%s' exists in the dict in '%s'",
+            value_to_lookup, path_to_json,
+        )
         with open(path_to_json, encoding='utf-8') as rfile:
             aliased_value = json.load(rfile).pop(value_to_lookup)
+        logger.debug(
+            "'%s' from %s[index] exists as '%s' in %s[%s]",
+            value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
+        )
         if aliased_value is None:
             resultset = None
         else:
@@ -96,6 +108,13 @@ class BaseMorph(abc.ABC):
             filters = {field_to_scan: aliased_value}
             path_to_db = self.path_to("cleaned_stats.db")
             fields = self.Stats.STAT_LIST()
+            logger.debug(
+                "BaseMorph.lookup(self, %r, %r, %r, %r)",
+                path_to_db,
+                table,
+                fields,
+                filters,
+            )
             resultset = self.query_db(
                 path_to_db,
                 table,
@@ -114,6 +133,9 @@ class Morph(BaseMorph):
     def GAME(cls):
         """
         """
+        if cls.__name__ == "Morph":
+            # TODO: Figure out what to warn the user about.
+            logger.warning("")
         return FireEmblemGame(game_no)
 
     @classmethod
@@ -124,7 +146,7 @@ class Morph(BaseMorph):
         path_to_json = cls.path_to(filename)
         with open(str(json_path), encoding='utf-8') as rfile:
             character_list = list(json.load(rfile))
-            return character_list
+        return character_list
 
     def __init__(self, unit: str, *, which_bases: int, which_growths: int):
         super().__init__()
