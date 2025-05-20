@@ -4,6 +4,7 @@
 import unittest
 
 from aenir.games import FireEmblemGame
+from aenir.logging import logger
 
 class FireEmblemGameTest(unittest.TestCase):
     """
