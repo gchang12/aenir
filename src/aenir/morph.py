@@ -456,6 +456,7 @@ class Morph5(Morph):
     def equip_scroll(self, scroll_name: str):
         """
         """
+        # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         # Store old growths in self._meta["Original Growths"]
         if scroll_name in self.equipped_scrolls:
             raise ValueError(f"'{scroll_name}' is already equipped. Equipped scrolls: {self.equipped_scrolls.keys()}.")
