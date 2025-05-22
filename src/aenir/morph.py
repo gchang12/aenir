@@ -432,26 +432,53 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        #self.equipped_scrolls = {}
+        self._og_growth_rates = self.growth_rates.copy()
+        self.equipped_scrolls = {}
 
-    # NOTE: This is going to be a pain to implement.
+    def _apply_scroll_bonuses(self):
+        """
+        """
+        self.growth_rates = self._og_growth_rates.copy()
+        for bonus in self.equipped_scrolls.values():
+            self.growth_rates += bonus
 
+    # TODO: Test this
     def unequip_scroll(self, scroll_name: str):
         """
         """
-        # Decrement growth rates.
-        raise NotImplementedError
+        if scroll_name not in self.equipped_scrolls:
+            self.equipped_scrolls.pop(scroll_name)
+            self._apply_scroll_bonuses()
+        else:
+            raise KeyError(f"'{scroll_name}' is not equipped. Equipped_scrolls: {self.equipped_scrolls.keys()}")
 
+    # TODO: Test this
     def equip_scroll(self, scroll_name: str):
         """
         """
         # Store old growths in self._meta["Original Growths"]
-        raise NotImplementedError
-        og_growths_key = "Original Growths"
-        if og_growths_key not in self._meta:
-            self._meta[og_growths_key] = self.growth_rates.copy()
-        # get scroll bonuses, then
-        # increment growth rates
+        if scroll_name in self.equipped_scrolls:
+            raise ValueError(f"'{scroll_name}' is already equipped. Equipped scrolls: {self.equipped_scrolls.keys()}.")
+        # TODO: Insert scroll_bonuses table into cleaned_stats.db
+        path_to_db = self.path_to("cleaned_stats.db")
+        table = "scroll_bonuses"
+        stat_dict = query_db(
+            path_to_db,
+            table,
+            fields=self.STAT_LIST(),
+            filters={"Name": scroll_name},
+        ).fetchone()
+        if stat_dict is None:
+            resultset = query_db(
+                path_to_db,
+                table,
+                fields=["Name"],
+                filters={},
+            ).fetchall()
+            scroll_list = [result["Name"] for result in resultset]
+            raise KeyError(f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.")
+        self.equipped_scrolls[scroll_name] = self.Stats(**scroll_dict)
+        self._apply_scroll_bonuses()
 
     def _set_min_promo_level(self):
         """
