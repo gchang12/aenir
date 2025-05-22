@@ -245,7 +245,7 @@ class Morph(BaseMorph):
             raise ValueError(f"{self.unit} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         # get promotion data
         value_to_lookup = {
-            "characters__base_stats": self.unit_name,
+            "characters__base_stats": self.unit,
             "classes__promotion_gains": self.current_cls,
         }[self.current_clstype]
         query_kwargs = self.lookup(
