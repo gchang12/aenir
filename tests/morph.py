@@ -332,6 +332,11 @@ class MorphTest(unittest.TestCase):
 
         self.TestMorph = TestMorph6
         self.TestMorph.__name__ = "Morph"
+        self.init_kwargs = {
+            "name": "Rutger",
+            "which_bases": 0,
+            "which_growths": 0,
+        }
 
     @unittest.skip("User is outright forbidden from instantiating generic Morph instances.")
     def test_GAME(self):
@@ -494,4 +499,20 @@ class MorphTest(unittest.TestCase):
         bad_growths = 99
         with self.assertRaises(sqlite3.OperationalError):
             roy = self.TestMorph("Roy", which_bases=0, which_growths=bad_growths)
+
+    def test_set_max_level(self):
+        """
+        """
+        morph = self.TestMorph(**self.init_kwargs)
+        self.assertIsNone(morph.max_level)
+        morph._set_max_level()
+        self.assertIsInstance(morph.max_level, int)
+
+    def test_set_min_promo_level(self):
+        """
+        """
+        morph = self.TestMorph(**self.init_kwargs)
+        self.assertIsNone(morph.min_promo_level)
+        morph._set_min_promo_level()
+        self.assertIsInstance(morph.min_promo_level, int)
 
