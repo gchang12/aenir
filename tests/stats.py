@@ -26,55 +26,8 @@ class StatsTests(unittest.TestCase):
 
     def setUp(self):
         """
-        """
-        logger.critical("%s", self.id())
-
-    class FunctionalStats(AbstractStats):
-        """
-        Functional in that the 'STAT_LIST' class method is defined.
-        """
-
-        @classmethod
-        def STAT_LIST(cls):
-            """
-            Returns tuple of strings that can be used as Python identifiers.
-            """
-            return (
-                "a",
-                "b",
-                "c",
-                "d",
-                "e",
-                "f",
-                "g",
-            )
-
-    class FunctionalStats2(AbstractStats):
-        """
-        Functional in that the 'STAT_LIST' class method is defined. Exists to
-        demonstrate that stats of different classes cannot be operated on even if
-        they share the same 'STAT_LIST'.
-        """
-        @classmethod
-        def STAT_LIST(cls):
-            """
-            Returns tuple of strings that can be used as Python identifiers.
-            """
-            return (
-                "a",
-                "b",
-                "c",
-                "d",
-                "e",
-                "f",
-                "g",
-            )
-
-    def setUp(self):
-        """
         Initializes minimal kwargs for initialization of FunctionalStats.
         """
-        self.stats_class = self.FunctionalStats
         self.init_kwargs = {
             "a": 0,
             "b": 0,
@@ -103,6 +56,74 @@ class StatsTests(unittest.TestCase):
             "f": 8,
             "g": 0,
         }
+        logger.critical("%s", self.id())
+
+        class FunctionalStats(AbstractStats):
+            """
+            Functional in that the 'STAT_LIST' class method is defined.
+            """
+
+            @classmethod
+            def STAT_LIST(cls):
+                """
+                Returns tuple of strings that can be used as Python identifiers.
+                """
+                return (
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e",
+                    "f",
+                    "g",
+                )
+
+        class FunctionalStats2(AbstractStats):
+            """
+            Functional in that the 'STAT_LIST' class method is defined. Exists to
+            demonstrate that stats of different classes cannot be operated on even if
+            they share the same 'STAT_LIST'.
+            """
+            @classmethod
+            def STAT_LIST(cls):
+                """
+                Returns tuple of strings that can be used as Python identifiers.
+                """
+                return (
+                    "a",
+                    "b",
+                    "c",
+                    "d",
+                    "e",
+                    "f",
+                    "g",
+                )
+
+        self.stats_class = FunctionalStats
+        self.FunctionalStats = FunctionalStats
+        self.FunctionalStats2 = FunctionalStats2
+
+    def test_mul(self):
+        """
+        """
+        stat_dict = {
+            "a": 18,
+            "b": 7,
+            "c": 5,
+            "d": 9,
+            "e": 2,
+            "f": 5,
+            "g": 1,
+        }
+        stat_dict3 = {}
+        for key, val in stat_dict.items():
+            stat_dict3[key] = val * 3
+        expected = self.stats_class(**stat_dict3)
+        actual = self.stats_class(**stat_dict) * 3
+        for key in stat_dict:
+            expected_val = getattr(expected, key)
+            actual_val = getattr(actual, key)
+            self.assertEqual(actual_val, expected_val)
 
     def test_eq__type_mismatch(self):
         """
