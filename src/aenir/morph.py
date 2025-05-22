@@ -71,7 +71,6 @@ class BaseMorph(abc.ABC):
     def __init__(self):
         """
         """
-        self.game = self.GAME()
         self.Stats = self.STATS()
 
     def lookup(
@@ -82,7 +81,6 @@ class BaseMorph(abc.ABC):
         ):
         """
         """
-        logger.info("BaseMorph.lookup(self, %s, %s)", home_data, target_data)
         # unpack arguments
         home_table, value_to_lookup = home_data
         target_table, field_to_scan = target_data
@@ -98,11 +96,11 @@ class BaseMorph(abc.ABC):
         with open(path_to_json, encoding='utf-8') as rfile:
             aliased_value = json.load(rfile).pop(value_to_lookup)
         logger.debug(
-            "'%s' from %s[index] exists as '%s' in %s[%s]",
+            "'%s' from %s[index] exists as %r in %s[%s]",
             value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
         )
         if aliased_value is None:
-            resultset = None
+            query_kwargs = None
         else:
             table = "%s%d" % (target_table, tableindex)
             filters = {field_to_scan: aliased_value}
@@ -115,13 +113,13 @@ class BaseMorph(abc.ABC):
                 fields,
                 filters,
             )
-            resultset = self.query_db(
-                path_to_db,
-                table,
-                fields,
-                filters,
-            )
-        return resultset
+            query_kwargs = {
+                "path_to_db": path_to_db,
+                "table": table,
+                "fields": fields,
+                "filters": filters,
+            }
+        return query_kwargs
 
 class Morph(BaseMorph):
     """
@@ -130,6 +128,7 @@ class Morph(BaseMorph):
     game_no = None
 
     @classmethod
+    @abc.abstractmethod
     def GAME(cls):
         """
         """
@@ -150,6 +149,7 @@ class Morph(BaseMorph):
 
     def __init__(self, unit: str, *, which_bases: int, which_growths: int):
         super().__init__()
+        self.game = self.GAME()
         character_list = self.CHARACTER_LIST()
         if unit not in character_list:
             raise ValueError(
@@ -174,23 +174,127 @@ class Morph(BaseMorph):
         # bases
         self.current_stats = self.Stats(**stat_dict)
         # growths
-        resultset = self.lookup(
-            ("characters__base_stats", unit),
-            ("characters__growth_rates", "Name"),
-            which_growths,
+        resultset = self.query_db(
+            **self.lookup(
+                ("characters__base_stats", unit),
+                ("characters__growth_rates", "Name"),
+                which_growths,
+            )
         ).fetchall()
         self.growth_rates = self.Stats(**resultset.pop(which_growths))
         # maximum
         self.current_clstype = "characters__base_stats"
-        maxes_resultset = self.lookup(
-            (self.current_clstype, unit),
-            ("classes__maximum_stats", "Class"),
-            tableindex=0,
+        maxes_resultset = self.query_db(
+            **self.lookup(
+                (self.current_clstype, unit),
+                ("classes__maximum_stats", "Class"),
+                tableindex=0,
+            )
         ).fetchall()
         self.max_stats = self.Stats(**maxes_resultset.pop())
         # (miscellany)
-        self.history = []
-        self.comparison_labels = {}
+        self._meta = {'History': []}
         if unit.replace(" (HM)", "") + " (HM)" in character_list:
-            self.comparison_labels['Hard Mode'] = " (HM)" in unit
+            self._meta['Hard Mode'] = " (HM)" in unit
+        self.max_level = None
+        self.min_promo_level = None
+        self.promo_cls = None
+
+    # TODO: Implement at once.
+
+    def _set_max_level(self):
+        """
+        """
+        # exceptions:
+        # FE4: 30 for promoted, 20 for unpromoted
+        # FE8: unpromoted trainees are capped at 10
+        self.max_level = 20
+
+    def _set_min_promo_level(self):
+        """
+        """
+        # exceptions:
+        # FE4: 20
+        # FE5: for Lara if promo_cls == 'Dancer': 1
+        # FE5: Leif, Linoan: 1
+        # FE6: Roy: 1
+        # FE7: Hector, Eliwood: 1
+        self.min_promo_level = 10
+
+    def level_up(self, num_levels: int):
+        """
+        """
+        # get max level
+        if self.max_level is None:
+            self._set_max_level()
+        # stop if user is going to overlevel
+        if num_levels + self.current_lv > self.max_level:
+            raise ValueError("")
+        # ! increase stats
+        self.current_stats += self.growth_rates * 0.01 * num_levels
+        # ! increase level
+        self.current_lv += num_levels
+        # cap stats
+        self.current_stats.imin(self.max_stats)
+
+    def promote(self, tableindex: int = 0):
+        """
+        """
+        # check if unit's level is high enough to enable promotion
+        if self.min_promo_level is None:
+            self._set_min_promo_level()
+        if self.current_lv < self.min_promo_level:
+            raise ValueError(f"{self.unit} must be at least {self.min_promo_level} to promote. Current level: {self.current_lv}.")
+        # get promotion data
+        value_to_lookup = {
+            "characters__base_stats": self.unit_name,
+            "classes__promotion_gains": self.current_cls,
+        }[self.current_clstype]
+        query_kwargs = self.lookup(
+            (self.current_clstype, value_to_lookup),
+            ("classes__promotion_gains", "Class"),
+            tableindex,
+        )
+        query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
+        resultset = self.query_db(**query_kwargs).fetchall()
+        # quit if resultset is empty
+        if not resultset:
+            raise ValueError(f"{self.unit} has no available promotions.")
+        # if resultset has length > 1, filter to relevant
+        elif len(resultset) > 1:
+            resultset = list(
+                resultset.filter(
+                    lambda result: result['Promotion'] == self.promo_cls
+                )
+            )
+        # PROMOTION START!
+        # record history
+        self._meta["History"].append((self.current_lv, self.current_cls))
+        # initialize stat_dict, then set attributes
+        stat_dict = dict(resultset.pop())
+        # set 'current_clstype' for future queries
+        self.current_clstype = "classes__promotion_gains"
+        # ! change class
+        self.current_cls = stat_dict.pop('Promotion')
+        # ! increment stats
+        promo_bonuses = self.Stats(**stat_dict)
+        self.current_stats += promo_bonuses
+        # ! set max stats, then cap current stats
+        query_kwargs2 = self.lookup(
+            (self.current_clstype, self.current_cls),
+            ("classes__maximum_stats", "Class"),
+            tableindex=0,
+        )
+        stat_dict2 = self.query_db(**query_kwargs2).fetchall()
+        self.max_stats = self.Stats(**stat_dict2.pop())
+        self.current_stats.imin(self.max_stats)
+        # ! reset level
+        self.current_lv = 1
+        # set promotion class to None
+        self.promo_cls = None
+
+    def is_maxed(self):
+        """
+        """
+        return self.current_stats == self.max_stats
 
