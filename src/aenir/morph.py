@@ -226,7 +226,7 @@ class Morph(BaseMorph):
             self._set_max_level()
         # stop if user is going to overlevel
         if num_levels + self.current_lv > self.max_level:
-            raise ValueError("")
+            raise ValueError(f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.")
         # ! increase stats
         self.current_stats += self.growth_rates * 0.01 * num_levels
         # ! increase level
@@ -307,7 +307,7 @@ class Morph(BaseMorph):
         raise NotImplementedError
         # TODO: put in data from _meta here... somehow
         if not type(self) == type(other):
-            raise TypeError("")
+            raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)}.")
         comparison = self.current_stats < other.current_stats
         return comparison
 
@@ -338,7 +338,7 @@ class Morph4(Morph):
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
             if father_name not in father_list:
-                raise ValueError("")
+                raise ValueError(f"'{father_name}' is not a valid father. List of valid fathers: {father_list}")
             # begin initialization here
             self.Stats = self.STATS()
             self.game = self.GAME()
