@@ -132,9 +132,9 @@ class Morph(BaseMorph):
     def GAME(cls):
         """
         """
-        if cls.__name__ == "Morph":
+        #if cls.__name__ == "Morph":
             # TODO: Figure out what specifically to warn the user about.
-            logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
+            #logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
         return FireEmblemGame(cls.game_no)
 
     @classmethod
