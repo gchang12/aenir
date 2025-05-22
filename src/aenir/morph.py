@@ -167,8 +167,9 @@ class Morph(BaseMorph):
             table,
             fields,
             filters,
-        ).fetchall()
-        stat_dict = dict(basestats_query.pop())
+        ).fetchone()
+        # NOTE: if basestats_query is None, then the code terminates here with a TypeError
+        stat_dict = dict(basestats_query)
         self.current_cls = stat_dict.pop("Class")
         self.current_lv = stat_dict.pop("Lv")
         # bases
@@ -184,14 +185,14 @@ class Morph(BaseMorph):
         self.growth_rates = self.Stats(**resultset.pop(which_growths))
         # maximum
         self.current_clstype = "characters__base_stats"
-        maxes_resultset = self.query_db(
+        stat_dict2 = self.query_db(
             **self.lookup(
                 (self.current_clstype, name),
                 ("classes__maximum_stats", "Class"),
                 tableindex=0,
             )
-        ).fetchall()
-        self.max_stats = self.Stats(**maxes_resultset.pop())
+        ).fetchone()
+        self.max_stats = self.Stats(**stat_dict2)
         # (miscellany)
         self._meta = {'History': []}
         if name.replace(" (HM)", "") + " (HM)" in character_list:
@@ -291,14 +292,14 @@ class Morph(BaseMorph):
         self.current_lv = 1
         # set promotion class to None
         self.promo_cls = None
+        #self.min_promo_level = None
+        #self.max_level = None
 
     # TODO: Flesh out informational methods
 
     def is_maxed(self):
         """
         """
-        # What if the difference is trivial but nonzero?
-        # - iadd dunder has been amended s.t. exact matches are guaranteed every time.
         raise NotImplementedError
         return self.current_stats == self.max_stats
 
@@ -306,8 +307,240 @@ class Morph(BaseMorph):
         """
         """
         raise NotImplementedError
+        # TODO: put in data from _meta here... somehow
         if not type(self) == type(other):
             raise TypeError("")
         comparison = self.current_stats < other.current_stats
-        # put in data from _meta here... somehow
+        return comparison
 
+class Morph4(BaseMorph, Morph):
+    """
+    """
+
+    def __init__(self, name: str, father_name: str = None):
+        """
+        """
+        path_to_db = self.path_to("cleaned_stats.db")
+        table = "characters__base_stats1"
+        fields = self.STAT_LIST() + ("Class", "Lv")
+        filters = {}
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields,
+            filters,
+        ).fetchall()
+        # check if name in kid list
+        if name not in (result["Name"] for result in resultset):
+            # if no: use default init method
+            super().__init__(name, which_bases=0, which_growths=0)
+            self.father_name = None
+        else:
+            father_list = [result["Father"] for result in resultset]
+            # if yes: check if father_name in father_list
+            if father_name not in father_list:
+                raise ValueError("")
+            # begin initialization here
+            BaseMorph.__init__()
+            self.game = self.GAME()
+            self.name = name
+            self.father_name = father_name
+            stat_dict = dict(
+                list(
+                    filter(
+                        lambda result: result["Name"] == name and result["Father"] == father_name
+                        resultset,
+                    )
+                ).pop()
+            )
+            self.current_cls = stat_dict.pop("Class")
+            self.current_lv = stat_dict.pop("Lv")
+            # bases
+            self.current_stats = self.Stats(**stat_dict)
+            # growths
+            stat_dict2 = dict(
+                self.query_db(
+                    path_to_db,
+                    table="characters__growth_rates1",
+                    fields=self.STAT_LIST(),
+                    filters={"Name": name, "Father": father_name},
+                ).fetchone()
+            )
+            self.growth_rates = self.Stats(**stat_dict2)
+            # maximum
+            self.current_clstype = "characters__base_stats"
+            stat_dict3 = self.query_db(
+                **self.lookup(
+                    (self.current_clstype, name),
+                    ("classes__maximum_stats", "Class"),
+                    tableindex=0,
+                )
+            ).fetchone()
+            self.max_stats = self.Stats(**stat_dict3)
+            # (miscellany)
+            self._meta = {'History': []}
+        try:
+            self.promo_cls = {
+                "Ira": "Swordmaster",
+                "Holyn": "Forrest",
+                "Radney": "Swordmaster",
+                "Roddlevan": "Forrest",
+                "Azel": "Mage Knight",
+                "Arthur": "Mage Knight",
+                "Tinny": "Mage Fighter (F)",
+                "Lakche": "Swordmaster",
+                "Skasaher": "Forrest",
+            }
+        except KeyError:
+            self.promo_cls = None
+        path_to_bases2promo = self.path_to("characters__base_stats-JOIN-classes__promotion_gains.json")
+        with open(path_to_bases2promo) as rfile:
+            can_promote = json.load(rfile).pop(name) is not None
+        if can_promote:
+            self.max_level = 20
+            self.min_promo_level = 20
+        else:
+            self.max_level = 30
+            self.min_promo_level = 0
+
+class Morph5(Morph):
+    """
+    """
+
+    def __init__(self, name: str):
+        """
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
+        try:
+            self.promo_cls = {
+                "Rifis": "Thief Fighter",
+                "Asvel": "Sage",
+                "Miranda": "Mage Knight",
+                "Tania": "Sniper (F)",
+                "Ronan": "Sniper (M)",
+                "Machua": "Mercenary",
+                "Shiva": "Swordmaster",
+                "Mareeta": "Swordmaster",
+                "Trewd": "Swordmaster",
+            }[self.name]
+        except KeyError:
+            pass
+        self.equipped_scrolls = []
+
+    def equip_scroll(self, scroll_name: str):
+        """
+        """
+        raise NotImplementedError
+
+    def _set_min_promo_level(self):
+        """
+        """
+        self.min_promo_level = 10
+        try:
+            self.min_promo_level = {
+                "Leif": 1,
+                "Linoan": 1,
+            }[self.name]
+        except KeyError:
+            return
+        if self.name == "Lara" and self.promo_cls = "Dancer":
+            self.min_promo_level = 1
+
+    def promote(self):
+        """
+        """
+        fail_conditions = (
+            self.name != "Lara" and self.current_cls == "Thief Fighter",
+            self.name == "Lara" and "Dancer" in map(lambda (lv, cls): cls, self._meta["History"]):
+        )
+        if any(fail_conditions):
+            raise ValueError(f"{self.name} has no available promotions.")
+        super().promote()
+        self.min_promo_level = None
+
+class Morph6(Morph):
+    """
+    """
+
+    def __init__(self, name: str):
+        """
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
+
+    def _set_min_promo_level(self):
+        """
+        """
+        if self.name == "Roy":
+            self.min_promo_level = 1
+        else:
+            self.min_promo_level = 10
+
+class Morph7(Morph):
+    """
+    """
+
+    def __init__(self, name: str, lyn_mode: bool = False):
+        """
+        """
+        lyndis_league = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius"
+            "Wallace",
+        )
+        if name in lyndis_league:
+            which_bases = 0
+        else:
+            if lyn_mode:
+                logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
+            which_bases = 1
+        super().__init__(name, which_bases=0, which_growths=0)
+        self._meta["Lyn Mode"] = name in lyndis_league and lyn_mode
+        if not lyn_mode and name == "Wallace":
+            # to direct lookup function to max stats for General class
+            self.current_clstype = "classes__promotion_gains"
+
+class Morph8(Morph):
+    """
+    """
+
+    def __init__(self, name: str):
+        """
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
+
+    def _set_max_level(self):
+        """
+        """
+        # exceptions:
+        # FE4: 30 for promoted, 20 for unpromoted
+        # FE8: unpromoted trainees are capped at 10
+        if self.name in ("Ross", "Amelia", "Ewan") and self.current_clstype == "characters__base_stats":
+            self.max_level = 10
+        else:
+            self.max_level = 20
+
+    def promote(self):
+        """
+        """
+        super().promote()
+        self.max_level = None
+
+
+class Morph9(Morph):
+    """
+    """
+
+    def __init__(self, name: str):
+        """
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
