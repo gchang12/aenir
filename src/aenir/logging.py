@@ -2,36 +2,61 @@
 """
 
 import logging
+import logging.config
 
-logger = logging.getLogger()
-
-# TODO: Configure this!
+logger = logging.getLogger("aenir")
 
 def configure_logging():
     """
     """
-    import logging.config
+    main_logging_file = ".aenir.log"
+    html_logging_file = ".html_aenir.log"
+    main_datefmt = "%B %d, %Y @ %I:%M:%S %p"
     logging.config.dictConfig(
         {
             "version": 1,
             "formatters": {
-                "formatter-id": {
-                    "format": None,
-                }
-            },
-            "filters": {
-                "filter-id": {
-                    "filter": None,
-                }
+                "timed": {
+                    "datefmt": main_datefmt,
+                    "format": "\n** %(asctime)s **\n== %(message)s ==",
+                },
+                "simple": {
+                    "format":
+                    "%(levelname)s:%(name)s.%(module)s.%(funcName)s: %(message)s",
+                },
             },
             "handlers": {
-                "handler-id": None,
+                "console": {
+                    "class": "logging.StreamHandler",
+                    "formatter": "simple",
+                },
+                "file": {
+                    "class": "logging.FileHandler",
+                    "filename": main_logging_file,
+                    "formatter": "simple",
+                },
+                "timekeeping": {
+                    "class": "logging.FileHandler",
+                    "filename": main_logging_file,
+                    "formatter": "timed",
+                },
             },
             "loggers": {
-                "level": None,
-                "propagate": None,
-                "filters": [],
-                "handlers": [],
-            }
+                "aenir": {
+                    "level": "DEBUG",
+                    "handlers": [
+                        "file",
+                        #"console",
+                        #"email",# Not in use yet.
+                    ],
+                },
+                "timer": {
+                    # To capture all testing runs.
+                    "level": "DEBUG",
+                    "handlers": [
+                        "timekeeping",
+                    ],
+                },
+            },
         }
     )

@@ -10,17 +10,28 @@ from aenir.stats import (
     ThraciaStats,
     GBAStats,
 )
-from aenir.logging import logger
+from aenir.logging import (
+    configure_logging,
+    logger,
+)
+
+configure_logging()
 
 class StatsTests(unittest.TestCase):
     """
     Demo of methods of a functional subclass of AbstractStats.
     """
 
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     class FunctionalStats(AbstractStats):
         """
         Functional in that the 'STAT_LIST' class method is defined.
         """
+
         @classmethod
         def STAT_LIST(cls):
             """
@@ -90,6 +101,55 @@ class StatsTests(unittest.TestCase):
             "f": 8,
             "g": 0,
         }
+
+    def test_eq__type_mismatch(self):
+        """
+        """
+        stats1 = self.FunctionalStats(**self.init_kwargs)
+        stats2 = self.FunctionalStats2(**self.init_kwargs)
+        with self.assertRaises(TypeError):
+            stats1 == stats2
+
+    def test_add(self):
+        """
+        """
+        new_statdict = {}
+        statlist = tuple(self.statdict1)
+        for stat in statlist:
+            new_statdict[stat] = self.statdict1[stat] + self.statdict2[stat]
+        expected = self.FunctionalStats(**new_statdict)
+        summand1 = self.FunctionalStats(**self.statdict1)
+        summand2 = self.FunctionalStats(**self.statdict2)
+        actual = summand1 + summand2
+        stats_are_equal = []
+        for stat in statlist:
+            actual_val = getattr(actual, stat)
+            expected_val = getattr(expected, stat)
+            stats_are_equal.append(actual_val == expected_val)
+        self.assertIs(all(stats_are_equal), True)
+
+    def test_eq__all_matching(self):
+        """
+        """
+        stats1 = self.FunctionalStats(**self.init_kwargs)
+        stats2 = self.FunctionalStats(**self.init_kwargs)
+        actual = all(stats1 == stats2)
+        expected = True
+        self.assertIs(actual, expected)
+
+    def test_eq__not_all_matching(self):
+        """
+        """
+        stats1 = self.FunctionalStats(**self.init_kwargs)
+        self.init_kwargs['a'] = 99
+        stats2 = self.FunctionalStats(**self.init_kwargs)
+        actual = all(stats1 == stats2)
+        expected = False
+        self.assertIs(actual, expected)
+        stats1.a = 99
+        expected = True
+        actual = all(stats1 == stats2)
+        self.assertIs(actual, expected)
 
     def test_imin(self):
         """
@@ -184,7 +244,7 @@ class StatsTests(unittest.TestCase):
         )
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
-        actual_stats = stats1.lt(stats2)
+        actual_stats = stats1.__lt__(stats2)
         for attrname in ("a", "b", "c", "d", "e", "f", "g"):
             actual = getattr(actual_stats, attrname)
             expected = getattr(expected_stats, attrname)
@@ -207,8 +267,8 @@ class StatsTests(unittest.TestCase):
         )
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
-        none = stats1.iadd(stats2)
-        self.assertIsNone(none)
+        self.assertIsNotNone(stats1)
+        stats1 += stats2
         actual_stats = stats1
         for attrname in ("a", "b", "c", "d", "e", "f", "g"):
             actual = getattr(actual_stats, attrname)
@@ -225,9 +285,9 @@ class StatsTests(unittest.TestCase):
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
         with self.assertRaises(TypeError):
-            stats1.lt(stats2)
+            stats1.__lt__(stats2)
         with self.assertRaises(TypeError):
-            stats2.lt(stats1)
+            stats2.__lt__(stats1)
 
     def test_iadd__different_classes(self):
         """
@@ -239,9 +299,9 @@ class StatsTests(unittest.TestCase):
         stats2 = self.FunctionalStats2(**self.statdict2)
         self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
         with self.assertRaises(TypeError):
-            stats1.iadd(stats2)
+            stats1.__iadd__(stats2)
         with self.assertRaises(TypeError):
-            stats2.iadd(stats1)
+            stats2.__iadd__(stats1)
 
     def test_get_stat_dict__eq_stat_list(self):
         """
@@ -283,6 +343,11 @@ class ImplementedStatsTests(unittest.TestCase):
     Tests that subclasses contain the expected stat-attributes.
     """
 
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def test_genealogy_stats(self):
         """
         Stats with growth rates in FE4: Genealogy of the Holy War.
@@ -311,8 +376,9 @@ class ImplementedStatsTests(unittest.TestCase):
             "Spd",
             "Lck",
             "Def",
-            "Con",
-            "Mov",
+            #"Con",
+            #"Mov",
+            "Res",
         )
         actual = GBAStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
@@ -340,6 +406,11 @@ class AbstractStatsTests(unittest.TestCase):
     Demo of how 'STAT_LIST' should be implemented to be a valid subclass of
     AbstractStats.
     """
+
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())
 
     class NoStatListStats(AbstractStats):
         """
