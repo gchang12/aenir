@@ -7,9 +7,11 @@ from aenir.games import FireEmblemGame
 from aenir.logging import (
     configure_logging,
     logger,
+    time_logger,
 )
 
 configure_logging()
+time_logger.critical("")
 
 class FireEmblemGameTest(unittest.TestCase):
     """

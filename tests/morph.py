@@ -22,9 +22,11 @@ from aenir.stats import (
 from aenir.logging import (
     configure_logging,
     logger,
+    time_logger,
 )
 
 configure_logging()
+time_logger.critical("")
 
 class BaseMorphTest(unittest.TestCase):
     """
@@ -333,7 +335,7 @@ class MorphTest(unittest.TestCase):
         self.TestMorph = TestMorph6
         self.TestMorph.__name__ = "Morph"
         self.init_kwargs = {
-            "name": "Rutger",
+            "unit": "Rutger",
             "which_bases": 0,
             "which_growths": 0,
         }
@@ -515,4 +517,6 @@ class MorphTest(unittest.TestCase):
         self.assertIsNone(morph.min_promo_level)
         morph._set_min_promo_level()
         self.assertIsInstance(morph.min_promo_level, int)
+
+    # TODO: test: level_up, promote
 
