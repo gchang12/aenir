@@ -13,9 +13,11 @@ from aenir.stats import (
 from aenir.logging import (
     configure_logging,
     logger,
+    time_logger,
 )
 
 configure_logging()
+time_logger.critical("")
 
 class StatsTests(unittest.TestCase):
     """

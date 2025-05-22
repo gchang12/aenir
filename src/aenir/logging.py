@@ -5,6 +5,7 @@ import logging
 import logging.config
 
 logger = logging.getLogger("aenir")
+time_logger = logging.getLogger("timer")
 
 def configure_logging():
     """
@@ -18,7 +19,7 @@ def configure_logging():
             "formatters": {
                 "timed": {
                     "datefmt": main_datefmt,
-                    "format": "\n** %(asctime)s **\n== %(message)s ==",
+                    "format": "\n** %(asctime)s **\n" + "=" * 32,
                 },
                 "simple": {
                     "format":
