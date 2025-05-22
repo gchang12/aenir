@@ -518,8 +518,6 @@ class MorphTest(unittest.TestCase):
         morph._set_min_promo_level()
         self.assertIsInstance(morph.min_promo_level, int)
 
-    # TODO: test: level_up, promote
-
     def test_level_up(self):
         """
         """
@@ -582,3 +580,4 @@ class MorphTest(unittest.TestCase):
             base_rutger.current_stats + promo_bonuses == rutger.current_stats
         )
         self.assertIs(actual2, True)
+
