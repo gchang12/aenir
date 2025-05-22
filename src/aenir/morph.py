@@ -261,8 +261,9 @@ class Morph(BaseMorph):
         # if resultset has length > 1, filter to relevant
         elif len(resultset) > 1:
             resultset = list(
-                resultset.filter(
-                    lambda result: result['Promotion'] == self.promo_cls
+                filter(
+                    lambda result: result['Promotion'] == self.promo_cls,
+                    resultset,
                 )
             )
         # ** PROMOTION START! **
