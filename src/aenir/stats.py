@@ -89,7 +89,7 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
 
-    def iadd(self, other):
+    def __iadd__(self, other):
         """
         Increments values of `self` by corresponding values in `other`.
         """
@@ -104,8 +104,9 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             new_stat = self_stat + other_stat
             setattr(self, stat, new_stat)
+        return self
 
-    def lt(self, other):
+    def __lt__(self, other):
         """
         Returns *Stats<bool> indicating which stats in `self` < `other`.
         """
@@ -114,6 +115,7 @@ class AbstractStats(abc.ABC):
         #assert isinstance(other, cls)
         #assert type(self) == type(other)
         if not type(self) == type(other):
+            # TODO: Message here
             raise TypeError("")
         stat_dict = {}
         #except AssertionError as assert_err:
@@ -122,6 +124,36 @@ class AbstractStats(abc.ABC):
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat < other_stat
+        return self.__class__(**stat_dict)
+
+    def __eq__(self, other):
+        """
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat == other_stat
+        return self.__class__(**stat_dict)
+
+    def __iter__(self):
+        """
+        """
+        for stat in self.STAT_LIST():
+            yield getattr(self, stat)
+
+    def __add__(self, other):
+        """
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat + other_stat
         return self.__class__(**stat_dict)
 
     def __repr__(self):
@@ -193,7 +225,8 @@ class GBAStats(AbstractStats):
             "Spd",
             "Lck",
             "Def",
-            "Con",
-            "Mov",
+            "Res",
+            #"Con",
+            #"Mov",
         )
 
