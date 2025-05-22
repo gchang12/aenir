@@ -30,6 +30,15 @@ class AbstractStats(abc.ABC):
             #stat_dict[stat] = fill_value
         return stat_dict
 
+    # TODO: Test!
+    def copy(self):
+        """
+        """
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            stat_dict[stat] = getattr(self, stat)
+        return self.__class__(**stat_dict)
+
     def __init__(self, **stat_dict):
         """
         Alerts user of which stats want declaration if `stat_dict` is incomplete.
