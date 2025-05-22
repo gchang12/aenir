@@ -235,6 +235,7 @@ class Morph(BaseMorph):
         - promo_cls = None
         - current_clstype = 'classes/promotion-gains'
         """
+        # query for available promotions
         if self.current_clstype == "characters/base-stats":
             lindex_val = self.unit_name
         elif self.current_clstype == "classes/promotion-gains":
@@ -246,10 +247,15 @@ class Morph(BaseMorph):
         )
         if self.target_stats is None:
             raise ValueError(f"{self.unit_name} has no available promotions.")
+        # check if unit is high enough a level to promote
         if self.current_lv < self.get_minpromolv():
             raise ValueError(f"{self.unit_name} must be at least level {self.get_minpromolv()} to promote. Current level: {self.current_lv}")
         logging.info("Morph.promote(tableindex=%d)", tableindex)
+        # store for history
         old_cls = self.current_cls
+        self.history.append( (old_cls, self.current_lv) )
+        # if there is more than one result, get right statset
+        # set current class
         if isinstance(self.target_stats, pd.DataFrame):
             try:
                 self.target_stats = self.target_stats.set_index("Promotion").loc[self.promo_cls, :]
@@ -260,11 +266,14 @@ class Morph(BaseMorph):
             self.current_cls = self.target_stats.name
         else:
             self.current_cls = self.target_stats.pop("Promotion")
-        self.history.append( (old_cls, self.current_lv) )
+        # set class to promote to to None
         self.promo_cls = None
+        # change current_clstype for future queries
         self.current_clstype = "classes/promotion-gains"
+        # increment stats
         temp_promo = self.target_stats.reindex(self.current_stats.index, fill_value=0.0) * 1.0
         self.current_stats += temp_promo
+        # reset level
         self.current_lv = 1
 
     def cap_stats(self, tableindex: int = 0):
