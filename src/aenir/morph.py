@@ -631,6 +631,12 @@ class Morph7(Morph):
             # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
 
+    def use_afas_drops(self):
+        """
+        """
+        growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
+        self.growth_rates += growths_increment
+
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -689,6 +695,12 @@ class Morph8(Morph):
             #"Body Ring": ("Con", 3),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
+
+    def use_metiss_time(self):
+        """
+        """
+        growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
+        self.growth_rates += growths_increment
 
 class Morph9(Morph):
     """
