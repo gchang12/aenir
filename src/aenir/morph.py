@@ -147,21 +147,21 @@ class Morph(BaseMorph):
             character_list = list(json.load(rfile))
         return character_list
 
-    def __init__(self, unit: str, *, which_bases: int, which_growths: int):
+    def __init__(self, name: str, *, which_bases: int, which_growths: int):
         super().__init__()
         self.game = self.GAME()
         character_list = self.CHARACTER_LIST()
-        if unit not in character_list:
+        if name not in character_list:
             raise ValueError(
                 "'%s' not found. List of Fire Emblem: %r characters: %r" \
-                % (unit, self.game.formal_name, character_list)
+                % (name, self.game.formal_name, character_list)
             )
-        self.unit = unit
+        self.name = name
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats%d" % which_bases
         fields = self.Stats.STAT_LIST() + ("Class", "Lv")
-        filters = {"Name": unit}
+        filters = {"Name": name}
         basestats_query = self.query_db(
             path_to_db,
             table,
@@ -176,7 +176,7 @@ class Morph(BaseMorph):
         # growths
         resultset = self.query_db(
             **self.lookup(
-                ("characters__base_stats", unit),
+                ("characters__base_stats", name),
                 ("characters__growth_rates", "Name"),
                 which_growths,
             )
@@ -186,7 +186,7 @@ class Morph(BaseMorph):
         self.current_clstype = "characters__base_stats"
         maxes_resultset = self.query_db(
             **self.lookup(
-                (self.current_clstype, unit),
+                (self.current_clstype, name),
                 ("classes__maximum_stats", "Class"),
                 tableindex=0,
             )
@@ -194,8 +194,8 @@ class Morph(BaseMorph):
         self.max_stats = self.Stats(**maxes_resultset.pop())
         # (miscellany)
         self._meta = {'History': []}
-        if unit.replace(" (HM)", "") + " (HM)" in character_list:
-            self._meta['Hard Mode'] = " (HM)" in unit
+        if name.replace(" (HM)", "") + " (HM)" in character_list:
+            self._meta['Hard Mode'] = " (HM)" in name
         self.max_level = None
         self.min_promo_level = None
         self.promo_cls = None
@@ -242,10 +242,10 @@ class Morph(BaseMorph):
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
-            raise ValueError(f"{self.unit} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
+            raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         # get promotion data
         value_to_lookup = {
-            "characters__base_stats": self.unit,
+            "characters__base_stats": self.name,
             "classes__promotion_gains": self.current_cls,
         }[self.current_clstype]
         query_kwargs = self.lookup(
@@ -257,7 +257,7 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         # quit if resultset is empty
         if not resultset:
-            raise ValueError(f"{self.unit} has no available promotions.")
+            raise ValueError(f"{self.name} has no available promotions.")
         # if resultset has length > 1, filter to relevant
         elif len(resultset) > 1:
             resultset = list(
