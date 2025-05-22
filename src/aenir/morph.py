@@ -293,6 +293,17 @@ class Morph(BaseMorph):
         #self.min_promo_level = None
         #self.max_level = None
 
+    # TODO: Test this!
+    def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
+        """
+        """
+        increment = self.Stats(**self.Stats.get_stat_dict(0))
+        if item_name not in item_bonus_dict:
+            raise KeyError(f"'{item_name}' is not a valid stat booster. Valid stat boosters: {item_bonus_dict.keys()}")
+        stat, bonus = item_bonus_dict[item_name]
+        setattr(increment, stat, bonus)
+        self.current_stats.imin(self.max_stats)
+
     # TODO: Flesh out informational methods
 
     def is_maxed(self):
@@ -409,6 +420,11 @@ class Morph4(Morph):
         self.max_level = None
         self.min_promo_level = None
 
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        raise NotImplementedError("FE4 has no stat boosters.")
+
 class Morph5(Morph):
     """
     """
@@ -435,6 +451,55 @@ class Morph5(Morph):
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
 
+    def _set_min_promo_level(self):
+        """
+        """
+        self.min_promo_level = 10
+        try:
+            self.min_promo_level = {
+                "Leif": 1,
+                "Linoan": 1,
+            }[self.name]
+        except KeyError:
+            pass
+        if self.name == "Lara" and self.promo_cls == "Dancer":
+            self.min_promo_level = 1
+
+    def level_up(self, num_levels: int):
+        """
+        """
+        super().level_up(num_levels)
+        self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
+
+    def promote(self):
+        """
+        """
+        fail_conditions = (
+            self.name != "Lara" and self.current_cls == "Thief Fighter",
+            self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self._meta["History"]),
+        )
+        if any(fail_conditions):
+            raise ValueError(f"{self.name} has no available promotions.")
+        super().promote()
+        self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
+        self.min_promo_level = None
+
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
+            "Luck Ring": ("Lck", 3),
+            "Life Ring": ("HP", 7),
+            "Speed Ring": ("Spd", 3),
+            "Magic Ring": ("Mag", 2),
+            "Power Ring": ("Str", 3),
+            "Body Ring": ("Con", 3),
+            "Shield Ring": ("Def", 2),
+            "Skill Ring": ("Skl", 3),
+            "Leg Ring": ("Mov", 2),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
+
     def _apply_scroll_bonuses(self):
         """
         """
@@ -457,10 +522,8 @@ class Morph5(Morph):
         """
         """
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
-        # Store old growths in self._meta["Original Growths"]
         if scroll_name in self.equipped_scrolls:
             raise ValueError(f"'{scroll_name}' is already equipped. Equipped scrolls: {self.equipped_scrolls.keys()}.")
-        # TODO: Insert scroll_bonuses table into cleaned_stats.db
         path_to_db = self.path_to("cleaned_stats.db")
         table = "scroll_bonuses"
         stat_dict = query_db(
@@ -481,39 +544,6 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(**scroll_dict)
         self._apply_scroll_bonuses()
 
-    def _set_min_promo_level(self):
-        """
-        """
-        self.min_promo_level = 10
-        try:
-            self.min_promo_level = {
-                "Leif": 1,
-                "Linoan": 1,
-            }[self.name]
-        except KeyError:
-            return
-        if self.name == "Lara" and self.promo_cls == "Dancer":
-            self.min_promo_level = 1
-
-    def level_up(self, num_levels: int):
-        """
-        """
-        super().level_up(num_levels)
-        #self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
-
-    def promote(self):
-        """
-        """
-        fail_conditions = (
-            self.name != "Lara" and self.current_cls == "Thief Fighter",
-            self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self._meta["History"]),
-        )
-        if any(fail_conditions):
-            raise ValueError(f"{self.name} has no available promotions.")
-        super().promote()
-        self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
-        self.min_promo_level = None
-
 
 class Morph6(Morph):
     """
@@ -525,6 +555,20 @@ class Morph6(Morph):
         """
         super().__init__(name, which_bases=0, which_growths=0)
 
+    # TODO: Test this
+    def decline_hugh(self):
+        """
+        """
+        if self.name != "Hugh":
+            raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
+        decline_key = "Number of Declines"
+        if decline_key not in self._meta:
+            self._meta[decline_key] = 0
+        if self._meta[decline_key] == 3:
+            raise ValueError("Can invoke this method up to three times.")
+        decrement = self.Stats(**self.Stats.get_stat_dict(-1))
+        self.current_stats += decrement
+
     def _set_min_promo_level(self):
         """
         """
@@ -532,6 +576,22 @@ class Morph6(Morph):
             self.min_promo_level = 1
         else:
             self.min_promo_level = 10
+
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 3),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
 class Morph7(Morph):
     """
@@ -571,6 +631,22 @@ class Morph7(Morph):
             # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
 
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 3),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
+
 class Morph8(Morph):
     """
     """
@@ -598,6 +674,21 @@ class Morph8(Morph):
         super().promote()
         self.max_level = None
 
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 3),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
 class Morph9(Morph):
     """
@@ -608,4 +699,21 @@ class Morph9(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
+
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
+            "Seraph Robe": ("HP", 7),
+            "Energy Drop": ("Str", 2),
+            "Spirit Dust": ("Mag", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwing": ("Spd", 3),
+            "Ashera Icon": ("Lck", 2),
+            "Dracoshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
