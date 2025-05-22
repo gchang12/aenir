@@ -11,6 +11,12 @@ from aenir.games import FireEmblemGame
 from aenir.morph import (
     BaseMorph,
     Morph,
+    Morph4,
+    Morph5,
+    Morph6,
+    Morph7,
+    Morph8,
+    Morph9,
 )
 from aenir.stats import (
     GenealogyStats,

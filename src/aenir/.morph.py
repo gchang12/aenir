@@ -602,6 +602,7 @@ class Morph7(Morph):
         if unit_name in lyndis_league:
             self.comparison_labels.update({"Campaign": ("Main" if not lyn_mode else "Tutorial")})
             self.lyn_mode = lyn_mode
+        # TODO: minor patch. should provide permanent solution
         if not lyn_mode and unit_name == "Wallace":
             # must add in line with 'General (M)' -> None in promo-JOIN-promo JSON file
             self.current_clstype = "classes/promotion-gains"
