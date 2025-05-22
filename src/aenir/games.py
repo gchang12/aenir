@@ -20,7 +20,7 @@ class FireEmblemGame(enum.IntEnum):
         return {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
-            6: "sword-of-seals",
+            6: "binding-blade",
             7: "blazing-sword",
             8: "the-sacred-stones",
             9: "path-of-radiance",
