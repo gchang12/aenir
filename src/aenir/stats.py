@@ -60,6 +60,15 @@ class AbstractStats(abc.ABC):
         if stat_dict:
             logger.warning("These keyword arguments have gone unused: %s", stat_dict)
 
+    def __mul__(self, other):
+        """
+        """
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            stat_dict[stat] = round(self_stat * other, 2)
+        return self.__class__(**stat_dict)
+
     def imin(self, other):
         """
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
@@ -153,7 +162,7 @@ class AbstractStats(abc.ABC):
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            stat_dict[stat] = self_stat + other_stat
+            stat_dict[stat] = round(self_stat + other_stat, 2)
         return self.__class__(**stat_dict)
 
     def __repr__(self):
