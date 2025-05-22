@@ -128,13 +128,11 @@ class Morph(BaseMorph):
     game_no = None
 
     @classmethod
-    @abc.abstractmethod
     def GAME(cls):
         """
         """
-        #if cls.__name__ == "Morph":
-            # TODO: Figure out what specifically to warn the user about.
-            #logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
+        if cls.__name__ == "Morph":
+            logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
         return FireEmblemGame(cls.game_no)
 
     @classmethod
@@ -316,6 +314,7 @@ class Morph(BaseMorph):
 class Morph4(Morph):
     """
     """
+    game_no = 4
 
     def __init__(self, name: str, father_name: str = None):
         """
@@ -403,9 +402,17 @@ class Morph4(Morph):
             self.max_level = 30
             self.min_promo_level = 0
 
+    def promote(self):
+        """
+        """
+        super().promote()
+        self.max_level = None
+        self.min_promo_level = None
+
 class Morph5(Morph):
     """
     """
+    game_no = 5
 
     def __init__(self, name: str):
         """
@@ -461,6 +468,7 @@ class Morph5(Morph):
 class Morph6(Morph):
     """
     """
+    game_no = 6
 
     def __init__(self, name: str):
         """
@@ -478,6 +486,7 @@ class Morph6(Morph):
 class Morph7(Morph):
     """
     """
+    game_no = 7
 
     def __init__(self, name: str, lyn_mode: bool = False):
         """
@@ -509,12 +518,13 @@ class Morph7(Morph):
         super().__init__(name, which_bases=which_bases, which_growths=0)
         self._meta["Lyn Mode"] = name in lyndis_league and lyn_mode
         if not lyn_mode and name == "Wallace":
-            # to direct lookup function to max stats for General class
+            # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
 
 class Morph8(Morph):
     """
     """
+    game_no = 8
 
     def __init__(self, name: str):
         """
@@ -542,6 +552,7 @@ class Morph8(Morph):
 class Morph9(Morph):
     """
     """
+    game_no = 9
 
     def __init__(self, name: str):
         """

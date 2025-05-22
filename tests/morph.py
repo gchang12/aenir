@@ -332,12 +332,6 @@ class MorphTest(unittest.TestCase):
             #__name__ = "Morph"
             game_no = 6
 
-            @classmethod
-            def GAME(cls):
-                """
-                """
-                return FireEmblemGame(cls.game_no)
-
         self.TestMorph = TestMorph6
         self.TestMorph.__name__ = "Morph"
         self.init_kwargs = {
@@ -346,7 +340,6 @@ class MorphTest(unittest.TestCase):
             "which_growths": 0,
         }
 
-    @unittest.skip("User is outright forbidden from instantiating generic Morph instances.")
     def test_GAME(self):
         """
         """
