@@ -102,7 +102,7 @@ class AbstractStats(abc.ABC):
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            new_stat = self_stat + other_stat
+            new_stat = round(self_stat + other_stat, 2)
             setattr(self, stat, new_stat)
         return self
 
