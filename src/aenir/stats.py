@@ -17,6 +17,7 @@ class AbstractStats(abc.ABC):
         """
         The kernel of the class; differs for each subclass.
         """
+        raise NotImplementedError
 
     @classmethod
     def get_stat_dict(cls, fill_value):
