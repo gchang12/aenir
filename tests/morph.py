@@ -19,20 +19,21 @@ from aenir.stats import (
     AbstractStats,
 )
 
-from aenir.logging import logger
+from aenir.logging import (
+    configure_logging,
+    logger,
+)
 
-# TODO
-# subclass BaseMorph
-# test: GAME, STATS, query_db, lookup
+configure_logging()
 
 class BaseMorphTest(unittest.TestCase):
     """
     """
 
-
     def setUp(self):
         """
         """
+        logger.critical("%s", self.id())
 
         class TestMorph(BaseMorph):
             """
@@ -226,25 +227,25 @@ class BaseMorphTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.TestMorph6.path_to(None)
 
-    @patch("aenir.morph.BaseMorph.query_db")
-    def test_lookup(self, MOCK_query_db):
+    def test_lookup(self):
         """
         """
         home_data = ("characters__base_stats", "Roy")
         target_data = ("classes__maximum_stats", "Class")
         tableindex = 0
         morph6 = self.TestMorph6()
-        morph6.lookup(
+        actual = morph6.lookup(
             home_data,
             target_data,
             tableindex,
         )
-        MOCK_query_db.assert_called_once_with(
-            "static/binding-blade/cleaned_stats.db",
-            "classes__maximum_stats0",
-            ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"),
-            {"Class": "Non-promoted"},
-        )
+        expected = {
+            "path_to_db": "static/binding-blade/cleaned_stats.db",
+            "table": "classes__maximum_stats0",
+            "fields": ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"),
+            "filters": {"Class": "Non-promoted"},
+        }
+        self.assertDictEqual(actual, expected)
         # resultset is not None (check if 'query_db' is called)
 
     def test_lookup__bad_data_passed(self):
@@ -307,7 +308,6 @@ class BaseMorphTest(unittest.TestCase):
                 target_data,
                 tableindex,
             )
-
         # lookup value not found
 
 class MorphTest(unittest.TestCase):
@@ -317,14 +317,23 @@ class MorphTest(unittest.TestCase):
     def setUp(self):
         """
         """
+        logger.critical("%s", self.id())
         class TestMorph6(Morph):
             """
             """
             #__name__ = "Morph"
             game_no = 6
+
+            @classmethod
+            def GAME(cls):
+                """
+                """
+                return FireEmblemGame(cls.game_no)
+
         self.TestMorph = TestMorph6
         self.TestMorph.__name__ = "Morph"
 
+    @unittest.skip("User is outright forbidden from instantiating generic Morph instances.")
     def test_GAME(self):
         """
         """
@@ -458,9 +467,14 @@ class MorphTest(unittest.TestCase):
                 Res=20,
             )
         )
-        self.assertListEqual(rutger.history, [])
-        self.assertDictEqual(rutger.comparison_labels, {"Hard Mode": False})
-    
+        self.assertDictEqual(
+            rutger._meta,
+            {
+                "History": [],
+                "Hard Mode": False,
+            },
+        )
+
     def test_init__unit_dne(self):
         """
         """
@@ -480,3 +494,4 @@ class MorphTest(unittest.TestCase):
         bad_growths = 99
         with self.assertRaises(sqlite3.OperationalError):
             roy = self.TestMorph("Roy", which_bases=0, which_growths=bad_growths)
+
