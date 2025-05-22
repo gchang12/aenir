@@ -670,7 +670,6 @@ class MorphTest(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-
             @classmethod
             def GAME(cls):
                 """
@@ -716,6 +715,63 @@ class MorphTest(unittest.TestCase):
         )
         actual2 = all(
             base_ira.current_stats + promo_bonuses == ira.current_stats
+        )
+        self.assertIs(actual2, True)
+
+    def test_promote__branched_promotion_again(self):
+        """
+        """
+        class TestMorph4(Morph):
+            """
+            """
+            #__name__ = "Morph"
+            game_no = 4
+
+            @classmethod
+            def GAME(cls):
+                """
+                """
+                return FireEmblemGame(cls.game_no)
+        holyn = TestMorph4("Holyn", which_bases=0, which_growths=0)
+        holyn.current_lv = 10
+        holyn.promo_cls = "Forrest"
+        holyn.promote()
+        self.assertListEqual(
+            holyn._meta["History"],
+            [(10, "Swordfighter")],
+        )
+        self.assertEqual(holyn.current_clstype, "classes__promotion_gains")
+        self.assertEqual(holyn.current_cls, "Forrest")
+        # to be amended in the Morph4 subclass
+        #self.assertEqual(holyn.current_lv, 1)
+        self.assertIsNone(holyn.promo_cls)
+        # assert maxes are those of Swordmaster
+        swordmaster_maxes = GenealogyStats(
+            HP=80,
+            Str=27,
+            Mag=18,
+            Skl=27,
+            Spd=27,
+            Lck=30,
+            Def=22,
+            Res=18,
+        )
+        actual = all(swordmaster_maxes == holyn.max_stats)
+        self.assertIs(actual, True)
+        # assert that stats have increased by expected amount.
+        base_holyn = TestMorph4("Holyn", which_bases=0, which_growths=0)
+        promo_bonuses = GenealogyStats(
+            HP=0,
+            Str=5,
+            Mag=3,
+            Skl=2,
+            Spd=2,
+            Lck=0,
+            Def=2,
+            Res=3,
+        )
+        actual2 = all(
+            base_holyn.current_stats + promo_bonuses == holyn.current_stats
         )
         self.assertIs(actual2, True)
 
