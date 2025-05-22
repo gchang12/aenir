@@ -116,6 +116,18 @@ class AbstractStats(abc.ABC):
             setattr(self, stat, new_stat)
         return self
 
+    def __add__(self, other):
+        """
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = round(self_stat + other_stat, 2)
+        return self.__class__(**stat_dict)
+
     def __lt__(self, other):
         """
         Returns *Stats<bool> indicating which stats in `self` < `other`.
@@ -153,18 +165,6 @@ class AbstractStats(abc.ABC):
         """
         for stat in self.STAT_LIST():
             yield getattr(self, stat)
-
-    def __add__(self, other):
-        """
-        """
-        if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
-        stat_dict = {}
-        for stat in self.STAT_LIST():
-            self_stat = getattr(self, stat)
-            other_stat = getattr(other, stat)
-            stat_dict[stat] = round(self_stat + other_stat, 2)
-        return self.__class__(**stat_dict)
 
     def __repr__(self):
         """
