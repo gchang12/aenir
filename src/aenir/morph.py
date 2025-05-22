@@ -432,12 +432,26 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        self.equipped_scrolls = []
+        #self.equipped_scrolls = {}
+
+    # NOTE: This is going to be a pain to implement.
+
+    def unequip_scroll(self, scroll_name: str):
+        """
+        """
+        # Decrement growth rates.
+        raise NotImplementedError
 
     def equip_scroll(self, scroll_name: str):
         """
         """
+        # Store old growths in self._meta["Original Growths"]
         raise NotImplementedError
+        og_growths_key = "Original Growths"
+        if og_growths_key not in self._meta:
+            self._meta[og_growths_key] = self.growth_rates.copy()
+        # get scroll bonuses, then
+        # increment growth rates
 
     def _set_min_promo_level(self):
         """
@@ -453,6 +467,12 @@ class Morph5(Morph):
         if self.name == "Lara" and self.promo_cls == "Dancer":
             self.min_promo_level = 1
 
+    def level_up(self, num_levels: int):
+        """
+        """
+        super().level_up(num_levels)
+        #self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
+
     def promote(self):
         """
         """
@@ -463,7 +483,9 @@ class Morph5(Morph):
         if any(fail_conditions):
             raise ValueError(f"{self.name} has no available promotions.")
         super().promote()
+        self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
+
 
 class Morph6(Morph):
     """
