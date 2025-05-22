@@ -4,11 +4,21 @@
 import unittest
 
 from aenir.games import FireEmblemGame
-from aenir.logging import logger
+from aenir.logging import (
+    configure_logging,
+    logger,
+)
+
+configure_logging()
 
 class FireEmblemGameTest(unittest.TestCase):
     """
     """
+
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())
 
     def test_is_gba_game__true(self):
         """
@@ -42,7 +52,7 @@ class FireEmblemGameTest(unittest.TestCase):
         gamerank_to_urlname = {
             4: "genealogy-of-the-holy-war",
             5: "thracia-776",
-            6: "sword-of-seals",
+            6: "binding-blade",
             7: "blazing-sword",
             8: "the-sacred-stones",
             9: "path-of-radiance",
