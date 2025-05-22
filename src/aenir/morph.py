@@ -545,15 +545,22 @@ class Morph5(Morph):
         self._apply_scroll_bonuses()
 
 
+# TODO: Implement hard-mode versions of characters.
 class Morph6(Morph):
     """
     """
     game_no = 6
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, hard_mode: bool = False):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
+        self.name = name.replace(" (HM)", "")
+        if self.name + " (HM)" in self.CHARACTER_LIST():
+            self._meta["Hard Mode"] = hard_mode
+        else:
+            if hard_mode:
+                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
 
     # TODO: Test this
     def decline_hugh(self):
@@ -598,7 +605,7 @@ class Morph7(Morph):
     """
     game_no = 7
 
-    def __init__(self, name: str, lyn_mode: bool = False):
+    def __init__(self, name: str, lyn_mode: bool = False, hard_mode: bool = False):
         """
         """
         lyndis_league = (
@@ -630,12 +637,23 @@ class Morph7(Morph):
         if not lyn_mode and name == "Wallace":
             # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
+        # hard mode versions
+        self.name = name.replace(" (HM)", "")
+        if self.name + " (HM)" in self.CHARACTER_LIST():
+            self._meta["Hard Mode"] = hard_mode
+        else:
+            if hard_mode:
+                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
 
     def use_afas_drops(self):
         """
         """
+        growths_item = "Afa's Drops"
+        if growth_item in self._meta:
+            raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
+        self._meta[growths_item] = None
 
     def use_stat_booster(self, item_name: str):
         """
@@ -696,11 +714,15 @@ class Morph8(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def use_metiss_time(self):
+    def use_metiss_tome(self):
         """
         """
+        growths_item = "Metis' Tome"
+        if growth_item in self._meta:
+            raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
+        self._meta[growths_item] = None
 
 class Morph9(Morph):
     """
