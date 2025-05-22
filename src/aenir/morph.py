@@ -168,9 +168,9 @@ class Morph(BaseMorph):
             fields,
             filters,
         ).fetchall()
-        stat_dict = basestats_query.pop()
-        self.current_cls = stat_dict["Class"]
-        self.current_lv = stat_dict["Lv"]
+        stat_dict = dict(basestats_query.pop())
+        self.current_cls = stat_dict.pop("Class")
+        self.current_lv = stat_dict.pop("Lv")
         # bases
         self.current_stats = self.Stats(**stat_dict)
         # growths
@@ -291,16 +291,22 @@ class Morph(BaseMorph):
         # set promotion class to None
         self.promo_cls = None
 
-    def __lt__(self, other):
-        """
-        """
-        if not type(self) == type(other):
-            raise TypeError("")
-        comparison = self.current_stats < other.current_stats
-        # put in data from _meta here... somehow
+    # TODO: Flesh out informational methods
 
     def is_maxed(self):
         """
         """
+        # What if the difference is trivial but nonzero?
+        # - iadd dunder has been amended s.t. exact matches are guaranteed every time.
+        raise NotImplementedError
         return self.current_stats == self.max_stats
+
+    def __lt__(self, other):
+        """
+        """
+        raise NotImplementedError
+        if not type(self) == type(other):
+            raise TypeError("")
+        comparison = self.current_stats < other.current_stats
+        # put in data from _meta here... somehow
 
