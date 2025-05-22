@@ -335,7 +335,7 @@ class MorphTest(unittest.TestCase):
         self.TestMorph = TestMorph6
         self.TestMorph.__name__ = "Morph"
         self.init_kwargs = {
-            "unit": "Rutger",
+            "name": "Rutger",
             "which_bases": 0,
             "which_growths": 0,
         }
@@ -433,7 +433,7 @@ class MorphTest(unittest.TestCase):
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         # test for attribute-value pairs
-        self.assertEqual(rutger.unit, "Rutger")
+        self.assertEqual(rutger.name, "Rutger")
         self.assertEqual(rutger.game, FireEmblemGame(6))
         self.assertEqual(rutger.Stats, GBAStats)
         self.assertEqual(rutger.current_cls, "Myrmidon")
@@ -539,6 +539,20 @@ class MorphTest(unittest.TestCase):
         )
         self.assertIs(actual, expected)
 
+    def test_level_up__level_too_high(self):
+        """
+        """
+        rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        with self.assertRaises(ValueError):
+            rutger.level_up(20)
+        base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        self.assertEqual(rutger.current_lv, base_rutger.current_lv)
+        expected = True
+        actual = all(
+            rutger.current_stats == base_rutger.current_stats,
+        )
+        self.assertIs(actual, expected)
+
     def test_promote(self):
         """
         """
@@ -578,6 +592,130 @@ class MorphTest(unittest.TestCase):
         )
         actual2 = all(
             base_rutger.current_stats + promo_bonuses == rutger.current_stats
+        )
+        self.assertIs(actual2, True)
+
+    def test_promote__level_too_low(self):
+        """
+        """
+        rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        with self.assertRaises(ValueError):
+            rutger.promote()
+        self.assertListEqual(
+            rutger._meta["History"],
+            [],
+        )
+        self.assertEqual(rutger.current_clstype, "characters__base_stats")
+        self.assertEqual(rutger.current_cls, "Myrmidon")
+        self.assertEqual(rutger.current_lv, 4)
+        #self.assertIsNone(rutger.promo_cls)
+        # assert maxes are those of Swordmaster
+        unpromoted_maxes = GBAStats(
+            HP=60,
+            Pow=20,
+            Skl=20,
+            Spd=20,
+            Lck=30,
+            Def=20,
+            Res=20,
+        )
+        actual = all(unpromoted_maxes == rutger.max_stats)
+        self.assertIs(actual, True)
+        # assert that stats have not increased by expected amount.
+        base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        actual2 = all(
+            base_rutger.current_stats == rutger.current_stats
+        )
+        self.assertIs(actual2, True)
+
+    def test_promote__already_promoted(self):
+        """
+        """
+        rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        rutger.name = "Marcus"
+        with self.assertRaises(ValueError):
+            rutger.promote()
+        self.assertListEqual(
+            rutger._meta["History"],
+            [],
+        )
+        self.assertEqual(rutger.current_clstype, "characters__base_stats")
+        self.assertEqual(rutger.current_cls, "Myrmidon")
+        self.assertEqual(rutger.current_lv, 4)
+        #self.assertIsNone(rutger.promo_cls)
+        # assert maxes are those of Swordmaster
+        unpromoted_maxes = GBAStats(
+            HP=60,
+            Pow=20,
+            Skl=20,
+            Spd=20,
+            Lck=30,
+            Def=20,
+            Res=20,
+        )
+        actual = all(unpromoted_maxes == rutger.max_stats)
+        self.assertIs(actual, True)
+        # assert that stats have not increased by expected amount.
+        base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        actual2 = all(
+            base_rutger.current_stats == rutger.current_stats
+        )
+        self.assertIs(actual2, True)
+
+    def test_promote__branched_promotion(self):
+        """
+        """
+        class TestMorph4(Morph):
+            """
+            """
+            #__name__ = "Morph"
+            game_no = 4
+
+            @classmethod
+            def GAME(cls):
+                """
+                """
+                return FireEmblemGame(cls.game_no)
+        ira = TestMorph4("Ira", which_bases=0, which_growths=0)
+        ira.current_lv = 10
+        ira.promo_cls = "Swordmaster"
+        ira.promote()
+        self.assertListEqual(
+            ira._meta["History"],
+            [(10, "Swordfighter")],
+        )
+        self.assertEqual(ira.current_clstype, "classes__promotion_gains")
+        self.assertEqual(ira.current_cls, "Swordmaster")
+        # to be amended in the Morph4 subclass
+        #self.assertEqual(ira.current_lv, 1)
+        self.assertIsNone(ira.promo_cls)
+        # assert maxes are those of Swordmaster
+        swordmaster_maxes = GenealogyStats(
+            HP=80,
+            Str=27,
+            Mag=15,
+            Skl=30,
+            Spd=30,
+            Lck=30,
+            Def=22,
+            Res=18,
+        )
+        actual = all(swordmaster_maxes == ira.max_stats)
+        self.assertIs(actual, True)
+        # assert that stats have increased by expected amount.
+        base_ira = TestMorph4("Ira", which_bases=0, which_growths=0)
+        promo_bonuses = GenealogyStats(
+            HP=0,
+            Str=5,
+            Mag=0,
+            Skl=5,
+            Spd=5,
+            Lck=0,
+            Def=2,
+            Res=3,
+        )
+        actual2 = all(
+            base_ira.current_stats + promo_bonuses == ira.current_stats
         )
         self.assertIs(actual2, True)
 
