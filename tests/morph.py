@@ -520,3 +520,65 @@ class MorphTest(unittest.TestCase):
 
     # TODO: test: level_up, promote
 
+    def test_level_up(self):
+        """
+        """
+        rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        rutger.level_up(16)
+        self.assertEqual(rutger.current_lv, 20)
+        expected = True
+        actual = all(
+            rutger.current_stats == \
+            GBAStats(
+                HP=34.8,
+                Pow=11.8,
+                Skl=20,
+                Spd=20,
+                Lck=6.8,
+                Def=8.2,
+                Res=3.2,
+            )
+        )
+        self.assertIs(actual, expected)
+
+    def test_promote(self):
+        """
+        """
+        rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        rutger.min_promo_level = 0
+        rutger.promote()
+        self.assertListEqual(
+            rutger._meta["History"],
+            [(4, "Myrmidon")],
+        )
+        self.assertEqual(rutger.current_clstype, "classes__promotion_gains")
+        self.assertEqual(rutger.current_cls, "Swordmaster (M)")
+        self.assertEqual(rutger.current_lv, 1)
+        self.assertIsNone(rutger.promo_cls)
+        # assert maxes are those of Swordmaster
+        swordmaster_maxes = GBAStats(
+            HP=60,
+            Pow=24,
+            Skl=29,
+            Spd=30,
+            Lck=30,
+            Def=22,
+            Res=23,
+        )
+        actual = all(swordmaster_maxes == rutger.max_stats)
+        self.assertIs(actual, True)
+        # assert that stats have increased by expected amount.
+        base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        promo_bonuses = GBAStats(
+            HP=5,
+            Pow=2,
+            Skl=2,
+            Spd=1,
+            Lck=0,
+            Def=3,
+            Res=2,
+        )
+        actual2 = all(
+            base_rutger.current_stats + promo_bonuses == rutger.current_stats
+        )
+        self.assertIs(actual2, True)
