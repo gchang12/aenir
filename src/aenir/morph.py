@@ -313,7 +313,7 @@ class Morph(BaseMorph):
         comparison = self.current_stats < other.current_stats
         return comparison
 
-class Morph4(BaseMorph, Morph):
+class Morph4(Morph):
     """
     """
 
@@ -341,14 +341,14 @@ class Morph4(BaseMorph, Morph):
             if father_name not in father_list:
                 raise ValueError("")
             # begin initialization here
-            BaseMorph.__init__()
+            self.Stats = self.STATS()
             self.game = self.GAME()
             self.name = name
             self.father_name = father_name
             stat_dict = dict(
                 list(
                     filter(
-                        lambda result: result["Name"] == name and result["Father"] == father_name
+                        lambda result: result["Name"] == name and result["Father"] == father_name,
                         resultset,
                     )
                 ).pop()
@@ -443,7 +443,7 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             return
-        if self.name == "Lara" and self.promo_cls = "Dancer":
+        if self.name == "Lara" and self.promo_cls == "Dancer":
             self.min_promo_level = 1
 
     def promote(self):
@@ -451,7 +451,7 @@ class Morph5(Morph):
         """
         fail_conditions = (
             self.name != "Lara" and self.current_cls == "Thief Fighter",
-            self.name == "Lara" and "Dancer" in map(lambda (lv, cls): cls, self._meta["History"]):
+            self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self._meta["History"]),
         )
         if any(fail_conditions):
             raise ValueError(f"{self.name} has no available promotions.")
@@ -498,12 +498,15 @@ class Morph7(Morph):
             "Wallace",
         )
         if name in lyndis_league:
-            which_bases = 0
+            if lyn_mode:
+                which_bases = 0
+            else:
+                which_bases = 1
         else:
             if lyn_mode:
                 logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
             which_bases = 1
-        super().__init__(name, which_bases=0, which_growths=0)
+        super().__init__(name, which_bases=which_bases, which_growths=0)
         self._meta["Lyn Mode"] = name in lyndis_league and lyn_mode
         if not lyn_mode and name == "Wallace":
             # to direct lookup function to max stats for General class
@@ -544,3 +547,4 @@ class Morph9(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
+
