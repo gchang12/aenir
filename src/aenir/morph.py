@@ -200,8 +200,6 @@ class Morph(BaseMorph):
         self.min_promo_level = None
         self.promo_cls = None
 
-    # TODO: Implement at once.
-
     def _set_max_level(self):
         """
         """
@@ -237,14 +235,14 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def promote(self, tableindex: int = 0):
+    def promote(self):
         """
         """
         # check if unit's level is high enough to enable promotion
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
-            raise ValueError(f"{self.unit} must be at least {self.min_promo_level} to promote. Current level: {self.current_lv}.")
+            raise ValueError(f"{self.unit} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         # get promotion data
         value_to_lookup = {
             "characters__base_stats": self.unit_name,
@@ -253,7 +251,7 @@ class Morph(BaseMorph):
         query_kwargs = self.lookup(
             (self.current_clstype, value_to_lookup),
             ("classes__promotion_gains", "Class"),
-            tableindex,
+            tableindex=0,
         )
         query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
         resultset = self.query_db(**query_kwargs).fetchall()
@@ -267,7 +265,7 @@ class Morph(BaseMorph):
                     lambda result: result['Promotion'] == self.promo_cls
                 )
             )
-        # PROMOTION START!
+        # ** PROMOTION START! **
         # record history
         self._meta["History"].append((self.current_lv, self.current_cls))
         # initialize stat_dict, then set attributes
@@ -292,6 +290,14 @@ class Morph(BaseMorph):
         self.current_lv = 1
         # set promotion class to None
         self.promo_cls = None
+
+    def __lt__(self, other):
+        """
+        """
+        if not type(self) == type(other):
+            raise TypeError("")
+        comparison = self.current_stats < other.current_stats
+        # put in data from _meta here... somehow
 
     def is_maxed(self):
         """
