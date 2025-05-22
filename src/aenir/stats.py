@@ -30,7 +30,6 @@ class AbstractStats(abc.ABC):
             #stat_dict[stat] = fill_value
         return stat_dict
 
-    # TODO: Test!
     def copy(self):
         """
         """
