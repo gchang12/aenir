@@ -273,9 +273,10 @@ class StatsTests(unittest.TestCase):
                 "d": True,
                 "e": False,
                 "f": True,
-                "g": False,
+                "g": None,
             }
         )
+        self.statdict2["g"] = self.statdict1["g"]
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
         actual_stats = stats1.__lt__(stats2)
