@@ -56,14 +56,17 @@ class BaseMorph(abc.ABC):
         """
         """
         query = f"SELECT {', '.join(fields)} FROM {table}"
-        if filters is not None:
-            conditions = ", ".join(
+        if filters:
+            conditions = " AND ".join(
                 [
-                    (f"{field}='{value}'") for field, value in filters.items()
+                    #(f"{field}={value}") for field, value in filters.items()
+                    ("%s=%r" % (field, value)) for field, value in filters.items()
                 ]
             )
             query += " WHERE " + conditions
         query += ";"
+        logger.debug("Query: '%s'", query)
+        logger.debug("File: '%s'", path_to_db)
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
             return cnxn.execute(query)
@@ -252,13 +255,13 @@ class Morph(BaseMorph):
             ("classes__promotion_gains", "Class"),
             tableindex=0,
         )
+        # quit if resultset is empty
+        if query_kwargs is None:
+            raise ValueError(f"{self.name} has no available promotions.")
         query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
         resultset = self.query_db(**query_kwargs).fetchall()
-        # quit if resultset is empty
-        if not resultset:
-            raise ValueError(f"{self.name} has no available promotions.")
         # if resultset has length > 1, filter to relevant
-        elif len(resultset) > 1:
+        if len(resultset) > 1:
             resultset = list(
                 filter(
                     lambda result: result['Promotion'] == self.promo_cls,
@@ -293,7 +296,6 @@ class Morph(BaseMorph):
         #self.min_promo_level = None
         #self.max_level = None
 
-    # TODO: Test this!
     def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
         """
         """
@@ -302,6 +304,7 @@ class Morph(BaseMorph):
             raise KeyError(f"'{item_name}' is not a valid stat booster. Valid stat boosters: {item_bonus_dict.keys()}")
         stat, bonus = item_bonus_dict[item_name]
         setattr(increment, stat, bonus)
+        self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
@@ -319,10 +322,22 @@ class Morph(BaseMorph):
         """
         """
         raise NotImplementedError
-        if not type(self) == type(other):
-            raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)}.")
+        if not self.Stats.STAT_LIST() == other.STAT_LIST():
+            raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)} due to mismatching stats indices.")
         comparison_data = (self.current_stats < other.current_stats).as_dict()
         meta = self._meta
+        # name
+        # level
+        # class
+        # father if necessary ?
+        # hard mode if necessary ?
+        data_to_display = [
+            "Name",
+            "Lv",
+            "Class",
+            "",
+            *self.Stats.STAT_LIST(),
+        ]
         return comparison
 
 class Morph4(Morph):
@@ -335,8 +350,15 @@ class Morph4(Morph):
         """
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats1"
-        fields = self.STAT_LIST() + ("Class", "Lv")
-        filters = {}
+        self.Stats = self.STATS()
+        fields = self.Stats.STAT_LIST() + ("Class", "Lv", "Name", "Father")
+        filters = None
+        logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
+            path_to_db,
+            table,
+            fields,
+            filters,
+        )
         resultset = self.query_db(
             path_to_db,
             table,
@@ -378,7 +400,7 @@ class Morph4(Morph):
                 self.query_db(
                     path_to_db,
                     table="characters__growth_rates1",
-                    fields=self.STAT_LIST(),
+                    fields=self.Stats.STAT_LIST(),
                     filters={"Name": name, "Father": father_name},
                 ).fetchone()
             )
@@ -537,7 +559,7 @@ class Morph5(Morph):
         stat_dict = query_db(
             path_to_db,
             table,
-            fields=self.STAT_LIST(),
+            fields=self.Stats.STAT_LIST(),
             filters={"Name": scroll_name},
         ).fetchone()
         if stat_dict is None:

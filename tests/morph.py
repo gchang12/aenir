@@ -34,7 +34,7 @@ from aenir.logging import (
 configure_logging()
 time_logger.critical("")
 
-class BaseMorphTest(unittest.TestCase):
+class BaseMorphTests(unittest.TestCase):
     """
     """
 
@@ -318,7 +318,32 @@ class BaseMorphTest(unittest.TestCase):
             )
         # lookup value not found
 
-class MorphTest(unittest.TestCase):
+    def test_query_db__more_than_one_filter_provided(self):
+        """
+        """
+        path_to_db = "static/binding-blade/cleaned_stats.db"
+        table = "characters__growth_rates0"
+        fields = ("Pow", "Spd")
+        filters = {"Spd": 40, "Pow": 40}
+        # should return Wendy, Wolt, and Roy.
+        with sqlite3.connect(path_to_db) as cnxn:
+            cnxn.row_factory = sqlite3.Row
+            expected = cnxn.execute(
+                'SELECT Pow, Spd FROM characters__growth_rates0 WHERE Spd=40 AND Pow=40;',
+            )
+        actual = self.TestMorph.query_db(
+            path_to_db,
+            table,
+            fields,
+            filters,
+        )
+        #self.assertTrue(expected.fetchall())
+        expected_resultset = expected.fetchall()
+        actual_resultset = actual.fetchall()
+        self.assertTrue(expected_resultset)
+        self.assertEqual(actual_resultset, expected_resultset)
+
+class MorphTests(unittest.TestCase):
     """
     """
 
@@ -726,7 +751,6 @@ class MorphTest(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-
             @classmethod
             def GAME(cls):
                 """
@@ -775,3 +799,106 @@ class MorphTest(unittest.TestCase):
         )
         self.assertIs(actual2, True)
 
+    def test_use_stat_booster(self):
+        """
+        """
+        roy = self.TestMorph("Roy", which_bases=0, which_growths=0)
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        expected = roy.current_stats.as_dict()
+        for stat, bonus in item_bonus_dict.values():
+            expected[stat] += bonus
+        for item in item_bonus_dict:
+            roy.use_stat_booster(item, item_bonus_dict)
+        actual = roy.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+    def test_use_stat_booster__fail(self):
+        """
+        """
+        roy = self.TestMorph("Roy", which_bases=0, which_growths=0)
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            #"Boots": ("Mov", 2),
+            #"Body Ring": ("Con", 3),
+        }
+        with self.assertRaises(KeyError):
+            item = ""
+            roy.use_stat_booster(item, item_bonus_dict)
+
+    def test_repr(self):
+        """
+        """
+        # NOTE: for CLI only. low priority
+
+    def test_lt(self):
+        """
+        """
+        # NOTE: for CLI only. low priority
+
+class Morph4Tests(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
+    def test_sigurd(self):
+        """
+        """
+        sigurd = Morph4("Sigurd")
+        self.assertEqual(sigurd.current_lv, 5)
+        sigurd.level_up(15)
+        with self.assertRaises(ValueError):
+            sigurd.promote()
+        sigurd.level_up(10)
+
+    def test_ira(self):
+        """
+        """
+        ira = Morph4("Ira")
+        self.assertEqual(ira.current_lv, 4)
+        with self.assertRaises(ValueError):
+            ira.promote()
+        ira.level_up(16)
+        ira.promote()
+        ira.level_up(10)
+
+    def test_arden(self):
+        """
+        """
+        arden = Morph4("Arden")
+        self.assertEqual(arden.current_lv, 3)
+        with self.assertRaises(ValueError):
+            arden.promote()
+        arden.level_up(17)
+        arden.promote()
+        arden.level_up(10)
+
+    def test_lakche_with_father_lex(self):
+        """
+        """
+        lakche = Morph4("Lakche", father_name="Lex")
+        self.assertEqual(lakche.current_lv, 1)
+        with self.assertRaises(ValueError):
+            lakche.promote()
+        lakche.level_up(19)
+        lakche.promote()
+        lakche.level_up(10)
