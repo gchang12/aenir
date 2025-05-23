@@ -30,6 +30,12 @@ class AbstractStats(abc.ABC):
             #stat_dict[stat] = fill_value
         return stat_dict
 
+    def as_dict(self):
+        """
+        """
+        stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
+        return stat_dict
+
     def copy(self):
         """
         """

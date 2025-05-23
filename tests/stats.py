@@ -103,6 +103,14 @@ class StatsTests(unittest.TestCase):
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
 
+    def test_as_dict(self):
+        """
+        """
+        expected = self.statdict2
+        stats = self.stats_class(**expected)
+        actual = stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
     def test_copy(self):
         """
         """
