@@ -344,7 +344,7 @@ class Morph4(Morph):
         if name not in (result["Name"] for result in resultset):
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
-            self.father_name = None
+            self._meta["Father"] = None
         else:
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
@@ -354,7 +354,6 @@ class Morph4(Morph):
             self.Stats = self.STATS()
             self.game = self.GAME()
             self.name = name
-            self.father_name = father_name
             stat_dict = dict(
                 list(
                     filter(
@@ -388,7 +387,7 @@ class Morph4(Morph):
             ).fetchone()
             self.max_stats = self.Stats(**stat_dict3)
             # (miscellany)
-            self._meta = {'History': []}
+            self._meta = {'History': [], "Father": father_name}
         try:
             self.promo_cls = {
                 "Ira": "Swordmaster",
@@ -448,7 +447,7 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        self._og_growth_rates = self.growth_rates.copy()
+        self._meta["Original Growth Rates"] = self.growth_rates.copy()
         self.equipped_scrolls = {}
 
     def _set_min_promo_level(self):
@@ -503,7 +502,7 @@ class Morph5(Morph):
     def _apply_scroll_bonuses(self):
         """
         """
-        self.growth_rates = self._og_growth_rates.copy()
+        self.growth_rates = self._meta["Original Growth Rates"].copy()
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
 
@@ -561,6 +560,12 @@ class Morph6(Morph):
         else:
             if hard_mode:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
+            self._meta["Hard Mode"] = None
+        if name == "Hugh":
+            num_declines = 0
+        else:
+            num_declines = None
+        self._meta["Number of Declines"] = num_declines
 
     # TODO: Test this
     def decline_hugh(self):
@@ -568,9 +573,7 @@ class Morph6(Morph):
         """
         if self.name != "Hugh":
             raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
-        decline_key = "Number of Declines"
-        if decline_key not in self._meta:
-            self._meta[decline_key] = 0
+        self._meta["Number of Declines"] += 1
         if self._meta[decline_key] == 3:
             raise ValueError("Can invoke this method up to three times.")
         decrement = self.Stats(**self.Stats.get_stat_dict(-1))
@@ -632,8 +635,9 @@ class Morph7(Morph):
             if lyn_mode:
                 logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
             which_bases = 1
+            lyn_mode = None
         super().__init__(name, which_bases=which_bases, which_growths=0)
-        self._meta["Lyn Mode"] = name in lyndis_league and lyn_mode
+        self._meta["Lyn Mode"] = lyn_mode
         if not lyn_mode and name == "Wallace":
             # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
@@ -644,16 +648,17 @@ class Morph7(Morph):
         else:
             if hard_mode:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
+            self._meta["Hard Mode"] = None
+        self._meta["Afa's Drops"] = False
 
     def use_afas_drops(self):
         """
         """
-        growths_item = "Afa's Drops"
-        if growth_item in self._meta:
+        if self._meta["Afa's Drops"]:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self._meta[growths_item] = None
+        self._meta["Afa's Drops"] = True
 
     def use_stat_booster(self, item_name: str):
         """
@@ -680,6 +685,7 @@ class Morph8(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
+        self._meta["Metis' Tome"] = False
 
     def _set_max_level(self):
         """
@@ -717,12 +723,11 @@ class Morph8(Morph):
     def use_metiss_tome(self):
         """
         """
-        growths_item = "Metis' Tome"
-        if growth_item in self._meta:
+        if self._meta["Metis' Tome"]:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self._meta[growths_item] = None
+        self._meta["Metis' Tome"] = True
 
 class Morph9(Morph):
     """
