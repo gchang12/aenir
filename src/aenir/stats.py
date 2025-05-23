@@ -153,7 +153,10 @@ class AbstractStats(abc.ABC):
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            stat_dict[stat] = self_stat < other_stat
+            if self_stat == other_stat:
+                stat_dict[stat] = None
+            else:
+                stat_dict[stat] = self_stat < other_stat
         return self.__class__(**stat_dict)
 
     def __eq__(self, other):
