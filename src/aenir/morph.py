@@ -649,16 +649,16 @@ class Morph7(Morph):
             if hard_mode:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
             self._meta["Hard Mode"] = None
-        self._meta["Afa's Drops"] = False
+        self.is_favorite = False
 
     def use_afas_drops(self):
         """
         """
-        if self._meta["Afa's Drops"]:
+        if self.is_favorite:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self._meta["Afa's Drops"] = True
+        self.is_favorite = True
 
     def use_stat_booster(self, item_name: str):
         """
@@ -685,7 +685,7 @@ class Morph8(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        self._meta["Metis' Tome"] = False
+        self.is_favorite = False
 
     def _set_max_level(self):
         """
@@ -723,11 +723,11 @@ class Morph8(Morph):
     def use_metiss_tome(self):
         """
         """
-        if self._meta["Metis' Tome"]:
+        if self.is_favorite:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self._meta["Metis' Tome"] = True
+        self.is_favorite = True
 
 class Morph9(Morph):
     """
