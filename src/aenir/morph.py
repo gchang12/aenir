@@ -307,16 +307,11 @@ class Morph(BaseMorph):
 
     # TODO: Flesh out informational methods
 
-    def is_maxed(self):
-        """
-        """
-        return self.current_stats == self.max_stats
-
     def __repr__(self):
         """
         """
         raise NotImplementedError
-        comparison_data = {stat: getattr(self.current_stats, stat) for stat in self.STAT_LIST()}
+        comparison_data = self.current_stats.as_dict()
         meta = self._meta
         return comparison
 
@@ -326,7 +321,7 @@ class Morph(BaseMorph):
         raise NotImplementedError
         if not type(self) == type(other):
             raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)}.")
-        comparison_data = {stat: getattr((self.current_stats < other.current_stats), stat) for stat in self.STAT_LIST()}
+        comparison_data = (self.current_stats < other.current_stats).as_dict()
         meta = self._meta
         return comparison
 
