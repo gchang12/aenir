@@ -376,6 +376,7 @@ class Morph4(Morph):
         else:
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
+            father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
             if father_name not in father_list:
                 raise KeyError(f"'{father_name}' is not a valid father. List of valid fathers: {father_list}")
             # begin initialization here
