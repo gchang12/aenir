@@ -310,17 +310,24 @@ class Morph(BaseMorph):
     def is_maxed(self):
         """
         """
-        raise NotImplementedError
         return self.current_stats == self.max_stats
+
+    def __repr__(self):
+        """
+        """
+        raise NotImplementedError
+        comparison_data = {stat: getattr(self.current_stats, stat) for stat in self.STAT_LIST()}
+        meta = self._meta
+        return comparison
 
     def __lt__(self, other):
         """
         """
         raise NotImplementedError
-        # TODO: put in data from _meta here... somehow
         if not type(self) == type(other):
             raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)}.")
-        comparison = self.current_stats < other.current_stats
+        comparison_data = {stat: getattr((self.current_stats < other.current_stats), stat) for stat in self.STAT_LIST()}
+        meta = self._meta
         return comparison
 
 class Morph4(Morph):
