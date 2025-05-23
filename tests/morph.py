@@ -510,8 +510,10 @@ class MorphTests(unittest.TestCase):
     def test_init__unit_dne(self):
         """
         """
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as assert_ctx:
             marth = self.TestMorph("Marth", which_bases=0, which_growths=0)
+        (err_msg,) = assert_ctx.exception.args
+        self.assertIn("%r" % list(self.TestMorph.CHARACTER_LIST()), err_msg)
 
     def test_init__bad_bases_index(self):
         """
@@ -890,6 +892,8 @@ class Morph4Tests(unittest.TestCase):
             arden.promote()
         arden.level_up(17)
         arden.promote()
+        with self.assertRaises(ValueError):
+            arden.promote()
         arden.level_up(10)
 
     def test_lakche_with_father_lex(self):
@@ -902,3 +906,33 @@ class Morph4Tests(unittest.TestCase):
         lakche.level_up(19)
         lakche.promote()
         lakche.level_up(10)
+
+    def test_lakche_as_bastard(self):
+        """
+        """
+        with self.assertRaises(KeyError) as key_ctx:
+            Morph4("Lakche", father_name="")
+        # generate father list
+        path_to_db = Morph4.path_to("cleaned_stats.db")
+        table = "characters__base_stats1"
+        fields = ["Father"]
+        filters = None
+        logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
+            path_to_db,
+            table,
+            fields,
+            filters,
+        )
+        resultset = Morph4.query_db(
+            path_to_db,
+            table,
+            fields,
+            filters,
+        ).fetchall()
+        # check that father list is inside error message.
+        father_list = [result["Father"] for result in resultset]
+        father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
+        (err_msg,) = key_ctx.exception.args
+        self.assertIn("%r" % father_list, err_msg)
+        logger.debug("%s", father_list)
+
