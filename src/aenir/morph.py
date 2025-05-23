@@ -192,7 +192,7 @@ class Morph(BaseMorph):
         ).fetchone()
         self.max_stats = self.Stats(**stat_dict2)
         # (miscellany)
-        self._meta = {'History': []}
+        self._meta = {'History': [], "Stat Boosters": []}
         if name.replace(" (HM)", "") + " (HM)" in character_list:
             self._meta['Hard Mode'] = " (HM)" in name
         self.max_level = None
@@ -303,6 +303,7 @@ class Morph(BaseMorph):
         stat, bonus = item_bonus_dict[item_name]
         setattr(increment, stat, bonus)
         self.current_stats.imin(self.max_stats)
+        self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
     # TODO: Flesh out informational methods
 
@@ -345,6 +346,7 @@ class Morph4(Morph):
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
             self._meta["Father"] = None
+            self._meta.pop("Stat Boosters")
         else:
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
@@ -649,16 +651,18 @@ class Morph7(Morph):
             if hard_mode:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
             self._meta["Hard Mode"] = None
-        self.is_favorite = False
+        self._growths_item = "Afa's Drops"
+        self._meta[self._growths_item] = False
 
     def use_afas_drops(self):
         """
         """
-        if self.is_favorite:
+        if self._meta[self._growths_item]:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self.is_favorite = True
+        self._meta[self._growths_item] = True
+        self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, self._growths_item))
 
     def use_stat_booster(self, item_name: str):
         """
@@ -685,7 +689,8 @@ class Morph8(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        self.is_favorite = False
+        self._growths_item = "Metis's Tome"
+        self._meta[self._growths_item] = False
 
     def _set_max_level(self):
         """
@@ -723,11 +728,12 @@ class Morph8(Morph):
     def use_metiss_tome(self):
         """
         """
-        if self.is_favorite:
+        if self._meta[self._growths_item]:
             raise ValueError(f"{self.name} already used {growths_item}.")
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self.is_favorite = True
+        self._meta[self._growths_item] = True
+        self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, self._growths_item))
 
 class Morph9(Morph):
     """
