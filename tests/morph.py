@@ -478,6 +478,7 @@ class MorphTest(unittest.TestCase):
             {
                 "History": [],
                 "Hard Mode": False,
+                "Stat Boosters": [],
             },
         )
 
