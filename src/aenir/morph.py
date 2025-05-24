@@ -240,11 +240,6 @@ class Morph(BaseMorph):
     def promote(self):
         """
         """
-        # check if unit's level is high enough to enable promotion
-        if self.min_promo_level is None:
-            self._set_min_promo_level()
-        if self.current_lv < self.min_promo_level:
-            raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         # get promotion data
         value_to_lookup = {
             "characters__base_stats": self.name,
@@ -258,6 +253,11 @@ class Morph(BaseMorph):
         # quit if resultset is empty
         if query_kwargs is None:
             raise ValueError(f"{self.name} has no available promotions.")
+        # check if unit's level is high enough to enable promotion
+        if self.min_promo_level is None:
+            self._set_min_promo_level()
+        if self.current_lv < self.min_promo_level:
+            raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
@@ -345,9 +345,10 @@ class Morph4(Morph):
     """
     game_no = 4
 
-    def __init__(self, name: str, father_name: str = None):
+    def __init__(self, name: str, *, father: str = None):
         """
         """
+        # test if name refers to a child with father-dependent stats
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats1"
         self.Stats = self.STATS()
@@ -366,28 +367,29 @@ class Morph4(Morph):
             filters,
         ).fetchall()
         # check if name in kid list
-        if name not in (result["Name"] for result in resultset):
+        kid_list = [result["Name"] for result in resultset]
+        if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
             #self._meta["Father"] = None
-            if father_name is not None:
-                logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father_name, name)
-            self.father_name = None
+            if father is not None:
+                logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
+            self.father = None
         else:
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
             father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
-            if father_name not in father_list:
-                raise KeyError(f"'{father_name}' is not a valid father. List of valid fathers: {father_list}")
+            if father not in father_list:
+                raise KeyError(f"'{father}' is not a valid father. List of valid fathers: {father_list}")
             # begin initialization here
             self.Stats = self.STATS()
             self.game = self.GAME()
             self.name = name
-            self.father_name = father_name
+            self.father = father
             stat_dict = dict(
                 list(
                     filter(
-                        lambda result: result["Name"] == name and result["Father"] == father_name,
+                        lambda result: result["Name"] == name and result["Father"] == father,
                         resultset,
                     )
                 ).pop()
@@ -402,7 +404,7 @@ class Morph4(Morph):
                     path_to_db,
                     table="characters__growth_rates1",
                     fields=self.Stats.STAT_LIST(),
-                    filters={"Name": name, "Father": father_name},
+                    filters={"Name": name, "Father": father},
                 ).fetchone()
             )
             self.growth_rates = self.Stats(**stat_dict2)
@@ -438,18 +440,17 @@ class Morph4(Morph):
             can_promote = json.load(rfile).pop(name) is not None
         if can_promote:
             self.max_level = 20
-            self.min_promo_level = 20
         else:
             self.max_level = 30
-            self.min_promo_level = 0
+        self.min_promo_level = 20
         self._meta["Stat Boosters"] = None
 
     def promote(self):
         """
         """
         super().promote()
-        self.max_level = None
-        self.min_promo_level = None
+        self.max_level = 30
+        self.min_promo_level = 10
 
     def use_stat_booster(self, item_name: str):
         """
@@ -479,7 +480,7 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        self._meta["Original Growth Rates"] = self.growth_rates.copy()
+        self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
 
     def _set_min_promo_level(self):
@@ -534,7 +535,7 @@ class Morph5(Morph):
     def _apply_scroll_bonuses(self):
         """
         """
-        self.growth_rates = self._meta["Original Growth Rates"].copy()
+        self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
 
@@ -576,13 +577,12 @@ class Morph5(Morph):
         self._apply_scroll_bonuses()
 
 
-# TODO: Implement hard-mode versions of characters.
 class Morph6(Morph):
     """
     """
     game_no = 6
 
-    def __init__(self, name: str, hard_mode: bool = False):
+    def __init__(self, name: str, *, hard_mode: bool = False):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
@@ -605,9 +605,9 @@ class Morph6(Morph):
         """
         if self.name != "Hugh":
             raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
-        self._meta["Number of Declines"] += 1
         if self._meta[decline_key] == 3:
             raise ValueError("Can invoke this method up to three times.")
+        self._meta["Number of Declines"] += 1
         decrement = self.Stats(**self.Stats.get_stat_dict(-1))
         self.current_stats += decrement
 
@@ -640,7 +640,7 @@ class Morph7(Morph):
     """
     game_no = 7
 
-    def __init__(self, name: str, lyn_mode: bool = False, hard_mode: bool = False):
+    def __init__(self, name: str, *, lyn_mode: bool = False, hard_mode: bool = False):
         """
         """
         lyndis_league = (
