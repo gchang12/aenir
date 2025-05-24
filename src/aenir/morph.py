@@ -448,7 +448,9 @@ class Morph4(Morph):
     def promote(self):
         """
         """
+        current_lv = self.current_lv
         super().promote()
+        self.current_lv = current_lv
         self.max_level = 30
         self.min_promo_level = 10
 
@@ -605,7 +607,7 @@ class Morph6(Morph):
         """
         if self.name != "Hugh":
             raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
-        if self._meta[decline_key] == 3:
+        if self._meta["Number of Declines"] == 3:
             raise ValueError("Can invoke this method up to three times.")
         self._meta["Number of Declines"] += 1
         decrement = self.Stats(**self.Stats.get_stat_dict(-1))
