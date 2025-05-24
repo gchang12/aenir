@@ -871,6 +871,8 @@ class Morph4Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             sigurd.promote()
         sigurd.level_up(10)
+        with self.assertRaises(ValueError):
+            sigurd.level_up(1)
 
     def test_ira(self):
         """
@@ -882,6 +884,9 @@ class Morph4Tests(unittest.TestCase):
         ira.level_up(16)
         ira.promote()
         ira.level_up(10)
+        self.assertEqual(ira.current_lv, 30)
+        with self.assertRaises(ValueError):
+            ira.level_up(1)
 
     def test_arden(self):
         """
@@ -895,23 +900,27 @@ class Morph4Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             arden.promote()
         arden.level_up(10)
+        with self.assertRaises(ValueError):
+            arden.level_up(1)
 
     def test_lakche_with_father_lex(self):
         """
         """
-        lakche = Morph4("Lakche", father_name="Lex")
+        lakche = Morph4("Lakche", father="Lex")
         self.assertEqual(lakche.current_lv, 1)
         with self.assertRaises(ValueError):
             lakche.promote()
         lakche.level_up(19)
         lakche.promote()
         lakche.level_up(10)
+        with self.assertRaises(ValueError):
+            lakche.level_up(1)
 
     def test_lakche_as_bastard(self):
         """
         """
         with self.assertRaises(KeyError) as key_ctx:
-            Morph4("Lakche", father_name="")
+            Morph4("Lakche", father="")
         # generate father list
         path_to_db = Morph4.path_to("cleaned_stats.db")
         table = "characters__base_stats1"
