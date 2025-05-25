@@ -127,7 +127,6 @@ class BaseMorph(abc.ABC):
 class Morph(BaseMorph):
     """
     """
-    # NOTE: game_no to be set in each subclass of this class.
     game_no = None
 
     @classmethod
@@ -169,7 +168,6 @@ class Morph(BaseMorph):
             fields,
             filters,
         ).fetchone()
-        # NOTE: if basestats_query is None, then the code terminates here with a TypeError
         stat_dict = dict(basestats_query)
         self.current_cls = stat_dict.pop("Class")
         self.current_lv = stat_dict.pop("Lv")
@@ -310,63 +308,6 @@ class Morph(BaseMorph):
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
-
-    # NOTE: Not essential fo functioning of website.
-
-    def _get_unit_info(self, init_data=None):
-        """
-        """
-        raise NotImplementedError
-        # Name
-        name = self.name
-        # Initialization Data
-        if init_data is None:
-            init_data = []
-        # Status
-        status = [
-            ("Class", self.current_cls),
-            ("Lv", self.current_lv),
-        ]
-        # History
-        history = self.history
-        # Stats
-        stats = self.current_stats
-
-    def __repr__(self):
-        """
-        """
-        # Name
-        # Initialization Data
-        # Status
-        # History
-        # Stats
-        raise NotImplementedError
-        # make table of this data.
-        comparison_data = self.current_stats.as_dict()
-        meta = self._meta
-        return comparison
-
-    def __lt__(self, other):
-        """
-        """
-        raise NotImplementedError
-        if not self.Stats.STAT_LIST() == other.STAT_LIST():
-            raise TypeError(f"Cannot compare stats of type {type(self)} with stats of type {type(other)} due to mismatching stats indices.")
-        comparison_data = (self.current_stats < other.current_stats).as_dict()
-        meta = self._meta
-        # name
-        # level
-        # class
-        # father if necessary ?
-        # hard mode if necessary ?
-        data_to_display = [
-            "Name",
-            "Lv",
-            "Class",
-            "",
-            *self.Stats.STAT_LIST(),
-        ]
-        return comparison
 
 class Morph4(Morph):
     """
