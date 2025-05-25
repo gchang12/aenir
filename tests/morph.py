@@ -879,6 +879,38 @@ class Morph4Tests(unittest.TestCase):
         """
         logger.critical("%s", self.id())
 
+    @staticmethod
+    def _get_promotion_dict():
+        """
+        """
+        # query for list of units who cannot promote
+        path_to_json = "static/genealogy-of-the-holy-war/characters__base_stats-JOIN-classes__promotion_gains.json"
+        with open(path_to_json) as rfile:
+            promo_dict = json.read(rfile)
+        return promo_dict
+
+    @staticmethod
+    def _get_kid_list():
+        """
+        """
+        # query for list of kids
+        path_to_db = "static/genealogy-of-the-holy-war/cleaned_stats.db"
+        with sqlite3.connect(path_to_db) as cnxn:
+            resultset = [result["Name"] for result in cnxn.execute("SELECT Name FROM characters__base_stats1;").fetchall()]
+        kid_list = sorted(set(resultset), key=lambda name: resultset.index(name))
+        return kid_list
+
+    @staticmethod
+    def _get_father_list():
+        """
+        """
+        # query for list of fathers
+        path_to_db = "static/genealogy-of-the-holy-war/cleaned_stats.db"
+        with sqlite3.connect(path_to_db) as cnxn:
+            resultset = [result["Father"] for result in cnxn.execute("SELECT Father FROM characters__base_stats1;").fetchall()]
+        father_list = sorted(set(resultset), key=lambda name: resultset.index(name))
+        return father_list
+
     def test_sigurd(self):
         """
         """
@@ -979,3 +1011,4 @@ class Morph4Tests(unittest.TestCase):
     def test_kids_who_cannot_promote(self):
         """
         """
+
