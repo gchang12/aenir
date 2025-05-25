@@ -142,6 +142,18 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = round(self_stat + other_stat, 2)
         return self.__class__(**stat_dict)
 
+    def __sub__(self, other):
+        """
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = round(self_stat - other_stat, 2)
+        return self.__class__(**stat_dict)
+
     def __lt__(self, other):
         """
         Returns *Stats<bool> indicating which stats in `self` < `other`.
