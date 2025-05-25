@@ -15,8 +15,6 @@ from aenir.stats import (
 )
 from aenir.logging import logger
 
-# TODO: Add missing characters from CHARACTER_LIST class-methods
-
 class BaseMorph(abc.ABC):
     """
     """
@@ -130,6 +128,17 @@ class Morph(BaseMorph):
     """
     """
     game_no = None
+    character_list_filter = None
+
+    @classmethod
+    def get_true_character_list(cls):
+        """
+        """
+        if cls.character_list_filter is not None:
+            character_list_filter = cls.character_list_filter
+        else:
+            character_list_filter = lambda name: True
+        return filter(character_list_filter, cls.CHARACTER_LIST())
 
     @classmethod
     def GAME(cls):
@@ -302,6 +311,7 @@ class Morph(BaseMorph):
         self.promo_cls = None
         #self.min_promo_level = None
         #self.max_level = None
+        self.possible_promotions = None
 
     def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
         """
@@ -714,6 +724,7 @@ class Morph6(Morph):
     """
     """
     game_no = 6
+    character_list_filter = lambda name: " (HM)" not in name
 
     # TODO: filter out names that contain ' (HM)'
     @classmethod
@@ -786,14 +797,14 @@ class Morph6(Morph):
             'Juno',
             'Yodel',
             'Karel',
-            #'Narshen',
-            #'Gale',
-            #'Hector',
-            #'Brunya',
-            #'Eliwood',
-            #'Murdoch',
-            #'Zephiel',
-            #'Guinevere',
+            'Narshen',
+            'Gale',
+            'Hector',
+            'Brunya',
+            'Eliwood',
+            'Murdoch',
+            'Zephiel',
+            'Guinevere',
         )
 
     def __init__(self, name: str, *, hard_mode: bool = False):
@@ -855,6 +866,7 @@ class Morph7(Morph):
     """
     """
     game_no = 7
+    character_list_filter = lambda name: " (HM)" not in name
 
     # TODO: filter out names that contain ' (HM)'
     @classmethod
@@ -1149,8 +1161,8 @@ class Morph9(Morph):
             'Tibarn',
             'Naesala',
             'Giffca',
-            #'Sephiran',
-            #'Leanne',
+            'Sephiran',
+            'Leanne',
         )
 
     def __init__(self, name: str):
