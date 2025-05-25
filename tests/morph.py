@@ -843,11 +843,28 @@ class MorphTests(unittest.TestCase):
             item = ""
             roy.use_stat_booster(item, item_bonus_dict)
 
+    def test_promote__branch_unspecified(self):
+        """
+        """
+        class Morph8(Morph):
+            """
+            """
+            game_no = 8
+        ross = Morph8("Ross", which_bases=0, which_growths=0)
+        ross.current_lv = 10
+        valid_promotions = ['Fighter', 'Pirate', 'Journeyman (2)']
+        with self.assertRaises(KeyError) as key_ctx:
+            ross.promote()
+        (err_msg,) = key_ctx.exception.args
+        self.assertIn(str(valid_promotions), err_msg)
+
+    @unittest.skip("Not implemented yet.")
     def test_repr(self):
         """
         """
         # NOTE: for CLI only. low priority
 
+    @unittest.skip("Not implemented yet.")
     def test_lt(self):
         """
         """
@@ -945,3 +962,20 @@ class Morph4Tests(unittest.TestCase):
         self.assertIn("%r" % father_list, err_msg)
         logger.debug("%s", father_list)
 
+    # TODO: This.
+
+    def test_nonkids_who_can_promote(self):
+        """
+        """
+
+    def test_nonkids_who_cannot_promote(self):
+        """
+        """
+
+    def test_kids_who_can_promote(self):
+        """
+        """
+
+    def test_kids_who_cannot_promote(self):
+        """
+        """

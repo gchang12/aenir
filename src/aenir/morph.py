@@ -262,12 +262,15 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
         if len(resultset) > 1:
+            valid_promotions = [result["Promotion"] for result in resultset]
             resultset = list(
                 filter(
                     lambda result: result['Promotion'] == self.promo_cls,
                     resultset,
                 )
             )
+            if not resultset:
+                raise KeyError("%r is an invalid promotion. Valid promotions: %r" % (self.promo_cls, valid_promotions))
         # ** PROMOTION START! **
         # record history
         self._meta["History"].append((self.current_lv, self.current_cls))
@@ -308,12 +311,37 @@ class Morph(BaseMorph):
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
-    # TODO: Flesh out informational methods
+    # NOTE: Not essential fo functioning of website.
+
+    def _get_unit_info(self, init_data=None):
+        """
+        """
+        raise NotImplementedError
+        # Name
+        name = self.name
+        # Initialization Data
+        if init_data is None:
+            init_data = []
+        # Status
+        status = [
+            ("Class", self.current_cls),
+            ("Lv", self.current_lv),
+        ]
+        # History
+        history = self.history
+        # Stats
+        stats = self.current_stats
 
     def __repr__(self):
         """
         """
+        # Name
+        # Initialization Data
+        # Status
+        # History
+        # Stats
         raise NotImplementedError
+        # make table of this data.
         comparison_data = self.current_stats.as_dict()
         meta = self._meta
         return comparison
@@ -371,10 +399,10 @@ class Morph4(Morph):
         if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
-            #self._meta["Father"] = None
             if father is not None:
                 logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
             self.father = None
+            #self._meta["Father"] = self.father
         else:
             father_list = [result["Father"] for result in resultset]
             # if yes: check if father_name in father_list
@@ -419,7 +447,7 @@ class Morph4(Morph):
             ).fetchone()
             self.max_stats = self.Stats(**stat_dict3)
             # (miscellany)
-            #self._meta = {'History': [], "Father": father_name}
+            #self._meta = {'History': [], "Father": father}
             self._meta = {'History': []}
         try:
             self.promo_cls = {
@@ -452,7 +480,7 @@ class Morph4(Morph):
         super().promote()
         self.current_lv = current_lv
         self.max_level = 30
-        self.min_promo_level = 10
+        self.min_promo_level = 20
 
     def use_stat_booster(self, item_name: str):
         """
