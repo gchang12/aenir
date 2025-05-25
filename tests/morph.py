@@ -880,14 +880,25 @@ class Morph4Tests(unittest.TestCase):
         logger.critical("%s", self.id())
 
     @staticmethod
-    def _get_promotion_dict():
+    def _get_unit_list(can_promote=None):
         """
         """
         # query for list of units who cannot promote
         path_to_json = "static/genealogy-of-the-holy-war/characters__base_stats-JOIN-classes__promotion_gains.json"
         with open(path_to_json) as rfile:
             promo_dict = json.read(rfile)
-        return promo_dict
+        return list(
+            map(
+                lambda item: item[0],
+                filter(
+                    {
+                        False: lambda item: item[1] is not None,
+                        True: lambda item: item[1] is None,
+                        None: lambda item: True,
+                    }[can_promote], promo_dict,
+                )
+            )
+        )
 
     @staticmethod
     def _get_kid_list():
