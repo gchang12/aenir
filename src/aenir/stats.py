@@ -90,7 +90,7 @@ class AbstractStats(abc.ABC):
         """
         #try:
         if not type(self) == type(other):
-            raise TypeError("")
+            raise TypeError("Can floor stats only with another stat-set of same type.")
         #except AssertionError as assert_err:
             #raise NotImplementedError
         for stat in self.STAT_LIST():
@@ -105,7 +105,7 @@ class AbstractStats(abc.ABC):
         #try:
         #assert type(self) == type(other)
         if not type(self) == type(other):
-            raise TypeError("")
+            raise TypeError("Can cap stats only with another stat-set of same type.")
         #except AssertionError as assert_err:
             #raise NotImplementedError
         for stat in self.STAT_LIST():
@@ -151,8 +151,7 @@ class AbstractStats(abc.ABC):
         #assert isinstance(other, cls)
         #assert type(self) == type(other)
         if not type(self) == type(other):
-            # TODO: Message here
-            raise TypeError("")
+            raise TypeError("Cannot compare Stats of differing types. (%r != %r)" % (type(self), type(other)))
         stat_dict = {}
         #except AssertionError as assert_err:
             #raise NotImplementedError
