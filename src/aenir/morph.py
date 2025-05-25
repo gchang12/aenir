@@ -15,6 +15,8 @@ from aenir.stats import (
 )
 from aenir.logging import logger
 
+# TODO: Add missing characters from CHARACTER_LIST class-methods
+
 class BaseMorph(abc.ABC):
     """
     """
@@ -133,8 +135,6 @@ class Morph(BaseMorph):
     def GAME(cls):
         """
         """
-        if cls.__name__ == "Morph":
-            logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
         return FireEmblemGame(cls.game_no)
 
     @classmethod
@@ -148,6 +148,8 @@ class Morph(BaseMorph):
         return character_list
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
+        #if self.__class__.__name__ == "Morph":
+        #logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
         super().__init__()
         self.game = self.GAME()
         character_list = self.CHARACTER_LIST()
@@ -199,6 +201,7 @@ class Morph(BaseMorph):
         self.max_level = None
         self.min_promo_level = None
         self.promo_cls = None
+        self.possible_promotions = None
 
     def _set_max_level(self):
         """
@@ -260,15 +263,18 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
         if len(resultset) > 1:
-            valid_promotions = [result["Promotion"] for result in resultset]
-            resultset = list(
+            new_resultset = list(
                 filter(
                     lambda result: result['Promotion'] == self.promo_cls,
                     resultset,
                 )
             )
-            if not resultset:
+            if not new_resultset:
+                valid_promotions = tuple(result["Promotion"] for result in resultset)
+                self.possible_promotions = valid_promotions
                 raise KeyError("%r is an invalid promotion. Valid promotions: %r" % (self.promo_cls, valid_promotions))
+            else:
+                resultset = new_resultset
         # ** PROMOTION START! **
         # record history
         self._meta["History"].append((self.current_lv, self.current_cls))
@@ -614,7 +620,7 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        if self.name == "Lara" and self.promo_cls == "Dancer":
+        if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
             self.min_promo_level = 1
 
     def level_up(self, num_levels: int):
@@ -659,26 +665,24 @@ class Morph5(Morph):
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
 
-    # TODO: Test this
     def unequip_scroll(self, scroll_name: str):
         """
         """
-        if scroll_name not in self.equipped_scrolls:
+        if scroll_name in self.equipped_scrolls:
             self.equipped_scrolls.pop(scroll_name)
             self._apply_scroll_bonuses()
         else:
-            raise KeyError(f"'{scroll_name}' is not equipped. Equipped_scrolls: {self.equipped_scrolls.keys()}")
+            raise KeyError(f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}")
 
-    # TODO: Test this
     def equip_scroll(self, scroll_name: str):
         """
         """
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
-            raise ValueError(f"'{scroll_name}' is already equipped. Equipped scrolls: {self.equipped_scrolls.keys()}.")
+            raise ValueError(f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.")
         path_to_db = self.path_to("cleaned_stats.db")
         table = "scroll_bonuses"
-        stat_dict = query_db(
+        stat_dict = self.query_db(
             path_to_db,
             table,
             fields=self.Stats.STAT_LIST(),
@@ -693,15 +697,25 @@ class Morph5(Morph):
             ).fetchall()
             scroll_list = [result["Name"] for result in resultset]
             raise KeyError(f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.")
-        self.equipped_scrolls[scroll_name] = self.Stats(**scroll_dict)
+        self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
 
+    # NOTE: Implementing these will result in more convolution.
+
+    def mount(self):
+        """
+        """
+
+    def unmount(self):
+        """
+        """
 
 class Morph6(Morph):
     """
     """
     game_no = 6
 
+    # TODO: filter out names that contain ' (HM)'
     @classmethod
     def CHARACTER_LIST(cls):
         """
@@ -772,34 +786,36 @@ class Morph6(Morph):
             'Juno',
             'Yodel',
             'Karel',
-            'Narshen',
-            'Gale',
-            'Hector',
-            'Brunya',
-            'Eliwood',
-            'Murdoch',
-            'Zephiel',
-            'Guinevere',
+            #'Narshen',
+            #'Gale',
+            #'Hector',
+            #'Brunya',
+            #'Eliwood',
+            #'Murdoch',
+            #'Zephiel',
+            #'Guinevere',
         )
 
     def __init__(self, name: str, *, hard_mode: bool = False):
         """
         """
-        super().__init__(name, which_bases=0, which_growths=0)
-        self.name = name.replace(" (HM)", "")
-        if self.name + " (HM)" in self.CHARACTER_LIST():
-            self._meta["Hard Mode"] = hard_mode
+        #self.name = name.replace(" (HM)", "")
+        if name + " (HM)" in self.CHARACTER_LIST():
+            if hard_mode:
+                name += " (HM)"
         else:
             if hard_mode:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
-            self._meta["Hard Mode"] = None
+            hard_mode = None
+        super().__init__(name, which_bases=0, which_growths=0)
+        self.name = name.replace(" (HM)", "")
+        self._meta["Hard Mode"] = hard_mode
         if name == "Hugh":
             num_declines = 0
         else:
             num_declines = None
         self._meta["Number of Declines"] = num_declines
 
-    # TODO: Test this
     def decline_hugh(self):
         """
         """
@@ -840,6 +856,7 @@ class Morph7(Morph):
     """
     game_no = 7
 
+    # TODO: filter out names that contain ' (HM)'
     @classmethod
     def CHARACTER_LIST(cls):
         """
@@ -912,36 +929,42 @@ class Morph7(Morph):
             "Rath",
             "Matthew",
             "Nils",
-            "Lucius"
+            "Lucius",
             "Wallace",
         )
         if name in lyndis_league:
-            if lyn_mode:
-                which_bases = 0
-            else:
-                which_bases = 1
+            which_bases = {
+                True: 0,
+                False: 1,
+            }[lyn_mode]
+            if not lyn_mode and name == "Nils":
+                name = "Ninian"
         else:
             if lyn_mode:
                 logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
+                if name == "Ninian":
+                    name = "Nils"
             which_bases = 1
             lyn_mode = None
+        if name + " (HM)" in self.CHARACTER_LIST():
+            if hard_mode:
+                name += " (HM)"
+        else:
+            if hard_mode:
+                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
+            hard_mode = None
         super().__init__(name, which_bases=which_bases, which_growths=0)
+        self.name = name.replace(" (HM)", "")
         self._meta["Lyn Mode"] = lyn_mode
+        self._meta["Hard Mode"] = hard_mode
         if not lyn_mode and name == "Wallace":
             # directs lookup-function to max stats for the General class
             self.current_clstype = "classes__promotion_gains"
         # hard mode versions
-        self.name = name.replace(" (HM)", "")
-        if self.name + " (HM)" in self.CHARACTER_LIST():
-            self._meta["Hard Mode"] = hard_mode
-        else:
-            if hard_mode:
-                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
-            self._meta["Hard Mode"] = None
         self._growths_item = "Afa's Drops"
         self._meta[self._growths_item] = None
 
-    def use_afas_drops(self):
+    def use_growths_item(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -1061,7 +1084,7 @@ class Morph8(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def use_metiss_tome(self):
+    def use_growths_item(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -1126,8 +1149,8 @@ class Morph9(Morph):
             'Tibarn',
             'Naesala',
             'Giffca',
-            'Sephiran',
-            'Leanne',
+            #'Sephiran',
+            #'Leanne',
         )
 
     def __init__(self, name: str):
