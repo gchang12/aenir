@@ -1022,4 +1022,3 @@ class Morph4Tests(unittest.TestCase):
     def test_kids_who_cannot_promote(self):
         """
         """
-)
