@@ -314,6 +314,75 @@ class Morph4(Morph):
     """
     game_no = 4
 
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Sigurd',
+            'Noish',
+            'Alec',
+            'Arden',
+            'Cuan',
+            'Ethlin',
+            'Fin',
+            'Lex',
+            'Azel',
+            'Midayle',
+            'Adean',
+            'Dew',
+            'Ira',
+            'Diadora',
+            'Jamka',
+            'Holyn',
+            'Lachesis',
+            'Levin',
+            'Sylvia',
+            'Fury',
+            'Beowolf',
+            'Briggid',
+            'Claude',
+            'Tiltyu',
+            'Mana',
+            'Radney',
+            'Roddlevan',
+            'Oifey',
+            'Tristan',
+            'Dimna',
+            'Yuria',
+            'Femina',
+            'Amid',
+            'Johan',
+            'Johalva',
+            'Shanan',
+            'Daisy',
+            'Janne',
+            'Aless',
+            'Laylea',
+            'Linda',
+            'Asaello',
+            'Hawk',
+            'Hannibal',
+            'Sharlow',
+            'Celice',
+            'Leaf',
+            'Altenna',
+            'Rana',
+            'Lakche',
+            'Skasaher',
+            'Delmud',
+            'Lester',
+            'Fee',
+            'Arthur',
+            'Patty',
+            'Nanna',
+            'Leen',
+            'Tinny',
+            'Faval',
+            'Sety',
+            'Corpul',
+        )
+
     def __init__(self, name: str, *, father: str = None):
         """
         """
@@ -454,6 +523,65 @@ class Morph5(Morph):
     """
     game_no = 5
 
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Leaf',
+            'Fin',
+            'Evayle',
+            'Halvan',
+            'Othin',
+            'Dagda',
+            'Tania',
+            'Marty',
+            'Ronan',
+            'Rifis',
+            'Safy',
+            'Brighton',
+            'Machua',
+            'Lara',
+            'Felgus',
+            'Karin',
+            'Dalsin',
+            'Asvel',
+            'Nanna',
+            'Hicks',
+            'Shiva',
+            'Carrion',
+            'Selphina',
+            'Kein',
+            'Alva',
+            'Robert',
+            'Fred',
+            'Olwen',
+            'Mareeta',
+            'Salem',
+            'Pahn',
+            'Tina',
+            'Trewd',
+            'Glade',
+            'Dean',
+            'Eda',
+            'Homeros',
+            'Linoan',
+            'Ralph',
+            'Eyrios',
+            'Sleuf',
+            'Sara',
+            'Miranda',
+            'Shanam',
+            'Misha',
+            'Xavier',
+            'Amalda',
+            'Conomore',
+            'Delmud',
+            'Cyas',
+            'Sety',
+            'Galzus',
+        )
+
     def __init__(self, name: str):
         """
         """
@@ -574,6 +702,86 @@ class Morph6(Morph):
     """
     game_no = 6
 
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Roy',
+            'Marcus',
+            'Allen',
+            'Lance',
+            'Wolt',
+            'Bors',
+            'Merlinus',
+            'Ellen',
+            'Dieck',
+            'Wade',
+            'Lott',
+            'Thany',
+            'Chad',
+            'Lugh',
+            'Clarine',
+            'Rutger',
+            'Rutger (HM)',
+            'Saul',
+            'Dorothy',
+            'Sue',
+            'Zealot',
+            'Treck',
+            'Noah',
+            'Astohl',
+            'Lilina',
+            'Wendy',
+            'Barth',
+            'Oujay',
+            'Fir',
+            'Fir (HM)',
+            'Shin',
+            'Shin (HM)',
+            'Gonzales',
+            'Gonzales (HM)',
+            'Geese',
+            'Klein',
+            'Klein (HM)',
+            'Tate',
+            'Tate (HM)',
+            'Lalum',
+            'Echidna',
+            'Elphin',
+            'Bartre',
+            'Ray',
+            'Cath',
+            'Cath (HM)',
+            'Miredy',
+            'Miredy (HM)',
+            'Percival',
+            'Percival (HM)',
+            'Cecilia',
+            'Sofiya',
+            'Igrene',
+            'Garret',
+            'Garret (HM)',
+            'Fa',
+            'Hugh',
+            'Zeis',
+            'Zeis (HM)',
+            'Douglas',
+            'Niime',
+            'Dayan',
+            'Juno',
+            'Yodel',
+            'Karel',
+            'Narshen',
+            'Gale',
+            'Hector',
+            'Brunya',
+            'Eliwood',
+            'Murdoch',
+            'Zephiel',
+            'Guinevere',
+        )
+
     def __init__(self, name: str, *, hard_mode: bool = False):
         """
         """
@@ -631,6 +839,63 @@ class Morph7(Morph):
     """
     """
     game_no = 7
+
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Lyn',
+            'Sain',
+            'Kent',
+            'Florina',
+            'Wil',
+            'Dorcas',
+            'Serra',
+            'Erk',
+            'Rath',
+            'Matthew',
+            'Nils',
+            'Lucius',
+            'Wallace',
+            'Eliwood',
+            'Lowen',
+            'Marcus',
+            'Rebecca',
+            'Bartre',
+            'Hector',
+            'Oswin',
+            'Guy',
+            'Guy (HM)',
+            'Merlinus',
+            'Priscilla',
+            'Raven',
+            'Raven (HM)',
+            'Canas',
+            'Dart',
+            'Fiora',
+            'Legault',
+            'Legault (HM)',
+            'Ninian',
+            'Isadora',
+            'Heath',
+            'Hawkeye',
+            'Geitz',
+            'Geitz (HM)',
+            'Farina',
+            'Pent',
+            'Louise',
+            'Karel',
+            'Harken',
+            'Harken (HM)',
+            'Nino',
+            'Jaffar',
+            'Vaida',
+            'Vaida (HM)',
+            'Karla',
+            'Renault',
+            'Athos',
+        )
 
     def __init__(self, name: str, *, lyn_mode: bool = False, hard_mode: bool = False):
         """
@@ -706,6 +971,56 @@ class Morph8(Morph):
     """
     game_no = 8
 
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Eirika',
+            'Seth',
+            'Franz',
+            'Gilliam',
+            'Vanessa',
+            'Moulder',
+            'Ross',
+            'Garcia',
+            'Neimi',
+            'Colm',
+            'Artur',
+            'Lute',
+            'Natasha',
+            'Joshua',
+            'Ephraim',
+            'Forde',
+            'Kyle',
+            'Orson',
+            'Tana',
+            'Amelia',
+            'Innes',
+            'Gerik',
+            'Tethys',
+            'Marisa',
+            "L'Arachel",
+            'Dozla',
+            'Saleh',
+            'Ewan',
+            'Cormag',
+            'Rennac',
+            'Duessel',
+            'Knoll',
+            'Myrrh',
+            'Syrene',
+            'Caellach',
+            'Riev',
+            'Ismaire',
+            'Selena',
+            'Glen',
+            'Hayden',
+            'Valter',
+            'Fado',
+            'Lyon',
+        )
+
     def __init__(self, name: str):
         """
         """
@@ -759,6 +1074,61 @@ class Morph9(Morph):
     """
     """
     game_no = 9
+
+    @classmethod
+    def CHARACTER_LIST(cls):
+        """
+        """
+        return (
+            'Ike',
+            'Titania',
+            'Oscar',
+            'Boyd',
+            'Rhys',
+            'Shinon',
+            'Gatrie',
+            'Soren',
+            'Mia',
+            'Ilyana',
+            'Marcia',
+            'Mist',
+            'Rolf',
+            'Lethe',
+            'Mordecai',
+            'Volke',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Zihark',
+            'Jill',
+            'Sothe',
+            'Astrid',
+            'Makalov',
+            'Stefan',
+            'Muarim',
+            'Tormod',
+            'Devdan',
+            'Tanith',
+            'Reyson',
+            'Janaff',
+            'Ulki',
+            'Calill',
+            'Tauroneo',
+            'Ranulf',
+            'Haar',
+            'Lucia',
+            'Bastian',
+            'Geoffrey',
+            'Largo',
+            'Elincia',
+            'Ena',
+            'Nasir',
+            'Tibarn',
+            'Naesala',
+            'Giffca',
+            'Sephiran',
+            'Leanne',
+        )
 
     def __init__(self, name: str):
         """
