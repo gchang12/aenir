@@ -144,7 +144,7 @@ class Morph(BaseMorph):
         filename = "characters__base_stats-JOIN-characters__growth_rates.json"
         path_to_json = cls.path_to(filename)
         with open(path_to_json, encoding='utf-8') as rfile:
-            character_list = list(json.load(rfile))
+            character_list = tuple(json.load(rfile))
         return character_list
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
