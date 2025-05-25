@@ -386,6 +386,17 @@ class MorphTests(unittest.TestCase):
             "which_growths": 0,
         }
 
+    def test_get_true_character_list5(self):
+        """
+        """
+        class Morph5(Morph):
+            """
+            """
+            game_no = 5
+        expected = Morph5.CHARACTER_LIST()
+        actual = Morph5.get_true_character_list()
+        self.assertEqual(tuple(actual), expected)
+
     @unittest.skip("Removed the logging call from this method.")
     def test_GAME(self):
         """
@@ -1179,6 +1190,76 @@ class Morph6Tests(unittest.TestCase):
         url_name = "binding-blade"
         return _get_promotables(url_name, can_promote)
 
+    def test_get_true_character_list6(self):
+        """
+        """
+        expected = (
+            'Roy',
+            'Marcus',
+            'Allen',
+            'Lance',
+            'Wolt',
+            'Bors',
+            'Merlinus',
+            'Ellen',
+            'Dieck',
+            'Wade',
+            'Lott',
+            'Thany',
+            'Chad',
+            'Lugh',
+            'Clarine',
+            'Rutger',
+            'Saul',
+            'Dorothy',
+            'Sue',
+            'Zealot',
+            'Treck',
+            'Noah',
+            'Astohl',
+            'Lilina',
+            'Wendy',
+            'Barth',
+            'Oujay',
+            'Fir',
+            'Shin',
+            'Gonzales',
+            'Geese',
+            'Klein',
+            'Tate',
+            'Lalum',
+            'Echidna',
+            'Elphin',
+            'Bartre',
+            'Ray',
+            'Cath',
+            'Miredy',
+            'Percival',
+            'Cecilia',
+            'Sofiya',
+            'Igrene',
+            'Garret',
+            'Fa',
+            'Hugh',
+            'Zeis',
+            'Douglas',
+            'Niime',
+            'Dayan',
+            'Juno',
+            'Yodel',
+            'Karel',
+            'Narshen',
+            'Gale',
+            'Hector',
+            'Brunya',
+            'Eliwood',
+            'Murdoch',
+            'Zephiel',
+            'Guinevere',
+        )
+        actual = tuple(Morph6.get_true_character_list())
+        self.assertTupleEqual(actual, expected)
+
     def test_hugh(self):
         """
         """
@@ -1303,6 +1384,58 @@ class Morph7Tests(unittest.TestCase):
         # query for list of units who cannot promote
         url_name = "blazing-sword"
         return _get_promotables(url_name, can_promote=can_promote)
+
+    def test_get_true_character_list7(self):
+        """
+        """
+        expected = (
+            'Lyn',
+            'Sain',
+            'Kent',
+            'Florina',
+            'Wil',
+            'Dorcas',
+            'Serra',
+            'Erk',
+            'Rath',
+            'Matthew',
+            'Nils',
+            'Lucius',
+            'Wallace',
+            'Eliwood',
+            'Lowen',
+            'Marcus',
+            'Rebecca',
+            'Bartre',
+            'Hector',
+            'Oswin',
+            'Guy',
+            'Merlinus',
+            'Priscilla',
+            'Raven',
+            'Canas',
+            'Dart',
+            'Fiora',
+            'Legault',
+            'Ninian',
+            'Isadora',
+            'Heath',
+            'Hawkeye',
+            'Geitz',
+            'Farina',
+            'Pent',
+            'Louise',
+            'Karel',
+            'Harken',
+            'Nino',
+            'Jaffar',
+            'Vaida',
+            'Karla',
+            'Renault',
+            'Athos',
+        )
+        actual = tuple(Morph7.get_true_character_list())
+        self.assertTupleEqual(actual, expected)
 
     def test_afas_drops(self):
         """
@@ -1458,8 +1591,121 @@ class Morph8Tests(unittest.TestCase):
         url_name = "the-sacred-stones"
         return _get_promotables(url_name, can_promote=can_promote)
 
-    # TODO: Test scrubs.
-    # TODO: Test all possible promotion branches.
+    def test_ross(self):
+        """
+        """
+        name = "Ross"
+        self._test_scrub(name)
+
+    def test_amelia(self):
+        """
+        """
+        name = "Amelia"
+        self._test_scrub(name)
+
+    def test_ewan(self):
+        """
+        """
+        name = "Ewan"
+        self._test_scrub(name)
+
+    def _test_scrub(self, name):
+        """
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except KeyError:
+            pass
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except KeyError:
+                pass
+            promo_dict[promo_cls] = morph.possible_promotions
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(ValueError):
+                    morph.promote()
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(ValueError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                # promote
+                morph.promo_cls = promo_cls
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(ValueError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                with self.assertRaises(ValueError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(ValueError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
+
+    def test_nonpromotables(self):
+        """
+        """
+        nonpromotables = self._get_promotables(False)
+        for name in nonpromotables:
+            logger.debug("Morph8(%r)", name)
+            morph = Morph8(name)
+            with self.assertRaises(ValueError):
+                morph.promote()
+            morph.level_up(20 - morph.current_lv)
+            with self.assertRaises(ValueError):
+                morph.level_up(1)
+            with self.assertRaises(ValueError):
+                morph.promote()
+
+    def test_promotables(self):
+        """
+        """
+        promotables = self._get_promotables(True)
+        for name in filter(lambda name: name not in self.trainees, promotables):
+            logger.debug("Morph8(%r)", name)
+            morph = Morph8(name)
+            morph.level_up(20 - morph.current_lv)
+            try:
+                morph.promote()
+                morph.level_up(19)
+                with self.assertRaises(ValueError):
+                    morph.level_up(1)
+                with self.assertRaises(ValueError):
+                    morph.promote()
+            except KeyError:
+                for promo_cls in morph.possible_promotions:
+                    morph = Morph8(name)
+                    morph.level_up(20 - morph.current_lv)
+                    morph.promo_cls = promo_cls
+                    morph.promote()
+                    morph.level_up(19)
+                    with self.assertRaises(ValueError):
+                        morph.level_up(1)
+                    with self.assertRaises(ValueError):
+                        morph.promote()
 
 class Morph9Tests(unittest.TestCase):
     """
