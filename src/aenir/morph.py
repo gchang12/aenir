@@ -25,7 +25,7 @@ class BaseMorph(abc.ABC):
         """
         """
         # should return instance of FireEmblemGame
-        raise NotImplementedError
+        raise NotImplementedError("Not implemented by design; implement in any subclass")
 
     @classmethod
     def STATS(cls):
@@ -532,7 +532,7 @@ class Morph4(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        raise NotImplementedError("FE4 has no stat boosters.")
+        raise NotImplementedError("Not implemented by design; FE4 has no permanent stat booster items.")
 
 class Morph5(Morph):
     """
@@ -710,15 +710,15 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
 
-    # NOTE: Implementing these will result in more convolution.
-
     def mount(self):
         """
         """
+        raise NotImplementedError("Implementing this will result in more convolution than I can be arsed to deal with.")
 
     def unmount(self):
         """
         """
+        raise NotImplementedError("Implementing this will result in more convolution than I can be arsed to deal with.")
 
 class Morph6(Morph):
     """
@@ -726,7 +726,6 @@ class Morph6(Morph):
     game_no = 6
     character_list_filter = lambda name: " (HM)" not in name
 
-    # TODO: filter out names that contain ' (HM)'
     @classmethod
     def CHARACTER_LIST(cls):
         """
@@ -868,7 +867,6 @@ class Morph7(Morph):
     game_no = 7
     character_list_filter = lambda name: " (HM)" not in name
 
-    # TODO: filter out names that contain ' (HM)'
     @classmethod
     def CHARACTER_LIST(cls):
         """
