@@ -1002,10 +1002,10 @@ class Morph4Tests(unittest.TestCase):
         father_list = [result["Father"] for result in resultset]
         father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
         (err_msg,) = key_ctx.exception.args
-        self.assertIn("%r" % father_list, err_msg)
+        self.assertIn("%r" % (tuple(father_list),), err_msg)
         logger.debug("%s", father_list)
 
-    # TODO: This.
+    # TODO: These.
 
     def test_nonkids_who_can_promote(self):
         """
@@ -1022,4 +1022,4 @@ class Morph4Tests(unittest.TestCase):
     def test_kids_who_cannot_promote(self):
         """
         """
-
+)

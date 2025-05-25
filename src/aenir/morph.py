@@ -318,25 +318,22 @@ class Morph4(Morph):
         """
         """
         # test if name refers to a child with father-dependent stats
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "characters__base_stats1"
-        self.Stats = self.STATS()
-        fields = self.Stats.STAT_LIST() + ("Class", "Lv", "Name", "Father")
-        filters = None
-        logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
-            path_to_db,
-            table,
-            fields,
-            filters,
+        kid_list = (
+            'Rana',
+            'Lakche',
+            'Skasaher',
+            'Delmud',
+            'Lester',
+            'Fee',
+            'Arthur',
+            'Patty',
+            'Nanna',
+            'Leen',
+            'Tinny',
+            'Faval',
+            'Sety',
+            'Corpul',
         )
-        resultset = self.query_db(
-            path_to_db,
-            table,
-            fields,
-            filters,
-        ).fetchall()
-        # check if name in kid list
-        kid_list = [result["Name"] for result in resultset]
         if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
@@ -345,9 +342,21 @@ class Morph4(Morph):
             self.father = None
             #self._meta["Father"] = self.father
         else:
-            father_list = [result["Father"] for result in resultset]
-            # if yes: check if father_name in father_list
-            father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
+            father_list = (
+                'Arden',
+                'Azel',
+                'Alec',
+                'Claude',
+                'Jamka',
+                'Dew',
+                'Noish',
+                'Fin',
+                'Beowolf',
+                'Holyn',
+                'Midayle',
+                'Levin',
+                'Lex',
+            )
             if father not in father_list:
                 raise KeyError(f"'{father}' is not a valid father. List of valid fathers: {father_list}")
             # begin initialization here
@@ -355,14 +364,26 @@ class Morph4(Morph):
             self.game = self.GAME()
             self.name = name
             self.father = father
-            stat_dict = dict(
-                list(
-                    filter(
-                        lambda result: result["Name"] == name and result["Father"] == father,
-                        resultset,
-                    )
-                ).pop()
+            # begin query
+            path_to_db = self.path_to("cleaned_stats.db")
+            table = "characters__base_stats1"
+            fields = self.Stats.STAT_LIST() + ("Class", "Lv", "Name", "Father")
+            filters = {"Name": name, "Father": father}
+            logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
+                path_to_db,
+                table,
+                fields,
+                filters,
             )
+            stat_dict = dict(
+                self.query_db(
+                    path_to_db,
+                    table,
+                    fields,
+                    filters,
+                ).fetchone()
+            )
+            # class and level
             self.current_cls = stat_dict.pop("Class")
             self.current_lv = stat_dict.pop("Lv")
             # bases
