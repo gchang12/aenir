@@ -374,7 +374,7 @@ class MorphTests(unittest.TestCase):
     def test_CHARACTER_LIST(self):
         """
         """
-        expected = [
+        expected = (
             "Roy",
             "Marcus",
             "Allen",
@@ -448,9 +448,9 @@ class MorphTests(unittest.TestCase):
             "Murdoch",
             "Zephiel",
             "Guinevere",
-        ]
+        )
         actual = self.TestMorph.CHARACTER_LIST()
-        self.assertListEqual(actual, expected)
+        self.assertTupleEqual(actual, expected)
 
     def test_init(self):
         """
@@ -513,7 +513,7 @@ class MorphTests(unittest.TestCase):
         with self.assertRaises(ValueError) as assert_ctx:
             marth = self.TestMorph("Marth", which_bases=0, which_growths=0)
         (err_msg,) = assert_ctx.exception.args
-        self.assertIn("%r" % list(self.TestMorph.CHARACTER_LIST()), err_msg)
+        self.assertIn("%r" % (tuple(self.TestMorph.CHARACTER_LIST()),), err_msg)
 
     def test_init__bad_bases_index(self):
         """
@@ -857,18 +857,6 @@ class MorphTests(unittest.TestCase):
             ross.promote()
         (err_msg,) = key_ctx.exception.args
         self.assertIn(str(valid_promotions), err_msg)
-
-    @unittest.skip("Not implemented yet.")
-    def test_repr(self):
-        """
-        """
-        # NOTE: for CLI only. low priority
-
-    @unittest.skip("Not implemented yet.")
-    def test_lt(self):
-        """
-        """
-        # NOTE: for CLI only. low priority
 
 class Morph4Tests(unittest.TestCase):
     """
