@@ -103,6 +103,23 @@ class StatsTests(unittest.TestCase):
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
 
+    def test_sum(self):
+        """
+        """
+        statdict = {
+            "a": 18,
+            "b": 7,
+            "c": 5,
+            "d": 9,
+            "e": 2,
+            "f": 5,
+            "g": 1,
+        }
+        stats = self.stats_class(**statdict)
+        expected = sum(statdict.values())
+        actual = sum(stats)
+        self.assertEqual(actual, expected)
+
     def test_as_dict(self):
         """
         """
