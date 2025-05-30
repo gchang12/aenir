@@ -103,6 +103,12 @@ class StatsTests(unittest.TestCase):
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
 
+    def test_repr(self):
+        """
+        """
+        stats = self.stats_class(**self.init_kwargs)
+        logger.debug("%r", stats)
+
     def test_sum(self):
         """
         """
