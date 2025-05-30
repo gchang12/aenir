@@ -194,15 +194,21 @@ class AbstractStats(abc.ABC):
         for stat in self.STAT_LIST():
             yield getattr(self, stat)
 
+    def get_repr_array(self):
+        """
+        """
+        stat_array = [self.__class__.__name__]
+        for stat in self.STAT_LIST():
+            statval = getattr(self, stat)
+            stat_array.append("    %-3s: " % stat + ("%.2f" % statval).rjust(5))
+        stat_array.append("")
+        return stat_array
+
     def __repr__(self):
         """
         """
-        raise NotImplementedError("Yet to decide on how to display stats.")
-        stat_dict = []
-        for stat in self.STAT_LIST():
-            self_stat = getattr(self, stat)
-            stat_dict.append((stat, self_stat))
-        return str(stat_dict)
+        stat_array = self.get_repr_array()
+        return "\n".join(stat_array)
 
 class GenealogyStats(AbstractStats):
     """
