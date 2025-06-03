@@ -4,7 +4,7 @@
 
 import abc
 import sqlite3
-import json
+#import json
 from typing import Tuple
 
 from aenir.games import FireEmblemGame
@@ -15,6 +15,20 @@ from aenir.stats import (
     AbstractStats,
 )
 from aenir.logging import logger
+
+class UnitInfo(list):
+    """
+    """
+
+    def __getitem__(self, key):
+        """
+        """
+        raise NotImplementedError
+
+    def __setitem__(self, key, value):
+        """
+        """
+        raise NotImplementedError
 
 class BaseMorph(abc.ABC):
     """
@@ -56,7 +70,7 @@ class BaseMorph(abc.ABC):
         ):
         """
         """
-        query = f"SELECT {', '.join(fields)} FROM {table}"
+        query = f"SELECT {', '.join(fields)} FROM '{table}'"
         if filters:
             conditions = " AND ".join(
                 [
@@ -92,13 +106,21 @@ class BaseMorph(abc.ABC):
             "Checking if '%s' from %s[index] has an equivalent in %s[%s].",
             value_to_lookup, home_table, target_table, field_to_scan,
         )
-        path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
+        table_name = f"{home_table}-JOIN-{target_table}"
+        #path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
         logger.debug(
             "Checking if '%s' exists in the dict in '%s'",
-            value_to_lookup, path_to_json,
+            value_to_lookup, table_name,
         )
-        with open(path_to_json, encoding='utf-8') as rfile:
-            aliased_value = json.load(rfile).pop(value_to_lookup)
+        #with open(path_to_json, encoding='utf-8') as rfile: aliased_value = json.load(rfile).pop(value_to_lookup)
+        # TODO: Export JSON data into cleaned_stats.db database file
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name=\"%s\"" % (table_name, value_to_lookup))
+            aliased_value = resultset.fetchone()
+            if aliased_value is not None:
+                (aliased_value,) = aliased_value
         logger.debug(
             "'%s' from %s[index] exists as %r in %s[%s]",
             value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
@@ -151,11 +173,14 @@ class Morph(BaseMorph):
     def CHARACTER_LIST(cls):
         """
         """
-        filename = "characters__base_stats-JOIN-characters__growth_rates.json"
-        path_to_json = cls.path_to(filename)
-        with open(path_to_json, encoding='utf-8') as rfile:
-            character_list = tuple(json.load(rfile))
-        return character_list
+        #filename = "characters__base_stats-JOIN-characters__growth_rates.json"
+        table_name = "characters__base_stats-JOIN-characters__growth_rates"
+        path_to_db = cls.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            character_list = map(lambda nametuple: nametuple[0], cnxn.execute("SELECT Name FROM '%s';" % table_name))
+        #with open(path_to_json, encoding='utf-8') as rfile:
+            #character_list = tuple(json.load(rfile))
+        return tuple(character_list)
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
         #if self.__class__.__name__ == "Morph":
@@ -325,6 +350,33 @@ class Morph(BaseMorph):
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
+
+    def get_repr_array(self, extra_data=None):
+        """
+        """
+        repr_array = [
+            ("Name", self.name),
+            ("Class", self.current_cls),
+            ("Level", self.current_lv),
+        ]
+        for indexno, (lv, cls) in enumerate(self.history):
+            if not indexno:
+                key = "History"
+            else:
+                key = ""
+            repr_array.append((key, (lv, cls)))
+        if extra_data is not None:
+            for key, value in extra_data:
+                repr_array.append((key, value))
+        stat_array = self.current_stats.as_list()
+        repr_array.extend(stat_array)
+        return repr_array
+
+    def __repr__(self, extra_data=None):
+        """
+        """
+        repr_array = self.get_repr_array(extra_data=extra_data)
+        return "\n".join(repr_array)
 
 class Morph4(Morph):
     """
@@ -511,9 +563,12 @@ class Morph4(Morph):
             }[self.name]
         except KeyError:
             self.promo_cls = None
-        path_to_bases2promo = self.path_to("characters__base_stats-JOIN-classes__promotion_gains.json")
-        with open(path_to_bases2promo) as rfile:
-            can_promote = json.load(rfile).pop(name) is not None
+        table_name = "characters__base_stats-JOIN-classes__promotion_gains"
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name='%s';" % (table_name, name))
+            can_promote = resultset.fetchone()[0] is not None
         if can_promote:
             self.max_level = 20
         else:

@@ -299,14 +299,33 @@ class BaseMorphTests(unittest.TestCase):
         target_data = ("classes__maximum_stat", "Class")
         tableindex = 0
         morph6 = self.TestMorph6()
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(sqlite3.OperationalError):
             morph6.lookup(
                 home_data,
                 target_data,
                 tableindex,
             )
 
-    @patch("json.load")
+    @patch("sqlite3.Cursor.fetchone")
+    def test_lookup__aliased_value_is_none(self, MOCK_fetchone):
+        """
+        """
+        home_data = ("characters__base_stats", "Roy")
+        target_data = ("classes__maximum_stats", "Class")
+        tableindex = 0
+        morph6 = self.TestMorph6()
+        MOCK_fetchone.return_value = {"Roy": None}
+        actual = morph6.lookup(
+            home_data,
+            target_data,
+            tableindex,
+        )
+        self.assertIsNone(actual)
+        # resultset is None
+
+    @unittest.skip
+    #@patch("json.load")
+    #def test_lookup__aliased_value_is_none(self, MOCK_json_load):
     def test_lookup__aliased_value_is_none(self, MOCK_json_load):
         """
         """
@@ -323,6 +342,7 @@ class BaseMorphTests(unittest.TestCase):
         self.assertIsNone(actual)
         # resultset is None
 
+    @unittest.skip
     def test_lookup__lookup_value_dne(self):
         """
         """
@@ -337,6 +357,22 @@ class BaseMorphTests(unittest.TestCase):
                 target_data,
                 tableindex,
             )
+        # lookup value not found
+
+    def test_lookup__lookup_value_dne(self):
+        """
+        """
+        # JSON file does not exist
+        home_data = ("characters__base_stats", "Marth")
+        target_data = ("classes__maximum_stats", "Class")
+        tableindex = 0
+        morph6 = self.TestMorph6()
+        actual = morph6.lookup(
+            home_data,
+            target_data,
+            tableindex,
+        )
+        self.assertIsNone(actual)
         # lookup value not found
 
     def test_query_db__more_than_one_filter_provided(self):
