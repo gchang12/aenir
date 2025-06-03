@@ -5,6 +5,8 @@ import abc
 
 from aenir.logging import logger
 
+# TODO: implement by subclassing OrderedDict?
+
 
 class AbstractStats(abc.ABC):
     """
@@ -35,6 +37,12 @@ class AbstractStats(abc.ABC):
         """
         stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
         return stat_dict
+
+    def as_list(self):
+        """
+        """
+        stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
+        return stat_list
 
     def copy(self):
         """
