@@ -126,6 +126,14 @@ class StatsTests(unittest.TestCase):
         actual = sum(stats)
         self.assertEqual(actual, expected)
 
+    def test_as_list(self):
+        """
+        """
+        expected = list(self.statdict2.items())
+        stats = self.stats_class(**self.statdict2)
+        actual = stats.as_list()
+        self.assertListEqual(actual, expected)
+
     def test_as_dict(self):
         """
         """
