@@ -39,9 +39,12 @@ def _get_promotables(url_name, can_promote):
     """
     """
     # query for list of units who cannot promote
-    path_to_json = f"static/{url_name}/characters__base_stats-JOIN-classes__promotion_gains.json"
-    with open(path_to_json) as rfile:
-        promo_dict = json.load(rfile)
+    table_name = "characters__base_stats-JOIN-classes__promotion_gains"
+    path_to_db = f"static/{url_name}/cleaned_stats.db"
+    with sqlite3.connect(path_to_db) as cnxn:
+        cnxn.row_factory = sqlite3.Row
+        resultset = cnxn.execute(f"SELECT Name, Alias FROM '{table_name}';")
+        promo_dict = dict(resultset)
     #logger.debug("%s", promo_dict)
     return list(
         map(
