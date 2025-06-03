@@ -224,6 +224,21 @@ class Morph(BaseMorph):
         self.promo_cls = None
         self.possible_promotions = None
 
+    # TODO: Test this!
+    def get_repr_data(self, datalist_to_insert=()):
+        """
+        """
+        display_data = [
+            ("Name", self.name),
+            ("Lv", self.current_lv),
+            ("Class", self.current_cls),
+            ("History", self._meta['History']),
+        ]
+        while datalist_to_insert:
+            index_loc, data_to_insert = datalist_to_insert.pop(0)
+            display_data.insert(index_loc, data_to_insert)
+        return display_data
+
     def _set_max_level(self):
         """
         """
@@ -337,32 +352,10 @@ class Morph(BaseMorph):
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
-    def get_repr_array(self, extra_data=None):
+    def __repr__(self):
         """
         """
-        repr_array = [
-            ("Name", self.name),
-            ("Class", self.current_cls),
-            ("Level", self.current_lv),
-        ]
-        for indexno, (lv, cls) in enumerate(self.history):
-            if not indexno:
-                key = "History"
-            else:
-                key = ""
-            repr_array.append((key, (lv, cls)))
-        if extra_data is not None:
-            for key, value in extra_data:
-                repr_array.append((key, value))
-        stat_array = self.current_stats.as_list()
-        repr_array.extend(stat_array)
-        return repr_array
-
-    def __repr__(self, extra_data=None):
-        """
-        """
-        repr_array = self.get_repr_array(extra_data=extra_data)
-        return "\n".join(repr_array)
+        raise NotImplementedError
 
 class Morph4(Morph):
     """
