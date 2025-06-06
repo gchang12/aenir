@@ -24,6 +24,7 @@ from aenir.stats import (
     GBAStats,
     ThraciaStats,
     AbstractStats,
+    RadiantStats,
 )
 
 from aenir.logging import (
@@ -218,7 +219,7 @@ class BaseMorphTests(unittest.TestCase):
             6: GBAStats,
             7: GBAStats,
             8: GBAStats,
-            9: GenealogyStats,
+            9: RadiantStats,
         }
         for game_no, stats in gameno_to_stats.items():
             class TestMorphWithGame(BaseMorph):

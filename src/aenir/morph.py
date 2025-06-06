@@ -12,7 +12,8 @@ from aenir.stats import (
     GenealogyStats,
     GBAStats,
     ThraciaStats,
-    AbstractStats,
+    #AbstractStats,
+    RadiantStats,
 )
 from aenir.logging import logger
 
@@ -38,7 +39,7 @@ class BaseMorph(abc.ABC):
             6: GBAStats,
             7: GBAStats,
             8: GBAStats,
-            9: GenealogyStats,
+            9: RadiantStats,
         }[cls.GAME().value]
 
     @classmethod
@@ -225,6 +226,7 @@ class Morph(BaseMorph):
         self.possible_promotions = None
 
     # TODO: Test this!
+    # TODO: Implement this differently for each Morph* subtype.
     def get_repr_data(self, datalist_to_insert=()):
         """
         """
