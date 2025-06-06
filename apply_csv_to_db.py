@@ -5,7 +5,7 @@ import csv
 import sqlite3
 from pathlib import Path
 
-from aenir.game import FireEmblemGame
+from aenir.games import FireEmblemGame
 
 def _convert_to_numeric(row):
     """
@@ -16,14 +16,14 @@ def _convert_to_numeric(row):
         except ValueError:
             new_value = value
         row[field] = new_value
-    #return row
+    return row
 
 def grab_csv_data(filename):
     """
     """
     with open(filename) as rfile:
         data = list(csv.DictReader(rfile))
-    map(_convert_to_numeric, data)
+    data = list(map(_convert_to_numeric, data))
     print(data[0])
     return data
 
@@ -44,18 +44,21 @@ def update_db(filename, table, data):
     # field=:field as %r, ...
     action = ", ".join(field + "=:" + field for field in value_fields)
     condition = ", ".join(field + "=:" + field for field in key_fields)
-    statement = "UPDATE TABLE %s SET %s WHERE %s ;" % (table, action, condition)
+    statement = "UPDATE %s SET %s WHERE %s ;" % (table, action, condition)
     print(statement)
     print(data[0])
+    print(filename)
     with sqlite3.connect(filename) as cnxn:
         cnxn.executemany(statement, data)
 
 for game in FireEmblemGame:
     url_name = game.url_name
-    for csv_path in Path.glob(f"static/{url_name}/*.csv"):
+    print(url_name)
+    for csv_path in Path(f"static/{url_name}/").glob("*.csv"):
+        print(csv_path)
         #csv_name = f"static/{url_name}/{csv_file}"
         csv_data = grab_csv_data(csv_path)
-        db_filename = "static/{url_name}/cleaned_stats.db"
+        db_filename = f"static/{url_name}/cleaned_stats.db"
         table = csv_path.with_suffix("").name
         update_db(db_filename, table, csv_data)
 
