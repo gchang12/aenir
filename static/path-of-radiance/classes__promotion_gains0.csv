@@ -1,19 +1,19 @@
-Class ,Promotion ,Con ,Mov 
-Ranger ,Lord ,1,1
-Myrmidon (M) ,Swordmaster (M) ,1,1
-Myrmidon (F) ,Swordmaster (F) ,1,1
-Soldier (F) ,Halberdier (F) ,1,1
-Fighter ,Warrior ,1,1
-Archer ,Sniper ,1,1
-Knight ,General ,1,1
-Sword Knight (M) ,Paladin (M) ,1,1
-Lance Knight (M) ,Paladin (M) ,1,1
-Axe Knight (M) ,Paladin (M) ,1,1
-Bow Knight (F) ,Paladin (F) ,1,1
-Pegasus Knight ,Falcon Knight ,1,1
-Wyvern Rider (F) ,Wyvern Lord (F) ,1,1
-Mage (M) ,Sage (M) ,1,1
-Mage (F) ,Sage (F) ,2,1
-Priest ,Bishop (M) ,1,1
-Cleric ,Valkyrie ,1,3
-Thief ,Assassin (M) ,1,0
+Class,Promotion,Con,Mov 
+Ranger,Lord,1,1
+Myrmidon (M),Swordmaster (M),1,1
+Myrmidon (F),Swordmaster (F),1,1
+Soldier (F),Halberdier (F),1,1
+Fighter,Warrior,1,1
+Archer,Sniper,1,1
+Knight,General,1,1
+Sword Knight (M),Paladin (M),1,1
+Lance Knight (M),Paladin (M),1,1
+Axe Knight (M),Paladin (M),1,1
+Bow Knight (F),Paladin (F),1,1
+Pegasus Knight,Falcon Knight,1,1
+Wyvern Rider (F),Wyvern Lord (F),1,1
+Mage (M),Sage (M),1,1
+Mage (F),Sage (F),2,1
+Priest,Bishop (M),1,1
+Cleric,Valkyrie,1,3
+Thief,Assassin (M),1,0

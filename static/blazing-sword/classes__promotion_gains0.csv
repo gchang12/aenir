@@ -1,22 +1,22 @@
-Class ,Mov ,Con 
-Blade Lord ,1,1
-Knight Lord ,2,2
-Great Lord ,0,2
-Paladin (M) ,1,2
-General (M) ,1,2
-Hero (M) ,1,1
-Swordmaster (M) ,1,1
-Assassin ,0,0
-Sniper (M) ,1,1
-Sniper (F) ,1,1
-Nmd Trooper (M) ,1,1
-Wyvern Lord (M) ,1,1
-Sage (M) ,1,1
-Sage (F) ,1,1
-Bishop (M) ,1,1
-Bishop (F) ,1,1
-Druid (M) ,1,1
-Warrior ,1,2
-Berserker ,1,3
-Falcoknight ,1,1
-Valkyrie ,1,1
+Class,Mov,Con 
+Blade Lord,1,1
+Knight Lord,2,2
+Great Lord,0,2
+Paladin (M),1,2
+General (M),1,2
+Hero (M),1,1
+Swordmaster (M),1,1
+Assassin,0,0
+Sniper (M),1,1
+Sniper (F),1,1
+Nmd Trooper (M),1,1
+Wyvern Lord (M),1,1
+Sage (M),1,1
+Sage (F),1,1
+Bishop (M),1,1
+Bishop (F),1,1
+Druid (M),1,1
+Warrior,1,2
+Berserker,1,3
+Falcoknight,1,1
+Valkyrie,1,1
