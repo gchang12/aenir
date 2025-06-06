@@ -5,7 +5,7 @@ import abc
 
 from aenir.logging import logger
 
-# TODO: implement by subclassing OrderedDict?
+# TODO: Add in stats that have no growths.
 
 
 class AbstractStats(abc.ABC):
@@ -258,6 +258,9 @@ class ThraciaStats(AbstractStats):
             "Def",
             "Con",
             "Mov",
+            #"Lead",
+            #"MS",
+            #"PC",
         )
 
 
@@ -280,5 +283,29 @@ class GBAStats(AbstractStats):
             "Res",
             #"Con",
             #"Mov",
+        )
+
+
+class RadiantStats(AbstractStats):
+    """
+    """
+
+    @classmethod
+    def STAT_LIST(cls):
+        """
+        """
+        # constant
+        return (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+            #"Mov",
+            #"Con",
+            #"Wt",
         )
 
