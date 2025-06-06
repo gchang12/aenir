@@ -3,6 +3,9 @@
 
 import csv
 import sqlite3
+from pathlib import Path
+
+from aenir.game import FireEmblemGame
 
 def _convert_to_numeric(row):
     """
@@ -46,6 +49,15 @@ def update_db(filename, table, data):
     print(data[0])
     with sqlite3.connect(filename) as cnxn:
         cnxn.executemany(statement, data)
+
+for game in FireEmblemGame:
+    url_name = game.url_name
+    for csv_path in Path.glob(f"static/{url_name}/*.csv"):
+        #csv_name = f"static/{url_name}/{csv_file}"
+        csv_data = grab_csv_data(csv_path)
+        db_filename = "static/{url_name}/cleaned_stats.db"
+        table = csv_path.with_suffix("").name
+        update_db(db_filename, table, csv_data)
 
 # grab csv data
 # make it as numeric as possible
