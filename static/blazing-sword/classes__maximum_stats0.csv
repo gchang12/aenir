@@ -1,39 +1,39 @@
-Class ,Con ,Mov
-Non-promoted ,20,15
-Blade Lord ,25,15
-Knight Lord ,25,15
-Great Lord ,25,15
-Dancer ,20,15
-Bard ,20,15
-Transporter ,25,15
-Paladin (M) ,25,15
-Paladin (F) ,25,15
-General (M) ,20,15
-General (F) ,20,15
-Hero (M) ,20,15
-Hero (F) ,25,15
-Swordmaster (M) ,25,15
-Swordmaster (F) ,25,15
-Assassin ,20,15
-Sniper (M) ,20,15
-Sniper (F) ,20,15
-Nmd Trooper (M) ,20,15
-Nmd Trooper (F) ,20,15
-Wyvern Lord (M) ,25,15
-Wyvern Lord (F) ,25,15
-Sage (M) ,20,15
-Sage (F) ,20,15
-Sage (Limstella) ,20,15
-Bishop (M) ,25,15
-Bishop (F) ,25,15
-Druid (M) ,20,15
-Druid (F) ,20,15
-Warrior ,20,15
-Berserker ,20,15
-Falcoknight ,25,15
-Valkyrie ,25,15
-Magic Seal ,20,15
-Archsage ,20,15
-Dark Druid ,25,15
-Bramimond ,20,15
-Fire Dragon ,25,15
+Class,Con,Mov
+Non-promoted,20,15
+Blade Lord,25,15
+Knight Lord,25,15
+Great Lord,25,15
+Dancer,20,15
+Bard,20,15
+Transporter,25,15
+Paladin (M),25,15
+Paladin (F),25,15
+General (M),20,15
+General (F),20,15
+Hero (M),20,15
+Hero (F),25,15
+Swordmaster (M),25,15
+Swordmaster (F),25,15
+Assassin,20,15
+Sniper (M),20,15
+Sniper (F),20,15
+Nmd Trooper (M),20,15
+Nmd Trooper (F),20,15
+Wyvern Lord (M),25,15
+Wyvern Lord (F),25,15
+Sage (M),20,15
+Sage (F),20,15
+Sage (Limstella),20,15
+Bishop (M),25,15
+Bishop (F),25,15
+Druid (M),20,15
+Druid (F),20,15
+Warrior,20,15
+Berserker,20,15
+Falcoknight,25,15
+Valkyrie,25,15
+Magic Seal,20,15
+Archsage,20,15
+Dark Druid,25,15
+Bramimond,20,15
+Fire Dragon,25,15

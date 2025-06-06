@@ -1,27 +1,27 @@
-Class ,Promotion ,HP ,S/M ,Skl ,Spd ,Def ,Res ,Con ,Mov 
-Lord ,Master Lord ,4,2,3,2,2,5,2,1
-Mercenary (M) ,Hero (M) ,4,2,1,2,4,2,1,1
-Mercenary (F) ,Hero (F) ,6,3,5,5,4,3,1,1
-Myrmidon (M) ,Swordmaster (M) ,5,2,2,1,3,2,1,1
-Myrmidon (F) ,Swordmaster (F) ,4,3,2,2,3,2,1,1
-Cavalier (M) ,Paladin (M) ,3,2,2,2,2,3,2,1
-Cavalier (F) ,Paladin (F) ,5,1,3,8,1,6,1,1
-Knight (M) ,General (M) ,4,3,2,3,4,3,2,1
-Knight (F) ,General (F) ,4,4,2,4,3,3,1,1
-Fighter ,Warrior ,8,3,3,2,3,0,2,1
-Brigand ,Berserker ,4,2,5,2,3,0,1,1
-Pirate ,Berserker ,5,3,4,1,3,0,3,1
-Archer (M) ,Sniper (M) ,3,3,3,2,2,2,1,1
-Archer (F) ,Sniper (F) ,2,3,3,3,2,3,1,1
-Nomad (M) ,Nomad Trooper (M) ,5,2,2,2,2,3,1,1
-Nomad (F) ,Nomad Trooper (F) ,6,2,1,1,2,4,1,1
-Pegasus Knight ,Falcon Knight ,6,2,2,2,2,2,1,1
-Wyvern Rider (M) ,Wyvern Lord (M) ,5,2,2,2,2,1,1,1
-Wyvern Rider (F) ,Wyvern Lord (F) ,5,2,2,2,2,2,1,1
-Mage (M) ,Sage (M) ,4,4,2,1,2,2,1,1
-Mage (F) ,Sage (F) ,3,3,3,3,1,2,1,1
-Shaman (M) ,Druid (M) ,3,4,2,2,2,2,1,1
-Shaman (F) ,Druid (F) ,2,4,2,3,2,2,1,1
-Priest (M) ,Bishop (M) ,3,3,3,2,2,3,1,1
-Priest (F) ,Bishop (F) ,3,3,3,2,2,3,1,1
-Troubadour ,Valkyria ,4,3,2,2,2,3,1,1
+Class,Promotion,HP,S/M,Skl,Spd,Def,Res,Con,Mov 
+Lord,Master Lord,4,2,3,2,2,5,2,1
+Mercenary (M),Hero (M),4,2,1,2,4,2,1,1
+Mercenary (F),Hero (F),6,3,5,5,4,3,1,1
+Myrmidon (M),Swordmaster (M),5,2,2,1,3,2,1,1
+Myrmidon (F),Swordmaster (F),4,3,2,2,3,2,1,1
+Cavalier (M),Paladin (M),3,2,2,2,2,3,2,1
+Cavalier (F),Paladin (F),5,1,3,8,1,6,1,1
+Knight (M),General (M),4,3,2,3,4,3,2,1
+Knight (F),General (F),4,4,2,4,3,3,1,1
+Fighter,Warrior,8,3,3,2,3,0,2,1
+Brigand,Berserker,4,2,5,2,3,0,1,1
+Pirate,Berserker,5,3,4,1,3,0,3,1
+Archer (M),Sniper (M),3,3,3,2,2,2,1,1
+Archer (F),Sniper (F),2,3,3,3,2,3,1,1
+Nomad (M),Nomad Trooper (M),5,2,2,2,2,3,1,1
+Nomad (F),Nomad Trooper (F),6,2,1,1,2,4,1,1
+Pegasus Knight,Falcon Knight,6,2,2,2,2,2,1,1
+Wyvern Rider (M),Wyvern Lord (M),5,2,2,2,2,1,1,1
+Wyvern Rider (F),Wyvern Lord (F),5,2,2,2,2,2,1,1
+Mage (M),Sage (M),4,4,2,1,2,2,1,1
+Mage (F),Sage (F),3,3,3,3,1,2,1,1
+Shaman (M),Druid (M),3,4,2,2,2,2,1,1
+Shaman (F),Druid (F),2,4,2,3,2,2,1,1
+Priest (M),Bishop (M),3,3,3,2,2,3,1,1
+Priest (F),Bishop (F),3,3,3,2,2,3,1,1
+Troubadour,Valkyria,4,3,2,2,2,3,1,1
