@@ -8,6 +8,7 @@ from aenir.stats import (
     AbstractStats,
     GenealogyStats,
     ThraciaStats,
+    RadiantStats,
     GBAStats,
 )
 from aenir.logging import (
