@@ -43,7 +43,7 @@ def update_db(filename, table, data):
     # TODO: How to put in query parameters...
     # field=:field as %r, ...
     action = ", ".join(field + "=:" + field for field in value_fields)
-    condition = ", ".join(field + "=:" + field for field in key_fields)
+    condition = " AND ".join(field + "=:" + field for field in key_fields)
     statement = "UPDATE %s SET %s WHERE %s ;" % (table, action, condition)
     print(statement)
     print(data[0])
