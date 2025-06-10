@@ -4,7 +4,7 @@
 
 import abc
 import sqlite3
-import json
+#import json
 from typing import Tuple
 
 from aenir.games import FireEmblemGame
@@ -12,7 +12,8 @@ from aenir.stats import (
     GenealogyStats,
     GBAStats,
     ThraciaStats,
-    AbstractStats,
+    #AbstractStats,
+    RadiantStats,
 )
 from aenir.logging import logger
 
@@ -38,7 +39,7 @@ class BaseMorph(abc.ABC):
             6: GBAStats,
             7: GBAStats,
             8: GBAStats,
-            9: GenealogyStats,
+            9: RadiantStats,
         }[cls.GAME().value]
 
     @classmethod
@@ -56,7 +57,7 @@ class BaseMorph(abc.ABC):
         ):
         """
         """
-        query = f"SELECT {', '.join(fields)} FROM {table}"
+        query = f"SELECT {', '.join(fields)} FROM '{table}'"
         if filters:
             conditions = " AND ".join(
                 [
@@ -70,7 +71,7 @@ class BaseMorph(abc.ABC):
         logger.debug("File: '%s'", path_to_db)
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
-            return cnxn.execute(query)
+        return cnxn.execute(query)
 
     def __init__(self):
         """
@@ -92,13 +93,21 @@ class BaseMorph(abc.ABC):
             "Checking if '%s' from %s[index] has an equivalent in %s[%s].",
             value_to_lookup, home_table, target_table, field_to_scan,
         )
-        path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
+        table_name = f"{home_table}-JOIN-{target_table}"
+        #path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
         logger.debug(
             "Checking if '%s' exists in the dict in '%s'",
-            value_to_lookup, path_to_json,
+            value_to_lookup, table_name,
         )
-        with open(path_to_json, encoding='utf-8') as rfile:
-            aliased_value = json.load(rfile).pop(value_to_lookup)
+        #with open(path_to_json, encoding='utf-8') as rfile: aliased_value = json.load(rfile).pop(value_to_lookup)
+        # TODO: Export JSON data into cleaned_stats.db database file
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name=\"%s\"" % (table_name, value_to_lookup))
+            aliased_value = resultset.fetchone()
+            if aliased_value is not None:
+                (aliased_value,) = aliased_value
         logger.debug(
             "'%s' from %s[index] exists as %r in %s[%s]",
             value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
@@ -151,11 +160,14 @@ class Morph(BaseMorph):
     def CHARACTER_LIST(cls):
         """
         """
-        filename = "characters__base_stats-JOIN-characters__growth_rates.json"
-        path_to_json = cls.path_to(filename)
-        with open(path_to_json, encoding='utf-8') as rfile:
-            character_list = tuple(json.load(rfile))
-        return character_list
+        #filename = "characters__base_stats-JOIN-characters__growth_rates.json"
+        table_name = "characters__base_stats-JOIN-characters__growth_rates"
+        path_to_db = cls.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            character_list = map(lambda nametuple: nametuple[0], cnxn.execute("SELECT Name FROM '%s';" % table_name))
+        #with open(path_to_json, encoding='utf-8') as rfile:
+            #character_list = tuple(json.load(rfile))
+        return tuple(character_list)
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
         #if self.__class__.__name__ == "Morph":
@@ -248,10 +260,9 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def promote(self):
+    def _get_promo_query_kwargs(self):
         """
         """
-        # get promotion data
         value_to_lookup = {
             "characters__base_stats": self.name,
             "classes__promotion_gains": self.current_cls,
@@ -261,15 +272,22 @@ class Morph(BaseMorph):
             ("classes__promotion_gains", "Class"),
             tableindex=0,
         )
+        return query_kwargs
+
+    def promote(self):
+        """
+        """
+        query_kwargs = self._get_promo_query_kwargs()
         # quit if resultset is empty
         if query_kwargs is None:
             raise ValueError(f"{self.name} has no available promotions.")
+        query_kwargs['fields'] += ("Promotion",)
         # check if unit's level is high enough to enable promotion
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
             raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
-        query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
+        # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
         if len(resultset) > 1:
@@ -325,6 +343,11 @@ class Morph(BaseMorph):
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
+
+    def __repr__(self):
+        """
+        """
+        raise NotImplementedError
 
 class Morph4(Morph):
     """
@@ -511,9 +534,12 @@ class Morph4(Morph):
             }[self.name]
         except KeyError:
             self.promo_cls = None
-        path_to_bases2promo = self.path_to("characters__base_stats-JOIN-classes__promotion_gains.json")
-        with open(path_to_bases2promo) as rfile:
-            can_promote = json.load(rfile).pop(name) is not None
+        table_name = "characters__base_stats-JOIN-classes__promotion_gains"
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name='%s';" % (table_name, name))
+            can_promote = resultset.fetchone()[0] is not None
         if can_promote:
             self.max_level = 20
         else:
