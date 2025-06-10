@@ -225,22 +225,6 @@ class Morph(BaseMorph):
         self.promo_cls = None
         self.possible_promotions = None
 
-    # TODO: Test this!
-    # TODO: Implement this differently for each Morph* subtype.
-    def get_repr_data(self, datalist_to_insert=()):
-        """
-        """
-        display_data = [
-            ("Name", self.name),
-            ("Lv", self.current_lv),
-            ("Class", self.current_cls),
-            ("History", self._meta['History']),
-        ]
-        while datalist_to_insert:
-            index_loc, data_to_insert = datalist_to_insert.pop(0)
-            display_data.insert(index_loc, data_to_insert)
-        return display_data
-
     def _set_max_level(self):
         """
         """
