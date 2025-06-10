@@ -363,6 +363,7 @@ class StatsTests(unittest.TestCase):
             expected = getattr(expected_stats, attrname)
             self.assertEqual(actual, expected)
 
+    @unittest.skip("No longer being implemented")
     def test_lt__different_classes(self):
         """
         Asserts that lt method fails if operands are of different Stats

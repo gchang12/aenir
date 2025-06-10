@@ -168,29 +168,6 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
-    # TODO: Remove this maybe.
-    def __lt__(self, other):
-        """
-        Returns *Stats<bool> indicating which stats in `self` < `other`.
-        """
-        #try:
-        #assert isinstance(self, cls)
-        #assert isinstance(other, cls)
-        #assert type(self) == type(other)
-        if not type(self) == type(other):
-            raise TypeError("Cannot compare Stats of differing types. (%r != %r)" % (type(self), type(other)))
-        stat_dict = {}
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
-        for stat in self.get_growable_stats():
-            #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
-            self_stat = getattr(self, stat)
-            other_stat = getattr(other, stat)
-            stat_dict[stat] = self_stat < other_stat
-        for stat in self.ZERO_GROWTH_STAT_LIST():
-            stat_dict[stat] = None
-        return self.__class__(**stat_dict)
-
     def __eq__(self, other):
         """
         """
@@ -213,24 +190,6 @@ class AbstractStats(abc.ABC):
         """
         for stat in self.get_growable_stats():
             yield getattr(self, stat)
-
-    # TODO: Remove this.
-    def get_repr_array(self):
-        """
-        """
-        stat_array = [self.__class__.__name__]
-        for stat in self.STAT_LIST():
-            statval = getattr(self, stat)
-            stat_array.append("    %-3s: " % stat + ("%.2f" % statval).rjust(5))
-        stat_array.append("")
-        return stat_array
-
-    # TODO: Remove this.
-    def __repr__(self):
-        """
-        """
-        stat_array = self.get_repr_array()
-        return "\n".join(stat_array)
 
 class GenealogyStats(AbstractStats):
     """
