@@ -71,7 +71,7 @@ class BaseMorph(abc.ABC):
         logger.debug("File: '%s'", path_to_db)
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
-            return cnxn.execute(query)
+        return cnxn.execute(query)
 
     def __init__(self):
         """
@@ -276,10 +276,9 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def promote(self):
+    def _get_promo_query_kwargs(self):
         """
         """
-        # get promotion data
         value_to_lookup = {
             "characters__base_stats": self.name,
             "classes__promotion_gains": self.current_cls,
@@ -289,15 +288,22 @@ class Morph(BaseMorph):
             ("classes__promotion_gains", "Class"),
             tableindex=0,
         )
+        return query_kwargs
+
+    def promote(self):
+        """
+        """
+        query_kwargs = self._get_promo_query_kwargs()
         # quit if resultset is empty
         if query_kwargs is None:
             raise ValueError(f"{self.name} has no available promotions.")
+        query_kwargs['fields'] += ("Promotion",)
         # check if unit's level is high enough to enable promotion
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
             raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
-        query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
+        # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
         if len(resultset) > 1:
