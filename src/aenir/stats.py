@@ -108,7 +108,7 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Can floor stats only with another stat-set of same type.")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -119,7 +119,7 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Can cap stats only with another stat-set of same type.")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -130,7 +130,7 @@ class AbstractStats(abc.ABC):
         Increments values of `self` by corresponding values in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -144,13 +144,11 @@ class AbstractStats(abc.ABC):
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         stat_dict = {}
-        for stat in self.get_growable_stats():
+        for stat in self.STAT_LIST():
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = round(self_stat + other_stat, 2)
-        for stat in self.ZERO_GROWTH_STAT_LIST():
-            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __sub__(self, other):
