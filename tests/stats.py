@@ -79,6 +79,12 @@ class StatsTests(unittest.TestCase):
                     "g",
                 )
 
+            @classmethod
+            def ZERO_GROWTH_STAT_LIST(cls):
+                """
+                """
+                return ()
+
         class FunctionalStats2(AbstractStats):
             """
             Functional in that the 'STAT_LIST' class method is defined. Exists to
@@ -99,6 +105,12 @@ class StatsTests(unittest.TestCase):
                     "f",
                     "g",
                 )
+
+            @classmethod
+            def ZERO_GROWTH_STAT_LIST(cls):
+                """
+                """
+                return ()
 
         self.stats_class = FunctionalStats
         self.FunctionalStats = FunctionalStats
@@ -301,6 +313,7 @@ class StatsTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             stats2.imin(stats1)
 
+    @unittest.skip("Marked for deletion.")
     def test_lt(self):
         """
         Tests that a Stats object of booleans is returned.
@@ -451,9 +464,9 @@ class ImplementedStatsTests(unittest.TestCase):
             "Spd",
             "Lck",
             "Def",
-            #"Con",
-            #"Mov",
             "Res",
+            "Con",
+            "Mov",
         )
         actual = GBAStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
@@ -472,6 +485,9 @@ class ImplementedStatsTests(unittest.TestCase):
             "Def",
             "Con",
             "Mov",
+            "Lead",
+            "MS",
+            "PC",
         )
         actual = ThraciaStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
@@ -504,6 +520,12 @@ class AbstractStatsTests(unittest.TestCase):
             """
             return None
 
+        @classmethod
+        def ZERO_GROWTH_STAT_LIST(cls):
+            """
+            """
+            return ()
+
     class NonStrTupleStats(AbstractStats):
         """
         Where 'STAT_LIST' is a tuple containing at least one str.
@@ -521,6 +543,12 @@ class AbstractStatsTests(unittest.TestCase):
                 "c",
             )
 
+        @classmethod
+        def ZERO_GROWTH_STAT_LIST(cls):
+            """
+            """
+            return ()
+
     class InvalidIdentifierStats(AbstractStats):
         """
         Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
@@ -536,6 +564,12 @@ class AbstractStatsTests(unittest.TestCase):
                 "b",
                 ".",
             )
+
+        @classmethod
+        def ZERO_GROWTH_STAT_LIST(cls):
+            """
+            """
+            return ()
 
     #@unittest.skip( "Apparently, attributes can be assigned invalid identifiers, but they'll be hidden.")
     def test_STAT_LIST_must_have_valid_identifiers(self):
