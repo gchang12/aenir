@@ -5,6 +5,8 @@ import abc
 
 from aenir.logging import logger
 
+# TODO: Add in stats that have no growths.
+
 
 class AbstractStats(abc.ABC):
     """
@@ -13,9 +15,17 @@ class AbstractStats(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def STAT_LIST(self):
+    def STAT_LIST(cls):
         """
-        The kernel of the class; differs for each subclass.
+        A kernel of the class; expects a tuple of the names of all stats.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def ZERO_GROWTH_STAT_LIST(cls):
+        """
+        A kernel of the class; expects a tuple of the names of stats that have zero growth rates.
         """
         raise NotImplementedError
 
@@ -24,17 +34,26 @@ class AbstractStats(abc.ABC):
         """
         Returns `kwargs` for initialization; each key mapped to `fill_value`.
         """
-        #stat_dict = dict( map(lambda stat: (fill_value), cls.STAT_LIST()))
         stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
-        #for stat in cls.STAT_LIST():
-            #stat_dict[stat] = fill_value
         return stat_dict
+
+    @classmethod
+    def get_growable_stats(cls):
+        """
+        """
+        return filter(lambda stat_: stat_ not in cls.ZERO_GROWTH_STAT_LIST(), cls.STAT_LIST())
 
     def as_dict(self):
         """
         """
         stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
         return stat_dict
+
+    def as_list(self):
+        """
+        """
+        stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
+        return stat_list
 
     def copy(self):
         """
@@ -69,7 +88,7 @@ class AbstractStats(abc.ABC):
             raise AttributeError("Please supply values for the following stats: %s" % missing_stats)
         # initialize
         for stat in self.STAT_LIST():
-            stat_value = stat_dict.pop(stat)
+            stat_value = stat_dict[stat]
             setattr(self, stat, stat_value)
         # warn user of unused kwargs
         if stat_dict:
@@ -88,11 +107,8 @@ class AbstractStats(abc.ABC):
         """
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
-        #try:
         if not type(self) == type(other):
             raise TypeError("Can floor stats only with another stat-set of same type.")
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -102,12 +118,8 @@ class AbstractStats(abc.ABC):
         """
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
-        #try:
-        #assert type(self) == type(other)
         if not type(self) == type(other):
             raise TypeError("Can cap stats only with another stat-set of same type.")
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -117,12 +129,8 @@ class AbstractStats(abc.ABC):
         """
         Increments values of `self` by corresponding values in `other`.
         """
-        #try:
-        #assert type(self) == type(other)
         if not type(self) == type(other):
             raise TypeError("")
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -136,10 +144,13 @@ class AbstractStats(abc.ABC):
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         stat_dict = {}
-        for stat in self.STAT_LIST():
+        for stat in self.get_growable_stats():
+            #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = round(self_stat + other_stat, 2)
+        for stat in self.ZERO_GROWTH_STAT_LIST():
+            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __sub__(self, other):
@@ -148,32 +159,13 @@ class AbstractStats(abc.ABC):
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         stat_dict = {}
-        for stat in self.STAT_LIST():
+        for stat in self.get_growable_stats():
+            #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = round(self_stat - other_stat, 2)
-        return self.__class__(**stat_dict)
-
-    def __lt__(self, other):
-        """
-        Returns *Stats<bool> indicating which stats in `self` < `other`.
-        """
-        #try:
-        #assert isinstance(self, cls)
-        #assert isinstance(other, cls)
-        #assert type(self) == type(other)
-        if not type(self) == type(other):
-            raise TypeError("Cannot compare Stats of differing types. (%r != %r)" % (type(self), type(other)))
-        stat_dict = {}
-        #except AssertionError as assert_err:
-            #raise NotImplementedError
-        for stat in self.STAT_LIST():
-            self_stat = getattr(self, stat)
-            other_stat = getattr(other, stat)
-            if self_stat == other_stat:
-                stat_dict[stat] = None
-            else:
-                stat_dict[stat] = self_stat < other_stat
+        for stat in self.ZERO_GROWTH_STAT_LIST():
+            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __eq__(self, other):
@@ -181,28 +173,23 @@ class AbstractStats(abc.ABC):
         """
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+        #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
         stat_dict = {}
-        for stat in self.STAT_LIST():
+        for stat in self.get_growable_stats():
+            #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
+            #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat == other_stat
+        for stat in self.ZERO_GROWTH_STAT_LIST():
+            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __iter__(self):
         """
         """
-        for stat in self.STAT_LIST():
+        for stat in self.get_growable_stats():
             yield getattr(self, stat)
-
-    def __repr__(self):
-        """
-        """
-        raise NotImplementedError("Yet to decide on how to display stats.")
-        stat_dict = []
-        for stat in self.STAT_LIST():
-            self_stat = getattr(self, stat)
-            stat_dict.append((stat, self_stat))
-        return str(stat_dict)
 
 class GenealogyStats(AbstractStats):
     """
@@ -224,6 +211,12 @@ class GenealogyStats(AbstractStats):
             "Res",
         )
 
+    @classmethod
+    def ZERO_GROWTH_STAT_LIST(cls):
+        """
+        """
+        return (
+        )
 
 class ThraciaStats(AbstractStats):
     """
@@ -244,6 +237,19 @@ class ThraciaStats(AbstractStats):
             "Def",
             "Con",
             "Mov",
+            "Lead",
+            "MS",
+            "PC",
+        )
+
+    @classmethod
+    def ZERO_GROWTH_STAT_LIST(cls):
+        """
+        """
+        return (
+            "Lead",
+            "MS",
+            "PC",
         )
 
 
@@ -264,7 +270,51 @@ class GBAStats(AbstractStats):
             "Lck",
             "Def",
             "Res",
-            #"Con",
-            #"Mov",
+            "Con",
+            "Mov",
+        )
+
+    @classmethod
+    def ZERO_GROWTH_STAT_LIST(cls):
+        """
+        """
+        return (
+            "Con",
+            "Mov",
+        )
+
+
+class RadiantStats(AbstractStats):
+    """
+    """
+
+    @classmethod
+    def STAT_LIST(cls):
+        """
+        """
+        # constant
+        return (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+            "Mov",
+            "Con",
+            "Wt",
+        )
+
+    @classmethod
+    def ZERO_GROWTH_STAT_LIST(cls):
+        """
+        """
+        # constant
+        return (
+            "Mov",
+            "Con",
+            "Wt",
         )
 

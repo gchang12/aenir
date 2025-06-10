@@ -24,6 +24,7 @@ from aenir.stats import (
     GBAStats,
     ThraciaStats,
     AbstractStats,
+    RadiantStats,
 )
 
 from aenir.logging import (
@@ -39,9 +40,12 @@ def _get_promotables(url_name, can_promote):
     """
     """
     # query for list of units who cannot promote
-    path_to_json = f"static/{url_name}/characters__base_stats-JOIN-classes__promotion_gains.json"
-    with open(path_to_json) as rfile:
-        promo_dict = json.load(rfile)
+    table_name = "characters__base_stats-JOIN-classes__promotion_gains"
+    path_to_db = f"static/{url_name}/cleaned_stats.db"
+    with sqlite3.connect(path_to_db) as cnxn:
+        cnxn.row_factory = sqlite3.Row
+        resultset = cnxn.execute(f"SELECT Name, Alias FROM '{table_name}';")
+        promo_dict = dict(resultset)
     #logger.debug("%s", promo_dict)
     return list(
         map(
@@ -215,7 +219,7 @@ class BaseMorphTests(unittest.TestCase):
             6: GBAStats,
             7: GBAStats,
             8: GBAStats,
-            9: GenealogyStats,
+            9: RadiantStats,
         }
         for game_no, stats in gameno_to_stats.items():
             class TestMorphWithGame(BaseMorph):
@@ -271,7 +275,7 @@ class BaseMorphTests(unittest.TestCase):
         expected = {
             "path_to_db": "static/binding-blade/cleaned_stats.db",
             "table": "classes__maximum_stats0",
-            "fields": ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res"),
+            "fields": ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res", "Con", "Mov"),
             "filters": {"Class": "Non-promoted"},
         }
         self.assertDictEqual(actual, expected)
@@ -299,14 +303,33 @@ class BaseMorphTests(unittest.TestCase):
         target_data = ("classes__maximum_stat", "Class")
         tableindex = 0
         morph6 = self.TestMorph6()
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(sqlite3.OperationalError):
             morph6.lookup(
                 home_data,
                 target_data,
                 tableindex,
             )
 
-    @patch("json.load")
+    @patch("sqlite3.Cursor.fetchone")
+    def test_lookup__aliased_value_is_none(self, MOCK_fetchone):
+        """
+        """
+        home_data = ("characters__base_stats", "Roy")
+        target_data = ("classes__maximum_stats", "Class")
+        tableindex = 0
+        morph6 = self.TestMorph6()
+        MOCK_fetchone.return_value = {"Roy": None}
+        actual = morph6.lookup(
+            home_data,
+            target_data,
+            tableindex,
+        )
+        self.assertIsNone(actual)
+        # resultset is None
+
+    @unittest.skip
+    #@patch("json.load")
+    #def test_lookup__aliased_value_is_none(self, MOCK_json_load):
     def test_lookup__aliased_value_is_none(self, MOCK_json_load):
         """
         """
@@ -323,6 +346,7 @@ class BaseMorphTests(unittest.TestCase):
         self.assertIsNone(actual)
         # resultset is None
 
+    @unittest.skip
     def test_lookup__lookup_value_dne(self):
         """
         """
@@ -337,6 +361,22 @@ class BaseMorphTests(unittest.TestCase):
                 target_data,
                 tableindex,
             )
+        # lookup value not found
+
+    def test_lookup__lookup_value_dne(self):
+        """
+        """
+        # JSON file does not exist
+        home_data = ("characters__base_stats", "Marth")
+        target_data = ("classes__maximum_stats", "Class")
+        tableindex = 0
+        morph6 = self.TestMorph6()
+        actual = morph6.lookup(
+            home_data,
+            target_data,
+            tableindex,
+        )
+        self.assertIsNone(actual)
         # lookup value not found
 
     def test_query_db__more_than_one_filter_provided(self):
@@ -505,6 +545,8 @@ class MorphTests(unittest.TestCase):
                 Lck=2,
                 Def=5,
                 Res=0,
+                Con=20,
+                Mov=15,
             ),
         )
         self.assertEqual(
@@ -517,6 +559,8 @@ class MorphTests(unittest.TestCase):
                 Lck=30,
                 Def=20,
                 Res=20,
+                Con=20,
+                Mov=15,
             ),
         )
         self.assertEqual(
@@ -529,6 +573,8 @@ class MorphTests(unittest.TestCase):
                 Lck=30,
                 Def=20,
                 Res=20,
+                Con=20,
+                Mov=15,
             )
         )
         self.assertDictEqual(
@@ -595,6 +641,8 @@ class MorphTests(unittest.TestCase):
                 Lck=6.8,
                 Def=8.2,
                 Res=3.2,
+                Con=20,
+                Mov=15,
             )
         )
         self.assertIs(actual, expected)
@@ -636,6 +684,8 @@ class MorphTests(unittest.TestCase):
             Lck=30,
             Def=22,
             Res=23,
+            Con=23,
+            Mov=15,
         )
         actual = all(swordmaster_maxes == rutger.max_stats)
         self.assertIs(actual, True)
@@ -649,6 +699,8 @@ class MorphTests(unittest.TestCase):
             Lck=0,
             Def=3,
             Res=2,
+            Con=20,
+            Mov=15,
         )
         actual2 = all(
             base_rutger.current_stats + promo_bonuses == rutger.current_stats
@@ -678,6 +730,8 @@ class MorphTests(unittest.TestCase):
             Lck=30,
             Def=20,
             Res=20,
+            Con=20,
+            Mov=15,
         )
         actual = all(unpromoted_maxes == rutger.max_stats)
         self.assertIs(actual, True)
@@ -712,6 +766,8 @@ class MorphTests(unittest.TestCase):
             Lck=30,
             Def=20,
             Res=20,
+            Con=20,
+            Mov=15,
         )
         actual = all(unpromoted_maxes == rutger.max_stats)
         self.assertIs(actual, True)
@@ -758,6 +814,8 @@ class MorphTests(unittest.TestCase):
             Lck=30,
             Def=22,
             Res=18,
+            #Con=20,
+            #Mov=15,
         )
         actual = all(swordmaster_maxes == ira.max_stats)
         self.assertIs(actual, True)
@@ -1271,7 +1329,7 @@ class Morph6Tests(unittest.TestCase):
             hugh.decline_hugh()
         hugh2 = Morph6("Hugh")
         diff = (hugh.current_stats - hugh2.current_stats).as_dict()
-        self.assertSetEqual(set(diff.values()), {-3})
+        self.assertSetEqual(set(diff.values()), {-3, None})
         self.assertEqual(hugh._meta["Number of Declines"], 3)
         self.assertEqual(hugh2._meta["Number of Declines"], 0)
 
@@ -1308,8 +1366,12 @@ class Morph6Tests(unittest.TestCase):
         rutger_hm = Morph6("Rutger", hard_mode=True)
         diff = (rutger.current_stats - rutger_hm.current_stats).as_dict()
         for stat, val in diff.items():
-            logger.debug("Difference in %s: %.2f", stat, val)
-            self.assertLess(val, 0)
+            if stat in ("Mov", "Con"):
+                logger.debug("%s is None.", stat)
+                self.assertIsNone(val)
+            else:
+                logger.debug("Difference in %s: %.2f", stat, val)
+                self.assertLess(val, 0)
 
     def test_roy_promo_level(self):
         """
@@ -1444,7 +1506,7 @@ class Morph7Tests(unittest.TestCase):
         nino.use_growths_item()
         nino2 = Morph7("Nino")
         diff = (nino.growth_rates - nino2.growth_rates).as_dict()
-        self.assertSetEqual(set(diff.values()), {5})
+        self.assertSetEqual(set(diff.values()), {5, None})
 
     def test_no_hardmode_version(self):
         """
@@ -1471,11 +1533,15 @@ class Morph7Tests(unittest.TestCase):
         guy_hm = Morph7("Guy", hard_mode=True)
         diff = (guy.current_stats - guy_hm.current_stats).as_dict()
         for stat, val in diff.items():
-            logger.debug("Difference in %s: %.2f", stat, val)
             if stat == "Lck":
                 logger.debug("Stat is 'Lck'. Expecting zero-diff.")
                 self.assertEqual(val, 0)
                 continue
+            if stat in ("Mov", "Con"):
+                logger.debug("Stat is %s. Expecting None.", stat)
+                self.assertIsNone(val)
+                continue
+            logger.debug("Difference in %s: %.2f", stat, val)
             self.assertLess(val, 0)
 
     def test_not_in_lyndis_league(self):
@@ -1521,7 +1587,7 @@ class Morph7Tests(unittest.TestCase):
         raven2 = Morph7("Raven", hard_mode=True)
         self.assertIs(raven2._meta["Hard Mode"], True)
         diff = (raven.current_stats - raven2.current_stats).as_dict()
-        self.assertSetEqual(set(diff.values()), {0})
+        self.assertSetEqual(set(diff.values()), {0, None})
 
     def test_lyndis_league(self):
         """
