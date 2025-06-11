@@ -173,14 +173,12 @@ class AbstractStats(abc.ABC):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
         stat_dict = {}
-        for stat in self.get_growable_stats():
+        for stat in self.STAT_LIST():
             #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat == other_stat
-        for stat in self.ZERO_GROWTH_STAT_LIST():
-            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __iter__(self):

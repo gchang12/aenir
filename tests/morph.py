@@ -535,10 +535,8 @@ class MorphTests(unittest.TestCase):
         self.assertEqual(rutger.Stats, GBAStats)
         self.assertEqual(rutger.current_cls, "Myrmidon")
         self.assertEqual(rutger.current_lv, 4)
-        # TODO: Must be replaced with actually valid code.
-        # These are all false positives
-        actual = rutger.current_stats.as_dict()
-        expected = dict(
+        actual = rutger.current_stats
+        expected = GBAStats(
             HP=22,
             Pow=7,
             Skl=12,
@@ -549,11 +547,11 @@ class MorphTests(unittest.TestCase):
             Con=7,
             Mov=5,
         )
-        self.assertDictEqual(
+        self.assertEqual(
             actual, expected,
         )
-        actual = rutger.growth_rates.as_dict()
-        expected = dict(
+        actual = rutger.growth_rates
+        expected = GBAStats(
             HP=80,
             Pow=30,
             Skl=60,
@@ -564,11 +562,11 @@ class MorphTests(unittest.TestCase):
             Con=0,
             Mov=0,
         )
-        self.assertDictEqual(
+        self.assertEqual(
             actual, expected,
         )
-        actual = rutger.max_stats.as_dict()
-        expected = dict(
+        actual = rutger.max_stats
+        expected = GBAStats(
             HP=60,
             Pow=20,
             Skl=20,
@@ -579,17 +577,18 @@ class MorphTests(unittest.TestCase):
             Con=20,
             Mov=15,
         )
-        self.assertDictEqual(
+        self.assertEqual(
             actual,
             expected,
         )
+        actual = rutger._meta
+        expected = {
+            "History": [],
+            "Hard Mode": False,
+            "Stat Boosters": [],
+        }
         self.assertDictEqual(
-            rutger._meta,
-            {
-                "History": [],
-                "Hard Mode": False,
-                "Stat Boosters": [],
-            },
+            actual, expected,
         )
 
     def test_init__unit_dne(self):
@@ -636,8 +635,8 @@ class MorphTests(unittest.TestCase):
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         rutger.level_up(16)
         self.assertEqual(rutger.current_lv, 20)
-        actual = rutger.current_stats.as_dict()
-        expected = dict(
+        actual = rutger.current_stats
+        expected = GBAStats(
             HP=34.8,
             Pow=11.8,
             Skl=20,
@@ -648,7 +647,7 @@ class MorphTests(unittest.TestCase):
             Con=7,
             Mov=5,
         )
-        self.assertDictEqual(actual, expected)
+        self.assertEqual(actual, expected)
 
     def test_level_up__level_too_high(self):
         """
@@ -690,9 +689,9 @@ class MorphTests(unittest.TestCase):
             Con=20,
             Mov=15,
         )
-        expected = swordmaster_maxes.as_dict()
-        actual = rutger.max_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = swordmaster_maxes
+        actual = rutger.max_stats
+        self.assertEqual(actual, expected)
         # assert that stats have increased by expected amount.
         base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         promo_bonuses = GBAStats(
@@ -706,17 +705,17 @@ class MorphTests(unittest.TestCase):
             Con=1,
             Mov=1,
         )
-        actual = rutger.current_stats.as_dict()
-        expected = (base_rutger.current_stats + promo_bonuses).as_dict()
-        self.assertDictEqual(actual, expected)
+        actual = rutger.current_stats
+        expected = (base_rutger.current_stats + promo_bonuses)
+        self.assertEqual(actual, expected)
 
     def test_stat_comparison_fail(self):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         rutger.current_stats.Mov = 99 # This is what will cause the test to fail
-        actual = rutger.current_stats.as_dict()
-        expected = dict(
+        actual = rutger.current_stats
+        expected = GBAStats(
             HP=22,
             Pow=7,
             Skl=12,
@@ -727,9 +726,10 @@ class MorphTests(unittest.TestCase):
             Con=7,
             Mov=5,
         )
+        actual_eq_expected = actual == expected
         with self.assertRaises(AssertionError):
-            self.assertDictEqual(
-                actual, expected,
+            self.assertIs(
+                actual_eq_expected, True,
             )
 
     def test_promote__level_too_low(self):
@@ -758,14 +758,14 @@ class MorphTests(unittest.TestCase):
             Con=20,
             Mov=15,
         )
-        expected = unpromoted_maxes.as_dict()
-        actual = rutger.max_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = unpromoted_maxes
+        actual = rutger.max_stats
+        self.assertEqual(actual, expected)
         # assert that stats have not increased by expected amount.
         base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        expected = base_rutger.current_stats.as_dict()
-        actual = rutger.current_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = base_rutger.current_stats
+        actual = rutger.current_stats
+        self.assertEqual(actual, expected)
 
     def test_promote__already_promoted(self):
         """
@@ -794,14 +794,14 @@ class MorphTests(unittest.TestCase):
             Con=20,
             Mov=15,
         )
-        expected = unpromoted_maxes.as_dict()
-        actual = rutger.max_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = unpromoted_maxes
+        actual = rutger.max_stats
+        self.assertEqual(actual, expected)
         # assert that stats have not increased by expected amount.
         base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        expected = base_rutger.current_stats.as_dict()
-        actual = rutger.current_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = base_rutger.current_stats
+        actual = rutger.current_stats
+        self.assertEqual(actual, expected)
 
     def test_promote__branched_promotion(self):
         """
@@ -842,9 +842,9 @@ class MorphTests(unittest.TestCase):
             #Con=20,
             #Mov=15,
         )
-        expected = swordmaster_maxes.as_dict()
-        actual = ira.max_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = swordmaster_maxes
+        actual = ira.max_stats
+        self.assertEqual(actual, expected)
         # assert that stats have increased by expected amount.
         base_ira = TestMorph4("Ira", which_bases=0, which_growths=0)
         promo_bonuses = GenealogyStats(
@@ -857,9 +857,9 @@ class MorphTests(unittest.TestCase):
             Def=2,
             Res=3,
         )
-        expected = (base_ira.current_stats + promo_bonuses).as_dict()
-        actual = ira.current_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = base_ira.current_stats + promo_bonuses
+        actual = ira.current_stats
+        self.assertEqual(actual, expected)
 
     def test_promote__branched_promotion_again(self):
         """
@@ -898,9 +898,9 @@ class MorphTests(unittest.TestCase):
             Def=22,
             Res=18,
         )
-        expected = swordmaster_maxes.as_dict()
-        actual = holyn.max_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = swordmaster_maxes
+        actual = holyn.max_stats
+        self.assertEqual(actual, expected)
         # assert that stats have increased by expected amount.
         base_holyn = TestMorph4("Holyn", which_bases=0, which_growths=0)
         promo_bonuses = GenealogyStats(
@@ -913,9 +913,9 @@ class MorphTests(unittest.TestCase):
             Def=2,
             Res=3,
         )
-        expected = (base_holyn.current_stats + promo_bonuses).as_dict()
-        actual = holyn.current_stats.as_dict()
-        self.assertDictEqual(actual, expected)
+        expected = (base_holyn.current_stats + promo_bonuses)
+        actual = holyn.current_stats
+        self.assertEqual(actual, expected)
 
     def test_use_stat_booster(self):
         """
