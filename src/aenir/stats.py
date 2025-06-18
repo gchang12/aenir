@@ -5,8 +5,6 @@ import abc
 
 from aenir.logging import logger
 
-# TODO: Add in stats that have no growths.
-
 
 class AbstractStats(abc.ABC):
     """
