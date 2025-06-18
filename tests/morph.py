@@ -935,8 +935,9 @@ class MorphTests(unittest.TestCase):
         expected = roy.current_stats.as_dict()
         for stat, bonus in item_bonus_dict.values():
             expected[stat] += bonus
+        roy.stat_boosters = item_bonus_dict
         for item in item_bonus_dict:
-            roy.use_stat_booster(item, item_bonus_dict)
+            roy.use_stat_booster(item)
         actual = roy.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -956,8 +957,9 @@ class MorphTests(unittest.TestCase):
             "Body Ring": ("Con", 3),
         }
         item = ""
+        roy.stat_boosters = item_bonus_dict
         with self.assertRaises(KeyError):
-            roy.use_stat_booster(item, item_bonus_dict)
+            roy.use_stat_booster(item)
 
     def test_promote__branch_unspecified(self):
         """
@@ -1440,6 +1442,29 @@ class Morph6Tests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 morph.level_up(1)
 
+    def test_stat_boosters(self):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        morph = Morph6("Roy")
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = morph.current_stats.copy()
+            morph.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus
+            actual = getattr(morph.current_stats, stat)
+            self.assertEqual(actual, expected)
+
 class Morph7Tests(unittest.TestCase):
     """
     """
@@ -1664,6 +1689,29 @@ class Morph7Tests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 morph.promote()
 
+    def test_stat_boosters(self):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        morph = Morph7("Eliwood")
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = morph.current_stats.copy()
+            morph.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus
+            actual = getattr(morph.current_stats, stat)
+            self.assertEqual(actual, expected)
+
 class Morph8Tests(unittest.TestCase):
     """
     """
@@ -1798,6 +1846,29 @@ class Morph8Tests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         morph.promote()
 
+    def test_stat_boosters(self):
+        """
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        morph = Morph8("Eirika")
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = morph.current_stats.copy()
+            morph.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus
+            actual = getattr(morph.current_stats, stat)
+            self.assertEqual(actual, expected)
+
 class Morph9Tests(unittest.TestCase):
     """
     """
@@ -1844,4 +1915,28 @@ class Morph9Tests(unittest.TestCase):
                 morph.level_up(1)
             with self.assertRaises(ValueError):
                 morph.promote()
+
+    def test_stat_boosters(self):
+        """
+        """
+        item_bonus_dict = {
+            "Seraph Robe": ("HP", 7),
+            "Energy Drop": ("Str", 2),
+            "Spirit Dust": ("Mag", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwing": ("Spd", 2),
+            "Ashera Icon": ("Lck", 2),
+            "Dracoshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        morph = Morph9("Ike")
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = morph.current_stats.copy()
+            morph.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus
+            actual = getattr(morph.current_stats, stat)
+            self.assertEqual(actual, expected)
 
