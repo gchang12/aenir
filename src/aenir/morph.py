@@ -1,6 +1,5 @@
 """
 """
-#
 
 import abc
 import sqlite3
@@ -94,13 +93,10 @@ class BaseMorph(abc.ABC):
             value_to_lookup, home_table, target_table, field_to_scan,
         )
         table_name = f"{home_table}-JOIN-{target_table}"
-        #path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
         logger.debug(
             "Checking if '%s' exists in the dict in '%s'",
             value_to_lookup, table_name,
         )
-        #with open(path_to_json, encoding='utf-8') as rfile: aliased_value = json.load(rfile).pop(value_to_lookup)
-        # TODO: Export JSON data into cleaned_stats.db database file
         path_to_db = self.path_to("cleaned_stats.db")
         with sqlite3.connect(path_to_db) as cnxn:
             #cnxn.row_factory = sqlite3.Row
@@ -224,6 +220,8 @@ class Morph(BaseMorph):
         self.min_promo_level = None
         self.promo_cls = None
         self.possible_promotions = None
+        self.stat_boosters = None
+        self.holy_water_bonus = None
 
     def _set_max_level(self):
         """
@@ -286,6 +284,7 @@ class Morph(BaseMorph):
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
+            # TODO: Tell user what morph should promote to
             raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
@@ -332,9 +331,12 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
+    def use_stat_booster(self, item_name: str):
         """
         """
+        item_bonus_dict = self.stat_boosters
+        if item_bonus_dict is None:
+            raise NotImplementedError("Stat boosters are not implemented for FE%d." % self.game.value)
         increment = self.Stats(**self.Stats.get_stat_dict(0))
         if item_name not in item_bonus_dict:
             raise KeyError(f"'{item_name}' is not a valid stat booster. Valid stat boosters: {item_bonus_dict.keys()}")
@@ -345,6 +347,18 @@ class Morph(BaseMorph):
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
     def __repr__(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement
+    def degrade_holy_water(self):
         """
         """
         raise NotImplementedError
@@ -646,10 +660,38 @@ class Morph5(Morph):
             pass
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
-        # TODO: Implement mounting
         self.is_mounted = None
-        # TODO: Implement holy water
-        self.holy_water_bonus = None
+        self.stat_boosters = {
+            "Luck Ring": ("Lck", 3),
+            "Life Ring": ("HP", 7),
+            "Speed Ring": ("Spd", 3),
+            "Magic Ring": ("Mag", 2),
+            "Power Ring": ("Str", 3),
+            "Body Ring": ("Con", 3),
+            "Shield Ring": ("Def", 2),
+            "Skill Ring": ("Skl", 3),
+            "Leg Ring": ("Mov", 2),
+        }
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def mount(self):
+        """
+        """
+        raise NotImplementedError
+
+    def dismount(self):
+        """
+        """
+        raise NotImplementedError
 
     def _set_min_promo_level(self):
         """
@@ -664,6 +706,7 @@ class Morph5(Morph):
             pass
         # TODO: Is the third condition really necessary?
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
+        #if self.name == "Lara" and self.promo_cls == "Dancer":
             self.min_promo_level = 1
 
     def level_up(self, num_levels: int):
@@ -688,23 +731,7 @@ class Morph5(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Luck Ring": ("Lck", 3),
-            "Life Ring": ("HP", 7),
-            "Speed Ring": ("Spd", 3),
-            "Magic Ring": ("Mag", 2),
-            "Power Ring": ("Str", 3),
-            "Body Ring": ("Con", 3),
-            "Shield Ring": ("Def", 2),
-            "Skill Ring": ("Skl", 3),
-            "Leg Ring": ("Mov", 2),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
-
-    # TODO: Implement
-    def use_holy_water(self):
-        """
-        """
+        super().use_stat_booster(item_name)
 
     def _apply_scroll_bonuses(self):
         """
@@ -863,6 +890,17 @@ class Morph6(Morph):
         else:
             num_declines = None
         self._meta["Number of Declines"] = num_declines
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
     def decline_hugh(self):
         """
@@ -888,18 +926,7 @@ class Morph6(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
 
 class Morph7(Morph):
     """
@@ -1013,6 +1040,17 @@ class Morph7(Morph):
         # hard mode versions
         self._growths_item = "Afa's Drops"
         self._meta[self._growths_item] = None
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
     def use_growths_item(self):
         """
@@ -1028,18 +1066,7 @@ class Morph7(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
 
 class Morph8(Morph):
     """
@@ -1102,6 +1129,17 @@ class Morph8(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         self._growths_item = "Metis's Tome"
         self._meta[self._growths_item] = None
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
     def _set_max_level(self):
         """
@@ -1125,18 +1163,7 @@ class Morph8(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
 
     def use_growths_item(self):
         """
@@ -1211,13 +1238,7 @@ class Morph9(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
-
-    # TODO: Test this
-    # TODO: Implement 'get_item_bonus_dict'
-    def use_stat_booster(self, item_name: str):
-        """
-        """
-        item_bonus_dict = {
+        self.stat_boosters = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
             "Spirit Dust": ("Mag", 2),
@@ -1229,5 +1250,11 @@ class Morph9(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+
+    # TODO: Test this
+    # TODO: Implement 'get_item_bonus_dict'
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        super().use_stat_booster(item_name)
 
