@@ -64,8 +64,8 @@ class StatsTests(unittest.TestCase):
             Functional in that the 'STAT_LIST' class method is defined.
             """
 
-            @classmethod
-            def STAT_LIST(cls):
+            @staticmethod
+            def STAT_LIST():
                 """
                 Returns tuple of strings that can be used as Python identifiers.
                 """
@@ -79,8 +79,8 @@ class StatsTests(unittest.TestCase):
                     "g",
                 )
 
-            @classmethod
-            def ZERO_GROWTH_STAT_LIST(cls):
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
                 """
                 """
                 return ()
@@ -91,8 +91,8 @@ class StatsTests(unittest.TestCase):
             demonstrate that stats of different classes cannot be operated on even if
             they share the same 'STAT_LIST'.
             """
-            @classmethod
-            def STAT_LIST(cls):
+            @staticmethod
+            def STAT_LIST():
                 """
                 Returns tuple of strings that can be used as Python identifiers.
                 """
@@ -106,8 +106,8 @@ class StatsTests(unittest.TestCase):
                     "g",
                 )
 
-            @classmethod
-            def ZERO_GROWTH_STAT_LIST(cls):
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
                 """
                 """
                 return ()
@@ -514,15 +514,15 @@ class AbstractStatsTests(unittest.TestCase):
         Where 'STAT_LIST' returns a non-tuple.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns non-tuple.
             """
             return None
 
-        @classmethod
-        def ZERO_GROWTH_STAT_LIST(cls):
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
             """
             """
             return ()
@@ -532,8 +532,8 @@ class AbstractStatsTests(unittest.TestCase):
         Where 'STAT_LIST' is a tuple containing at least one str.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns a tuple containing at least one non-str.
             """
@@ -544,8 +544,8 @@ class AbstractStatsTests(unittest.TestCase):
                 "c",
             )
 
-        @classmethod
-        def ZERO_GROWTH_STAT_LIST(cls):
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
             """
             """
             return ()
@@ -555,8 +555,8 @@ class AbstractStatsTests(unittest.TestCase):
         Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns tuple of strings that cannot be used as Python identifiers.
             """
@@ -566,8 +566,8 @@ class AbstractStatsTests(unittest.TestCase):
                 ".",
             )
 
-        @classmethod
-        def ZERO_GROWTH_STAT_LIST(cls):
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
             """
             """
             return ()
