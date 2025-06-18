@@ -2,8 +2,8 @@
 """
 
 import abc
-import enum
 import sqlite3
+from enum import StrEnum 
 
 # hook equipment ranks up later
 #from aenir.games import FireEmblemGame
@@ -17,25 +17,86 @@ class AbstractWeaponry(abc.ABC):
     path_to_db = None
 
     @abc.abstractmethod
-    @classmethod
-    def Weapon(cls):
+    @staticmethod
+    def WEAPON_TYPES(cls):
         """
         """
+        return ()
 
-        class Type:
-            """
-            """
-            # should return an enum class
-            raise NotImplementedError
+    @abc.abstractmethod
+    @staticmethod
+    def WEAPON_RANKS(cls):
+        """
+        """
+        return ()
 
-        class Rank:
-            """
-            """
-            # should return an enum class
-            raise NotImplementedError
+    @abc.abstractmethod
+    @staticmethod
+    def WEAPON_STATS(cls):
+        """
+        """
+        return ()
 
-        # should return a class
-        raise NotImplementedError
+    # TODO: Decide how to implement this kernel
+    @abc.abstractmethod
+    #@classmethod
+    @staticmethod
+    def _WeaponType():
+        """
+        """
+        class WeaponType(StrEnum):
+            """
+            """
+        return WeaponType
+
+    # TODO: Decide how to implement this kernel
+    @abc.abstractmethod
+    #@classmethod
+    @staticmethod
+    def _WeaponRank():
+        """
+        """
+        class WeaponRank(StrEnum):
+            """
+            """
+        return WeaponRank
+
+    # TODO: Decide how to implement this kernel
+    @abc.abstractmethod
+    #@classmethod
+    @staticmethod
+    def WEAPON_STATS():
+        """
+        """
+        return ()
+
+    #@abc.abstractmethod
+    #@classmethod
+    class Weapon:
+        """
+        """
+        Rank = _WeaponRank()
+        Type = _WeaponType()
+        Stats = _WeaponStats()
+
+        def __init__(self, name, rank, type_, **stats):
+            """
+            """
+            self.name = name
+            self.rank = self.Rank(rank)
+            self.type = self.Type(type_)
+            stats_ = {}
+            missing_stats = []
+            for weapon_stat in WEAPON_STATS():
+                try:
+                    stat = stats.pop(weapon_stat)
+                except KeyError:
+                    missing_stats.append(weapon_stat)
+                stats_[weapon_stat] = stat
+            if missing_stats:
+                raise AttributeError
+            # other data goes here.
+            # TODO: Should I not cut this all up?
 
     def __init__(self, weapon_ranks):
         """
@@ -53,6 +114,7 @@ class AbstractWeaponry(abc.ABC):
             # else set to None
         self.weapon_ranks = _weapon_ranks
 
+    # TODO: query by: rank, type, etc.
     @classmethod
     def query_for_all_weapons(cls):
         """
