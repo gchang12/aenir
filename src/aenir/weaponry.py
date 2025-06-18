@@ -14,7 +14,6 @@ from aenir.logging import logger
 class AbstractWeaponry(abc.ABC):
     """
     """
-    path_to_db = None
 
     @abc.abstractmethod
     @staticmethod
@@ -37,47 +36,27 @@ class AbstractWeaponry(abc.ABC):
         """
         return ()
 
-    class Weapon:
+    def __init__(self, name, wtype, wrank, wstats):
         """
         """
-        Rank = _WeaponRank()
-        Type = _WeaponType()
-        Stats = _WeaponStats()
-
-        def __init__(self, name, rank, type_, **stats):
-            """
-            """
-            self.name = name
-            self.rank = self.Rank(rank)
-            self.type = self.Type(type_)
-            stats_ = {}
-            missing_stats = []
-            for weapon_stat in WEAPON_STATS():
-                try:
-                    stat = stats.pop(weapon_stat)
-                except KeyError:
-                    missing_stats.append(weapon_stat)
-                stats_[weapon_stat] = stat
-            if missing_stats:
-                raise AttributeError
-            # other data goes here.
-            # TODO: Should I not cut this all up?
-
-    def __init__(self, weapon_ranks):
-        """
-        """
-        WeaponRank = self.Weapon.Rank
-        WeaponType = self.Weapon.Type
-        _weapon_ranks = {}
-        for weapon_type, max_rank in weapon_ranks.items():
-            true_weapon_type = WeaponType(weapon_type)
-            if max_rank is not None:
-                true_max_rank = WeaponRank(max_rank)
-            else:
-                true_max_rank = None
-            _weapon_ranks[true_weapon_type] = true_max_rank
-            # else set to None
-        self.weapon_ranks = _weapon_ranks
+        if wtype in self.WEAPON_TYPES():
+            self.type = wtype
+        else:
+            raise KeyError(f"{wtype} is not a valid weapon type. Valid weapon types: {self.WEAPON_TYPES()}")
+        if wrank in self.WEAPON_RANKS():
+            self.rank = wrank
+        else:
+            raise KeyError(f"{wrank} is not a valid weapon rank. Valid weapon ranks: {self.WEAPON_RANKS()}")
+        missing_stats = []
+        for wstat in self.WEAPON_STATS():
+            try:
+                wstat_val = wstats.pop(wstat)
+                setattr(self, wstat, wstat_val)
+            except KeyError as key_err:
+                missing_stats.append(wstat)
+        if missing_stats:
+            raise AttributeError(f"Missing values for these weapon stats: {missing_stats}")
+        self.name = name
 
     # TODO: query by: rank, type, etc.
     @classmethod
