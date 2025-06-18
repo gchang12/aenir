@@ -929,8 +929,8 @@ class MorphTests(unittest.TestCase):
             "Goddess Icon": ("Lck", 2),
             "Dragonshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         expected = roy.current_stats.as_dict()
         for stat, bonus in item_bonus_dict.values():
@@ -952,8 +952,8 @@ class MorphTests(unittest.TestCase):
             "Goddess Icon": ("Lck", 2),
             "Dragonshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         item = ""
         with self.assertRaises(KeyError):

@@ -556,6 +556,7 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
+    # TODO: What about rings?
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -645,6 +646,10 @@ class Morph5(Morph):
             pass
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
+        # TODO: Implement mounting
+        self.is_mounted = None
+        # TODO: Implement holy water
+        self.holy_water_bonus = None
 
     def _set_min_promo_level(self):
         """
@@ -657,6 +662,7 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
+        # TODO: Is the third condition really necessary?
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
             self.min_promo_level = 1
 
@@ -694,6 +700,11 @@ class Morph5(Morph):
             "Leg Ring": ("Mov", 2),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
+
+    # TODO: Implement
+    def use_holy_water(self):
+        """
+        """
 
     def _apply_scroll_bonuses(self):
         """
@@ -872,6 +883,8 @@ class Morph6(Morph):
         else:
             self.min_promo_level = 10
 
+    # TODO: Test this
+    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -883,8 +896,8 @@ class Morph6(Morph):
             "Goddess Icon": ("Lck", 2),
             "Dragonshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
@@ -1010,6 +1023,8 @@ class Morph7(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
+    # TODO: Test this
+    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -1021,8 +1036,8 @@ class Morph7(Morph):
             "Goddess Icon": ("Lck", 2),
             "Dragonshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
@@ -1105,6 +1120,8 @@ class Morph8(Morph):
         super().promote()
         self.max_level = None
 
+    # TODO: Test this
+    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -1116,8 +1133,8 @@ class Morph8(Morph):
             "Goddess Icon": ("Lck", 2),
             "Dragonshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
@@ -1195,6 +1212,8 @@ class Morph9(Morph):
         """
         super().__init__(name, which_bases=0, which_growths=0)
 
+    # TODO: Test this
+    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -1207,8 +1226,8 @@ class Morph9(Morph):
             "Ashera Icon": ("Lck", 2),
             "Dracoshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
