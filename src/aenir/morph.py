@@ -16,6 +16,8 @@ from aenir.stats import (
 )
 from aenir.logging import logger
 
+# TODO: For holy-water and mounting bonuses, need a temporary array of stats to toggle to easily.
+
 class BaseMorph(abc.ABC):
     """
     """
@@ -351,13 +353,11 @@ class Morph(BaseMorph):
         """
         raise NotImplementedError
 
-    # TODO: Implement
     def use_holy_water(self):
         """
         """
         raise NotImplementedError
 
-    # TODO: Implement
     def degrade_holy_water(self):
         """
         """
@@ -683,16 +683,6 @@ class Morph5(Morph):
         """
         raise NotImplementedError
 
-    def mount(self):
-        """
-        """
-        raise NotImplementedError
-
-    def dismount(self):
-        """
-        """
-        raise NotImplementedError
-
     def _set_min_promo_level(self):
         """
         """
@@ -704,8 +694,8 @@ class Morph5(Morph):
             }[self.name]
         except KeyError:
             pass
-        # TODO: Is the third condition really necessary?
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
+        # This causes the program to throw an error when the current class is 'Thief Fighter'
         #if self.name == "Lara" and self.promo_cls == "Dancer":
             self.min_promo_level = 1
 
@@ -921,12 +911,21 @@ class Morph6(Morph):
         else:
             self.min_promo_level = 10
 
-    # TODO: Test this
-    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
         super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
 class Morph7(Morph):
     """
@@ -1061,12 +1060,21 @@ class Morph7(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
-    # TODO: Test this
-    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
         super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
 class Morph8(Morph):
     """
@@ -1158,8 +1166,6 @@ class Morph8(Morph):
         super().promote()
         self.max_level = None
 
-    # TODO: Test this
-    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -1173,6 +1179,17 @@ class Morph8(Morph):
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
 class Morph9(Morph):
     """
@@ -1251,10 +1268,19 @@ class Morph9(Morph):
             "Body Ring": ("Con", 3),
         }
 
-    # TODO: Test this
-    # TODO: Implement 'get_item_bonus_dict'
     def use_stat_booster(self, item_name: str):
         """
         """
         super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
