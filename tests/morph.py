@@ -247,7 +247,7 @@ class BaseMorphTests(unittest.TestCase):
             """
             """
             @classmethod
-            def GAME(cls):
+            def GAME():
                 """
                 """
                 return 4

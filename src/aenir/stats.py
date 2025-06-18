@@ -11,17 +11,17 @@ class AbstractStats(abc.ABC):
     Defines methods for comparison, setting, and incrementation of numerical stats.
     """
 
-    @classmethod
+    @staticmethod
     @abc.abstractmethod
-    def STAT_LIST(cls):
+    def STAT_LIST():
         """
         A kernel of the class; expects a tuple of the names of all stats.
         """
         raise NotImplementedError
 
-    @classmethod
+    @staticmethod
     @abc.abstractmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    def ZERO_GROWTH_STAT_LIST():
         """
         A kernel of the class; expects a tuple of the names of stats that have zero growth rates.
         """
@@ -189,8 +189,8 @@ class GenealogyStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -205,19 +205,18 @@ class GenealogyStats(AbstractStats):
             "Res",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
-        return (
-        )
+        return ()
 
 class ThraciaStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -236,8 +235,8 @@ class ThraciaStats(AbstractStats):
             "PC",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         return (
@@ -251,8 +250,8 @@ class GBAStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -268,8 +267,8 @@ class GBAStats(AbstractStats):
             "Mov",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         return (
@@ -282,8 +281,8 @@ class RadiantStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -301,8 +300,8 @@ class RadiantStats(AbstractStats):
             "Wt",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         # constant
