@@ -18,60 +18,25 @@ class AbstractWeaponry(abc.ABC):
 
     @abc.abstractmethod
     @staticmethod
-    def WEAPON_TYPES(cls):
+    def WEAPON_TYPES():
         """
         """
         return ()
 
     @abc.abstractmethod
     @staticmethod
-    def WEAPON_RANKS(cls):
+    def WEAPON_RANKS():
         """
         """
         return ()
 
     @abc.abstractmethod
-    @staticmethod
-    def WEAPON_STATS(cls):
-        """
-        """
-        return ()
-
-    # TODO: Decide how to implement this kernel
-    @abc.abstractmethod
-    #@classmethod
-    @staticmethod
-    def _WeaponType():
-        """
-        """
-        class WeaponType(StrEnum):
-            """
-            """
-        return WeaponType
-
-    # TODO: Decide how to implement this kernel
-    @abc.abstractmethod
-    #@classmethod
-    @staticmethod
-    def _WeaponRank():
-        """
-        """
-        class WeaponRank(StrEnum):
-            """
-            """
-        return WeaponRank
-
-    # TODO: Decide how to implement this kernel
-    @abc.abstractmethod
-    #@classmethod
     @staticmethod
     def WEAPON_STATS():
         """
         """
         return ()
 
-    #@abc.abstractmethod
-    #@classmethod
     class Weapon:
         """
         """
