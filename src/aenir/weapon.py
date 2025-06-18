@@ -60,24 +60,21 @@ class AbstractWeaponry(abc.ABC):
 
     # TODO: query by: rank, type, etc.
     @classmethod
-    def query_for_all_weapons(cls):
+    def query_armory(cls, types, ranks, stats):
         """
         """
+        # TODO: Validate via cls
         stmt = ""
         path_to_db = self.path_to_db
         with sqlite3.connect(path_to_db) as cnxn:
             pass
 
-    def query_for_usable_weapons(self):
+    def is_usable_by(self, morph) -> bool:
         """
         """
-        stmt = ""
-        path_to_db = self.path_to_db
-        with sqlite3.connect(path_to_db) as cnxn:
-            pass
-
-    def can_use(self, weapon) -> bool:
-        """
-        """
-        return 
+        # TODO: Morph should store weapon attributes
+        # TODO: Weapon attributes should be referenced to determine this
+        # TODO: Attributes should be loaded lazily, I should think, for efficiency's sake.
+        # NOTE: Shouldn't this be implemented in the Morph module?
+        return
 
