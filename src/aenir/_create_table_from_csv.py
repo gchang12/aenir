@@ -10,11 +10,29 @@ from aenir.logging import logger
 
 # TODO: Weapons should all be in one table.
 
-def create_table_from_csv(path_to_csv, path_to_db):
+def convert_to_numeric(record, nonnumeric_columns):
     """
     """
+    new_record = {}
+    # get nonnumeric values
+    for column in nonnumeric_columns:
+        new_record[column] = record.pop(column)
+    # this contains only the numeric fields
+    fields = tuple(record.keys())
+    # get numeric fields; if error, set to zero
+    for field in fields:
+        try:
+            new_record[field] = int(record[field])
+        except ValueError:
+            new_record[field] = 0
+    return new_record
+
+def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
+    """
+    """
+    nonnumeric_columns = cs_nonnumeric_columns.split(",")
     with open(path_to_csv) as rfile:
-        records = tuple(csv.DictReader(rfile))
+        records = tuple(map(lambda record: convert_to_numeric(record, nonnumeric_columns), csv.DictReader(rfile)))
         fields = tuple(records[0].keys())
     name_of_table = Path(path_to_csv).with_suffix("").name
     create_stmt = f"CREATE TABLE {name_of_table}({', '.join(fields)});"
@@ -28,16 +46,18 @@ def create_table_from_csv(path_to_csv, path_to_db):
         logger.debug("%s", insert_stmt)
         cnxn.executemany(insert_stmt, records)
         logger.debug("%s", query_stmt)
-        (num_rows_written,) = cnxn.execute(query_stmt)
+        (num_rows_written,) = cnxn.execute(query_stmt).fetchone()
     logger.debug("(%d) rows from '%s' have been written to '%s:%s'.", num_rows_written, path_to_csv, path_to_db, name_of_table)
     return num_rows_written
 
 parser = argparse.ArgumentParser()
 parser.add_argument("path_to_csv", type=str)
 parser.add_argument("path_to_db", type=str)
+parser.add_argument("cs_nonnumeric_columns", type=str)
 args = parser.parse_args()
 path_to_csv = args.path_to_csv
 path_to_db = args.path_to_db
+cs_nonnumeric_columns = args.cs_nonnumeric_columns
 # invoke main
-logger.debug("create_table_from_csv('%s', '%s')", path_to_csv, path_to_db)
-create_table_from_csv(path_to_csv, path_to_db)
+logger.debug("create_table_from_csv('%s', '%s')", path_to_csv, path_to_db, cs_nonnumeric_columns)
+create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns)
