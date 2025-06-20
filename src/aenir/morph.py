@@ -1270,6 +1270,63 @@ class Morph9(Morph):
         }
         self.equipped_bands = {}
         self._og_growth_rates = self.growth_rates.copy()
+        # conditionally determine if unit can equip it
+        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
+        knights = (
+            #'Ike',
+            'Titania',
+            'Oscar',
+            #'Boyd',
+            #'Rhys',
+            #'Shinon',
+            'Gatrie',
+            #'Soren',
+            #'Mia',
+            #'Ilyana',
+            #'Marcia',
+            #'Mist',
+            #'Rolf',
+            #'Lethe',
+            #'Mordecai',
+            #'Volke',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            #'Zihark',
+            #'Jill',
+            #'Sothe',
+            'Astrid',
+            'Makalov',
+            #'Stefan',
+            #'Muarim',
+            #'Tormod',
+            'Devdan',
+            #'Tanith',
+            #'Reyson',
+            #'Janaff',
+            #'Ulki',
+            #'Calill',
+            'Tauroneo',
+            #'Ranulf',
+            #'Haar',
+            #'Lucia',
+            #'Bastian',
+            'Geoffrey',
+            #'Largo',
+            #'Elincia',
+            #'Ena',
+            #'Nasir',
+            #'Tibarn',
+            #'Naesala',
+            #'Giffca',
+            #'Sephiran',
+            #'Leanne',
+        )
+        # TODO: Implement temporary bonuses later
+        if name in knights:
+            self.knight_ward_is_equipped = False
+        else:
+            self.knight_ward_is_equipped = None
 
     def use_stat_booster(self, item_name: str):
         """
@@ -1328,4 +1385,22 @@ class Morph9(Morph):
         self.equipped_bands[band_name] = self.Stats(**stat_dict)
         self._apply_band_bonuses()
 
+    def equip_knight_ward(self):
+        """
+        """
+        if self.knight_ward_is_equipped is None:
+            raise ValueError(f"{self.name} is not a knight; cannot equip Knight Ward.")
+        self.growth_rates = self._og_growth_rates.copy()
+        bonus_statdict = self.STATS().get_stat_dict(0)
+        bonus_statdict['Spd'] = 30
+        bonus = self.STATS()(**bonus_statdict)
+        self.growth_rates += bonus
+        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
 
+    def unequip_knight_ward(self):
+        """
+        """
+        if self.knight_ward_is_equipped is None:
+            raise ValueError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
+        self.growth_rates = self._og_growth_rates.copy()
+        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
