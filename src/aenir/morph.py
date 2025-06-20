@@ -1051,7 +1051,7 @@ class Morph7(Morph):
             "Body Ring": ("Con", 3),
         }
 
-    def use_growths_item(self):
+    def use_afas_drops(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -1171,7 +1171,7 @@ class Morph8(Morph):
         """
         super().use_stat_booster(item_name)
 
-    def use_growths_item(self):
+    def use_metiss_tome(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -1191,6 +1191,7 @@ class Morph8(Morph):
         raise NotImplementedError
 
 
+# TODO: Implement equipping of growth bands
 class Morph9(Morph):
     """
     """
@@ -1267,6 +1268,8 @@ class Morph9(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
+        self.equipped_bands = {}
+        self._og_growth_rates = self.growth_rates.copy()
 
     def use_stat_booster(self, item_name: str):
         """
@@ -1282,5 +1285,47 @@ class Morph9(Morph):
         """
         """
         raise NotImplementedError
+
+    def _apply_band_bonuses(self):
+        """
+        """
+        self.growth_rates = self._og_growth_rates.copy()
+        for bonus in self.equipped_bands.values():
+            self.growth_rates += bonus
+
+    def unequip_band(self, band_name: str):
+        """
+        """
+        if scroll_name in self.equipped_bands:
+            self.equipped_bands.pop(band_name)
+            self._apply_band_bonuses()
+        else:
+            raise KeyError(f"'{band_name}' is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}")
+
+    def equip_band(self, band_name: str):
+        """
+        """
+        # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
+        if band_name in self.equipped_bands:
+            raise ValueError(f"'{band_name}' is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.")
+        path_to_db = self.path_to("cleaned_stats.db")
+        table = "band_bonuses"
+        stat_dict = self.query_db(
+            path_to_db,
+            table,
+            fields=self.Stats.STAT_LIST(),
+            filters={"Name": band_name},
+        ).fetchone()
+        if stat_dict is None:
+            resultset = query_db(
+                path_to_db,
+                table,
+                fields=["Name"],
+                filters={},
+            ).fetchall()
+            band_list = [result["Name"] for result in resultset]
+            raise KeyError(f"'{band_name}' is not a valid band. List of valid bands: {band_list}.")
+        self.equipped_bands[band_name] = self.Stats(**stat_dict)
+        self._apply_band_bonuses()
 
 
