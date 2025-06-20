@@ -5,15 +5,12 @@ import abc
 import sqlite3
 from enum import StrEnum 
 
-# hook equipment ranks up later
-#from aenir.games import FireEmblemGame
-#game, unit
-
 from aenir.logging import logger
 
-class AbstractWeaponry(abc.ABC):
+class AbstractWeapon(abc.ABC):
     """
     """
+    path_to_db = None
 
     @abc.abstractmethod
     @staticmethod
@@ -39,6 +36,7 @@ class AbstractWeaponry(abc.ABC):
     def __init__(self, name, wtype, wrank, wstats):
         """
         """
+        # validation
         if wtype in self.WEAPON_TYPES():
             self.type = wtype
         else:
@@ -47,6 +45,7 @@ class AbstractWeaponry(abc.ABC):
             self.rank = wrank
         else:
             raise KeyError(f"{wrank} is not a valid weapon rank. Valid weapon ranks: {self.WEAPON_RANKS()}")
+        # scan for missing stats
         missing_stats = []
         for wstat in self.WEAPON_STATS():
             try:
@@ -58,23 +57,13 @@ class AbstractWeaponry(abc.ABC):
             raise AttributeError(f"Missing values for these weapon stats: {missing_stats}")
         self.name = name
 
-    # TODO: query by: rank, type, etc.
     @classmethod
-    def query_armory(cls, types, ranks, stats):
+    def query_armory(cls, fields, types, ranks, stats):
         """
         """
-        # TODO: Validate via cls
         stmt = ""
         path_to_db = self.path_to_db
         with sqlite3.connect(path_to_db) as cnxn:
             pass
-
-    def is_usable_by(self, morph) -> bool:
-        """
-        """
-        # TODO: Morph should store weapon attributes
-        # TODO: Weapon attributes should be referenced to determine this
-        # TODO: Attributes should be loaded lazily, I should think, for efficiency's sake.
-        # NOTE: Shouldn't this be implemented in the Morph module?
-        return
+        raise NotImplementedError
 

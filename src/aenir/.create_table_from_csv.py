@@ -8,6 +8,8 @@ from pathlib import Path
 
 from aenir.logging import logger
 
+# TODO: Weapons should all be in one table.
+
 def create_table_from_csv(path_to_csv, path_to_db):
     """
     """
