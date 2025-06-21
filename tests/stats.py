@@ -8,6 +8,7 @@ from aenir.stats import (
     AbstractStats,
     GenealogyStats,
     ThraciaStats,
+    RadiantStats,
     GBAStats,
 )
 from aenir.logging import (
@@ -63,8 +64,8 @@ class StatsTests(unittest.TestCase):
             Functional in that the 'STAT_LIST' class method is defined.
             """
 
-            @classmethod
-            def STAT_LIST(cls):
+            @staticmethod
+            def STAT_LIST():
                 """
                 Returns tuple of strings that can be used as Python identifiers.
                 """
@@ -77,6 +78,12 @@ class StatsTests(unittest.TestCase):
                     "f",
                     "g",
                 )
+
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
+                """
+                """
+                return ()
 
         class FunctionalStats2(AbstractStats):
             """
@@ -84,8 +91,8 @@ class StatsTests(unittest.TestCase):
             demonstrate that stats of different classes cannot be operated on even if
             they share the same 'STAT_LIST'.
             """
-            @classmethod
-            def STAT_LIST(cls):
+            @staticmethod
+            def STAT_LIST():
                 """
                 Returns tuple of strings that can be used as Python identifiers.
                 """
@@ -99,9 +106,21 @@ class StatsTests(unittest.TestCase):
                     "g",
                 )
 
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
+                """
+                """
+                return ()
+
         self.stats_class = FunctionalStats
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
+
+    def test_repr(self):
+        """
+        """
+        stats = self.stats_class(**self.init_kwargs)
+        logger.debug("%r", stats)
 
     def test_sum(self):
         """
@@ -119,6 +138,14 @@ class StatsTests(unittest.TestCase):
         expected = sum(statdict.values())
         actual = sum(stats)
         self.assertEqual(actual, expected)
+
+    def test_as_list(self):
+        """
+        """
+        expected = list(self.statdict2.items())
+        stats = self.stats_class(**self.statdict2)
+        actual = stats.as_list()
+        self.assertListEqual(actual, expected)
 
     def test_as_dict(self):
         """
@@ -286,6 +313,7 @@ class StatsTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             stats2.imin(stats1)
 
+    @unittest.skip("Marked for deletion.")
     def test_lt(self):
         """
         Tests that a Stats object of booleans is returned.
@@ -335,6 +363,7 @@ class StatsTests(unittest.TestCase):
             expected = getattr(expected_stats, attrname)
             self.assertEqual(actual, expected)
 
+    @unittest.skip("No longer being implemented")
     def test_lt__different_classes(self):
         """
         Asserts that lt method fails if operands are of different Stats
@@ -436,9 +465,9 @@ class ImplementedStatsTests(unittest.TestCase):
             "Spd",
             "Lck",
             "Def",
-            #"Con",
-            #"Mov",
             "Res",
+            "Con",
+            "Mov",
         )
         actual = GBAStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
@@ -457,6 +486,9 @@ class ImplementedStatsTests(unittest.TestCase):
             "Def",
             "Con",
             "Mov",
+            "Lead",
+            "MS",
+            "PC",
         )
         actual = ThraciaStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
@@ -482,20 +514,26 @@ class AbstractStatsTests(unittest.TestCase):
         Where 'STAT_LIST' returns a non-tuple.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns non-tuple.
             """
             return None
+
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
+            """
+            """
+            return ()
 
     class NonStrTupleStats(AbstractStats):
         """
         Where 'STAT_LIST' is a tuple containing at least one str.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns a tuple containing at least one non-str.
             """
@@ -506,13 +544,19 @@ class AbstractStatsTests(unittest.TestCase):
                 "c",
             )
 
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
+            """
+            """
+            return ()
+
     class InvalidIdentifierStats(AbstractStats):
         """
         Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
         """
 
-        @classmethod
-        def STAT_LIST(cls):
+        @staticmethod
+        def STAT_LIST():
             """
             Returns tuple of strings that cannot be used as Python identifiers.
             """
@@ -521,6 +565,12 @@ class AbstractStatsTests(unittest.TestCase):
                 "b",
                 ".",
             )
+
+        @staticmethod
+        def ZERO_GROWTH_STAT_LIST():
+            """
+            """
+            return ()
 
     #@unittest.skip( "Apparently, attributes can be assigned invalid identifiers, but they'll be hidden.")
     def test_STAT_LIST_must_have_valid_identifiers(self):

@@ -1,10 +1,9 @@
 """
 """
-#
 
 import abc
 import sqlite3
-import json
+#import json
 from typing import Tuple
 
 from aenir.games import FireEmblemGame
@@ -12,9 +11,12 @@ from aenir.stats import (
     GenealogyStats,
     GBAStats,
     ThraciaStats,
-    AbstractStats,
+    #AbstractStats,
+    RadiantStats,
 )
 from aenir.logging import logger
+
+# TODO: For holy-water and mounting bonuses, need a temporary array of stats to toggle to easily.
 
 class BaseMorph(abc.ABC):
     """
@@ -38,7 +40,7 @@ class BaseMorph(abc.ABC):
             6: GBAStats,
             7: GBAStats,
             8: GBAStats,
-            9: GenealogyStats,
+            9: RadiantStats,
         }[cls.GAME().value]
 
     @classmethod
@@ -56,7 +58,7 @@ class BaseMorph(abc.ABC):
         ):
         """
         """
-        query = f"SELECT {', '.join(fields)} FROM {table}"
+        query = f"SELECT {', '.join(fields)} FROM '{table}'"
         if filters:
             conditions = " AND ".join(
                 [
@@ -70,7 +72,7 @@ class BaseMorph(abc.ABC):
         logger.debug("File: '%s'", path_to_db)
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
-            return cnxn.execute(query)
+        return cnxn.execute(query)
 
     def __init__(self):
         """
@@ -92,13 +94,18 @@ class BaseMorph(abc.ABC):
             "Checking if '%s' from %s[index] has an equivalent in %s[%s].",
             value_to_lookup, home_table, target_table, field_to_scan,
         )
-        path_to_json = self.path_to(f"{home_table}-JOIN-{target_table}.json")
+        table_name = f"{home_table}-JOIN-{target_table}"
         logger.debug(
             "Checking if '%s' exists in the dict in '%s'",
-            value_to_lookup, path_to_json,
+            value_to_lookup, table_name,
         )
-        with open(path_to_json, encoding='utf-8') as rfile:
-            aliased_value = json.load(rfile).pop(value_to_lookup)
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name=\"%s\"" % (table_name, value_to_lookup))
+            aliased_value = resultset.fetchone()
+            if aliased_value is not None:
+                (aliased_value,) = aliased_value
         logger.debug(
             "'%s' from %s[index] exists as %r in %s[%s]",
             value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
@@ -151,11 +158,14 @@ class Morph(BaseMorph):
     def CHARACTER_LIST(cls):
         """
         """
-        filename = "characters__base_stats-JOIN-characters__growth_rates.json"
-        path_to_json = cls.path_to(filename)
-        with open(path_to_json, encoding='utf-8') as rfile:
-            character_list = tuple(json.load(rfile))
-        return character_list
+        #filename = "characters__base_stats-JOIN-characters__growth_rates.json"
+        table_name = "characters__base_stats-JOIN-characters__growth_rates"
+        path_to_db = cls.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            character_list = map(lambda nametuple: nametuple[0], cnxn.execute("SELECT Name FROM '%s';" % table_name))
+        #with open(path_to_json, encoding='utf-8') as rfile:
+            #character_list = tuple(json.load(rfile))
+        return tuple(character_list)
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
         #if self.__class__.__name__ == "Morph":
@@ -212,6 +222,8 @@ class Morph(BaseMorph):
         self.min_promo_level = None
         self.promo_cls = None
         self.possible_promotions = None
+        self.stat_boosters = None
+        self.holy_water_bonus = None
 
     def _set_max_level(self):
         """
@@ -248,10 +260,9 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def promote(self):
+    def _get_promo_query_kwargs(self):
         """
         """
-        # get promotion data
         value_to_lookup = {
             "characters__base_stats": self.name,
             "classes__promotion_gains": self.current_cls,
@@ -261,15 +272,23 @@ class Morph(BaseMorph):
             ("classes__promotion_gains", "Class"),
             tableindex=0,
         )
+        return query_kwargs
+
+    def promote(self):
+        """
+        """
+        query_kwargs = self._get_promo_query_kwargs()
         # quit if resultset is empty
         if query_kwargs is None:
             raise ValueError(f"{self.name} has no available promotions.")
+        query_kwargs['fields'] += ("Promotion",)
         # check if unit's level is high enough to enable promotion
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
+            # TODO: Tell user what morph should promote to
             raise ValueError(f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.")
-        query_kwargs['fields'] = list(query_kwargs['fields']) + ["Promotion"]
+        # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
         if len(resultset) > 1:
@@ -314,9 +333,12 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
+    def use_stat_booster(self, item_name: str):
         """
         """
+        item_bonus_dict = self.stat_boosters
+        if item_bonus_dict is None:
+            raise NotImplementedError("Stat boosters are not implemented for FE%d." % self.game.value)
         increment = self.Stats(**self.Stats.get_stat_dict(0))
         if item_name not in item_bonus_dict:
             raise KeyError(f"'{item_name}' is not a valid stat booster. Valid stat boosters: {item_bonus_dict.keys()}")
@@ -325,6 +347,21 @@ class Morph(BaseMorph):
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
+
+    def __repr__(self):
+        """
+        """
+        raise NotImplementedError
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
 
 class Morph4(Morph):
     """
@@ -511,9 +548,12 @@ class Morph4(Morph):
             }[self.name]
         except KeyError:
             self.promo_cls = None
-        path_to_bases2promo = self.path_to("characters__base_stats-JOIN-classes__promotion_gains.json")
-        with open(path_to_bases2promo) as rfile:
-            can_promote = json.load(rfile).pop(name) is not None
+        table_name = "characters__base_stats-JOIN-classes__promotion_gains"
+        path_to_db = self.path_to("cleaned_stats.db")
+        with sqlite3.connect(path_to_db) as cnxn:
+            #cnxn.row_factory = sqlite3.Row
+            resultset = cnxn.execute("SELECT Alias FROM '%s' WHERE Name='%s';" % (table_name, name))
+            can_promote = resultset.fetchone()[0] is not None
         if can_promote:
             self.max_level = 20
         else:
@@ -530,6 +570,7 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
+    # TODO: What about rings?
     def use_stat_booster(self, item_name: str):
         """
         """
@@ -619,6 +660,28 @@ class Morph5(Morph):
             pass
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
+        self.is_mounted = None
+        self.stat_boosters = {
+            "Luck Ring": ("Lck", 3),
+            "Life Ring": ("HP", 7),
+            "Speed Ring": ("Spd", 3),
+            "Magic Ring": ("Mag", 2),
+            "Power Ring": ("Str", 3),
+            "Body Ring": ("Con", 3),
+            "Shield Ring": ("Def", 2),
+            "Skill Ring": ("Skl", 3),
+            "Leg Ring": ("Mov", 2),
+        }
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
 
     def _set_min_promo_level(self):
         """
@@ -632,6 +695,8 @@ class Morph5(Morph):
         except KeyError:
             pass
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
+        # This causes the program to throw an error when the current class is 'Thief Fighter'
+        #if self.name == "Lara" and self.promo_cls == "Dancer":
             self.min_promo_level = 1
 
     def level_up(self, num_levels: int):
@@ -656,18 +721,7 @@ class Morph5(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Luck Ring": ("Lck", 3),
-            "Life Ring": ("HP", 7),
-            "Speed Ring": ("Spd", 3),
-            "Magic Ring": ("Mag", 2),
-            "Power Ring": ("Str", 3),
-            "Body Ring": ("Con", 3),
-            "Shield Ring": ("Def", 2),
-            "Skill Ring": ("Skl", 3),
-            "Leg Ring": ("Mov", 2),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
 
     def _apply_scroll_bonuses(self):
         """
@@ -826,6 +880,17 @@ class Morph6(Morph):
         else:
             num_declines = None
         self._meta["Number of Declines"] = num_declines
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
     def decline_hugh(self):
         """
@@ -849,18 +914,18 @@ class Morph6(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
 class Morph7(Morph):
     """
@@ -974,8 +1039,19 @@ class Morph7(Morph):
         # hard mode versions
         self._growths_item = "Afa's Drops"
         self._meta[self._growths_item] = None
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
-    def use_growths_item(self):
+    def use_afas_drops(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -987,18 +1063,18 @@ class Morph7(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
 
 class Morph8(Morph):
     """
@@ -1061,6 +1137,17 @@ class Morph8(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         self._growths_item = "Metis's Tome"
         self._meta[self._growths_item] = None
+        self.stat_boosters = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
 
     def _set_max_level(self):
         """
@@ -1082,20 +1169,9 @@ class Morph8(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
-        }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name)
 
-    def use_growths_item(self):
+    def use_metiss_tome(self):
         """
         """
         if self._meta[self._growths_item] is not None:
@@ -1104,6 +1180,18 @@ class Morph8(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+
+# TODO: Implement equipping of growth bands
 class Morph9(Morph):
     """
     """
@@ -1168,11 +1256,7 @@ class Morph9(Morph):
         """
         """
         super().__init__(name, which_bases=0, which_growths=0)
-
-    def use_stat_booster(self, item_name: str):
-        """
-        """
-        item_bonus_dict = {
+        self.stat_boosters = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
             "Spirit Dust": ("Mag", 2),
@@ -1181,8 +1265,143 @@ class Morph9(Morph):
             "Ashera Icon": ("Lck", 2),
             "Dracoshield": ("Def", 2),
             "Talisman": ("Res", 2),
-            #"Boots": ("Mov", 2),
-            #"Body Ring": ("Con", 3),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        self.equipped_bands = {}
+        self._og_growth_rates = self.growth_rates.copy()
+        # conditionally determine if unit can equip it
+        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
+        knights = (
+            #'Ike',
+            'Titania',
+            'Oscar',
+            #'Boyd',
+            #'Rhys',
+            #'Shinon',
+            'Gatrie',
+            #'Soren',
+            #'Mia',
+            #'Ilyana',
+            #'Marcia',
+            #'Mist',
+            #'Rolf',
+            #'Lethe',
+            #'Mordecai',
+            #'Volke',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            #'Zihark',
+            #'Jill',
+            #'Sothe',
+            'Astrid',
+            'Makalov',
+            #'Stefan',
+            #'Muarim',
+            #'Tormod',
+            'Devdan',
+            #'Tanith',
+            #'Reyson',
+            #'Janaff',
+            #'Ulki',
+            #'Calill',
+            'Tauroneo',
+            #'Ranulf',
+            #'Haar',
+            #'Lucia',
+            #'Bastian',
+            'Geoffrey',
+            #'Largo',
+            #'Elincia',
+            #'Ena',
+            #'Nasir',
+            #'Tibarn',
+            #'Naesala',
+            #'Giffca',
+            #'Sephiran',
+            #'Leanne',
+        )
+        # TODO: Implement temporary bonuses later
+        if name in knights:
+            self.knight_ward_is_equipped = False
+        else:
+            self.knight_ward_is_equipped = None
+
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        super().use_stat_booster(item_name)
+
+    def use_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def degrade_holy_water(self):
+        """
+        """
+        raise NotImplementedError
+
+    def _apply_band_bonuses(self):
+        """
+        """
+        self.growth_rates = self._og_growth_rates.copy()
+        for bonus in self.equipped_bands.values():
+            self.growth_rates += bonus
+
+    def unequip_band(self, band_name: str):
+        """
+        """
+        if scroll_name in self.equipped_bands:
+            self.equipped_bands.pop(band_name)
+            self._apply_band_bonuses()
+        else:
+            raise KeyError(f"'{band_name}' is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}")
+
+    def equip_band(self, band_name: str):
+        """
+        """
+        # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
+        if band_name in self.equipped_bands:
+            raise ValueError(f"'{band_name}' is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.")
+        path_to_db = self.path_to("cleaned_stats.db")
+        table = "band_bonuses"
+        stat_dict = self.query_db(
+            path_to_db,
+            table,
+            fields=self.Stats.STAT_LIST(),
+            filters={"Name": band_name},
+        ).fetchone()
+        if stat_dict is None:
+            resultset = query_db(
+                path_to_db,
+                table,
+                fields=["Name"],
+                filters={},
+            ).fetchall()
+            band_list = [result["Name"] for result in resultset]
+            raise KeyError(f"'{band_name}' is not a valid band. List of valid bands: {band_list}.")
+        self.equipped_bands[band_name] = self.Stats(**stat_dict)
+        self._apply_band_bonuses()
+
+    def equip_knight_ward(self):
+        """
+        """
+        if self.knight_ward_is_equipped is None:
+            raise ValueError(f"{self.name} is not a knight; cannot equip Knight Ward.")
+        self.growth_rates = self._og_growth_rates.copy()
+        bonus_statdict = self.STATS().get_stat_dict(0)
+        bonus_statdict['Spd'] = 30
+        bonus = self.STATS()(**bonus_statdict)
+        self.growth_rates += bonus
+        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
+
+    def unequip_knight_ward(self):
+        """
+        """
+        if self.knight_ward_is_equipped is None:
+            raise ValueError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
+        self.growth_rates = self._og_growth_rates.copy()
+        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
 

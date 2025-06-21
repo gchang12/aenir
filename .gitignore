@@ -4,3 +4,7 @@ __pycache__/
 Makefile
 *.log
 *.sw[a-z]
+
+# uncomment for production
+#stat-tables.ods
+#_create_table_from_csv.py
