@@ -5,25 +5,23 @@ import abc
 
 from aenir.logging import logger
 
-# TODO: Add in stats that have no growths.
-
 
 class AbstractStats(abc.ABC):
     """
     Defines methods for comparison, setting, and incrementation of numerical stats.
     """
 
-    @classmethod
+    @staticmethod
     @abc.abstractmethod
-    def STAT_LIST(cls):
+    def STAT_LIST():
         """
         A kernel of the class; expects a tuple of the names of all stats.
         """
         raise NotImplementedError
 
-    @classmethod
+    @staticmethod
     @abc.abstractmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    def ZERO_GROWTH_STAT_LIST():
         """
         A kernel of the class; expects a tuple of the names of stats that have zero growth rates.
         """
@@ -108,7 +106,7 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Can floor stats only with another stat-set of same type.")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -119,7 +117,7 @@ class AbstractStats(abc.ABC):
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Can cap stats only with another stat-set of same type.")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -130,7 +128,7 @@ class AbstractStats(abc.ABC):
         Increments values of `self` by corresponding values in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("")
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -144,13 +142,11 @@ class AbstractStats(abc.ABC):
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         stat_dict = {}
-        for stat in self.get_growable_stats():
+        for stat in self.STAT_LIST():
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = round(self_stat + other_stat, 2)
-        for stat in self.ZERO_GROWTH_STAT_LIST():
-            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __sub__(self, other):
@@ -175,14 +171,12 @@ class AbstractStats(abc.ABC):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
         #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
         stat_dict = {}
-        for stat in self.get_growable_stats():
+        for stat in self.STAT_LIST():
             #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat == other_stat
-        for stat in self.ZERO_GROWTH_STAT_LIST():
-            stat_dict[stat] = None
         return self.__class__(**stat_dict)
 
     def __iter__(self):
@@ -195,8 +189,8 @@ class GenealogyStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -211,19 +205,18 @@ class GenealogyStats(AbstractStats):
             "Res",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
-        return (
-        )
+        return ()
 
 class ThraciaStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -242,8 +235,8 @@ class ThraciaStats(AbstractStats):
             "PC",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         return (
@@ -257,8 +250,8 @@ class GBAStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -274,8 +267,8 @@ class GBAStats(AbstractStats):
             "Mov",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         return (
@@ -288,8 +281,8 @@ class RadiantStats(AbstractStats):
     """
     """
 
-    @classmethod
-    def STAT_LIST(cls):
+    @staticmethod
+    def STAT_LIST():
         """
         """
         # constant
@@ -307,8 +300,8 @@ class RadiantStats(AbstractStats):
             "Wt",
         )
 
-    @classmethod
-    def ZERO_GROWTH_STAT_LIST(cls):
+    @staticmethod
+    def ZERO_GROWTH_STAT_LIST():
         """
         """
         # constant
