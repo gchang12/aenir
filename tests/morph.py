@@ -1553,7 +1553,7 @@ class Morph7Tests(unittest.TestCase):
         """
         """
         nino = Morph7("Nino")
-        nino.use_growths_item()
+        nino.use_afas_drops()
         nino2 = Morph7("Nino")
         diff = (nino.growth_rates - nino2.growth_rates).as_dict()
         self.assertSetEqual(set(diff.values()), {5, None})
@@ -1868,6 +1868,15 @@ class Morph8Tests(unittest.TestCase):
             expected = getattr(original_stats, stat) + bonus
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
+
+    def test_metiss_tome(self):
+        """
+        """
+        ewan = Morph8("Ewan")
+        ewan.use_metiss_tome()
+        ewan2 = Morph8("Ewan")
+        diff = (ewan.growth_rates - ewan2.growth_rates)
+        self.assertSetEqual(set(diff), {5})
 
 class Morph9Tests(unittest.TestCase):
     """
