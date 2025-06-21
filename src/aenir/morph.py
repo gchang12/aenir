@@ -1404,3 +1404,4 @@ class Morph9(Morph):
             raise ValueError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
         self.growth_rates = self._og_growth_rates.copy()
         self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
+
