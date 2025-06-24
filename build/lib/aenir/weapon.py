@@ -5,7 +5,7 @@ import abc
 import sqlite3
 from enum import StrEnum 
 
-from aenir._logging import logger
+from aenir.logging import logger
 
 class AbstractWeapon(abc.ABC):
     """

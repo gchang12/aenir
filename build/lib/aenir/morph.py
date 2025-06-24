@@ -15,7 +15,7 @@ from aenir.stats import (
     #AbstractStats,
     RadiantStats,
 )
-from aenir._logging import logger
+from aenir.logging import logger
 
 # TODO: For holy-water and mounting bonuses, need a temporary array of stats to toggle to easily.
 

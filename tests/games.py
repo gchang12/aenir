@@ -4,7 +4,7 @@
 import unittest
 
 from aenir.games import FireEmblemGame
-from aenir.logging import (
+from aenir._logging import (
     configure_logging,
     logger,
     time_logger,
