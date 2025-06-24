@@ -4,7 +4,7 @@
 import unittest
 
 from aenir.weaponry import *
-from aenir.logging import (
+from aenir._logging import (
     configure_logging,
     logger,
     time_logger,

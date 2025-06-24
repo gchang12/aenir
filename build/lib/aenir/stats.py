@@ -3,7 +3,7 @@
 
 import abc
 
-from aenir._logging import logger
+from aenir.logging import logger
 
 
 class AbstractStats(abc.ABC):

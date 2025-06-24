@@ -14,12 +14,3 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 finally:
     del version, PackageNotFoundError
-
-from .morph import (
-    Morph4,
-    Morph5,
-    Morph6,
-    Morph7,
-    Morph8,
-    Morph9,
-)
