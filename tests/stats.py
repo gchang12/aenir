@@ -11,7 +11,7 @@ from aenir.stats import (
     RadiantStats,
     GBAStats,
 )
-from aenir.logging import (
+from aenir._logging import (
     configure_logging,
     logger,
     time_logger,
