@@ -6,7 +6,7 @@ import sqlite3
 import csv
 from pathlib import Path
 
-from aenir._logging import logger
+from aenir.logging import logger
 
 # TODO: Weapons should all be in one table.
 
