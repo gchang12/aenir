@@ -1,6 +1,8 @@
 """
 """
 
+# TODO: Test copy method; simulate level-ups and time the thing
+
 import sqlite3
 import unittest
 from unittest.mock import patch
