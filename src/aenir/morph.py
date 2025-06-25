@@ -352,7 +352,7 @@ class Morph(BaseMorph):
     def __repr__(self):
         """
         """
-        raise NotImplementedError
+        return super().__repr__()
 
     def use_holy_water(self):
         """
