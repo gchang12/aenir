@@ -175,7 +175,7 @@ class Morph(BaseMorph):
         self.game = self.GAME()
         character_list = self.CHARACTER_LIST()
         if name not in character_list:
-            raise ValueError(
+            raise IndexError(
                 "'%s' not found. List of Fire Emblem: %r characters: %r" \
                 % (name, self.game.formal_name, character_list)
             )
@@ -1411,3 +1411,19 @@ class Morph9(Morph):
         self.growth_rates = self._og_growth_rates.copy()
         self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
 
+def get_morph(game_no: int, name: str, **kwargs):
+    """
+    """
+    try:
+        morph_cls = {
+            4: Morph4,
+            5: Morph5,
+            6: Morph6,
+            7: Morph7,
+            8: Morph8,
+            9: Morph9,
+        }[game_no]
+    except KeyError:
+        raise NotImplementedError("Stat comparison for FE%d has not been implemented." % game_no)
+    morph = morph_cls(name, **kwargs)
+    return morph
