@@ -12,6 +12,7 @@ import json
 
 from aenir.games import FireEmblemGame
 from aenir.morph import (
+    get_morph,
     BaseMorph,
     Morph,
     Morph4,
@@ -596,7 +597,7 @@ class MorphTests(unittest.TestCase):
     def test_init__unit_dne(self):
         """
         """
-        with self.assertRaises(ValueError) as assert_ctx:
+        with self.assertRaises(IndexError) as assert_ctx:
             marth = self.TestMorph("Marth", which_bases=0, which_growths=0)
         (err_msg,) = assert_ctx.exception.args
         self.assertIn("%r" % (tuple(self.TestMorph.CHARACTER_LIST()),), err_msg)
@@ -1551,6 +1552,27 @@ class Morph7Tests(unittest.TestCase):
         actual = tuple(Morph7.get_true_character_list())
         self.assertTupleEqual(actual, expected)
 
+    def test_copy(self):
+        """
+        """
+        raven = Morph7("Raven", hard_mode=True)
+        raven_clone = raven.copy()
+        raven.level_up(15)
+        raven.promote()
+        base_raven = Morph7("Raven", hard_mode=True)
+        actual = raven_clone.current_lv
+        expected = base_raven.current_lv
+        self.assertEqual(actual, expected)
+        actual = raven_clone.current_cls
+        expected = base_raven.current_cls
+        self.assertEqual(actual, expected)
+        actual = raven_clone.current_stats
+        expected = base_raven.current_stats
+        self.assertEqual(actual, expected)
+        actual = raven_clone._meta
+        expected = raven._meta
+        self.assertIsNot(actual, expected)
+
     def test_afas_drops(self):
         """
         """
@@ -1951,3 +1973,45 @@ class Morph9Tests(unittest.TestCase):
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
+class MorphFunctionTests(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        logger.debug("%s", self.id())
+
+    def test_get_morph__roy(self):
+        """
+        """
+        roy = get_morph(6, "Roy")
+        actual = "Roy"
+        expected = roy.name
+        self.assertEqual(actual, expected)
+
+    def test_get_morph__error_propagated_from_morph(self):
+        """
+        """
+        with self.assertRaises(IndexError):
+            get_morph(6, "Marth")
+
+    def test_get_morph__invalid_game(self):
+        """
+        """
+        lords_and_games = {
+            1: "Marth",
+            2: "Alm",
+            3: "Marth",
+            10: "Micaiah",
+            11: "Marth",
+            12: "Marth",
+            13: "Chrom",
+            14: "Corrin",
+            15: "Celica",
+            16: "Byleth",
+            17: "Alear",
+        }
+        for game, lord in lords_and_games.items():
+            with self.assertRaises(NotImplementedError):
+                get_morph(game, lord)
