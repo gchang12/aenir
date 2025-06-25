@@ -14,7 +14,7 @@
 
 # aenir
 
-## A Fire Emblem statistics calculator
+## A Fire Emblem stats calculator
 > This module lets you perform stat calculations for Fire Emblem units.
 
 With this module, you can:
@@ -24,6 +24,8 @@ With this module, you can:
 - Compare one unit to another.
 - And much more!
 
+## Installation
+
 To start, install `aenir`.
 ```bash
 pip install aenir
@@ -32,6 +34,8 @@ Next, start up an interactive Python shell and import the shortcut function `get
 ```python
 from aenir.morph import get_morph
 ```
+
+## Usage
 
 Create a virtual copy of a unit (i.e. a 'Morph'), bearing in mind the following:
 
@@ -84,6 +88,8 @@ Compare characters by using the greater-than operator.
 roy > lyn
 sum(roy > lyn)
 ```
+
+## Limitations
 
 Currently, this calculator works only for characters from:
 
