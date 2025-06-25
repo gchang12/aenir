@@ -349,25 +349,22 @@ class Morph(BaseMorph):
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
-    def __repr__(self):
-        """
-        """
-        return super().__repr__()
-
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
     def copy(self):
         """
         """
         return copy.deepcopy(self)
+
+    def __gt__(self, other):
+        """
+        """
+        # self - other
+        raise NotImplementedError
+
+    def __repr__(self):
+        """
+        """
+        raise NotImplementedError
+    #return super().__repr__()
 
 class Morph4(Morph):
     """
@@ -576,12 +573,6 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
-    # TODO: What about rings?
-    def use_stat_booster(self, item_name: str):
-        """
-        """
-        raise NotImplementedError("Not implemented by design; FE4 has no permanent stat booster items.")
-
 class Morph5(Morph):
     """
     """
@@ -679,16 +670,6 @@ class Morph5(Morph):
             "Leg Ring": ("Mov", 2),
         }
 
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
     def _set_min_promo_level(self):
         """
         """
@@ -770,16 +751,6 @@ class Morph5(Morph):
             raise KeyError(f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.")
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
-
-    def mount(self):
-        """
-        """
-        raise NotImplementedError("Implementing this will result in more convolution than I can be arsed to deal with.")
-
-    def unmount(self):
-        """
-        """
-        raise NotImplementedError("Implementing this will result in more convolution than I can be arsed to deal with.")
 
 class Morph6(Morph):
     """
@@ -922,16 +893,6 @@ class Morph6(Morph):
         """
         super().use_stat_booster(item_name)
 
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
 
 class Morph7(Morph):
     """
@@ -1071,16 +1032,6 @@ class Morph7(Morph):
         """
         super().use_stat_booster(item_name)
 
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
 
 class Morph8(Morph):
     """
@@ -1185,16 +1136,6 @@ class Morph8(Morph):
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
-
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
 
 
 # TODO: Implement equipping of growth bands
@@ -1339,15 +1280,7 @@ class Morph9(Morph):
         """
         super().use_stat_booster(item_name)
 
-    def use_holy_water(self):
-        """
-        """
-        raise NotImplementedError
-
-    def degrade_holy_water(self):
-        """
-        """
-        raise NotImplementedError
+    # TODO: Double-check these methods. Maybe make an entry for 'Knight Ward'
 
     def _apply_band_bonuses(self):
         """
@@ -1427,3 +1360,4 @@ def get_morph(game_no: int, name: str, **kwargs):
         raise NotImplementedError("Stat comparison for FE%d has not been implemented." % game_no)
     morph = morph_cls(name, **kwargs)
     return morph
+
