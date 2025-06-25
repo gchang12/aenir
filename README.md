@@ -14,9 +14,28 @@
 
 # aenir
 
+## A Fire Emblem statistics calculator
+This module lets you do stat calculations for Fire Emblem units.
+With this module, you can:
+- Create a virtual copy of a unit and their stats.
+- Level up that unit.
+- Promote that unit.
+- Compare one unit to another.
+- And much more!
+
 > Add a short description here!
 
 A longer description of your project goes here...
+
+ne must
+
+Currently, this calculator includes only characters from:
+4. Genealogy of the Holy War
+5. Thracia 776
+6. Sword of Seals
+7. Blazing Blade
+8. The Sacred Stones
+9. Path of Radiance
 
 
 <!-- pyscaffold-notes -->
