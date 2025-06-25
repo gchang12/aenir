@@ -15,7 +15,8 @@
 # aenir
 
 ## A Fire Emblem statistics calculator
-This module lets you do stat calculations for Fire Emblem units.
+> This module lets you perform stat calculations for Fire Emblem units.
+
 With this module, you can:
 - Create a virtual copy of a unit and their stats.
 - Level up that unit.
@@ -23,13 +24,69 @@ With this module, you can:
 - Compare one unit to another.
 - And much more!
 
-> Add a short description here!
+To start, install `aenir`.
+```bash
+pip install aenir
+```
+Next, start up an interactive Python shell and import the shortcut function `get_morph`.
+```python
+from aenir.morph import get_morph
+```
 
-A longer description of your project goes here...
+Create a virtual copy of a unit (i.e. a 'Morph'), bearing in mind the following:
 
-ne must
+1. The name of the unit, per [SerenesForest.Net](https://serenesforest.net/).
+2. The number of the game the unit is from.
 
-Currently, this calculator includes only characters from:
+Let's say we want to get Roy's stats. Note that Roy is from FE6: The Sword of Seals.
+
+```python
+roy = get_morph(6, "Roy")
+# implicit: roy.__repr__()
+roy
+```
+
+As you can see, these stats suck. Let's fix that; let's level him up to level twenty.
+
+```python
+num_levels = 20 - roy.current_lv
+roy.level_up(num_levels)
+# implicit: roy.__repr__()
+roy
+```
+
+That's better. But it's still not enough. Let's promote him.
+
+```python
+roy.promote()
+```
+
+For the fun of it, let's max him out.
+
+```python
+num_levels = 19 # because he starts out at level one again.
+roy.level_up(num_levels)
+# implicit: roy.__repr__()
+roy
+```
+ 
+Note that when initializing certain characters, like Rutger, extra initialization parameters will be needed. 
+
+```python
+rutger = get_morph(6, "Rutger", hard_mode=True)
+larcei = get_morph(4, "Larcei", father="Lex")
+lyn = get_morph(7, "Lyn", lyn_mode=True)
+```
+
+Compare characters by using the greater-than operator.
+
+```python
+roy > lyn
+sum(roy > lyn)
+```
+
+Currently, this calculator works only for characters from:
+
 4. Genealogy of the Holy War
 5. Thracia 776
 6. Sword of Seals
