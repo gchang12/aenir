@@ -29,6 +29,17 @@ from aenir.stats import (
     AbstractStats,
     RadiantStats,
 )
+from aenir._exceptions import (
+    UnitNotFoundError,
+    LevelUpError,
+    PromotionError,
+    StatBoosterError,
+    ScrollError,
+    BandError,
+    GrowthsItemError,
+    KnightWardError,
+    InitError,
+)
 
 from aenir._logging import (
     configure_logging,
@@ -597,7 +608,7 @@ class MorphTests(unittest.TestCase):
     def test_init__unit_dne(self):
         """
         """
-        with self.assertRaises(IndexError) as assert_ctx:
+        with self.assertRaises(UnitNotFoundError) as assert_ctx:
             marth = self.TestMorph("Marth", which_bases=0, which_growths=0)
         (err_msg,) = assert_ctx.exception.args
         self.assertIn("%r" % (tuple(self.TestMorph.CHARACTER_LIST()),), err_msg)
@@ -656,7 +667,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LevelUpError):
             rutger.level_up(20)
         base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         self.assertEqual(rutger.current_lv, base_rutger.current_lv)
@@ -739,7 +750,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             rutger.promote()
         self.assertListEqual(
             rutger._meta["History"],
@@ -775,7 +786,7 @@ class MorphTests(unittest.TestCase):
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         rutger.name = "Marcus"
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             rutger.promote()
         self.assertListEqual(
             rutger._meta["History"],
@@ -961,7 +972,7 @@ class MorphTests(unittest.TestCase):
         }
         item = ""
         roy.stat_boosters = item_bonus_dict
-        with self.assertRaises(KeyError):
+        with self.assertRaises(StatBoosterError):
             roy.use_stat_booster(item)
 
     def test_promote__branch_unspecified(self):
@@ -974,7 +985,7 @@ class MorphTests(unittest.TestCase):
         ross = Morph8("Ross", which_bases=0, which_growths=0)
         ross.current_lv = 10
         valid_promotions = ('Fighter', 'Pirate', 'Journeyman (2)')
-        with self.assertRaises(KeyError) as key_ctx:
+        with self.assertRaises(PromotionError) as key_ctx:
             ross.promote()
         (err_msg,) = key_ctx.exception.args
         self.assertIn(str(valid_promotions), err_msg)
@@ -1026,10 +1037,10 @@ class Morph4Tests(unittest.TestCase):
         sigurd = Morph4("Sigurd")
         self.assertEqual(sigurd.current_lv, 5)
         sigurd.level_up(15)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             sigurd.promote()
         sigurd.level_up(10)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LevelUpError):
             sigurd.level_up(1)
 
     def test_ira(self):
@@ -1037,13 +1048,13 @@ class Morph4Tests(unittest.TestCase):
         """
         ira = Morph4("Ira")
         self.assertEqual(ira.current_lv, 4)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             ira.promote()
         ira.level_up(16)
         ira.promote()
         ira.level_up(10)
         self.assertEqual(ira.current_lv, 30)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LevelUpError):
             ira.level_up(1)
 
     def test_arden(self):
@@ -1051,14 +1062,14 @@ class Morph4Tests(unittest.TestCase):
         """
         arden = Morph4("Arden")
         self.assertEqual(arden.current_lv, 3)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             arden.promote()
         arden.level_up(17)
         arden.promote()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             arden.promote()
         arden.level_up(10)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LevelUpError):
             arden.level_up(1)
 
     def test_lakche_with_father_lex(self):
@@ -1066,18 +1077,18 @@ class Morph4Tests(unittest.TestCase):
         """
         lakche = Morph4("Lakche", father="Lex")
         self.assertEqual(lakche.current_lv, 1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             lakche.promote()
         lakche.level_up(19)
         lakche.promote()
         lakche.level_up(10)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(LevelUpError):
             lakche.level_up(1)
 
     def test_lakche_as_bastard(self):
         """
         """
-        with self.assertRaises(KeyError) as key_ctx:
+        with self.assertRaises(UnitNotFoundError) as key_ctx:
             Morph4("Lakche", father="")
         # generate father list
         path_to_db = Morph4.path_to("cleaned_stats.db")
@@ -1114,7 +1125,7 @@ class Morph4Tests(unittest.TestCase):
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.level_up(10)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
     def test_nonkids_who_cannot_promote(self):
@@ -1128,7 +1139,7 @@ class Morph4Tests(unittest.TestCase):
             #morph.level_up(20 - morph.current_lv)
             #morph.promote()
             morph.level_up(30 - morph.current_lv)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
     def test_kids_who_can_promote(self):
@@ -1144,7 +1155,7 @@ class Morph4Tests(unittest.TestCase):
                 morph.level_up(20 - morph.current_lv)
                 morph.promote()
                 morph.level_up(10)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     morph.level_up(1)
 
     def test_kids_who_cannot_promote(self):
@@ -1160,7 +1171,7 @@ class Morph4Tests(unittest.TestCase):
                 #morph.level_up(20 - morph.current_lv)
                 #morph.promote()
                 morph.level_up(30 - morph.current_lv)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     morph.level_up(1)
 
 class Morph5Tests(unittest.TestCase):
@@ -1190,7 +1201,7 @@ class Morph5Tests(unittest.TestCase):
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.level_up(19)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
     def test_nonpromotables(self):
@@ -1201,7 +1212,7 @@ class Morph5Tests(unittest.TestCase):
         for name in nonpromotables:
             morph = Morph5(name)
             morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
     def test_lara__long_path(self):
@@ -1210,7 +1221,7 @@ class Morph5Tests(unittest.TestCase):
         # Thief -> Thief Fighter -> Dancer -> Thief Fighter
         lara = Morph5("Lara")
         lara.level_up(10 - lara.current_lv)
-        with self.assertRaises(KeyError) as err_ctx:
+        with self.assertRaises(PromotionError) as err_ctx:
             lara.promote()
         (err_msg,) = err_ctx.exception.args
         valid_promotions = ('Thief Fighter', 'Dancer')
@@ -1224,7 +1235,7 @@ class Morph5Tests(unittest.TestCase):
         lara.current_lv = 10
         lara.promote()
         logger.debug("class: '%s', level: %d", lara.current_cls, lara.current_lv)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             lara.promote()
         #logger.debug("%s", err_ctx.exception.args)
 
@@ -1235,11 +1246,11 @@ class Morph5Tests(unittest.TestCase):
         lara = Morph5("Lara")
         lara.promo_cls ="Dancer"
         lara.promote()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             lara.promote()
         lara.level_up(9)
         lara.promote()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             lara.promote()
 
     def test_scroll_level_up(self):
@@ -1250,9 +1261,9 @@ class Morph5Tests(unittest.TestCase):
         eda.equip_scroll("Heim")
         eda.equip_scroll("Fala")
         eda.unequip_scroll("Fala")
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ScrollError):
             eda.unequip_scroll("")
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ScrollError):
             eda.equip_scroll("Heim")
         eda.level_up(10)
         eda2 = Morph5("Eda")
@@ -1355,7 +1366,7 @@ class Morph6Tests(unittest.TestCase):
         hugh.decline_hugh()
         hugh.decline_hugh()
         hugh.decline_hugh()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(OverflowError):
             hugh.decline_hugh()
         hugh2 = Morph6("Hugh")
         diff = (hugh.current_stats - hugh2.current_stats).as_dict()
@@ -1423,9 +1434,9 @@ class Morph6Tests(unittest.TestCase):
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.level_up(19)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_nonpromotables(self):
@@ -1437,12 +1448,12 @@ class Morph6Tests(unittest.TestCase):
             name = name.replace(" (HM)", "")
             logger.debug("Morph6(%r, hard_mode=%r)", name, hard_mode)
             morph = Morph6(name, hard_mode=hard_mode)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
             morph.level_up(20 - morph.current_lv)
             #morph.promote()
             #morph.level_up(19)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
     def test_stat_boosters(self):
@@ -1586,7 +1597,7 @@ class Morph7Tests(unittest.TestCase):
         """
         """
         with self.assertLogs(logger, logging.WARNING):
-            matthew = Morph7("Matthew", hard_mode=True)
+            matthew = Morph7("Matthew", hard_mode=True, lyn_mode=True)
         self.assertIsNone(matthew._meta["Hard Mode"])
 
     def test_hardmode_version_exists(self):
@@ -1648,7 +1659,7 @@ class Morph7Tests(unittest.TestCase):
         """
         wallace = Morph7("Wallace", lyn_mode=False)
         wallace.level_up(20 - wallace.current_lv)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PromotionError):
             wallace.promote()
         #wallace.level_up(19)
 
@@ -1691,9 +1702,9 @@ class Morph7Tests(unittest.TestCase):
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.level_up(19)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_nonpromotables(self):
@@ -1705,12 +1716,12 @@ class Morph7Tests(unittest.TestCase):
             name = name.replace(" (HM)", "")
             logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
             morph = Morph7(name, hard_mode=hard_mode)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
             morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_stat_boosters(self):
@@ -1779,7 +1790,7 @@ class Morph8Tests(unittest.TestCase):
         _morph.current_lv = 10
         try:
             _morph.promote()
-        except KeyError:
+        except PromotionError:
             pass
         promo_dict = {}
         # compile list of promotions
@@ -1791,18 +1802,18 @@ class Morph8Tests(unittest.TestCase):
             morph.current_lv = 10
             try:
                 morph.promote()
-            except KeyError:
+            except PromotionError:
                 pass
             promo_dict[promo_cls] = morph.possible_promotions
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
                 morph = Morph8(name)
                 # try to promote at base level; this fails
-                with self.assertRaises(ValueError):
+                with self.assertRaises(PromotionError):
                     morph.promote()
                 # level up to promotion level
                 morph.level_up(10 - morph.current_lv)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     # level up past promotion level; this fails
                     morph.level_up(1)
                 # promote
@@ -1812,7 +1823,7 @@ class Morph8Tests(unittest.TestCase):
                 self.assertEqual(morph.current_lv, 1)
                 # level up to 20
                 morph.level_up(19)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     # level up past 20; this fails
                     morph.level_up(1)
                 morph.promo_cls = promo_cls2
@@ -1820,10 +1831,10 @@ class Morph8Tests(unittest.TestCase):
                 morph.promote()
                 # level to 20
                 morph.level_up(19)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     # level up past 20; this fails
                     morph.level_up(1)
-                with self.assertRaises(ValueError) as err_ctx:
+                with self.assertRaises(PromotionError) as err_ctx:
                     morph.promote()
                 (err_msg,) = err_ctx.exception.args
                 self.assertIn("no available promotions", err_msg)
@@ -1835,12 +1846,12 @@ class Morph8Tests(unittest.TestCase):
         for name in nonpromotables:
             logger.debug("Morph8(%r)", name)
             morph = Morph8(name)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
             morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_promotables(self):
@@ -1854,20 +1865,20 @@ class Morph8Tests(unittest.TestCase):
             try:
                 morph.promote()
                 morph.level_up(19)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(LevelUpError):
                     morph.level_up(1)
-                with self.assertRaises(ValueError):
+                with self.assertRaises(PromotionError):
                     morph.promote()
-            except KeyError:
+            except PromotionError:
                 for promo_cls in morph.possible_promotions:
                     morph = Morph8(name)
                     morph.level_up(20 - morph.current_lv)
                     morph.promo_cls = promo_cls
                     morph.promote()
                     morph.level_up(19)
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(LevelUpError):
                         morph.level_up(1)
-                    with self.assertRaises(ValueError):
+                    with self.assertRaises(PromotionError):
                         morph.promote()
 
     def test_stat_boosters(self):
@@ -1929,9 +1940,9 @@ class Morph9Tests(unittest.TestCase):
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.level_up(19)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_nonpromotables(self):
@@ -1941,12 +1952,12 @@ class Morph9Tests(unittest.TestCase):
         for name in nonpromotables:
             logger.debug("Morph9(%r)", name)
             morph = Morph9(name)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
             morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(LevelUpError):
                 morph.level_up(1)
-            with self.assertRaises(ValueError):
+            with self.assertRaises(PromotionError):
                 morph.promote()
 
     def test_stat_boosters(self):
@@ -1993,7 +2004,7 @@ class MorphFunctionTests(unittest.TestCase):
     def test_get_morph__error_propagated_from_morph(self):
         """
         """
-        with self.assertRaises(IndexError):
+        with self.assertRaises(UnitNotFoundError):
             get_morph(6, "Marth")
 
     def test_get_morph__invalid_game(self):
