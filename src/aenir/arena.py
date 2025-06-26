@@ -31,6 +31,7 @@ def degrade_holy_water(self):
     """
     raise NotImplementedError
 
+self.is_mounted = None
 def mount(self):
     """
     """

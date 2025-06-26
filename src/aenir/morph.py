@@ -763,6 +763,8 @@ class Morph5(Morph):
             "Skill Ring": ("Skl", 3),
             "Leg Ring": ("Mov", 2),
         }
+        # TODO: Condition on names / classes to determine values
+        self.is_mounted = None
 
     def _set_min_promo_level(self):
         """
