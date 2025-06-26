@@ -19,6 +19,22 @@ class UnitNotFoundError(BaseException):
         super().__init__(msg)
         self.unit_type = unit_type
 
+class InitError(BaseException):
+    """
+    """
+
+    class MissingValue(enum.Enum):
+        """
+        """
+        LYN_MODE = enum.auto()
+        HARD_MODE = enum.auto()
+
+    def __init__(self, msg, *, missing_value):
+        """
+        """
+        super().__init__(msg)
+        self.missing_value = missing_value
+
 class LevelUpError(BaseException):
     """
     """
@@ -72,6 +88,15 @@ class ScrollError(_ItemException):
         ALREADY_EQUIPPED = enum.auto()
         NOT_FOUND = enum.auto()
 
+class GrowthsItemError(_ItemException):
+    """
+    """
+
+    class Reason(enum.Enum):
+        """
+        """
+        ALREADY_CONSUMED = enum.auto()
+
 class BandError(_ItemException):
     """
     """
@@ -83,15 +108,6 @@ class BandError(_ItemException):
         ALREADY_EQUIPPED = enum.auto()
         NOT_FOUND = enum.auto()
 
-class GrowthsItemError(_ItemException):
-    """
-    """
-
-    class Reason(enum.Enum):
-        """
-        """
-        ALREADY_CONSUMED = enum.auto()
-
 class KnightWardError(_ItemException):
     """
     """
@@ -102,19 +118,3 @@ class KnightWardError(_ItemException):
         NOT_A_KNIGHT = enum.auto()
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
-
-class InitError(BaseException):
-    """
-    """
-
-    class MissingValue(enum.Enum):
-        """
-        """
-        LYN_MODE = enum.auto()
-        HARD_MODE = enum.auto()
-
-    def __init__(self, msg, *, missing_value):
-        """
-        """
-        super().__init__(msg)
-        self.missing_value = missing_value
