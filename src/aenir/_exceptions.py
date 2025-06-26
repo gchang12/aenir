@@ -92,9 +92,16 @@ class GrowthsItemError(_ItemException):
         """
         ALREADY_CONSUMED = enum.auto()
 
-class KnightWardError(BaseException):
+class KnightWardError(_ItemException):
     """
     """
+
+    class Reason(enum.Enum):
+        """
+        """
+        NOT_A_KNIGHT = enum.auto()
+        ALREADY_EQUIPPED = enum.auto()
+        NOT_EQUIPPED = enum.auto()
 
 class InitError(BaseException):
     """
