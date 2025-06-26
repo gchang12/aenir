@@ -87,6 +87,7 @@ class ScrollError(_ItemException):
         NOT_EQUIPPED = enum.auto()
         ALREADY_EQUIPPED = enum.auto()
         NOT_FOUND = enum.auto()
+        NO_INVENTORY_SPACE = enum.auto()
 
 class GrowthsItemError(_ItemException):
     """
@@ -107,6 +108,8 @@ class BandError(_ItemException):
         NOT_EQUIPPED = enum.auto()
         ALREADY_EQUIPPED = enum.auto()
         NOT_FOUND = enum.auto()
+        # TODO: Test this
+        NO_INVENTORY_SPACE = enum.auto()
 
 class KnightWardError(_ItemException):
     """
@@ -118,3 +121,5 @@ class KnightWardError(_ItemException):
         NOT_A_KNIGHT = enum.auto()
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
+        # TODO: Test this
+        NO_INVENTORY_SPACE = enum.auto()

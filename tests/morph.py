@@ -1217,6 +1217,14 @@ class Morph4Tests(unittest.TestCase):
         expected = StatBoosterError.Reason.NO_IMPLEMENTATION
         self.assertEqual(actual, expected)
 
+    def test_inventory_size(self):
+        """
+        """
+        sigurd = Morph4("Sigurd")
+        actual = sigurd.inventory_size
+        expected = 7
+        self.assertEqual(actual, expected)
+
 class Morph5Tests(unittest.TestCase):
     """
     """
@@ -1225,6 +1233,21 @@ class Morph5Tests(unittest.TestCase):
         """
         """
         logger.critical("%s", self.id())
+        self.scrolls = (
+            "Odo",
+            "Baldo",
+            "Hezul",
+            "Dain",
+            "Noba",
+            "Neir",
+            "Ulir",
+            "Tordo",
+            "Fala",
+            "Sety",
+            "Blaggi",
+            "Heim",
+        )
+        self.eda = Morph5("Eda")
 
     @staticmethod
     def _get_promotables(can_promote):
@@ -1336,6 +1359,59 @@ class Morph5Tests(unittest.TestCase):
         self.assertEqual(eda.current_stats.Lck - eda2.current_stats.Lck, 4)
         self.assertEqual(eda.current_stats.Def - eda2.current_stats.Def, -1)
 
+    def test_equip_scroll(self):
+        """
+        """
+        scroll_name = self.scrolls[0]
+        og_growths = self.eda.growth_rates.copy()
+        self.eda.equip_scroll(scroll_name)
+        self.assertIn(scroll_name, self.eda.equipped_scrolls)
+        self.assertEqual(len(self.eda.equipped_scrolls), 1)
+        new_growths = self.eda.growth_rates
+        actual = all(og_growths == new_growths)
+        expected = False
+        self.assertIs(actual, expected)
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.eda.equip_scroll(scroll_name)
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+
+    def test_equip_scroll__exceed_inventory_space(self):
+        """
+        """
+        # equip scrolls
+        for i in range(7):
+            scroll_name = self.scrolls[0]
+            self.eda.equip_scroll(scroll_name)
+        # affirm size of equipped scrolls
+        self.assertGreater(len(self.scrolls), len(self.equipped_scrolls))
+        # try to equip another scroll
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.eda.equip_scroll(scroll_name)
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+
+    def test_equip_scroll__scroll_dne(self):
+        """
+        """
+        scroll_name = ""
+        og_growths = self.eda.growth_rates.copy()
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.eda.equip_scroll(scroll_name)
+        # check error
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+        # check state
+        self.assertNotIn(scroll_name, self.eda.equipped_scrolls)
+        self.assertEqual(len(self.eda.equipped_scrolls), 1)
+        new_growths = self.eda.growth_rates
+        actual = all(og_growths == new_growths)
+        expected = True
+        self.assertIs(actual, expected)
+
     def test_use_stat_booster__maxed_stat(self):
         """
         """
@@ -1346,6 +1422,14 @@ class Morph5Tests(unittest.TestCase):
         exception = exception_ctx.exception
         actual = exception.reason
         expected = StatBoosterError.Reason.STAT_IS_MAXED
+        self.assertEqual(actual, expected)
+
+    def test_inventory_size(self):
+        """
+        """
+        leaf = Morph5("Leaf")
+        actual = leaf.inventory_size
+        expected = 7
         self.assertEqual(actual, expected)
 
 class Morph6Tests(unittest.TestCase):
@@ -1569,6 +1653,14 @@ class Morph6Tests(unittest.TestCase):
             expected = getattr(original_stats, stat) + bonus
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
+
+    def test_inventory_size(self):
+        """
+        """
+        lord = Morph6("Roy")
+        actual = lord.inventory_size
+        expected = 5
+        self.assertEqual(actual, expected)
 
 class Morph7Tests(unittest.TestCase):
     """
@@ -1879,6 +1971,14 @@ class Morph7Tests(unittest.TestCase):
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
+    def test_inventory_size(self):
+        """
+        """
+        lord = Morph7("Eliwood")
+        actual = lord.inventory_size
+        expected = 5
+        self.assertEqual(actual, expected)
+
 class Morph8Tests(unittest.TestCase):
     """
     """
@@ -2069,6 +2169,14 @@ class Morph8Tests(unittest.TestCase):
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
 
+    def test_inventory_size(self):
+        """
+        """
+        lord = Morph8("Eirika")
+        actual = lord.inventory_size
+        expected = 5
+        self.assertEqual(actual, expected)
+
 class Morph9Tests(unittest.TestCase):
     """
     """
@@ -2077,6 +2185,7 @@ class Morph9Tests(unittest.TestCase):
         """
         """
         logger.critical("%s", self.id())
+        self.jill = Morph9("Jill")
 
     @staticmethod
     def _get_promotables(can_promote):
@@ -2149,8 +2258,180 @@ class Morph9Tests(unittest.TestCase):
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
+    def test_equip_band(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            "Mage Band",
+            "Priest Band",
+            "Thief Band",
+            #"Knight Ward",
+        )
+
     # TODO: Test Knight Ward
+
+    def test_equip_knight_ward__not_a_knight(self):
+        """
+        """
+        ike = Morph9("Ike")
+        with self.assertRaises(KnightWardError) as err_ctx:
+            ike.equip_knight_ward()
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.NOT_A_KNIGHT
+        self.assertEqual(actual, expected)
+
+    def test_inventory_size(self):
+        """
+        """
+        kieran = Morph9("Kieran")
+        actual = kieran.inventory_size
+        expected = 8
+        self.assertEqual(actual, expected)
+
+    def test_equip_knight_ward__no_space(self):
+        """
+        """
+        # initialize
+        kieran = Morph9("Kieran")
+        inventory_size = kieran.inventory_size
+        kieran.equipped_bands.update({i: None for i in range(inventory_size)})
+        with self.assertRaises(KnightWardError) as err_ctx:
+            kieran.unequip_knight_ward()
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+
+    def test_equip_knight_ward(self):
+        """
+        """
+        # initialize
+        kieran = Morph9("Kieran")
+        # assess state
+        actual = kieran.knight_ward_is_equipped
+        expected = False
+        self.assertIs(actual, expected)
+        # attempt to unequip Knight Ward.
+        with self.assertRaises(KnightWardError) as err_ctx:
+            kieran.unequip_knight_ward()
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.NOT_EQUIPPED
+        self.assertEqual(actual, expected)
+        # save growths
+        og_growths = kieran.growth_rates.copy()
+        # equip knight ward
+        kieran.equip_knight_ward()
+        with self.assertRaises(KnightWardError) as err_ctx:
+            kieran.equip_knight_ward()
+        # check state
+        actual = kieran.knight_ward_is_equipped
+        expected = True
+        self.assertIs(actual, expected)
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+        # compare growths
+        new_growths = kieran.growth_rates
+        comparison = new_growths - og_growths
+        actual = comparison.Spd
+        expected = 30
+        self.assertEqual(actual, expected)
+        comparison.Spd = 0
+        self.assertIs(all(comparison == kieran.Stats(**kieran.Stats.get_stat_dict(0))), True)
+
     # TODO: Test Bands
+
+    def test_band_level_up(self):
+        """
+        """
+        jill = self.jill
+        jill.equip_band("Blaggi")
+        jill.equip_band("Heim")
+        jill.equip_band("Fala")
+        jill.unequip_band("Fala")
+        with self.assertRaises(ScrollError) as err_ctx:
+            jill.unequip_band("")
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NOT_EQUIPPED
+        self.assertEqual(actual, expected)
+        with self.assertRaises(ScrollError) as err_ctx:
+            jill.equip_band("Heim")
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+        with self.assertRaises(ScrollError) as err_ctx:
+            jill.equip_band("")
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+        jill.level_up(10)
+        jill2 = Morph5("Eda")
+        jill2.level_up(10)
+
+    def test_equip_band(self):
+        """
+        """
+        band_name = self.bands[0]
+        og_growths = self.jill.growth_rates.copy()
+        self.jill.equip_band(band_name)
+        self.assertIn(band_name, self.jill.equipped_bands)
+        self.assertEqual(len(self.jill.equipped_bands), 1)
+        new_growths = self.jill.growth_rates
+        actual = all(og_growths == new_growths)
+        expected = False
+        self.assertIs(actual, expected)
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.jill.equip_band(band_name)
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+
+    def test_equip_band__exceed_inventory_space(self):
+        """
+        """
+        # equip bands
+        for i in range(7):
+            band_name = self.bands[0]
+            self.jill.equip_band(band_name)
+        # affirm size of equipped bands
+        self.assertGreater(len(self.bands), len(self.equipped_bands))
+        # try to equip another band
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.jill.equip_band(band_name)
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+
+    def test_equip_band__band_dne(self):
+        """
+        """
+        band_name = ""
+        og_growths = self.jill.growth_rates.copy()
+        with self.assertRaises(ScrollError) as err_ctx:
+            self.jill.equip_band(band_name)
+        # check error
+        actual = err_ctx.exception.reason
+        expected = ScrollError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+        # check state
+        self.assertNotIn(band_name, self.jill.equipped_bands)
+        self.assertEqual(len(self.jill.equipped_bands), 1)
+        new_growths = self.jill.growth_rates
+        actual = all(og_growths == new_growths)
+        expected = True
+        self.assertIs(actual, expected)
+
+    def test_equip_knight_ward(self):
+        """
+        """
+
 
 class MorphFunctionTests(unittest.TestCase):
     """
@@ -2197,3 +2478,4 @@ class MorphFunctionTests(unittest.TestCase):
         for game, lord in lords_and_games.items():
             with self.assertRaises(NotImplementedError):
                 get_morph(game, lord)
+
