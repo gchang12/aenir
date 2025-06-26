@@ -377,10 +377,10 @@ class Morph(BaseMorph):
                 reason=StatBoosterError.Reason.NOT_FOUND,
             )
         stat, bonus = item_bonus_dict[item_name]
-        if getattr(self.max_stats, stat) == getattr(self.current_stats, stat):
-            statval = getattr(self.max_stats, stat)
+        current_val = getattr(self.max_stats, stat)
+        if current_val == getattr(self.current_stats, stat):
             raise StatBoosterError(
-                f"{stat} stat value of ({statval}) is already maxed-out.",
+                f"{stat} is already maxed-out at {current_val}.",
                 reason=StatBoosterError.Reason.STAT_IS_MAXED,
             )
         setattr(increment, stat, bonus)
@@ -842,7 +842,7 @@ class Morph5(Morph):
             filters={"Name": scroll_name},
         ).fetchone()
         if stat_dict is None:
-            resultset = query_db(
+            resultset = self.query_db(
                 path_to_db,
                 table,
                 fields=["Name"],
@@ -1140,7 +1140,7 @@ class Morph7(Morph):
         self._meta["Lyn Mode"] = lyn_mode
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
-        self._meta[_growths_item] = False
+        self._meta[_growths_item] = None
         self.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1157,7 +1157,7 @@ class Morph7(Morph):
         """
         """
         _growths_item = self._growths_item
-        if self._meta[_growths_item] is True:
+        if self._meta[_growths_item] is not None:
             raise GrowthsItemError(
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
@@ -1234,7 +1234,7 @@ class Morph8(Morph):
         _growths_item = "Metis's Tome"
         # set instance attributes
         self._growths_item = _growths_item
-        self._meta[_growths_item] = False
+        self._meta[_growths_item] = None
         self.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1273,14 +1273,14 @@ class Morph8(Morph):
         """
         """
         _growths_item = self._growths_item
-        if self._meta[_growths_item] is True:
+        if self._meta[_growths_item] is not None:
             raise GrowthsItemError(
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
         growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
-        self._meta[self._growths_item] = (self.current_lv, self.current_cls)
+        self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
 
 # TODO: Implement equipping of growth bands
