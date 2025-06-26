@@ -433,10 +433,22 @@ class Morph(BaseMorph):
         """
         raise NotImplementedError
 
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 0
+
 class Morph4(Morph):
     """
     """
     game_no = 4
+
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 7
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -669,6 +681,12 @@ class Morph5(Morph):
     """
     game_no = 5
 
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 7
+
     @classmethod
     def CHARACTER_LIST(cls):
         """
@@ -833,6 +851,11 @@ class Morph5(Morph):
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
             )
+        if len(self.equipped_scrolls) >= self.inventory_size:
+            raise ScrollError(
+                f"You can equip at most {self.inventory_size} scrolls at once.",
+                reason=ScrollError.Reason.NO_INVENTORY_SPACE,
+            )
         path_to_db = self.path_to("cleaned_stats.db")
         table = "scroll_bonuses"
         stat_dict = self.query_db(
@@ -861,6 +884,12 @@ class Morph6(Morph):
     """
     game_no = 6
     character_list_filter = lambda name: " (HM)" not in name
+
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 5
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -1010,6 +1039,12 @@ class Morph7(Morph):
     """
     game_no = 7
     character_list_filter = lambda name: " (HM)" not in name
+
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 5
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -1177,6 +1212,12 @@ class Morph8(Morph):
     """
     game_no = 8
 
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 5
+
     @classmethod
     def CHARACTER_LIST(cls):
         """
@@ -1288,6 +1329,12 @@ class Morph9(Morph):
     """
     """
     game_no = 9
+
+    @property
+    def inventory_size(self):
+        """
+        """
+        return 8
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -1436,18 +1483,6 @@ class Morph9(Morph):
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
 
-    def unequip_band(self, band_name: str):
-        """
-        """
-        if scroll_name in self.equipped_bands:
-            self.equipped_bands.pop(band_name)
-            self._apply_band_bonuses()
-        else:
-            raise BandError(
-                f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
-                reason=BandError.Reason.NOT_EQUIPPED,
-            )
-
     def equip_band(self, band_name: str):
         """
         """
@@ -1457,8 +1492,13 @@ class Morph9(Morph):
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
             )
+        if len(self.equipped_bands) == self.inventory_size:
+            raise BandError(
+                f"You can equip at most {self.inventory_size} scrolls at once.",
+                reason=BandError.Reason.NO_INVENTORY_SPACE,
+            )
         path_to_db = self.path_to("cleaned_stats.db")
-        table = "band_bonuses"
+        table = "band_growths"
         stat_dict = self.query_db(
             path_to_db,
             table,
@@ -1480,6 +1520,18 @@ class Morph9(Morph):
         self.equipped_bands[band_name] = self.Stats(**stat_dict)
         self._apply_band_bonuses()
 
+    def unequip_band(self, band_name: str):
+        """
+        """
+        if band_name in self.equipped_bands:
+            self.equipped_bands.pop(band_name)
+            self._apply_band_bonuses()
+        else:
+            raise BandError(
+                f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
+                reason=BandError.Reason.NOT_EQUIPPED,
+            )
+
     def equip_knight_ward(self):
         """
         """
@@ -1488,6 +1540,11 @@ class Morph9(Morph):
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
             )
+        if len(self.equipped_bands) == self.inventory_size:
+            raise BandError(
+                f"You can equip at most {self.inventory_size} scrolls at once.",
+                reason=BandError.Reason.NO_INVENTORY_SPACE,
+            )
         if self.knight_ward_is_equipped is True:
             raise KnightWardError(
                 f"{self.name} already has the Knight Ward equipped.",
@@ -1495,12 +1552,23 @@ class Morph9(Morph):
             )
         # update stats
         self.growth_rates = self._og_growth_rates.copy()
-        bonus_statdict = self.STATS().get_stat_dict(0)
-        bonus_statdict['Spd'] = 30
-        bonus = self.STATS()(**bonus_statdict)
-        self.growth_rates += bonus
+        # look up knight band
+        band_name = "Knight Ward"
+        stat_dict = self.Stats.get_stat_dict(0)
+        stat_dict['Spd'] = 30
+        #path_to_db = self.path_to("cleaned_stats.db")
+        #table = "band_growths"
+        #stat_dict = self.query_db(
+            #path_to_db,
+            #table,
+            #fields=self.Stats.STAT_LIST(),
+            #filters={"Name": band_name},
+        #).fetchone()
+        # set to list of bands
+        self.equipped_bands[band_name] = self.Stats(**stat_dict)
+        self._apply_band_bonuses()
         # set the thing
-        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
+        self.knight_ward_is_equipped = True
 
     def unequip_knight_ward(self):
         """
@@ -1512,8 +1580,9 @@ class Morph9(Morph):
                 f"{self.name} does not have the Knight Ward equipped.",
                 reason=KnightWardError.Reason.NOT_EQUIPPED,
             )
-        self.growth_rates = self._og_growth_rates.copy()
-        self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
+        self.equipped_bands.pop(band_name)
+        self._apply_band_bonuses()
+        self.knight_ward_is_equipped = False
 
 def get_morph(game_no: int, name: str, **kwargs):
     """
