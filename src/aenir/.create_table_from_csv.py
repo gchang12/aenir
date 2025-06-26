@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 """
 
@@ -6,7 +7,7 @@ import sqlite3
 import csv
 from pathlib import Path
 
-from aenir._logging import logger
+#from aenir._logging import logger
 
 # TODO: Weapons should all be in one table.
 
@@ -41,13 +42,13 @@ def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
     query_stmt = f"SELECT COUNT(*) FROM {name_of_table};"
     with sqlite3.connect(path_to_db) as cnxn:
         cnxn.row_factory = sqlite3.Row
-        logger.debug("%s", create_stmt)
+        print("%s" % create_stmt)
         cnxn.execute(create_stmt)
-        logger.debug("%s", insert_stmt)
+        print("%s" % insert_stmt)
         cnxn.executemany(insert_stmt, records)
-        logger.debug("%s", query_stmt)
+        print("%s" % query_stmt)
         (num_rows_written,) = cnxn.execute(query_stmt).fetchone()
-    logger.debug("(%d) rows from '%s' have been written to '%s:%s'.", num_rows_written, path_to_csv, path_to_db, name_of_table)
+    print("(%d) rows from '%s' have been written to '%s:%s'." % (num_rows_written, path_to_csv, path_to_db, name_of_table))
     return num_rows_written
 
 parser = argparse.ArgumentParser()
@@ -59,5 +60,5 @@ path_to_csv = args.path_to_csv
 path_to_db = args.path_to_db
 cs_nonnumeric_columns = args.cs_nonnumeric_columns
 # invoke main
-logger.debug("create_table_from_csv('%s', '%s')", path_to_csv, path_to_db, cs_nonnumeric_columns)
+print("create_table_from_csv('%s', '%s', '%s')" % (path_to_csv, path_to_db, cs_nonnumeric_columns))
 create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns)
