@@ -30,24 +30,25 @@ To start, install `aenir`.
 ```bash
 pip install aenir
 ```
-Next, start up an interactive Python shell and import the shortcut function `get_morph`.
+
+## Usage
+
+Let's begin by starting up an interactive Python shell.
+We will start by importing the shortcut function `get_morph`.
 ```python
 from aenir.morph import get_morph
 ```
 
-## Usage
+To create a virtual copy of a unit (i.e. a 'Morph'), bear in mind the following:
 
-Create a virtual copy of a unit (i.e. a 'Morph'), bearing in mind the following:
-
-1. The name of the unit, per [SerenesForest.Net](https://serenesforest.net/).
+1. The name of the unit; this should have the [SerenesForest.Net](https://serenesforest.net/) spelling.
 2. The number of the game the unit is from.
 
-Let's say we want to get Roy's stats. Note that Roy is from FE6: The Sword of Seals.
+Let's say we want to get Roy's stats. Note that **Roy** is from FE**6**: The Sword of Seals.
 
 ```python
 roy = get_morph(6, "Roy")
-# implicit: roy.__repr__()
-roy
+print(roy)
 ```
 
 As you can see, these stats suck. Let's fix that; let's level him up to level twenty.
@@ -55,8 +56,7 @@ As you can see, these stats suck. Let's fix that; let's level him up to level tw
 ```python
 num_levels = 20 - roy.current_lv
 roy.level_up(num_levels)
-# implicit: roy.__repr__()
-roy
+print(roy)
 ```
 
 That's better. But it's still not enough. Let's promote him.
@@ -71,7 +71,7 @@ For the fun of it, let's max him out.
 num_levels = 19 # because he starts out at level one again.
 roy.level_up(num_levels)
 # implicit: roy.__repr__()
-roy
+print(roy)
 ```
  
 Note that when initializing certain characters, like Rutger, extra initialization parameters will be needed. 
@@ -86,7 +86,7 @@ Compare characters by using the greater-than operator.
 
 ```python
 roy > lyn
-sum(roy > lyn)
+print(sum(roy > lyn))
 ```
 
 ## Limitations
