@@ -1,5 +1,7 @@
 """
 """
+
+# TODO: For holy-water and mounting bonuses, need a temporary array of stats to toggle to easily.
 # *
 
 # save these for the arena, eh?
