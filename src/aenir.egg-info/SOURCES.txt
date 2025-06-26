@@ -24,7 +24,9 @@ docs/requirements.txt
 docs/_static/.gitignore
 src/aenir/__init__.py
 src/aenir/_create_table_from_csv.py
+src/aenir/_exceptions.py
 src/aenir/_logging.py
+src/aenir/arena.py
 src/aenir/games.py
 src/aenir/morph.py
 src/aenir/skeleton.py
