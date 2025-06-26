@@ -28,8 +28,6 @@ from aenir._exceptions import (
 )
 from aenir._logging import logger
 
-# TODO: For holy-water and mounting bonuses, need a temporary array of stats to toggle to easily.
-
 class BaseMorph(abc.ABC):
     """
     """
@@ -310,7 +308,7 @@ class Morph(BaseMorph):
         if self.min_promo_level is None:
             self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
-            # TODO: Tell user what morph should promote to
+            # Wishful: Tell user what morph should promote to
             raise PromotionError(
                 f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.",
                 reason=PromotionError.Reason.LEVEL_TOO_LOW,
@@ -1486,12 +1484,22 @@ class Morph9(Morph):
         """
         """
         if self.knight_ward_is_equipped is None:
-            raise KnightWardError(f"{self.name} is not a knight; cannot equip Knight Ward.")
+            raise KnightWardError(
+                f"{self.name} is not a knight; cannot equip Knight Ward.",
+                reason=KnightWardError.Reason.NOT_A_KNIGHT,
+            )
+        if self.knight_ward_is_equipped is True:
+            raise KnightWardError(
+                f"{self.name} already has the Knight Ward equipped.",
+                reason=KnightWardError.Reason.ALREADY_EQUIPPED,
+            )
+        # update stats
         self.growth_rates = self._og_growth_rates.copy()
         bonus_statdict = self.STATS().get_stat_dict(0)
         bonus_statdict['Spd'] = 30
         bonus = self.STATS()(**bonus_statdict)
         self.growth_rates += bonus
+        # set the thing
         self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
 
     def unequip_knight_ward(self):
@@ -1499,6 +1507,11 @@ class Morph9(Morph):
         """
         if self.knight_ward_is_equipped is None:
             raise KnightWardError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
+        if self.knight_ward_is_equipped is False:
+            raise KnightWardError(
+                f"{self.name} does not have the Knight Ward equipped.",
+                reason=KnightWardError.Reason.NOT_EQUIPPED,
+            )
         self.growth_rates = self._og_growth_rates.copy()
         self.knight_ward_is_equipped = not self.knight_ward_is_equipped 
 
