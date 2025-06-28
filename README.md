@@ -14,7 +14,7 @@
 
 # aenir
 
-## A Fire Emblem stats calculator
+## A Fire Emblem stat calculator
 > This module lets you perform stat calculations for Fire Emblem units.
 
 With this module, you can:
