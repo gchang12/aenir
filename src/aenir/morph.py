@@ -224,7 +224,7 @@ class Morph(BaseMorph):
         ).fetchone()
         max_stats = self.Stats(**stat_dict2)
         # (miscellany)
-        _meta = {'History': [], "Stat Boosters": []}
+        _meta = {"Stat Boosters": []}
         if name.replace(" (HM)", "") + " (HM)" in character_list:
             _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
@@ -237,12 +237,12 @@ class Morph(BaseMorph):
         self.current_clstype = current_clstype
         self.max_stats = max_stats
         self._meta = _meta
+        self.history = []
         self.max_level = None
         self.min_promo_level = None
         self.promo_cls = None
         self.possible_promotions = None
         self.stat_boosters = None
-        self.holy_water_bonus = None
 
     def _set_max_level(self):
         """
@@ -334,7 +334,7 @@ class Morph(BaseMorph):
                 resultset = new_resultset
         # ** PROMOTION START! **
         # record history
-        self._meta["History"].append((self.current_lv, self.current_cls))
+        self.history.append((self.current_lv, self.current_cls))
         # initialize stat_dict, then set attributes
         stat_dict = dict(resultset.pop())
         # set 'current_clstype' for future queries
@@ -410,7 +410,6 @@ class Morph(BaseMorph):
         self.promo_cls = None
         self.possible_promotions = None
         self.stat_boosters = None
-        self.holy_water_bonus = None
 
     def __gt__(self, other):
         """
@@ -428,10 +427,43 @@ class Morph(BaseMorph):
         """
         return self.current_stats.__iter__()
 
-    def __repr__(self):
+    def __repr__(self, *, header_data=None, miscellany=None):
         """
         """
-        raise NotImplementedError
+        # header: game, name, init-params
+        header = [
+            ("Game", self.game.formal_name),
+            ("Name", self.name),
+        ]
+        if header_data is not None:
+            header_.extend(header_data)
+        # class-lv history: current, previous, etc.
+        history = [
+            ("Class", self.current_cls),
+            ("Lv", self.current_lv),
+        ]
+        history.extend(self.history)
+        # misc:
+        #miscellany_ = []
+        #self._meta = None
+        #self.stat_boosters = None
+        # stats:
+        def datapair_to_string(keyval):
+            format_str = "% 5s: %s"
+            return format_str % keyval
+        data_as_str = [
+            *map(datapair_to_string, header),
+            "",
+            "HISTORY\n=======",
+            *map(datapair_to_string, history),
+            "",
+            "STATS\n=====",
+            self.current_stats.__repr__(),
+        ]
+        if miscellany is not None:
+            data_as_str.append("\nMISCELLANY\n==========")
+            data_as_str.extend(list(map(datapair_to_string, miscellany)))
+        return "\n".join(data_as_str)
 
     @property
     def inventory_size(self):
@@ -653,8 +685,8 @@ class Morph4(Morph):
         else:
             max_level = 30
         # set instance attributes
-        self.max_level = max_level
         self.min_promo_level = 20
+        self.max_level = max_level
         self._meta = _meta
         self.father = father
         self.game = game
@@ -666,6 +698,8 @@ class Morph4(Morph):
         self.current_clstype = current_clstype
         self.max_stats = max_stats
         self.promo_cls = promo_cls
+        self.history = []
+        self._meta.pop("Stat Boosters")
 
     def promote(self):
         """
@@ -675,6 +709,16 @@ class Morph4(Morph):
         self.current_lv = current_lv
         self.max_level = 30
         self.min_promo_level = 20
+
+    def __repr__(self):
+        """
+        """
+        header_data = []
+        if self.father is not None:
+            header_data.append(
+                ("Father", self.father),
+            )
+        super().__repr__(header_data=header_data)
 
 class Morph5(Morph):
     """
@@ -806,7 +850,7 @@ class Morph5(Morph):
         """
         fail_conditions = (
             self.name != "Lara" and self.current_cls == "Thief Fighter",
-            self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self._meta["History"]),
+            self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self.history),
         )
         if any(fail_conditions):
             raise PromotionError(
@@ -877,6 +921,15 @@ class Morph5(Morph):
             )
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
+
+    def __repr__(self):
+        """
+        """
+        miscellany = [
+            ("Scrolls", ", ".join(self.equipped_scrolls)),
+            ("Stat Boosters", ", ".join(self._meta["Stat Boosters"].items())),
+        ]
+        super().__repr__(miscellany=miscellany)
 
 class Morph6(Morph):
     """
@@ -1032,6 +1085,24 @@ class Morph6(Morph):
         """
         super().use_stat_booster(item_name)
 
+    def __repr__(self):
+        """
+        """
+        _meta = self._meta
+        miscellany = [
+            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
+        ]
+        miscellany_fields = (
+            "Number of Declines",
+            "Hard Mode",
+        )
+        for field in miscellany_fields:
+            if _meta[field] is None:
+                continue
+            miscellany.append(
+                (field, _meta[field]),
+            )
+        super().__repr__(miscellany=miscellany)
 
 class Morph7(Morph):
     """
@@ -1204,6 +1275,30 @@ class Morph7(Morph):
         """
         super().use_stat_booster(item_name)
 
+    def __repr__(self):
+        """
+        """
+        _meta = self._meta
+        miscellany = [
+            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
+        ]
+        miscellany_fields = (
+            "Lyn Mode",
+            "Hard Mode",
+        )
+        for field in miscellany_fields:
+            if _meta[field] is None:
+                continue
+            miscellany.append(
+                (field, _meta[field]),
+            )
+        _growths_item = self._growths_item
+        if _meta[_growths_item]:
+            miscellany.append(
+                (_growths_item, _meta[_growths_item]),
+            )
+        super().__repr__(miscellany=miscellany)
+
 
 class Morph8(Morph):
     """
@@ -1321,6 +1416,19 @@ class Morph8(Morph):
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
+    def __repr__(self):
+        """
+        """
+        _meta = self._meta
+        miscellany = [
+            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
+        ]
+        _growths_item = self._growths_item
+        if _meta[_growths_item]:
+            miscellany.append(
+                (_growths_item, _meta[_growths_item]),
+            )
+        super().__repr__(miscellany=miscellany)
 
 class Morph9(Morph):
     """
@@ -1577,6 +1685,20 @@ class Morph9(Morph):
         self.equipped_bands.pop(band_name)
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
+
+    def __repr__(self):
+        """
+        """
+        _meta = self._meta
+        miscellany = [
+            ("Stat Boosters", ", ".join(_meta["Stat Boosters"])),
+            ("Bands", ", ".join(self.equipped_bands)),
+        ]
+        if self.knight_ward_is_equipped:
+            miscellany.append(
+                ("Knight Ward", "On"),
+            ]
+        super().__repr__(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
     """

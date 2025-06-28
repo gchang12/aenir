@@ -186,6 +186,14 @@ class AbstractStats(abc.ABC):
         for stat in self.get_growable_stats():
             yield getattr(self, stat)
 
+    def __repr__(self):
+        """
+        """
+        statlist = self.as_list()
+        format_str = "% 4s: %5.2f"
+        statlist_as_str = "\n".join(format_str % statval for statval in statlist)
+        return statlist_as_str
+
 class GenealogyStats(AbstractStats):
     """
     """
