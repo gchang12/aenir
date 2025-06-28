@@ -427,7 +427,7 @@ class Morph(BaseMorph):
         """
         return self.current_stats.__iter__()
 
-    def __str__(self, *, header_data=None, miscellany=None):
+    def as_string(self, *, header_data=None, miscellany=None):
         """
         """
         # header: game, name, init-params
@@ -448,6 +448,8 @@ class Morph(BaseMorph):
         #self.stat_boosters = None
         # stats:
         def datapair_to_string(keyval):
+            """
+            """
             format_str = "% 6s: %s"
             return format_str % keyval
         data_as_str = [
@@ -465,10 +467,10 @@ class Morph(BaseMorph):
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
         return "\n".join(data_as_str)
 
-    def __repr__(self, *, header_data=None, miscellany=None):
+    def __repr__(self):
         """
         """
-        return self.__str__(header_data=header_data, miscellany=miscellany)
+        return self.__str__()
 
     @property
     def inventory_size(self):
@@ -723,7 +725,7 @@ class Morph4(Morph):
             header_data.append(
                 ("Father", self.father),
             )
-        return super().__str__(header_data=header_data)
+        return super().as_string(header_data=header_data)
 
 class Morph5(Morph):
     """
@@ -939,7 +941,7 @@ class Morph5(Morph):
             miscellany.append(
                 ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
             )
-        return super().__str__(miscellany=miscellany)
+        return super().as_string(miscellany=miscellany)
 
 class Morph6(Morph):
     """
@@ -1113,7 +1115,7 @@ class Morph6(Morph):
             header_data.append(
                 (field, _meta[field]),
             )
-        return super().__str__(header_data=header_data, miscellany=miscellany)
+        return super().as_string(header_data=header_data, miscellany=miscellany)
 
 class Morph7(Morph):
     """
@@ -1311,7 +1313,7 @@ class Morph7(Morph):
             miscellany.append(
                 (_growths_item, _meta[_growths_item]),
             )
-        return super().__str__(header_data=header_data, miscellany=miscellany)
+        return super().as_string(header_data=header_data, miscellany=miscellany)
 
 
 class Morph8(Morph):
@@ -1444,7 +1446,7 @@ class Morph8(Morph):
             miscellany.append(
                 (_growths_item, _meta[_growths_item]),
             )
-        return super().__str__(miscellany=miscellany)
+        return super().as_string(miscellany=miscellany)
 
 class Morph9(Morph):
     """
@@ -1715,7 +1717,7 @@ class Morph9(Morph):
             miscellany.append(
                 ("Bands", ", ".join(self.equipped_bands)),
             )
-        return super().__str__(miscellany=miscellany)
+        return super().as_string(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
     """
