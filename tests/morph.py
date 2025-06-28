@@ -2519,6 +2519,7 @@ class MorphFunctionTests(unittest.TestCase):
         for game_no in range(6, 9):
             lord = self.lords_and_games[game_no]
             morph = get_morph(game_no, lord)
+            morph.use_stat_booster("Energy Ring")
             morph.level_up(20 - morph.current_lv)
             morph.promote()
             morph.use_stat_booster("Angelic Robe")
