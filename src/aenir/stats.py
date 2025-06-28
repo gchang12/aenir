@@ -67,13 +67,13 @@ class AbstractStats(abc.ABC):
         Warns user about unused kwargs.
         """
         # check if statlist in statdict
-        if not isinstance(self.STAT_LIST(), tuple):
-            raise NotImplementedError("`STAT_LIST` must return a tuple; instead it returns a %r", type(self.STAT_LIST()))
-        expected_stats = set(self.STAT_LIST())
+        statlist = self.STAT_LIST()
+        if not isinstance(statlist, tuple):
+            raise NotImplementedError("`STAT_LIST` must return a tuple; instead it returns a %r", type(statlist))
+        expected_stats = set(statlist)
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
             # get list of missing keywords and report to user
-            statlist = self.STAT_LIST()
             def by_statlist_ordering(stat):
                 """
                 Returns position of `stat` in `cls.STAT_LIST()`.
@@ -85,12 +85,13 @@ class AbstractStats(abc.ABC):
             )
             raise AttributeError("Please supply values for the following stats: %s" % missing_stats)
         # initialize
-        for stat in self.STAT_LIST():
+        for stat in statlist:
             stat_value = stat_dict[stat]
             setattr(self, stat, stat_value)
         # warn user of unused kwargs
-        if stat_dict:
-            logger.warning("These keyword arguments have gone unused: %s", stat_dict)
+        unused_stats = set(stat_dict) - set(statlist)
+        if unused_stats:
+            logger.warning("These keyword arguments have gone unused: %s", unused_stats)
 
     def __mul__(self, other):
         """

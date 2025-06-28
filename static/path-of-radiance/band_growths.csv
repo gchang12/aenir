@@ -1,0 +1,13 @@
+Name,HP,Str,Mag,Skl,Spd,Lck,Def,Res,Mov,Con,Wt
+Sword Band,0,0,0,5,0,5,0,0,0,0,0
+Soldier Band,5,0,0,0,0,0,5,0,0,0,0
+Fighter Band,5,5,0,0,0,0,0,0,0,0,0
+Archer Band,0,0,0,5,5,0,0,0,0,0,0
+Knight Band,0,5,0,0,0,0,5,0,0,0,0
+Paladin Band,5,0,0,0,5,0,0,0,0,0,0
+Pegasus Band,0,0,0,0,0,5,0,5,0,0,0
+Wyvern Band,0,5,0,0,0,0,5,0,0,0,0
+Mage Band,0,0,10,0,0,0,0,0,0,0,0
+Priest Band,0,0,0,0,0,5,0,5,0,0,0
+Thief Band,0,0,0,5,5,0,0,0,0,0,0
+Knight Ward,0,0,0,0,30,0,0,0,0,0,0
