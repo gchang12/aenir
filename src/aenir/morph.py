@@ -361,10 +361,10 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
         """
         """
-        item_bonus_dict = self.stat_boosters
+        #item_bonus_dict = self.stat_boosters
         if item_bonus_dict is None:
             raise StatBoosterError(
                 f"Stat boosters are not implemented for FE{self.game.value}.",
@@ -427,31 +427,31 @@ class Morph(BaseMorph):
         """
         return self.current_stats.__iter__()
 
-    def __repr__(self, *, header_data=None, miscellany=None):
+    def __str__(self, *, header_data=None, miscellany=None):
         """
         """
         # header: game, name, init-params
         header = [
-            ("Game", self.game.formal_name),
+            ("Game", "FE%d" % self.game.value + "-" + self.game.formal_name),
             ("Name", self.name),
         ]
         if header_data is not None:
-            header_.extend(header_data)
+            header.extend(header_data)
         # class-lv history: current, previous, etc.
         history = [
-            ("Class", self.current_cls),
-            ("Lv", self.current_lv),
+            ("(Lv, Class)", (self.current_lv, self.current_cls)),
         ]
-        history.extend(self.history)
+        history.extend([("(Lv, Class)", (cls, lv)) for cls, lv in self.history])
         # misc:
         #miscellany_ = []
         #self._meta = None
         #self.stat_boosters = None
         # stats:
         def datapair_to_string(keyval):
-            format_str = "% 5s: %s"
+            format_str = "% 6s: %s"
             return format_str % keyval
         data_as_str = [
+            "PROFILE\n=======",
             *map(datapair_to_string, header),
             "",
             "HISTORY\n=======",
@@ -464,6 +464,11 @@ class Morph(BaseMorph):
             data_as_str.append("\nMISCELLANY\n==========")
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
         return "\n".join(data_as_str)
+
+    def __repr__(self, *, header_data=None, miscellany=None):
+        """
+        """
+        return self.__str__(header_data=header_data, miscellany=miscellany)
 
     @property
     def inventory_size(self):
@@ -710,7 +715,7 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
         header_data = []
@@ -718,7 +723,7 @@ class Morph4(Morph):
             header_data.append(
                 ("Father", self.father),
             )
-        super().__repr__(header_data=header_data)
+        return super().__str__(header_data=header_data)
 
 class Morph5(Morph):
     """
@@ -812,17 +817,6 @@ class Morph5(Morph):
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
-        self.stat_boosters = {
-            "Luck Ring": ("Lck", 3),
-            "Life Ring": ("HP", 7),
-            "Speed Ring": ("Spd", 3),
-            "Magic Ring": ("Mag", 2),
-            "Power Ring": ("Str", 3),
-            "Body Ring": ("Con", 3),
-            "Shield Ring": ("Def", 2),
-            "Skill Ring": ("Skl", 3),
-            "Leg Ring": ("Mov", 2),
-        }
         self.is_mounted = None
 
     def _set_min_promo_level(self):
@@ -864,7 +858,18 @@ class Morph5(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        super().use_stat_booster(item_name)
+        item_bonus_dict = {
+            "Luck Ring": ("Lck", 3),
+            "Life Ring": ("HP", 7),
+            "Speed Ring": ("Spd", 3),
+            "Magic Ring": ("Mag", 2),
+            "Power Ring": ("Str", 3),
+            "Body Ring": ("Con", 3),
+            "Shield Ring": ("Def", 2),
+            "Skill Ring": ("Skl", 3),
+            "Leg Ring": ("Mov", 2),
+        }
+        return super().use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_scroll_bonuses(self):
         """
@@ -922,14 +927,19 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
-        miscellany = [
-            ("Scrolls", ", ".join(self.equipped_scrolls)),
-            ("Stat Boosters", ", ".join(self._meta["Stat Boosters"].items())),
-        ]
-        super().__repr__(miscellany=miscellany)
+        miscellany = []
+        if self.equipped_scrolls:
+            miscellany.append(
+                ("Scrolls", ", ".join(self.equipped_scrolls)),
+            )
+        if self._meta["Stat Boosters"]:
+            miscellany.append(
+                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
+            )
+        return super().__str__(miscellany=miscellany)
 
 class Morph6(Morph):
     """
@@ -1048,17 +1058,6 @@ class Morph6(Morph):
         self.name = name.replace(" (HM)", "")
         self._meta["Hard Mode"] = hard_mode
         self._meta["Number of Declines"] = num_declines
-        self.stat_boosters = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
 
     def decline_hugh(self):
         """
@@ -1083,26 +1082,38 @@ class Morph6(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        super().use_stat_booster(item_name)
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
         _meta = self._meta
-        miscellany = [
-            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
-        ]
-        miscellany_fields = (
+        miscellany = []
+        if self._meta["Stat Boosters"]:
+            miscellany.append(
+                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
+            )
+        header_data = []
+        header_fields = (
             "Number of Declines",
             "Hard Mode",
         )
-        for field in miscellany_fields:
-            if _meta[field] is None:
-                continue
-            miscellany.append(
+        for field in filter(lambda field_: _meta[field_] is not None, header_fields):
+            header_data.append(
                 (field, _meta[field]),
             )
-        super().__repr__(miscellany=miscellany)
+        return super().__str__(header_data=header_data, miscellany=miscellany)
 
 class Morph7(Morph):
     """
@@ -1245,17 +1256,6 @@ class Morph7(Morph):
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
-        self.stat_boosters = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
 
     def use_afas_drops(self):
         """
@@ -1273,31 +1273,45 @@ class Morph7(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        super().use_stat_booster(item_name)
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
-        _meta = self._meta
-        miscellany = [
-            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
-        ]
-        miscellany_fields = (
+        # header
+        header_data = []
+        header_fields = (
             "Lyn Mode",
             "Hard Mode",
         )
-        for field in miscellany_fields:
-            if _meta[field] is None:
-                continue
-            miscellany.append(
+        _meta = self._meta
+        for field in filter(lambda field_: _meta[field_] is not None, header_fields):
+            header_data.append(
                 (field, _meta[field]),
+            )
+        # miscellany
+        miscellany = []
+        if self._meta["Stat Boosters"]:
+            miscellany.append(
+                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
             )
         _growths_item = self._growths_item
         if _meta[_growths_item]:
             miscellany.append(
                 (_growths_item, _meta[_growths_item]),
             )
-        super().__repr__(miscellany=miscellany)
+        return super().__str__(header_data=header_data, miscellany=miscellany)
 
 
 class Morph8(Morph):
@@ -1369,17 +1383,6 @@ class Morph8(Morph):
         # set instance attributes
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
-        self.stat_boosters = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
 
     def _set_max_level(self):
         """
@@ -1401,7 +1404,18 @@ class Morph8(Morph):
     def use_stat_booster(self, item_name: str):
         """
         """
-        super().use_stat_booster(item_name)
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        super().use_stat_booster(item_name, item_bonus_dict)
 
     def use_metiss_tome(self):
         """
@@ -1416,19 +1430,21 @@ class Morph8(Morph):
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
         _meta = self._meta
-        miscellany = [
-            ("Stat Boosters", ", ".join(_meta["Stat Boosters"].items())),
-        ]
+        miscellany = []
+        if self._meta['Stat Boosters']:
+            miscellany.append(
+                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
+            )
         _growths_item = self._growths_item
         if _meta[_growths_item]:
             miscellany.append(
                 (_growths_item, _meta[_growths_item]),
             )
-        super().__repr__(miscellany=miscellany)
+        return super().__str__(miscellany=miscellany)
 
 class Morph9(Morph):
     """
@@ -1558,7 +1574,13 @@ class Morph9(Morph):
             knight_ward_is_equipped = None
         # set instance attributes
         self.knight_ward_is_equipped = knight_ward_is_equipped 
-        self.stat_boosters = {
+        self.equipped_bands = {}
+        self._og_growth_rates = self.growth_rates.copy()
+
+    def use_stat_booster(self, item_name: str):
+        """
+        """
+        item_bonus_dict = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
             "Spirit Dust": ("Mag", 2),
@@ -1570,13 +1592,7 @@ class Morph9(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        self.equipped_bands = {}
-        self._og_growth_rates = self.growth_rates.copy()
-
-    def use_stat_booster(self, item_name: str):
-        """
-        """
-        super().use_stat_booster(item_name)
+        super().use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_band_bonuses(self):
         """
@@ -1686,19 +1702,24 @@ class Morph9(Morph):
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
 
-    def __repr__(self):
+    def __str__(self):
         """
         """
         _meta = self._meta
-        miscellany = [
-            ("Stat Boosters", ", ".join(_meta["Stat Boosters"])),
-            ("Bands", ", ".join(self.equipped_bands)),
-        ]
+        miscellany = []
+        if self._meta["Stat Boosters"]:
+            miscellany.append(
+                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
+            )
+        if self.equipped_bands:
+            miscellany.append(
+                ("Bands", ", ".join(self.equipped_bands)),
+            )
         if self.knight_ward_is_equipped:
             miscellany.append(
-                ("Knight Ward", "On"),
+                ("Knight Ward", "Equipped"),
             )
-        super().__repr__(miscellany=miscellany)
+        return super().__str__(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
     """

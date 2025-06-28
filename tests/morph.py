@@ -77,6 +77,11 @@ class BaseMorphTests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -959,7 +964,7 @@ class MorphTests(unittest.TestCase):
             expected[stat] += bonus
         roy.stat_boosters = item_bonus_dict
         for item in item_bonus_dict:
-            roy.use_stat_booster(item)
+            roy.use_stat_booster(item, item_bonus_dict)
         actual = roy.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -981,7 +986,7 @@ class MorphTests(unittest.TestCase):
         item = ""
         roy.stat_boosters = item_bonus_dict
         with self.assertRaises(StatBoosterError) as err_ctx:
-            roy.use_stat_booster(item)
+            roy.use_stat_booster(item, item_bonus_dict)
         actual = err_ctx.exception.reason
         expected = StatBoosterError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
@@ -1211,7 +1216,7 @@ class Morph4Tests(unittest.TestCase):
         """
         sigurd = Morph4("Sigurd")
         with self.assertRaises(StatBoosterError) as err_ctx:
-            sigurd.use_stat_booster(None)
+            sigurd.use_stat_booster(None, None)
         actual = err_ctx.exception.reason
         expected = StatBoosterError.Reason.NO_IMPLEMENTATION
         self.assertEqual(actual, expected)
@@ -2408,7 +2413,7 @@ class Morph9Tests(unittest.TestCase):
             jill.equip_band(band_name)
         # affirm size of equipped bands
         self.assertGreater(len(self.bands), len(jill.equipped_bands))
-        logger.debug("Equipped bands: '%s'", jill.equipped_bands)
+        logger.debug("Equipped bands: '%s'", jill.equipped_bands.keys())
         # try to equip another band
         last_band = self.bands[-1]
         logger.debug("Trying to equip: '%s'", last_band)
@@ -2453,6 +2458,25 @@ class MorphFunctionTests(unittest.TestCase):
         """
         """
         logger.debug("%s", self.id())
+        self.lords_and_games = {
+            1: "Marth",
+            2: "Alm",
+            3: "Marth",
+            4: "Sigurd",
+            5: "Leaf",
+            6: "Roy",
+            7: "Eliwood",
+            8: "Ephraim",
+            9: "Ike",
+            10: "Micaiah",
+            11: "Marth",
+            12: "Marth",
+            13: "Chrom",
+            14: "Corrin",
+            15: "Celica",
+            16: "Byleth",
+            17: "Alear",
+        }
 
     def test_get_morph__roy(self):
         """
@@ -2474,20 +2498,73 @@ class MorphFunctionTests(unittest.TestCase):
     def test_get_morph__invalid_game(self):
         """
         """
-        lords_and_games = {
-            1: "Marth",
-            2: "Alm",
-            3: "Marth",
-            10: "Micaiah",
-            11: "Marth",
-            12: "Marth",
-            13: "Chrom",
-            14: "Corrin",
-            15: "Celica",
-            16: "Byleth",
-            17: "Alear",
-        }
+        lords_and_games = self.lords_and_games
+        for game_no in range(4, 10):
+            lords_and_games.pop(game_no)
         for game, lord in lords_and_games.items():
             with self.assertRaises(NotImplementedError):
                 get_morph(game, lord)
+
+    def test_repr(self):
+        """
+        """
+        for game_no in range(4, 10):
+            lord = self.lords_and_games[game_no]
+            morph = get_morph(game_no, lord)
+            logger.debug("\n\n%s\n", morph)
+
+    def test_repr__gba_promoted(self):
+        """
+        """
+        for game_no in range(6, 9):
+            lord = self.lords_and_games[game_no]
+            morph = get_morph(game_no, lord)
+            morph.level_up(20 - morph.current_lv)
+            morph.promote()
+            morph.use_stat_booster("Angelic Robe")
+            logger.debug("\n\n%s\n", morph)
+
+    def test_repr__gba_hard_mode(self):
+        """
+        """
+        rutger = get_morph(6, "Rutger", hard_mode=True)
+        rutger.level_up(20 - rutger.current_lv)
+        rutger.promote()
+        logger.debug("\n\n%s\n", rutger)
+
+    def test_repr__gba_growths_item(self):
+        """
+        """
+        heath = get_morph(7, "Heath", hard_mode=True)
+        heath.use_afas_drops()
+        heath.level_up(20 - heath.current_lv)
+        heath.promote()
+        heath.use_stat_booster("Speedwings")
+        logger.debug("\n\n%s\n", heath)
+
+    def test_repr__genealogy_kid(self):
+        """
+        """
+        larcei = get_morph(4, "Lakche", father="Lex")
+        larcei.level_up(20 - larcei.current_lv)
+        larcei.promote()
+        logger.debug("\n\n%s\n", larcei)
+
+    def test_repr__thracia_unit_with_scroll(self):
+        """
+        """
+        asvel = get_morph(5, "Asvel")
+        asvel.level_up(20 - asvel.current_lv)
+        asvel.equip_scroll("Blaggi")
+        asvel.equip_scroll("Odo")
+        logger.debug("\n\n%s\n", asvel)
+
+    def test_repr__radiant_unit_with_band(self):
+        """
+        """
+        morph = get_morph(9, "Oscar")
+        morph.equip_band("Thief Band")
+        morph.equip_knight_ward()
+        morph.level_up(20 - morph.current_lv)
+        logger.debug("\n\n%s\n", morph)
 
