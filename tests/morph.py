@@ -597,7 +597,6 @@ class MorphTests(unittest.TestCase):
         )
         actual = rutger._meta
         expected = {
-            "History": [],
             "Hard Mode": False,
             "Stat Boosters": [],
         }
@@ -687,7 +686,7 @@ class MorphTests(unittest.TestCase):
         rutger.min_promo_level = 0
         rutger.promote()
         self.assertListEqual(
-            rutger._meta["History"],
+            rutger.history,
             [(4, "Myrmidon")],
         )
         self.assertEqual(rutger.current_clstype, "classes__promotion_gains")
@@ -759,7 +758,7 @@ class MorphTests(unittest.TestCase):
         expected = PromotionError.Reason.LEVEL_TOO_LOW
         self.assertEqual(actual, expected)
         self.assertListEqual(
-            rutger._meta["History"],
+            rutger.history,
             [],
         )
         self.assertEqual(rutger.current_clstype, "characters__base_stats")
@@ -798,7 +797,7 @@ class MorphTests(unittest.TestCase):
         expected = PromotionError.Reason.NO_PROMOTIONS
         self.assertEqual(actual, expected)
         self.assertListEqual(
-            rutger._meta["History"],
+            rutger.history,
             [],
         )
         self.assertEqual(rutger.current_clstype, "characters__base_stats")
@@ -844,7 +843,7 @@ class MorphTests(unittest.TestCase):
         ira.promo_cls = "Swordmaster"
         ira.promote()
         self.assertListEqual(
-            ira._meta["History"],
+            ira.history,
             [(10, "Swordfighter")],
         )
         self.assertEqual(ira.current_clstype, "classes__promotion_gains")
@@ -902,7 +901,7 @@ class MorphTests(unittest.TestCase):
         holyn.promo_cls = "Forrest"
         holyn.promote()
         self.assertListEqual(
-            holyn._meta["History"],
+            holyn.history,
             [(10, "Swordfighter")],
         )
         self.assertEqual(holyn.current_clstype, "classes__promotion_gains")
