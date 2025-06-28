@@ -450,20 +450,20 @@ class Morph(BaseMorph):
         def datapair_to_string(keyval):
             """
             """
-            format_str = "% 6s: %s"
+            format_str = "% 4s: %s"
             return format_str % keyval
         data_as_str = [
             "PROFILE\n=======",
             *map(datapair_to_string, header),
-            "",
-            "HISTORY\n=======",
+            "%",
+            "HISTORY\n-------",
             *map(datapair_to_string, history),
-            "",
-            "STATS\n=====",
+            "%",
+            "STATS\n-----",
             self.current_stats.__repr__(),
         ]
         if miscellany is not None:
-            data_as_str.append("\nMISCELLANY\n==========")
+            data_as_str.append("%\nMISCELLANY\n----------")
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
         return "\n".join(data_as_str)
 
