@@ -1506,7 +1506,7 @@ class Morph9(Morph):
             filters={"Name": band_name},
         ).fetchone()
         if stat_dict is None:
-            resultset = query_db(
+            resultset = self.query_db(
                 path_to_db,
                 table,
                 fields=["Name"],
@@ -1541,9 +1541,9 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
             )
         if len(self.equipped_bands) == self.inventory_size:
-            raise BandError(
-                f"You can equip at most {self.inventory_size} scrolls at once.",
-                reason=BandError.Reason.NO_INVENTORY_SPACE,
+            raise KnightWardError(
+                f"Your inventory is full at: {self.inventory_size} items. Knight Band has not equipped.",
+                reason=KnightWardError.Reason.NO_INVENTORY_SPACE,
             )
         if self.knight_ward_is_equipped is True:
             raise KnightWardError(

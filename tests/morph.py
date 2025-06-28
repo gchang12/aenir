@@ -1381,14 +1381,16 @@ class Morph5Tests(unittest.TestCase):
         """
         """
         # equip scrolls
+        eda = self.eda
         for i in range(7):
-            scroll_name = self.scrolls[0]
-            self.eda.equip_scroll(scroll_name)
+            scroll_name = self.scrolls[i]
+            eda.equip_scroll(scroll_name)
         # affirm size of equipped scrolls
-        self.assertGreater(len(self.scrolls), len(self.equipped_scrolls))
+        self.assertGreater(len(self.scrolls), len(eda.equipped_scrolls))
         # try to equip another scroll
+        scroll_name = self.scrolls[-1]
         with self.assertRaises(ScrollError) as err_ctx:
-            self.eda.equip_scroll(scroll_name)
+            eda.equip_scroll(scroll_name)
         actual = err_ctx.exception.reason
         expected = ScrollError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
@@ -1406,7 +1408,7 @@ class Morph5Tests(unittest.TestCase):
         self.assertEqual(actual, expected)
         # check state
         self.assertNotIn(scroll_name, self.eda.equipped_scrolls)
-        self.assertEqual(len(self.eda.equipped_scrolls), 1)
+        self.assertEqual(len(self.eda.equipped_scrolls), 0)
         new_growths = self.eda.growth_rates
         actual = all(og_growths == new_growths)
         expected = True
@@ -2186,6 +2188,20 @@ class Morph9Tests(unittest.TestCase):
         """
         logger.critical("%s", self.id())
         self.jill = Morph9("Jill")
+        self.bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            "Mage Band",
+            "Priest Band",
+            "Thief Band",
+            #"Knight Ward",
+        )
 
     @staticmethod
     def _get_promotables(can_promote):
@@ -2261,20 +2277,6 @@ class Morph9Tests(unittest.TestCase):
     def test_equip_band(self):
         """
         """
-        bands = (
-            "Sword Band",
-            "Soldier Band",
-            "Fighter Band",
-            "Archer Band",
-            "Knight Band",
-            "Paladin Band",
-            "Pegasus Band",
-            "Wyvern Band",
-            "Mage Band",
-            "Priest Band",
-            "Thief Band",
-            #"Knight Ward",
-        )
 
     # TODO: Test Knight Ward
 
@@ -2304,9 +2306,11 @@ class Morph9Tests(unittest.TestCase):
         inventory_size = kieran.inventory_size
         kieran.equipped_bands.update({i: None for i in range(inventory_size)})
         with self.assertRaises(KnightWardError) as err_ctx:
-            kieran.unequip_knight_ward()
+            kieran.equip_knight_ward()
         actual = err_ctx.exception.reason
         expected = KnightWardError.Reason.NO_INVENTORY_SPACE
+        logger.debug("Actual: %s (%s)", actual, type(actual))
+        logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
 
     def test_equip_knight_ward(self):
@@ -2352,24 +2356,26 @@ class Morph9Tests(unittest.TestCase):
         """
         """
         jill = self.jill
-        jill.equip_band("Blaggi")
-        jill.equip_band("Heim")
-        jill.equip_band("Fala")
-        jill.unequip_band("Fala")
-        with self.assertRaises(ScrollError) as err_ctx:
+        bands = self.bands
+        for i in range(3):
+            band = bands[i]
+            jill.equip_band(band)
+        jill.unequip_band(band)
+        with self.assertRaises(BandError) as err_ctx:
             jill.unequip_band("")
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.NOT_EQUIPPED
+        expected = BandError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
-        with self.assertRaises(ScrollError) as err_ctx:
-            jill.equip_band("Heim")
+        first_band = bands[0]
+        with self.assertRaises(BandError) as err_ctx:
+            jill.equip_band(first_band)
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.ALREADY_EQUIPPED
+        expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
-        with self.assertRaises(ScrollError) as err_ctx:
+        with self.assertRaises(BandError) as err_ctx:
             jill.equip_band("")
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.NOT_FOUND
+        expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph5("Eda")
@@ -2387,26 +2393,33 @@ class Morph9Tests(unittest.TestCase):
         actual = all(og_growths == new_growths)
         expected = False
         self.assertIs(actual, expected)
-        with self.assertRaises(ScrollError) as err_ctx:
+        with self.assertRaises(BandError) as err_ctx:
             self.jill.equip_band(band_name)
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.ALREADY_EQUIPPED
+        expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
 
     def test_equip_band__exceed_inventory_space(self):
         """
         """
         # equip bands
-        for i in range(7):
-            band_name = self.bands[0]
-            self.jill.equip_band(band_name)
+        jill = self.jill
+        for i in range(8):
+            band_name = self.bands[i]
+            jill.equip_band(band_name)
         # affirm size of equipped bands
-        self.assertGreater(len(self.bands), len(self.equipped_bands))
+        self.assertGreater(len(self.bands), len(jill.equipped_bands))
+        logger.debug("Equipped bands: '%s'", jill.equipped_bands)
         # try to equip another band
-        with self.assertRaises(ScrollError) as err_ctx:
-            self.jill.equip_band(band_name)
+        last_band = self.bands[-1]
+        logger.debug("Trying to equip: '%s'", last_band)
+        self.assertNotIn(last_band, jill.equipped_bands)
+        with self.assertRaises(BandError) as err_ctx:
+            jill.equip_band(last_band)
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.NO_INVENTORY_SPACE
+        expected = BandError.Reason.NO_INVENTORY_SPACE
+        logger.debug("Actual: %s (%s)", actual, type(actual))
+        logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
 
     def test_equip_band__band_dne(self):
@@ -2414,15 +2427,15 @@ class Morph9Tests(unittest.TestCase):
         """
         band_name = ""
         og_growths = self.jill.growth_rates.copy()
-        with self.assertRaises(ScrollError) as err_ctx:
+        with self.assertRaises(BandError) as err_ctx:
             self.jill.equip_band(band_name)
         # check error
         actual = err_ctx.exception.reason
-        expected = ScrollError.Reason.NOT_FOUND
+        expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
         self.assertNotIn(band_name, self.jill.equipped_bands)
-        self.assertEqual(len(self.jill.equipped_bands), 1)
+        self.assertEqual(len(self.jill.equipped_bands), 0)
         new_growths = self.jill.growth_rates
         actual = all(og_growths == new_growths)
         expected = True
