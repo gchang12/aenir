@@ -779,7 +779,6 @@ class Morph5(Morph):
             "Skill Ring": ("Skl", 3),
             "Leg Ring": ("Mov", 2),
         }
-        # TODO: Condition on names / classes to determine values
         self.is_mounted = None
 
     def _set_min_promo_level(self):
@@ -1162,7 +1161,6 @@ class Morph7(Morph):
             hard_mode = None
         # initialize as usual
         super().__init__(name, which_bases=which_bases, which_growths=0)
-        # TODO: Figure out why this code is here.
         if not lyn_mode and name == "Wallace":
             # directs lookup-function to max stats for the General class
             current_clstype = "classes__promotion_gains"
@@ -1324,7 +1322,6 @@ class Morph8(Morph):
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
 
-# TODO: Implement equipping of growth bands
 class Morph9(Morph):
     """
     """
@@ -1447,7 +1444,6 @@ class Morph9(Morph):
             #'Sephiran',
             #'Leanne',
         )
-        # TODO: Implement temporary bonuses later
         if name in knights:
             knight_ward_is_equipped = False
         else:
@@ -1473,8 +1469,6 @@ class Morph9(Morph):
         """
         """
         super().use_stat_booster(item_name)
-
-    # TODO: Double-check these methods. Maybe make an entry for 'Knight Ward'
 
     def _apply_band_bonuses(self):
         """
