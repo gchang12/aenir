@@ -403,7 +403,7 @@ class Morph(BaseMorph):
         self.current_stats = None
         self.growth_rates = None
         self.current_clstype = None
-        self,max_stats = None
+        self.max_stats = None
         self._meta = None
         self.max_level = None
         self.min_promo_level = None
