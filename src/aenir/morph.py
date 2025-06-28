@@ -1715,10 +1715,6 @@ class Morph9(Morph):
             miscellany.append(
                 ("Bands", ", ".join(self.equipped_bands)),
             )
-        if self.knight_ward_is_equipped:
-            miscellany.append(
-                ("Knight Ward", "Equipped"),
-            )
         return super().__str__(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
