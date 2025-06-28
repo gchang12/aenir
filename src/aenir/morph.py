@@ -1697,7 +1697,7 @@ class Morph9(Morph):
         if self.knight_ward_is_equipped:
             miscellany.append(
                 ("Knight Ward", "On"),
-            ]
+            )
         super().__repr__(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
