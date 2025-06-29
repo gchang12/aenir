@@ -458,11 +458,12 @@ class Morph(BaseMorph):
             *map(lambda lvcls: "%5d %s" % lvcls, history),
             "%",
             "Stats\n-----",
-            self.current_stats.__repr__(),
+            self.current_stats.__repr__(with_title=False),
         ]
         if miscellany:
             data_as_str.append("%\nMiscellany\n----------")
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
+        data_as_str.append("")
         return indent("\n".join(data_as_str), " " * 4)
 
     def __repr__(self):
