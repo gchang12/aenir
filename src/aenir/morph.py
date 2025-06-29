@@ -6,6 +6,7 @@ import sqlite3
 #import json
 from typing import Tuple
 import copy
+from textwrap import indent
 
 from aenir.games import FireEmblemGame
 from aenir.stats import (
@@ -449,19 +450,20 @@ class Morph(BaseMorph):
             format_str = "% 4s: %s"
             return format_str % keyval
         data_as_str = [
-            "PROFILE\n=======",
+            "",
+            "Profile\n=======",
             *map(datapair_to_string, header),
             "%",
             "Level Class\n----- -----",
-            *map(lambda lvcls: "Lv%3d %s" % lvcls, history),
+            *map(lambda lvcls: "%5d %s" % lvcls, history),
             "%",
             "Stats\n-----",
             self.current_stats.__repr__(),
         ]
         if miscellany:
-            data_as_str.append("%\nMISCELLANY\n----------")
+            data_as_str.append("%\nMiscellany\n----------")
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
-        return "\n".join(data_as_str)
+        return indent("\n".join(data_as_str), " " * 4)
 
     def __repr__(self):
         """
