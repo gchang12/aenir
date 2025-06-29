@@ -192,7 +192,7 @@ class AbstractStats(abc.ABC):
         statlist = self.as_list()
         format_str = "% 4s: %5.2f"
         statlist_as_str = "\n".join(format_str % statval for statval in statlist)
-        return statlist_as_str
+        return statlist_as_str + "\n"
 
 class GenealogyStats(AbstractStats):
     """
