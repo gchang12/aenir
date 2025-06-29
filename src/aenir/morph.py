@@ -447,7 +447,7 @@ class Morph(BaseMorph):
         def datapair_to_string(keyval):
             """
             """
-            format_str = "% 5s: %s"
+            format_str = "% 6s: %s"
             return format_str % keyval
         data_as_str = [
             "",
@@ -462,13 +462,17 @@ class Morph(BaseMorph):
             ]
         )
         if history:
-            data_as_str.extend(
-                [
-                    " ",
-                    "History\n=======\n"
-                    "Level Class\n----- -----",
-                    *map(lambda lvcls: "%5d %s" % lvcls, history),
-                ]
+            data_as_str.append(" \nHistory\n=======")
+            data_as_str.append(
+                indent(
+                    "\n".join(
+                        [
+                            "Level Class\n----- -----",
+                            *map(lambda lvcls: "%5d %s" % lvcls, history),
+                        ]
+                    ),
+                " " * 2,
+                ),
             )
         if miscellany or self._meta["Stat Boosters"]:
             if miscellany or show_stat_boosters:
