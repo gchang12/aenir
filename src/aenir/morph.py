@@ -429,7 +429,7 @@ class Morph(BaseMorph):
         # header: game, name, init-params
         header = [
             ("Game", "FE%d" % self.game.value + "-" + self.game.formal_name),
-            ("Name", self.name),
+            ("Unit", self.name),
         ]
         if header_data is not None:
             header.extend(header_data)
@@ -452,13 +452,13 @@ class Morph(BaseMorph):
             "PROFILE\n=======",
             *map(datapair_to_string, header),
             "%",
-            "HISTORY\n-------",
-            *map(lambda lvcls: "Lv% 2d: %s" % lvcls, history),
+            "Level Class\n----- -----",
+            *map(lambda lvcls: "Lv%3d %s" % lvcls, history),
             "%",
-            "STATS\n-----",
+            "Stats\n-----",
             self.current_stats.__repr__(),
         ]
-        if miscellany is not None:
+        if miscellany:
             data_as_str.append("%\nMISCELLANY\n----------")
             data_as_str.extend(list(map(datapair_to_string, miscellany)))
         return "\n".join(data_as_str)
@@ -1440,7 +1440,7 @@ class Morph8(Morph):
         """
         _meta = self._meta
         miscellany = []
-        if self._meta['Stat Boosters']:
+        if _meta['Stat Boosters']:
             miscellany.append(
                 ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
             )

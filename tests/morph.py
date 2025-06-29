@@ -2527,6 +2527,18 @@ class MorphFunctionTests(unittest.TestCase):
         morph.promote()
         logger.debug("\n\n%s\n", morph)
 
+    def test_repr__trainee(self):
+        """
+        """
+        morph = get_morph(8, "Amelia")
+        morph.level_up(10 - morph.current_lv)
+        morph.promo_cls = "Cavalier (F)"
+        morph.promote()
+        morph.level_up(20 - morph.current_lv)
+        morph.promo_cls = "Paladin (F)"
+        morph.promote()
+        logger.debug("\n\n%s\n", morph)
+
     def test_repr__gba_hard_mode(self):
         """
         """
