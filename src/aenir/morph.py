@@ -1,4 +1,5 @@
 """
+Defines classes essential to comparing Fire Emblem unit stats.
 """
 
 import abc
@@ -31,12 +32,14 @@ from aenir._logging import logger
 
 class BaseMorph(abc.ABC):
     """
+    Defines attributes pertinent to backend side of stat comparison.
     """
 
     @classmethod
     @abc.abstractmethod
     def GAME(cls):
         """
+        Returns an object that uniquely identifies a Fire Emblem game.
         """
         # should return instance of FireEmblemGame
         raise NotImplementedError("Not implemented by design; implement in any subclass")
@@ -44,6 +47,7 @@ class BaseMorph(abc.ABC):
     @classmethod
     def STATS(cls):
         """
+        Returns a Stats class appropriate to `GAME`.
         """
         return {
             4: GenealogyStats,
@@ -57,6 +61,7 @@ class BaseMorph(abc.ABC):
     @classmethod
     def path_to(cls, file: str):
         """
+        Returns a path to the folder containing static files for `GAME`.
         """
         return "/".join(("static", cls.GAME().url_name, file))
 
@@ -68,6 +73,7 @@ class BaseMorph(abc.ABC):
             filters: dict[str, str],
         ):
         """
+        Queries `table` from db referenced by `path_to_db` for `fields` for which `filters` hold.
         """
         query = f"SELECT {', '.join(fields)} FROM '{table}'"
         if filters:
@@ -87,6 +93,7 @@ class BaseMorph(abc.ABC):
 
     def __init__(self):
         """
+        Initializes appropriate Stats class for this instance.
         """
         self.Stats = self.STATS()
 
@@ -97,6 +104,8 @@ class BaseMorph(abc.ABC):
             tableindex: int,
         ):
         """
+        Looks up alias of `home_data` that's recognized by `target_data` and returns
+        it as a set of filters alongside the table to query and the fields to fetch.
         """
         # unpack arguments
         home_table, value_to_lookup = home_data
@@ -145,6 +154,7 @@ class BaseMorph(abc.ABC):
 
 class Morph(BaseMorph):
     """
+    Represents a Fire Emblem unit from the game associated with `game_no`.
     """
     game_no = None
     character_list_filter = lambda name: True
@@ -152,18 +162,21 @@ class Morph(BaseMorph):
     @classmethod
     def get_true_character_list(cls):
         """
+        Returns list of unique characters.
         """
         return filter(cls.character_list_filter, cls.CHARACTER_LIST())
 
     @classmethod
     def GAME(cls):
         """
+        Returns aenir.games.FireEmblemGame instance corresponding to `game_no`.
         """
         return FireEmblemGame(cls.game_no)
 
     @classmethod
     def CHARACTER_LIST(cls):
         """
+        Returns list of characters from `GAME` as specified by characters__base_stats table.
         """
         #filename = "characters__base_stats-JOIN-characters__growth_rates.json"
         table_name = "characters__base_stats-JOIN-characters__growth_rates"
@@ -177,6 +190,10 @@ class Morph(BaseMorph):
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
         #if self.__class__.__name__ == "Morph":
         #logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
+        """
+        Initializes game, name, base stats, growth rates, max stats, and other variables for containing
+        data pertinent to stat comparison calculations.
+        """
         super().__init__()
         game = self.GAME()
         character_list = self.CHARACTER_LIST()
@@ -243,6 +260,7 @@ class Morph(BaseMorph):
 
     def _set_max_level(self):
         """
+        Sets the maximum level for a unit; for most FE units, this is 20.
         """
         # exceptions:
         # FE4: 30 for promoted, 20 for unpromoted
@@ -251,6 +269,7 @@ class Morph(BaseMorph):
 
     def _set_min_promo_level(self):
         """
+        Sets the minimum level for a unit; for most, this is 10.
         """
         # exceptions:
         # FE4: 20
@@ -262,6 +281,7 @@ class Morph(BaseMorph):
 
     def level_up(self, num_levels: int):
         """
+        Increases stats and level; throws an error if unit's max level is exceeded.
         """
         # get max level
         if self.max_level is None:
@@ -278,6 +298,7 @@ class Morph(BaseMorph):
 
     def _get_promo_query_kwargs(self):
         """
+        Gets data to use to query for promotion, including list of classes to promote to.
         """
         value_to_lookup = {
             "characters__base_stats": self.name,
@@ -292,6 +313,7 @@ class Morph(BaseMorph):
 
     def promote(self):
         """
+        Changes unit class and boosts stats among other parameters, given the right conditions are met.
         """
         query_kwargs = self._get_promo_query_kwargs()
         # quit if resultset is empty
@@ -360,6 +382,7 @@ class Morph(BaseMorph):
 
     def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
         """
+        Boosts stats in accordance with item specified; appends record to `_meta`.
         """
         #item_bonus_dict = self.stat_boosters
         if item_bonus_dict is None:
@@ -387,11 +410,13 @@ class Morph(BaseMorph):
 
     def copy(self):
         """
+        Returns copy of self; for preview purposes.
         """
         return copy.deepcopy(self)
 
     def _tare(self):
         """
+        Zeroes out the attributes common to all Morph subclasses.
         """
         self.name = None
         self.game = None
@@ -410,6 +435,7 @@ class Morph(BaseMorph):
 
     def __gt__(self, other):
         """
+        Returns a Morph containing a list of stat differences.
         """
         # self - other
         # This should throw an error if the things don't match
@@ -421,20 +447,24 @@ class Morph(BaseMorph):
 
     def __iter__(self):
         """
+        Iterates over dynamic stats in self.Stats.
         """
         return self.current_stats.__iter__()
 
     def as_string(self, *, header_data=None, miscellany=None, show_stat_boosters=True):
         """
+        Returns pertinent data about Morph as string.
         """
         # header: game, name, init-params
         header = [
             ("Game", "FE%d" % self.game.value + "-" + self.game.formal_name),
             ("Unit", self.name),
-            ("Class", ("Lv%02d" % self.current_lv) + "-" + self.current_cls),
         ]
         if header_data is not None:
             header.extend(header_data)
+        header.append(
+            ("Class", ("Lv%02d" % self.current_lv) + "-" + self.current_cls),
+        )
         # class-lv history: current, previous, etc.
         #history = [ (self.current_lv, self.current_cls), ]
         history = []
@@ -464,19 +494,18 @@ class Morph(BaseMorph):
         if history:
             data_as_str.append(" \nHistory\n=======")
             data_as_str.append(
-                indent(
                 "\n".join(
                     [
                         "Lv Class\n-- -----",
                         *map(lambda lvcls: "%02d %s" % lvcls, history),
                     ]
-                ), " " * 5),
+                ),
             )
         if miscellany or self._meta["Stat Boosters"]:
             if miscellany or show_stat_boosters:
                 data_as_str.append(" \nMiscellany\n==========")
                 if show_stat_boosters and self._meta["Stat Boosters"]:
-                    statboost_history = ["'%s'@Lv%02d-'%s'" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
+                    statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
                     miscellany.append(
                         ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
                     )
@@ -487,17 +516,20 @@ class Morph(BaseMorph):
 
     def __repr__(self):
         """
+        Returns pertinent data about Morph as string.
         """
         return self.__str__()
 
     @property
     def inventory_size(self):
         """
+        Declares inventory size; essential to implementing equipping of growths items in FE5 and FE9.
         """
         return 0
 
 class Morph4(Morph):
     """
+    Genealogy of the Holy War
     """
     game_no = 4
 
@@ -578,6 +610,7 @@ class Morph4(Morph):
 
     def __init__(self, name: str, *, father: str = None):
         """
+        Implements creation of kids with variable stats, in addition to normal units.
         """
         # test if name refers to a child with father-dependent stats
         kid_list = (
@@ -728,23 +761,32 @@ class Morph4(Morph):
 
     def _set_min_promo_level(self):
         """
-        """
-        raise NotImplementedError("This wasn't supposed to be called.")
-
-    def _set_max_level(self):
-        """
-        """
-        raise NotImplementedError("This wasn't supposed to be called.")
-
-    def promote(self):
-        """
-        """
+        By design, this should never be called.
         # lifetime of non-promo:
         # - max_level = 20
         # - promote: max_level = 30
         # lifetime of promoted:
         # - max_level = 30
         # - promote: error
+        """
+        raise NotImplementedError("This wasn't supposed to be called.")
+
+    def _set_max_level(self):
+        """
+        By design, this should never be called.
+        # lifetime of non-promo:
+        # - max_level = 20
+        # - promote: max_level = 30
+        # lifetime of promoted:
+        # - max_level = 30
+        # - promote: error
+        """
+        raise NotImplementedError("This wasn't supposed to be called.")
+
+    def promote(self):
+        """
+        Promotes unit and resets max level and current level to original.
+        """
         current_lv = self.current_lv
         super().promote()
         self.current_lv = current_lv
@@ -753,6 +795,7 @@ class Morph4(Morph):
 
     def __str__(self):
         """
+        Appends 'Sire' field to str-version of Morph as needed.
         """
         header_data = []
         if self.father is not None:
@@ -763,6 +806,7 @@ class Morph4(Morph):
 
 class Morph5(Morph):
     """
+    Thracia 776
     """
     game_no = 5
 
@@ -770,6 +814,7 @@ class Morph5(Morph):
     def inventory_size(self):
         """
         """
+        # https://fireemblemwiki.org/wiki/Inventory#Inventory_size_by_game
         return 7
 
     @classmethod
@@ -857,6 +902,8 @@ class Morph5(Morph):
 
     def _set_min_promo_level(self):
         """
+        Sets min-promo level in accordance with name and next promo class;
+        essential for Leif, Linoan, and Lara.
         """
         if self.name in ("Leaf", "Linoan"):
             min_promo_level = 1
@@ -908,13 +955,17 @@ class Morph5(Morph):
 
     def _apply_scroll_bonuses(self):
         """
+        Updates `growth_rates` in accordance with currently equipped scrolls.
         """
+        # TODO: Check if negative growth rates are zeroed out.
         self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
 
     def unequip_scroll(self, scroll_name: str):
         """
+        Removes `scroll_name` from list of equipped scrolls and updates
+        `growth_rates` accordingly. Throws error if scroll isn't equipped.
         """
         if scroll_name in self.equipped_scrolls:
             self.equipped_scrolls.pop(scroll_name)
@@ -927,6 +978,8 @@ class Morph5(Morph):
 
     def equip_scroll(self, scroll_name: str):
         """
+        Appends `scroll_name` to list of equipped scrolls and updates
+        `growth_rates` accordingly. Throws error if scroll DNE or is already on.
         """
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
@@ -964,6 +1017,7 @@ class Morph5(Morph):
 
     def __str__(self):
         """
+        Appends `Scrolls` field to str-representation as necessary.
         """
         miscellany = []
         if self.equipped_scrolls:
@@ -974,6 +1028,7 @@ class Morph5(Morph):
 
 class Morph6(Morph):
     """
+    Sword of Seals
     """
     game_no = 6
     character_list_filter = lambda name: " (HM)" not in name
@@ -981,6 +1036,7 @@ class Morph6(Morph):
     @property
     def inventory_size(self):
         """
+        Specified just for the fun of it.
         """
         return 5
 
@@ -1066,6 +1122,7 @@ class Morph6(Morph):
 
     def __init__(self, name: str, *, hard_mode: bool = None):
         """
+        New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
         #self.name = name.replace(" (HM)", "")
         if name + " (HM)" in self.CHARACTER_LIST():
@@ -1092,6 +1149,7 @@ class Morph6(Morph):
 
     def decline_hugh(self):
         """
+        Decreases stats for Hugh for each declination he receives.
         """
         if self.name != "Hugh":
             raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
@@ -1103,6 +1161,7 @@ class Morph6(Morph):
 
     def _set_min_promo_level(self):
         """
+        Declares that Roy can promote at any level.
         """
         if self.name == "Roy":
             min_promo_level = 1
@@ -1144,6 +1203,7 @@ class Morph6(Morph):
 
 class Morph7(Morph):
     """
+    Blazing Sword
     """
     game_no = 7
     character_list_filter = lambda name: " (HM)" not in name
@@ -1228,6 +1288,8 @@ class Morph7(Morph):
 
     def __init__(self, name: str, *, lyn_mode: bool = None, hard_mode: bool = None):
         """
+        Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
+        Support for growths item present.
         """
         lyndis_league = (
             "Lyn",
@@ -1301,6 +1363,7 @@ class Morph7(Morph):
 
     def use_afas_drops(self):
         """
+        Increases `growth_rates` by 5; throws error if this was already invokedd.
         """
         _growths_item = self._growths_item
         if self._meta[_growths_item] is not None:
@@ -1330,6 +1393,7 @@ class Morph7(Morph):
 
     def __str__(self):
         """
+        Appends LM and HM fields to str-representation, plus Afa's Drops field.
         """
         # header
         header_data = []
@@ -1354,13 +1418,14 @@ class Morph7(Morph):
         _growths_item = self._growths_item
         if _meta[_growths_item]:
             miscellany.append(
-                (_growths_item, _meta[_growths_item]),
+                (_growths_item, "Lv%02d-%s" % _meta[_growths_item]),
             )
         return super().as_string(header_data=header_data, miscellany=miscellany)
 
 
 class Morph8(Morph):
     """
+    The Sacred Stones
     """
     game_no = 8
 
@@ -1372,6 +1437,7 @@ class Morph8(Morph):
 
     def _set_min_promo_level(self):
         """
+        Declares that lords can promote whenever.
         """
         if self.name in ("Eirika", "Ephraim"):
             min_promo_level = 1
@@ -1431,6 +1497,7 @@ class Morph8(Morph):
 
     def __init__(self, name: str):
         """
+        Declares growths item: "Metis' Tome"
         """
         super().__init__(name, which_bases=0, which_growths=0)
         _growths_item = "Metis's Tome"
@@ -1440,6 +1507,7 @@ class Morph8(Morph):
 
     def _set_max_level(self):
         """
+        Declares that max level for trainees at starting class is 10; 20 o.w.
         """
         # exceptions:
         # FE4: 30 for promoted, 20 for unpromoted
@@ -1473,6 +1541,7 @@ class Morph8(Morph):
 
     def use_metiss_tome(self):
         """
+        Increases growths by 5
         """
         _growths_item = self._growths_item
         if self._meta[_growths_item] is not None:
@@ -1486,6 +1555,7 @@ class Morph8(Morph):
 
     def __str__(self):
         """
+        Appends growths item field to str-representation of Morph.
         """
         _meta = self._meta
         miscellany = []
@@ -1498,6 +1568,7 @@ class Morph8(Morph):
 
 class Morph9(Morph):
     """
+    Path of Radiance
     """
     game_no = 9
 
@@ -1646,6 +1717,7 @@ class Morph9(Morph):
 
     def _apply_band_bonuses(self):
         """
+        Updates growth rates in accordance with currently equipped bands.
         """
         self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_bands.values():
@@ -1653,6 +1725,8 @@ class Morph9(Morph):
 
     def equip_band(self, band_name: str):
         """
+        Simulates equipping of growth band specified by `band_name`.
+        Throws error if band is already equipped or DNE>
         """
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if band_name in self.equipped_bands:
@@ -1690,6 +1764,7 @@ class Morph9(Morph):
 
     def unequip_band(self, band_name: str):
         """
+        Simulates removal of band; throws error if band isn't equipped.
         """
         if band_name in self.equipped_bands:
             self.equipped_bands.pop(band_name)
@@ -1702,6 +1777,8 @@ class Morph9(Morph):
 
     def equip_knight_ward(self):
         """
+        Simulates equipping of Knight Ward.
+        Throws error if it is already equipped or unit is not a knight.
         """
         if self.knight_ward_is_equipped is None:
             raise KnightWardError(
@@ -1740,6 +1817,7 @@ class Morph9(Morph):
 
     def unequip_knight_ward(self):
         """
+        Simulates removal of Knight Ward; throws error if band isn't equipped or if unit is not a knight.
         """
         if self.knight_ward_is_equipped is None:
             raise KnightWardError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
