@@ -146,17 +146,13 @@ class Morph(BaseMorph):
     """
     """
     game_no = None
-    character_list_filter = None
+    character_list_filter = lambda name: True
 
     @classmethod
     def get_true_character_list(cls):
         """
         """
-        if cls.character_list_filter is not None:
-            character_list_filter = cls.character_list_filter
-        else:
-            character_list_filter = lambda name: True
-        return filter(character_list_filter, cls.CHARACTER_LIST())
+        return filter(cls.character_list_filter, cls.CHARACTER_LIST())
 
     @classmethod
     def GAME(cls):
@@ -439,9 +435,9 @@ class Morph(BaseMorph):
             header.extend(header_data)
         # class-lv history: current, previous, etc.
         history = [
-            ("(Lv, Class)", (self.current_lv, self.current_cls)),
+            (self.current_lv, self.current_cls),
         ]
-        history.extend([("(Lv, Class)", (cls, lv)) for cls, lv in self.history])
+        history.extend([(lv, cls) for lv, cls in self.history])
         # misc:
         #miscellany_ = []
         #self._meta = None
@@ -457,7 +453,7 @@ class Morph(BaseMorph):
             *map(datapair_to_string, header),
             "%",
             "HISTORY\n-------",
-            *map(datapair_to_string, history),
+            *map(lambda lvcls: "Lv% 2d: %s" % lvcls, history),
             "%",
             "STATS\n-----",
             self.current_stats.__repr__(),
