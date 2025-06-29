@@ -465,14 +465,12 @@ class Morph(BaseMorph):
             data_as_str.append(" \nHistory\n=======")
             data_as_str.append(
                 indent(
-                    "\n".join(
-                        [
-                            "Level Class\n----- -----",
-                            *map(lambda lvcls: "%5d %s" % lvcls, history),
-                        ]
-                    ),
-                " " * 2,
-                ),
+                "\n".join(
+                    [
+                        "Lv Class\n-- -----",
+                        *map(lambda lvcls: "%02d %s" % lvcls, history),
+                    ]
+                ), " " * 5),
             )
         if miscellany or self._meta["Stat Boosters"]:
             if miscellany or show_stat_boosters:
@@ -728,9 +726,25 @@ class Morph4(Morph):
         self.history = []
         #self._meta.pop("Stat Boosters")
 
+    def _set_min_promo_level(self):
+        """
+        """
+        raise NotImplementedError("This wasn't supposed to be called.")
+
+    def _set_max_level(self):
+        """
+        """
+        raise NotImplementedError("This wasn't supposed to be called.")
+
     def promote(self):
         """
         """
+        # lifetime of non-promo:
+        # - max_level = 20
+        # - promote: max_level = 30
+        # lifetime of promoted:
+        # - max_level = 30
+        # - promote: error
         current_lv = self.current_lv
         super().promote()
         self.current_lv = current_lv
@@ -844,12 +858,9 @@ class Morph5(Morph):
     def _set_min_promo_level(self):
         """
         """
-        try:
-            min_promo_level = {
-                "Leif": 1,
-                "Linoan": 1,
-            }[self.name]
-        except KeyError:
+        if self.name in ("Leaf", "Linoan"):
+            min_promo_level = 1
+        else:
             min_promo_level = 10
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
             min_promo_level = 1
@@ -865,7 +876,9 @@ class Morph5(Morph):
         """
         """
         fail_conditions = (
+            # prevents non-Lara Thief Fighters from getting promoted to Dancers.
             self.name != "Lara" and self.current_cls == "Thief Fighter",
+            # prevents Lara from getting promoting to a Dancer twice.
             self.name == "Lara" and "Dancer" in map(lambda lvcls: lvcls[1], self.history),
         )
         if any(fail_conditions):
@@ -1198,6 +1211,21 @@ class Morph7(Morph):
             'Athos',
         )
 
+    def _set_min_promo_level(self):
+        """
+        """
+        # exceptions:
+        # FE4: 20
+        # FE5: for Lara if promo_cls == 'Dancer': 1
+        # FE5: Leif, Linoan: 1
+        # FE6: Roy: 1
+        # FE7: Hector, Eliwood: 1
+        if self.name in ("Hector", "Eliwood"):
+            min_promo_level = 1
+        else:
+            min_promo_level = 10
+        self.min_promo_level = min_promo_level
+
     def __init__(self, name: str, *, lyn_mode: bool = None, hard_mode: bool = None):
         """
         """
@@ -1341,6 +1369,15 @@ class Morph8(Morph):
         """
         """
         return 5
+
+    def _set_min_promo_level(self):
+        """
+        """
+        if self.name in ("Eirika", "Ephraim"):
+            min_promo_level = 1
+        else:
+            min_promo_level = 10
+        self.min_promo_level = min_promo_level
 
     @classmethod
     def CHARACTER_LIST(cls):

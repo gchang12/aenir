@@ -1259,6 +1259,30 @@ class Morph5Tests(unittest.TestCase):
         url_name = "thracia-776"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_linoan__promotion(self):
+        """
+        """
+        name = "Linoan"
+        morph = Morph5(name)
+        self.assertLess(morph.current_lv, 10)
+        #self.assertEqual(morph.current_lv, 1)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
+
+    def test_leif__promotion(self):
+        """
+        """
+        name = "Leaf"
+        morph = Morph5(name)
+        self.assertLess(morph.current_lv, 10)
+        #self.assertEqual(morph.current_lv, 1)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
+
     def test_promotables(self):
         """
         """
@@ -1522,6 +1546,15 @@ class Morph6Tests(unittest.TestCase):
         actual = tuple(Morph6.get_true_character_list())
         self.assertTupleEqual(actual, expected)
 
+    def test_roy__early_promotion(self):
+        """
+        """
+        name = "Roy"
+        morph = Morph6(name)
+        self.assertEqual(morph.current_lv, 1)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+
     def test_hugh(self):
         """
         """
@@ -1590,10 +1623,13 @@ class Morph6Tests(unittest.TestCase):
     def test_roy_promo_level(self):
         """
         """
-        roy = Morph6("Roy")
-        self.assertEqual(roy.current_lv, 1)
-        roy.promote()
-        self.assertEqual(roy.current_cls, "Master Lord")
+        morph = Morph6("Roy")
+        #self.assertEqual(roy.current_lv, 1)
+        self.assertLess(morph.current_lv, 10)
+        morph.promote()
+        self.assertEqual(morph.current_cls, "Master Lord")
+        with self.assertRaises(PromotionError):
+            morph.promote()
 
     def test_promotables(self):
         """
@@ -1689,6 +1725,30 @@ class Morph7Tests(unittest.TestCase):
             "Lucius",
             "Wallace",
         )
+
+    def test_hector__early_promotion(self):
+        """
+        """
+        name = "Hector"
+        morph = Morph7(name)
+        self.assertLess(morph.current_lv, 10)
+        #self.assertEqual(morph.current_lv, 1)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
+
+    def test_eliwood__early_promotion(self):
+        """
+        """
+        name = "Eliwood"
+        morph = Morph7(name)
+        self.assertLess(morph.current_lv, 10)
+        #self.assertEqual(morph.current_lv, 1)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
 
     @staticmethod
     def _get_promotables(can_promote):
@@ -2000,6 +2060,28 @@ class Morph8Tests(unittest.TestCase):
         # query for list of units who cannot promote
         url_name = "the-sacred-stones"
         return _get_promotables(url_name, can_promote=can_promote)
+
+    def test_eirika__early_promotion(self):
+        """
+        """
+        name = "Eirika"
+        morph = Morph8(name)
+        self.assertLess(morph.current_lv, 10)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
+
+    def test_ephraim__early_promotion(self):
+        """
+        """
+        name = "Ephraim"
+        morph = Morph8(name)
+        self.assertLess(morph.current_lv, 10)
+        morph.promote()
+        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
 
     def test_ross(self):
         """
@@ -2581,5 +2663,13 @@ class MorphFunctionTests(unittest.TestCase):
         morph.equip_band("Thief Band")
         morph.equip_knight_ward()
         morph.level_up(20 - morph.current_lv)
+        logger.debug("\n\n%s\n", morph)
+
+    def test_repr__early_promo_lord(self):
+        """
+        """
+        morph = get_morph(7, "Hector")
+        #morph.level_up(20 - morph.current_lv)
+        morph.promote()
         logger.debug("\n\n%s\n", morph)
 
