@@ -424,20 +424,20 @@ class Morph(BaseMorph):
         """
         return self.current_stats.__iter__()
 
-    def as_string(self, *, header_data=None, miscellany=None):
+    def as_string(self, *, header_data=None, miscellany=None, show_stat_boosters=True):
         """
         """
         # header: game, name, init-params
         header = [
             ("Game", "FE%d" % self.game.value + "-" + self.game.formal_name),
             ("Unit", self.name),
+            ("Class", ("Lv%02d" % self.current_lv) + "-" + self.current_cls),
         ]
         if header_data is not None:
             header.extend(header_data)
         # class-lv history: current, previous, etc.
-        history = [
-            (self.current_lv, self.current_cls),
-        ]
+        #history = [ (self.current_lv, self.current_cls), ]
+        history = []
         history.extend([(lv, cls) for lv, cls in self.history])
         # misc:
         #miscellany_ = []
@@ -447,22 +447,39 @@ class Morph(BaseMorph):
         def datapair_to_string(keyval):
             """
             """
-            format_str = "% 4s: %s"
+            format_str = "% 5s: %s"
             return format_str % keyval
         data_as_str = [
             "",
             "Profile\n=======",
             *map(datapair_to_string, header),
-            "%",
-            "Level Class\n----- -----",
-            *map(lambda lvcls: "%5d %s" % lvcls, history),
-            "%",
-            "Stats\n-----",
-            self.current_stats.__repr__(with_title=False),
         ]
-        if miscellany:
-            data_as_str.append("%\nMiscellany\n----------")
-            data_as_str.extend(list(map(datapair_to_string, miscellany)))
+        data_as_str.extend(
+            [
+                " ",
+                "Stats\n=====",
+                self.current_stats.__repr__(with_title=False),
+            ]
+        )
+        if history:
+            data_as_str.extend(
+                [
+                    " ",
+                    "History\n=======\n"
+                    "Level Class\n----- -----",
+                    *map(lambda lvcls: "%5d %s" % lvcls, history),
+                ]
+            )
+        if miscellany or self._meta["Stat Boosters"]:
+            if miscellany or show_stat_boosters:
+                data_as_str.append(" \nMiscellany\n==========")
+                if show_stat_boosters and self._meta["Stat Boosters"]:
+                    statboost_history = ["'%s'@Lv%02d-'%s'" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
+                    miscellany.append(
+                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                    )
+                if miscellany:
+                    data_as_str.extend(list(map(datapair_to_string, miscellany)))
         data_as_str.append("")
         return indent("\n".join(data_as_str), " " * 4)
 
@@ -705,7 +722,7 @@ class Morph4(Morph):
         self.max_stats = max_stats
         self.promo_cls = promo_cls
         self.history = []
-        self._meta.pop("Stat Boosters")
+        #self._meta.pop("Stat Boosters")
 
     def promote(self):
         """
@@ -724,7 +741,7 @@ class Morph4(Morph):
             header_data.append(
                 ("Sire", self.father),
             )
-        return super().as_string(header_data=header_data)
+        return super().as_string(header_data=header_data, show_stat_boosters=False)
 
 class Morph5(Morph):
     """
@@ -936,10 +953,6 @@ class Morph5(Morph):
             miscellany.append(
                 ("Scrolls", ", ".join(self.equipped_scrolls)),
             )
-        if self._meta["Stat Boosters"]:
-            miscellany.append(
-                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
-            )
         return super().as_string(miscellany=miscellany)
 
 class Morph6(Morph):
@@ -1101,10 +1114,6 @@ class Morph6(Morph):
         """
         _meta = self._meta
         miscellany = []
-        if _meta["Stat Boosters"]:
-            miscellany.append(
-                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
-            )
         if _meta["Number of Declines"] is not None:
             miscellany.append(
                 ("Number of Declines", _meta["Number of Declines"]),
@@ -1310,10 +1319,6 @@ class Morph7(Morph):
             )
         # miscellany
         miscellany = []
-        if self._meta["Stat Boosters"]:
-            miscellany.append(
-                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
-            )
         _growths_item = self._growths_item
         if _meta[_growths_item]:
             miscellany.append(
@@ -1443,10 +1448,6 @@ class Morph8(Morph):
         """
         _meta = self._meta
         miscellany = []
-        if _meta['Stat Boosters']:
-            miscellany.append(
-                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
-            )
         _growths_item = self._growths_item
         if _meta[_growths_item]:
             miscellany.append(
@@ -1715,10 +1716,6 @@ class Morph9(Morph):
         """
         _meta = self._meta
         miscellany = []
-        if self._meta["Stat Boosters"]:
-            miscellany.append(
-                ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
-            )
         if self.equipped_bands:
             miscellany.append(
                 ("Bands", ", ".join(self.equipped_bands)),
