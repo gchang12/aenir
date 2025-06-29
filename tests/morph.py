@@ -1,8 +1,6 @@
 """
 """
 
-# TODO: Test copy method; simulate level-ups and time the thing
-
 import sqlite3
 import unittest
 from unittest.mock import patch
@@ -2282,8 +2280,6 @@ class Morph9Tests(unittest.TestCase):
         """
         """
 
-    # TODO: Test Knight Ward
-
     def test_equip_knight_ward__not_a_knight(self):
         """
         """
@@ -2353,8 +2349,6 @@ class Morph9Tests(unittest.TestCase):
         self.assertEqual(actual, expected)
         comparison.Spd = 0
         self.assertIs(all(comparison == kieran.Stats(**kieran.Stats.get_stat_dict(0))), True)
-
-    # TODO: Test Bands
 
     def test_band_level_up(self):
         """
