@@ -719,7 +719,7 @@ class Morph4(Morph):
         header_data = []
         if self.father is not None:
             header_data.append(
-                ("Father", self.father),
+                ("Sire", self.father),
             )
         return super().as_string(header_data=header_data)
 
@@ -1098,18 +1098,18 @@ class Morph6(Morph):
         """
         _meta = self._meta
         miscellany = []
-        if self._meta["Stat Boosters"]:
+        if _meta["Stat Boosters"]:
             miscellany.append(
                 ("Stat Boosters", ", ".join(str(lvclsitem) for lvclsitem in self._meta["Stat Boosters"])),
             )
+        if _meta["Number of Declines"] is not None:
+            miscellany.append(
+                ("Number of Declines", _meta["Number of Declines"]),
+            )
         header_data = []
-        header_fields = (
-            "Number of Declines",
-            "Hard Mode",
-        )
-        for field in filter(lambda field_: _meta[field_] is not None, header_fields):
+        if _meta["Hard Mode"] is not None:
             header_data.append(
-                (field, _meta[field]),
+                ("HM", _meta["Hard Mode"]),
             )
         return super().as_string(header_data=header_data, miscellany=miscellany)
 
@@ -1294,9 +1294,16 @@ class Morph7(Morph):
             "Hard Mode",
         )
         _meta = self._meta
+        def get_initials(name):
+            """
+            """
+            initials = []
+            for word in name.split(' '):
+                initials.append(word[0])
+            return "".join(initials)
         for field in filter(lambda field_: _meta[field_] is not None, header_fields):
             header_data.append(
-                (field, _meta[field]),
+                (get_initials(field), _meta[field]),
             )
         # miscellany
         miscellany = []
