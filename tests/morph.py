@@ -2525,6 +2525,14 @@ class MorphFunctionTests(unittest.TestCase):
             morph.use_stat_booster("Angelic Robe")
             logger.debug("\n\n%s\n", morph)
 
+    def test_repr__lyn_mode(self):
+        """
+        """
+        morph = get_morph(7, "Florina", lyn_mode=True)
+        morph.level_up(20 - morph.current_lv)
+        morph.promote()
+        logger.debug("\n\n%s\n", morph)
+
     def test_repr__gba_hard_mode(self):
         """
         """
