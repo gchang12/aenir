@@ -2,11 +2,10 @@
 """
 
 import sqlite3
-import unittest
-from unittest.mock import patch
-import enum
 import logging
 import json
+import unittest
+from unittest.mock import patch
 
 from aenir.games import FireEmblemGame
 from aenir.morph import (
@@ -2358,10 +2357,6 @@ class Morph9Tests(unittest.TestCase):
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
-    def test_equip_band(self):
-        """
-        """
-
     def test_equip_knight_ward__not_a_knight(self):
         """
         """
@@ -2521,10 +2516,6 @@ class Morph9Tests(unittest.TestCase):
         expected = True
         self.assertIs(actual, expected)
 
-    def test_equip_knight_ward(self):
-        """
-        """
-
 
 class MorphFunctionTests(unittest.TestCase):
     """
@@ -2672,4 +2663,28 @@ class MorphFunctionTests(unittest.TestCase):
         #morph.level_up(20 - morph.current_lv)
         morph.promote()
         logger.debug("\n\n%s\n", morph)
+
+    def test_gt__christmas_cavaliers(self):
+        """
+        """
+        morph1 = Morph6("Allen")
+        morph2 = Morph6("Lance")
+        actual = (morph1 > morph2).__str__()
+        logger.debug("\n\n%s\n", actual)
+
+    def test_gt__hm_and_nonhm(self):
+        """
+        """
+        morph1 = Morph6("Rutger", hard_mode=True)
+        morph2 = Morph6("Marcus")
+        actual = (morph1 > morph2).__str__()
+        logger.debug("\n\n%s\n", actual)
+
+    def test_gt__genealogykid_and_adult(self):
+        """
+        """
+        morph1 = Morph4("Lakche", father="Lex")
+        morph2 = Morph4("Sigurd")
+        actual = (morph1 > morph2).__str__()
+        logger.debug("\n\n%s\n", actual)
 

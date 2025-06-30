@@ -190,8 +190,15 @@ class AbstractStats(abc.ABC):
         """
         """
         statlist = self.as_list()
-        format_str = "% 4s: %5.2f"
-        statlist_as_str = "\n".join(format_str % statval for statval in statlist)
+        #format_str = "% 4s: %5.2s"
+        def get_formatted_statlist(statval):
+            """
+            """
+            format_str = "% 4s: %5.2f"
+            field, value = statval
+            value = value or 0
+            return format_str % (field, value)
+        statlist_as_str = "\n".join(get_formatted_statlist(statval) for statval in statlist)
         if with_title:
             header = self.__class__.__name__
             header_border = len(header) * "="
