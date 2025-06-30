@@ -256,7 +256,7 @@ class Morph(BaseMorph):
         self.min_promo_level = None
         self.promo_cls = None
         self.possible_promotions = None
-        self.stat_boosters = None
+        #self.stat_boosters = None
 
     def _set_max_level(self):
         """
@@ -419,19 +419,20 @@ class Morph(BaseMorph):
         Zeroes out the attributes common to all Morph subclasses.
         """
         self.name = None
-        self.game = None
-        self.current_cls = None
-        self.current_lv = None
-        self.current_stats = None
-        self.growth_rates = None
-        self.current_clstype = None
-        self.max_stats = None
-        self._meta = None
-        self.max_level = None
-        self.min_promo_level = None
-        self.promo_cls = None
-        self.possible_promotions = None
-        self.stat_boosters = None
+        #self.game = None
+        #self.current_cls = None
+        #self.current_lv = None
+        #self.current_stats = None
+        #self.growth_rates = None
+        #self.current_clstype = None
+        #self.max_stats = None
+        #self.max_level = None
+        #self.min_promo_level = None
+        #self.promo_cls = None
+        #self.possible_promotions = None
+        self._meta.clear()
+        #self.stat_boosters.clear()
+        self.history.clear()
 
     def __gt__(self, other):
         """
@@ -519,6 +520,14 @@ class Morph(BaseMorph):
         Returns pertinent data about Morph as string.
         """
         return self.__str__()
+
+    def __str__(self):
+        """
+        Returns pertinent data about Morph as string. Effectively a decorator for `as_string`.
+        """
+        if self.name is None:
+            return "\n" + indent(self.current_stats.__repr__(with_title=True), " " * 4) + "\n"
+        return self.as_string()
 
     @property
     def inventory_size(self):
@@ -793,7 +802,7 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
-    def __str__(self):
+    def as_string(self):
         """
         Appends 'Sire' field to str-version of Morph as needed.
         """
@@ -1015,7 +1024,7 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
 
-    def __str__(self):
+    def as_string(self):
         """
         Appends `Scrolls` field to str-representation as necessary.
         """
@@ -1185,7 +1194,7 @@ class Morph6(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def __str__(self):
+    def as_string(self):
         """
         """
         _meta = self._meta
@@ -1391,7 +1400,7 @@ class Morph7(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def __str__(self):
+    def as_string(self):
         """
         Appends LM and HM fields to str-representation, plus Afa's Drops field.
         """
@@ -1553,7 +1562,7 @@ class Morph8(Morph):
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
-    def __str__(self):
+    def as_string(self):
         """
         Appends growths item field to str-representation of Morph.
         """
@@ -1830,7 +1839,7 @@ class Morph9(Morph):
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
 
-    def __str__(self):
+    def as_string(self):
         """
         """
         _meta = self._meta
