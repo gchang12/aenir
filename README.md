@@ -78,7 +78,7 @@ Note that when initializing certain characters, like Rutger, extra initializatio
 
 ```python
 rutger = get_morph(6, "Rutger", hard_mode=True)
-larcei = get_morph(4, "Larcei", father="Lex")
+larcei = get_morph(4, "Lakche", father="Lex")
 lyn = get_morph(7, "Lyn", lyn_mode=True)
 ```
 
