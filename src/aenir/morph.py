@@ -497,6 +497,7 @@ class Morph(BaseMorph):
             data_as_str.append(
                 "\n".join(
                     [
+                        #*map(lambda lvcls: "Lv%02d-%s" % lvcls, history),
                         "Lv Class\n-- -----",
                         *map(lambda lvcls: "%02d %s" % lvcls, history),
                     ]
@@ -528,6 +529,12 @@ class Morph(BaseMorph):
         if self.name is None:
             return "\n" + indent(self.current_stats.__repr__(with_title=True), " " * 4) + "\n"
         return self.as_string()
+
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        raise NotImplementedError("")
 
     @property
     def inventory_size(self):
@@ -780,6 +787,15 @@ class Morph4(Morph):
         """
         raise NotImplementedError("This wasn't supposed to be called.")
 
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.max_level == 30:
+            raise NotImplementedError(f"{self.name} cannot promote.")
+        # NOTE: Units have to promote at base in FE4.
+        return None
+
     def _set_max_level(self):
         """
         By design, this should never be called.
@@ -825,6 +841,22 @@ class Morph5(Morph):
         """
         # https://fireemblemwiki.org/wiki/Inventory#Inventory_size_by_game
         return 7
+
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.name in ("Leaf", "Linoan"):
+            promo_item = None
+        if self.history and self.name != "Lara":
+            raise PromotionError(f"{self.name} is already promoted.")
+        if self.name == "Lara" and "Dancer" in (cls for lv, cls in self.history):
+            raise PromotionError("Lara cannot promote any further.")
+        # NOTE: Units have to promote at base in FE4.
+        if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
+            promo_item = None
+        promo_item = "Knight Proof"
+        return promo_item
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -1129,6 +1161,92 @@ class Morph6(Morph):
             'Guinevere',
         )
 
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.name == "Roy":
+            promo_item = None
+        if self.name in (
+            'Marcus',
+            'Merlinus',
+            'Zealot',
+            'Klein',
+            'Percival',
+            'Cecilia',
+            'Igrene',
+            'Garret',
+            'Douglas',
+            'Niime',
+            'Dayan',
+            'Juno',
+            'Yodel',
+            'Karel',
+            'Narshen',
+            'Gale',
+            'Hector',
+            'Brunya',
+            'Eliwood',
+            'Murdoch',
+            'Zephiel',
+            'Guinevere',
+            'Fa',
+            'Lalum',
+            'Elphin',
+            'Cath',
+            'Astohl',
+            'Chad',
+            'Bartre',
+            'Echidna',
+        ) or self.history:
+            raise PromotionError(f"{self.name} cannot be promoted.")
+        for promo_item, unit_list in {
+            "Knight's Crest": (
+                'Allen',
+                'Lance',
+                'Bors',
+                'Treck',
+                'Noah',
+                'Wendy',
+                'Barth',
+            ),
+            "Hero Crest": (
+                'Dieck',
+                'Rutger',
+                'Oujay',
+                'Fir',
+                'Wade',
+                'Lott',
+                'Gonzales',
+                'Geese',
+            ),
+            "Orion's Bolt": (
+                'Wolt',
+                'Dorothy',
+                'Sue',
+                'Shin',
+            ),
+            "Guiding Ring": (
+                'Ellen',
+                'Lugh',
+                'Clarine',
+                'Saul',
+                'Lilina',
+                'Ray',
+                'Sofiya',
+                'Hugh',
+            ),
+            "Elysian Whip": (
+                'Thany',
+                'Tate',
+                'Miredy',
+                'Zeis',
+            )
+        }:
+            if self.name in unit_list:
+                break
+        return promo_item
+
     def __init__(self, name: str, *, hard_mode: bool = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
@@ -1161,12 +1279,23 @@ class Morph6(Morph):
         Decreases stats for Hugh for each declination he receives.
         """
         if self.name != "Hugh":
-            raise ValueError("Can only invoke this method on an instance whose name == 'Hugh'")
+            raise ValueError("Can only invoke this method on a morph of Hugh.")
         if self._meta["Number of Declines"] == 3:
             raise OverflowError("Can invoke this method up to three times.")
+        if self.history or self.current_lv > 15:
+            raise InitError("This Hugh has already been levelled-up or promoted. Cannot decline.")
         self._meta["Number of Declines"] += 1
         decrement = self.Stats(**self.Stats.get_stat_dict(-1))
         self.current_stats += decrement
+
+    def set_elffin_route_for_gonzales(self):
+        """
+        """
+        if self.name != "Gonzales":
+            raise ValueError("Can only invoke this method on a morph of Gonzales.")
+        if self.history or self.current_lv > 5:
+            raise InitError("This Gonzales has already been levelled-up or promoted. Cannot switch routes.")
+        self.current_lv = 11
 
     def _set_min_promo_level(self):
         """
@@ -1279,6 +1408,81 @@ class Morph7(Morph):
             'Renault',
             'Athos',
         )
+
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.name in (
+            'Marcus',
+            'Nils',
+            'Merlinus',
+            'Ninian',
+            'Isadora',
+            'Hawkeye',
+            'Geitz',
+            'Pent',
+            'Louise',
+            'Karel',
+            'Harken',
+            'Jaffar',
+            'Vaida',
+            'Karla',
+            'Renault',
+            'Athos',
+        ) or self.history:
+            raise PromotionError(f"{self.name} cannot be promoted.")
+        if (self.name, self.current_clstype) == ("Wallace", "classes__promotion_gains"):
+            raise PromotionError("Wallace cannot be promoted.")
+        for promo_item, unit_list in {
+            "Knight's Crest": (
+                'Sain',
+                'Kent',
+                'Wallace',
+                'Lowen',
+                'Oswin',
+            ),
+            "Hero Crest": (
+                'Dorcas',
+                'Bartre',
+                'Guy',
+                'Raven',
+            ),
+            "Orion's Bolt": (
+                'Rath',
+                'Wil',
+                'Rebecca',
+            ),
+            "Guiding Ring": (
+                'Serra',
+                'Erk',
+                'Lucius',
+                'Priscilla',
+                'Canas',
+                'Nino',
+            ),
+            "Elysian Whip": (
+                'Florina',
+                'Heath',
+                'Fiora',
+                'Farina',
+            ),
+            "Ocean Seal": (
+                "Dart",
+            ),
+            "Fell Contract": (
+                'Matthew',
+                'Legault',
+            ),
+            "Heaven Seal": (
+                'Lyn',
+                'Eliwood',
+                'Hector',
+            ),
+        }:
+            if self.name in unit_list:
+                break
+        return promo_item
 
     def _set_min_promo_level(self):
         """
@@ -1443,6 +1647,81 @@ class Morph8(Morph):
         """
         """
         return 5
+
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.name in (
+            'Seth',
+            'Rennac',
+            'Duessel',
+            'Dozla',
+            'Saleh',
+            'Tethys',
+            'Innes',
+            'Orson',
+            'Myrrh',
+            'Syrene',
+            'Caellach',
+            'Riev',
+            'Ismaire',
+            'Selena',
+            'Glen',
+            'Hayden',
+            'Valter',
+            'Fado',
+            'Lyon',
+        ) or self.history:
+            raise PromotionError(f"{self.name} cannot be promoted.")
+        for promo_item, unit_list in {
+            "Knight's Crest": (
+                'Franz',
+                'Gilliam',
+                'Forde',
+                'Kyle',
+                'Amelia',
+            ),
+            "Hero Crest": (
+                'Garcia',
+                'Joshua',
+                'Gerik',
+                'Marisa',
+            ),
+            "Orion's Bolt": (
+                'Neimi',
+            ),
+            "Guiding Ring": (
+                'Moulder',
+                'Artur',
+                'Lute',
+                'Natasha',
+                'Ewan',
+                'Knoll',
+                "L'Arachel",
+            ),
+            "Elysian Whip": (
+                'Vanessa',
+                'Tana',
+                'Cormag',
+            ),
+            "Ocean Seal": (
+                'Ross',
+            ),
+            "Fell Contract": (
+                'Colm',
+            ),
+            "Solar Brace": (
+                "Ephraim",
+            ),
+            "Lunar Brace": (
+                "Eirika",
+            ),
+        }:
+            if self.name in unit_list:
+                break
+        # NOTE: Does not account for branched promotions
+        return promo_item
 
     def _set_min_promo_level(self):
         """
@@ -1641,6 +1920,68 @@ class Morph9(Morph):
             'Sephiran',
             'Leanne',
         )
+
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.name == "Ike":
+            promo_item = None
+        if self.name == 'Volke':
+            promo_item = "$$$"
+        if self.name in (
+            'Titania',
+            'Shinon',
+            'Lethe',
+            'Mordecai',
+            'Sothe',
+            'Muarim',
+            'Devdan',
+            'Tanith',
+            'Reyson',
+            'Janaff',
+            'Ulki',
+            'Calill',
+            'Tauroneo',
+            'Ranulf',
+            'Haar',
+            'Lucia',
+            'Bastian',
+            'Geoffrey',
+            'Largo',
+            'Elincia',
+            'Ena',
+            'Nasir',
+            'Tibarn',
+            'Naesala',
+            'Giffca',
+            'Sephiran',
+            'Leanne',
+        ) or self.history:
+            raise PromotionError(f"{self.name} cannot be promoted.")
+        if self.name in (
+            'Oscar',
+            'Boyd',
+            'Rhys',
+            'Gatrie',
+            'Soren',
+            'Mia',
+            'Ilyana',
+            'Marcia',
+            'Mist',
+            'Rolf',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Zihark',
+            'Jill',
+            'Astrid',
+            'Makalov',
+            'Stefan',
+            'Tormod',
+        ):
+            promo_item = "Master Seal"
+        return promo_item
 
     def __init__(self, name: str):
         """
