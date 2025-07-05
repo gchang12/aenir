@@ -120,7 +120,7 @@ class StatsTests(unittest.TestCase):
         """
         """
         stats = self.stats_class(**self.init_kwargs)
-        logger.debug("%r", stats)
+        logger.debug("\n%r", stats)
 
     def test_sum(self):
         """
