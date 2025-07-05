@@ -12,9 +12,8 @@
 
 [![Project generated with PyScaffold](https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold)](https://pyscaffold.org/)
 
-# aenir
+![Logo](./static/logo.png)
 
-## A Fire Emblem stat calculator
 > This module lets you perform stat calculations for Fire Emblem units.
 
 With this module, you can:
