@@ -12,9 +12,8 @@
 
 [![Project generated with PyScaffold](https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold)](https://pyscaffold.org/)
 
-# aenir
+![Logo](./static/logo.png)
 
-## A Fire Emblem stat calculator
 > This module lets you perform stat calculations for Fire Emblem units.
 
 With this module, you can:
@@ -78,7 +77,7 @@ Note that when initializing certain characters, like Rutger, extra initializatio
 
 ```python
 rutger = get_morph(6, "Rutger", hard_mode=True)
-larcei = get_morph(4, "Larcei", father="Lex")
+larcei = get_morph(4, "Lakche", father="Lex")
 lyn = get_morph(7, "Lyn", lyn_mode=True)
 ```
 
