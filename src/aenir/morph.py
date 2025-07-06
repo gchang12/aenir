@@ -2,6 +2,8 @@
 Defines classes essential to comparing Fire Emblem unit stats.
 """
 
+# NOTE: `get_promotion_item` needs to be properly implemented prior to testing.
+
 import abc
 import sqlite3
 #import json
@@ -503,16 +505,16 @@ class Morph(BaseMorph):
                     ]
                 ),
             )
-        if miscellany or self._meta["Stat Boosters"]:
-            if miscellany or show_stat_boosters:
-                data_as_str.append(" \nMiscellany\n==========")
-                if show_stat_boosters and self._meta["Stat Boosters"]:
-                    statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                    miscellany.append(
-                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                    )
-                if miscellany:
-                    data_as_str.extend(list(map(datapair_to_string, miscellany)))
+        #if miscellany or self._meta["Stat Boosters"]:
+        if miscellany or show_stat_boosters:
+            data_as_str.append(" \nMiscellany\n==========")
+            if show_stat_boosters and self._meta["Stat Boosters"]:
+                statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
+                miscellany.append(
+                    ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                )
+            if miscellany:
+                data_as_str.extend(list(map(datapair_to_string, miscellany)))
         data_as_str.append("")
         return indent("\n".join(data_as_str), " " * 4)
 
@@ -792,7 +794,7 @@ class Morph4(Morph):
         Returns name of item used to promote, if applicable.
         """
         if self.max_level == 30:
-            raise NotImplementedError(f"{self.name} cannot promote.")
+            raise ValueError(f"{self.name} cannot promote.")
         # NOTE: Units have to promote at base in FE4.
         return None
 
@@ -846,16 +848,21 @@ class Morph5(Morph):
         """
         Returns name of item used to promote, if applicable.
         """
+        promo_item = "Knight Proof"
         if self.name in ("Leaf", "Linoan"):
             promo_item = None
         if self.history and self.name != "Lara":
-            raise PromotionError(f"{self.name} is already promoted.")
+            raise ValueError(
+                f"{self.name} is already promoted.",
+            )
+        # TODO: Pre-promotes -- how to handle?
         if self.name == "Lara" and "Dancer" in (cls for lv, cls in self.history):
-            raise PromotionError("Lara cannot promote any further.")
+            raise ValueError(
+                "Lara cannot promote any further.",
+            )
         # NOTE: Units have to promote at base in FE4.
         if self.name == "Lara" and (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
             promo_item = None
-        promo_item = "Knight Proof"
         return promo_item
 
     @classmethod
@@ -2170,12 +2177,16 @@ class Morph9(Morph):
         Simulates removal of Knight Ward; throws error if band isn't equipped or if unit is not a knight.
         """
         if self.knight_ward_is_equipped is None:
-            raise KnightWardError(f"{self.name} is not a knight; cannot unequip Knight Ward.")
+            raise KnightWardError(
+                f"{self.name} is not a knight; cannot unequip Knight Ward.",
+                reason=KnightWardError.Reason.NOT_A_KNIGHT,
+            )
         if self.knight_ward_is_equipped is False:
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
                 reason=KnightWardError.Reason.NOT_EQUIPPED,
             )
+        band_name = "Knight Ward"
         self.equipped_bands.pop(band_name)
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
