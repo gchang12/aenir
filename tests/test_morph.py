@@ -2,6 +2,8 @@
 """
 """
 
+# TODO: test get_promotion_item
+
 import sqlite3
 import logging
 import json
@@ -47,6 +49,7 @@ from aenir._logging import (
 
 configure_logging()
 time_logger.critical("")
+
 
 def _get_promotables(url_name, can_promote):
     """
