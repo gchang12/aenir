@@ -883,7 +883,7 @@ class Morph5(Morph):
                 promotion_item = "Knight Proof"
         else:
             promotion_item = super().get_promotion_item()
-        return promo_item
+        return promotion_item
 
     @classmethod
     def CHARACTER_LIST(cls):
@@ -1224,7 +1224,10 @@ class Morph6(Morph):
         if self._meta["Number of Declines"] == 3:
             raise OverflowError("Can invoke this method up to three times.")
         if self.history or self.current_lv > 15:
-            raise InitError("This Hugh has already been levelled-up or promoted. Cannot decline.")
+            raise InitError(
+                "This Hugh has already been levelled-up or promoted. Cannot decline.",
+                missing_value=None,
+            )
         self._meta["Number of Declines"] += 1
         decrement = self.Stats(**self.Stats.get_stat_dict(-1))
         self.current_stats += decrement
@@ -1235,7 +1238,10 @@ class Morph6(Morph):
         if self.name != "Gonzales":
             raise ValueError("Can only invoke this method on a morph of Gonzales.")
         if self.history or self.current_lv > 5:
-            raise InitError("This Gonzales has already been levelled-up or promoted. Cannot switch routes.")
+            raise InitError(
+                "This Gonzales has already been levelled-up or promoted. Cannot switch routes.",
+                missing_value=None,
+            )
         self.current_lv = 11
 
     def _set_min_promo_level(self):
