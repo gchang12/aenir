@@ -1566,7 +1566,7 @@ class Morph6Tests(unittest.TestCase):
         """
         gonzales = Morph6("Gonzales", hard_mode=True)
         gonzales.level_up(1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InitError):
             gonzales.set_elffin_route_for_gonzales()
 
     def test_gonzales_in_elffin_route__already_promoted(self):
@@ -1575,7 +1575,7 @@ class Morph6Tests(unittest.TestCase):
         gonzales = Morph6("Gonzales", hard_mode=False)
         gonzales.level_up(5)
         gonzales.promote()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InitError):
             gonzales.set_elffin_route_for_gonzales()
 
     def test_gonzales_in_elffin_route(self):
@@ -1592,7 +1592,7 @@ class Morph6Tests(unittest.TestCase):
         """
         hugh = Morph6("Hugh")
         hugh.level_up(1)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InitError):
             hugh.decline_hugh()
 
     def test_hugh__already_been_promoted(self):
@@ -1600,7 +1600,7 @@ class Morph6Tests(unittest.TestCase):
         """
         hugh = Morph6("Hugh")
         hugh.promote()
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InitError):
             hugh.decline_hugh()
 
     def test_hugh(self):

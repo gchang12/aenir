@@ -3,7 +3,7 @@
 
 import unittest
 
-from aenir.weaponry import *
+from aenir.weapon import *
 from aenir._logging import (
     configure_logging,
     logger,

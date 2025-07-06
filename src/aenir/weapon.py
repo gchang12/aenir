@@ -3,7 +3,7 @@
 
 import abc
 import sqlite3
-from enum import StrEnum 
+#from enum import StrEnum 
 
 from aenir._logging import logger
 
