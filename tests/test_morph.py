@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 """
 
@@ -441,6 +442,46 @@ class MorphTests(unittest.TestCase):
             "which_bases": 0,
             "which_growths": 0,
         }
+
+    def test_as_string(self):
+        """
+        """
+        morph = self.TestMorph(**self.init_kwargs)
+        morph.use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
+        miscellany = [("Hard Mode", "True")]
+        actual = morph.as_string(miscellany=miscellany, show_stat_boosters=True)
+        logger.debug("as_string -> %s", actual)
+
+    def test_inventory_size_is_zero(self):
+        """
+        """
+        morph = self.TestMorph(**self.init_kwargs)
+        actual = morph.inventory_size
+        expected = 0
+        self.assertEqual(actual, expected)
+
+    def test_iter(self):
+        """
+        """
+        kwargs = self.init_kwargs
+        morph = self.TestMorph(**kwargs)
+        _expected = [
+            ("HP", 22),
+            ("Pow", 7),
+            ("Skl", 12),
+            ("Spd", 13),
+            ("Lck", 2),
+            ("Def", 5),
+            ("Res", 0),
+            #("Con", 7),
+            #("Mov", 5),
+        ]
+        #self.assertEqual(len(morph), expected)
+        actual = []
+        for statval in morph:
+            actual.append(statval)
+        expected = [numval for (_, numval) in _expected]
+        self.assertListEqual(actual, expected)
 
     def test_get_true_character_list5(self):
         """
@@ -1023,6 +1064,35 @@ class Morph4Tests(unittest.TestCase):
         url_name = "genealogy-of-the-holy-war"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_init__father_specified_for_nonkid(self):
+        """
+        """
+        with self.assertLogs(logger, logging.WARNING):
+            Morph4("Sigurd", father="Sigurd")
+
+    def test_get_promotion_item__promoted(self):
+        """
+        """
+        morph = Morph4("Sigurd")
+        self.assertEqual(morph.max_level, 30)
+        with self.assertRaises(ValueError):
+            morph.get_promotion_item()
+
+    def test_get_promotion_item__unpromoted(self):
+        """
+        """
+        morph = Morph4("Lex")
+        actual = morph.get_promotion_item()
+        self.assertIsNone(actual)
+
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph4("Sigurd")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
+
     @staticmethod
     def _get_kid_list():
         """
@@ -1258,6 +1328,57 @@ class Morph5Tests(unittest.TestCase):
         url_name = "thracia-776"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_get_promotion_item__has_been_promoted(self):
+        """
+        """
+        morph = Morph5("Leaf")
+        morph.promote()
+        with self.assertRaises(ValueError):
+            morph.get_promotion_item()
+
+    def test_get_promotion_item__lara_promotes_to_dancer(self):
+        """
+        """
+        morph = Morph5("Lara")
+        morph.promo_cls = "Dancer"
+        #morph.promote()
+        actual = morph.get_promotion_item()
+        self.assertIsNone(actual)
+
+
+    @unittest.expectedFailure
+    def test_get_promotion_item__promoted(self):
+        """
+        """
+        morph = Morph5("Evayle")
+        with self.assertRaises(ValueError):
+            morph.get_promotion_item()
+
+    def test_get_promotion_item__lara_is_maxed_out(self):
+        """
+        """
+        morph = Morph5("Lara")
+        morph.promo_cls = "Dancer"
+        morph.promote()
+        morph.level_up(10 - morph.current_lv)
+        morph.promote()
+        with self.assertRaises(ValueError):
+            morph.get_promotion_item()
+
+    def test_get_promotion_item__leif(self):
+        """
+        """
+        morph = Morph5("Leaf")
+        actual = morph.get_promotion_item()
+
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph5("Leaf")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
+
     def test_linoan__promotion(self):
         """
         """
@@ -1474,6 +1595,22 @@ class Morph6Tests(unittest.TestCase):
         """
         url_name = "binding-blade"
         return _get_promotables(url_name, can_promote)
+
+    def test_as_string(self):
+        """
+        """
+        morph = Morph6("Hugh")
+        actual = morph.as_string()
+        self.assertIsInstance(actual, str)
+        logger.debug("as_string -> %s", actual)
+
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph6("Roy")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
 
     def test_get_true_character_list6(self):
         """
@@ -1773,6 +1910,20 @@ class Morph7Tests(unittest.TestCase):
             "Lucius",
             "Wallace",
         )
+
+    def test_ninian__lyn_mode(self):
+        """
+        """
+        with self.assertRaises(UnitNotFoundError):
+            Morph7("Ninian", lyn_mode=True)
+
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph7("Hector")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
 
     def test_hector__early_promotion(self):
         """
@@ -2109,6 +2260,23 @@ class Morph8Tests(unittest.TestCase):
         url_name = "the-sacred-stones"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_as_string(self):
+        """
+        """
+        morph = Morph8("Ewan")
+        morph.use_metiss_tome()
+        actual = morph.as_string()
+        self.assertIsInstance(actual, str)
+        logger.debug("as_string -> %s", actual)
+
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph8("Ephraim")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
+
     def test_eirika__early_promotion(self):
         """
         """
@@ -2335,6 +2503,14 @@ class Morph9Tests(unittest.TestCase):
             #"Knight Ward",
         )
 
+    def test_inventory_size(self):
+        """
+        """
+        morph = Morph9("Ike")
+        actual = morph.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
+
     @staticmethod
     def _get_promotables(can_promote):
         """
@@ -2438,6 +2614,28 @@ class Morph9Tests(unittest.TestCase):
         logger.debug("Actual: %s (%s)", actual, type(actual))
         logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
+
+    def test_unequip_knight_ward__not_a_knight(self):
+        """
+        """
+        morph = Morph9("Ike")
+        with self.assertRaises(KnightWardError):
+            morph.unequip_knight_ward()
+
+    def test_unequip_knight_ward(self):
+        """
+        """
+        morph = Morph9("Oscar")
+        with self.assertRaises(KnightWardError):
+            morph.unequip_knight_ward()
+        morph.equipped_bands = {"Knight Ward": None}
+        morph.knight_ward_is_equipped = True
+        morph.unequip_knight_ward()
+        actual = morph.knight_ward_is_equipped
+        self.assertIs(actual, False)
+        actual = morph.equipped_bands
+        self.assertDictEqual(actual, {})
+        self.assertEqual(morph.growth_rates, morph._og_growth_rates)
 
     def test_equip_knight_ward(self):
         """
@@ -2736,4 +2934,3 @@ class MorphFunctionTests(unittest.TestCase):
         morph2 = Morph4("Sigurd")
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
-
