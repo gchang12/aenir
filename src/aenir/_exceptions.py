@@ -29,7 +29,7 @@ class InitError(BaseException):
         LYN_MODE = enum.auto()
         HARD_MODE = enum.auto()
 
-    def __init__(self, msg, *, missing_value=None):
+    def __init__(self, msg, *, missing_value):
         """
         """
         super().__init__(msg)
