@@ -536,15 +536,16 @@ class Morph(BaseMorph):
         """
         Returns name of item used to promote, if applicable.
         """
-        id_field = "Item"
+        val_field = "Item"
         path_to_db = self.path_to("cleaned_stats.db")
-        table = self.current_clstype + "-JOIN-promotion_items"
-        fields = [id_field]
+        table = "characters__base_stats-JOIN-promotion_items"
+        fields = [val_field]
         filters = {
-            "characters__base_stats": {"Name": self.name},
-            "classes__promotion_gains": {"Class": self.current_cls},
-        }[self.current_clstype]
-        field_to_scan = "Name"
+            "Name": {
+                "characters__base_stats": self.name,
+                "classes__promotion_gains": self.current_cls,
+            }[self.current_clstype]
+        }
         record = self.query_db(
             path_to_db,
             table,
@@ -554,8 +555,7 @@ class Morph(BaseMorph):
         if record is None:
             promotion_item = None
         else:
-            # NOTE: if no item is needed, return null-string
-            promotion_item = record[id_field]
+            promotion_item = record[val_field]
         return promotion_item
 
     @property
@@ -816,9 +816,7 @@ class Morph4(Morph):
         if self.max_level == 30:
             promotion_item = None
         else:
-            # NOTE: Units have to promote at base in FE4.
-            promotion_item = ""
-            #raise ValueError(f"{self.name} cannot promote.")
+            promotion_item = "*Promote at Base*"
         return promotion_item
 
     def _set_max_level(self):
@@ -877,7 +875,7 @@ class Morph5(Morph):
                 promotion_item = None
             elif (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
                 # Lara is about to promote into a dancer.
-                promotion_item = ""
+                promotion_item = "*Event in Chapter 12x*"
             else:
                 # Lara is a Dancer or a Thief
                 promotion_item = "Knight Proof"
