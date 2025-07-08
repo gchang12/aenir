@@ -881,6 +881,10 @@ class Morph5(Morph):
                 promotion_item = "Knight Proof"
         else:
             promotion_item = super().get_promotion_item()
+            if promotion_item:
+                promotion_item = "Knight Proof"
+            else:
+                promotion_item = None
         return promotion_item
 
     @classmethod
@@ -1599,6 +1603,12 @@ class Morph8(Morph):
             self.max_level = 10
         else:
             self.max_level = 20
+
+    def get_promotion_item(self):
+        """
+        """
+        # TODO: Implement. Now.
+        return super().get_promotion_item()
 
     def promote(self):
         """

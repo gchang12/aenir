@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Auxiliary module for loading CSV data into db-tables.
 """
 
 import argparse
@@ -13,6 +14,7 @@ from pathlib import Path
 
 def convert_to_numeric(record, nonnumeric_columns):
     """
+    Converts values in a record to numerical form, zero'ing them out if necessary.
     """
     new_record = {}
     # get nonnumeric values
@@ -30,6 +32,7 @@ def convert_to_numeric(record, nonnumeric_columns):
 
 def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
     """
+    Creates SQL table in db-file and loads it with data from the CSV table.
     """
     nonnumeric_columns = cs_nonnumeric_columns.split(",")
     with open(path_to_csv) as rfile:

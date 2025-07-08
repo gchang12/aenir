@@ -1,14 +1,12 @@
-"""Declares classes to denote Fire Emblem games.
-
-This module declares constants to denote Fire Emblem games.
+"""
+Declares constants that denote Fire Emblem games.
 """
 
 import enum
 
 class FireEmblemGame(enum.IntEnum):
-    """Denotes Fire Emblem games.
-
-    Each attribute is the name of a Fire Emblem game.
+    """
+    Denotes Fire Emblem games, each of which is represented by an attribute of this class.
     """
     GENEALOGY_OF_THE_HOLY_WAR = 4
     THRACIA_776 = enum.auto()
@@ -19,7 +17,8 @@ class FireEmblemGame(enum.IntEnum):
 
     @property
     def url_name(self):
-        """str: For internal use; referenced for data access.
+        """
+        For internal use; referenced for data access.
         """
         return {
             4: "genealogy-of-the-holy-war",
@@ -32,7 +31,8 @@ class FireEmblemGame(enum.IntEnum):
 
     @property
     def formal_name(self):
-        """str: The formal spelling of the name.
+        """
+        The formal spelling of the title of the game.
         """
         return {
             4: "Genealogy of the Holy War",
@@ -45,13 +45,7 @@ class FireEmblemGame(enum.IntEnum):
 
     def is_gba_game(self):
         """
-        Determines if a game was released for the GBA.
-
-        Args:
-
-        Returns:
-
-            True if instance represents a GBA game; False otherwise.
+        Returns True if a game was released for the GBA.
         """
         return self in (
             self.SWORD_OF_SEALS,
