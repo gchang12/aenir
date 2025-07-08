@@ -1,4 +1,5 @@
 """
+Declares loggers and logging configurations.
 """
 
 import logging
@@ -9,6 +10,7 @@ time_logger = logging.getLogger("timer")
 
 def configure_logging():
     """
+    Instructs interpreter to log in accordance with configuration below.
     """
     main_logging_file = ".aenir.log"
     html_logging_file = ".html_aenir.log"
