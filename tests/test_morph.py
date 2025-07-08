@@ -1331,6 +1331,16 @@ class Morph5Tests(unittest.TestCase):
         url_name = "thracia-776"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_apply_scroll_bonuses__negatives_are_zeroed_out(self):
+        """
+        """
+        eda = self.eda
+        eda.equipped_scrolls[None] = eda.Stats(**eda.Stats.get_stat_dict(-200))
+        eda._apply_scroll_bonuses()
+        actual = all(eda.growth_rates == eda.Stats(**eda.Stats.get_stat_dict(0)))
+        expected = True
+        self.assertIs(actual, expected)
+
     def test_get_promotion_item__has_been_promoted(self):
         """
         """

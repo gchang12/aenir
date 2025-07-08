@@ -540,10 +540,11 @@ class Morph(BaseMorph):
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats-JOIN-promotion_items"
         fields = [val_field]
+        unitcls_as_key = self.promo_cls or self.current_cls
         filters = {
             "Name": {
                 "characters__base_stats": self.name,
-                "classes__promotion_gains": self.current_cls,
+                "classes__promotion_gains": unitcls_as_key,
             }[self.current_clstype]
         }
         record = self.query_db(
@@ -860,8 +861,6 @@ class Morph5(Morph):
 
     @property
     def inventory_size(self):
-        """
-        """
         # https://fireemblemwiki.org/wiki/Inventory#Inventory_size_by_game
         return 7
 
@@ -889,8 +888,6 @@ class Morph5(Morph):
 
     @classmethod
     def CHARACTER_LIST(cls):
-        """
-        """
         return (
             'Leaf',
             'Fin',
@@ -948,6 +945,10 @@ class Morph5(Morph):
 
     def __init__(self, name: str):
         """
+        Initializes `promo_cls` attribute to facilitate promotion of certain units.
+        Declares attributes for scroll equipment.
+
+        (in addition to usual initialization)
         """
         super().__init__(name, which_bases=0, which_growths=0)
         try:
@@ -968,7 +969,7 @@ class Morph5(Morph):
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls = {}
-        self.is_mounted = None
+        #self.is_mounted = None
 
     def _set_min_promo_level(self):
         """
@@ -983,14 +984,9 @@ class Morph5(Morph):
             min_promo_level = 1
         self.min_promo_level = min_promo_level
 
-    def level_up(self, num_levels: int):
-        """
-        """
-        super().level_up(num_levels)
-        self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
-
     def promote(self):
         """
+        Provides logic for promotion of Lara and other thieves in addition to usual units.
         """
         fail_conditions = (
             # prevents non-Lara Thief Fighters from getting promoted to Dancers.
@@ -1008,8 +1004,6 @@ class Morph5(Morph):
         self.min_promo_level = None
 
     def use_stat_booster(self, item_name: str):
-        """
-        """
         item_bonus_dict = {
             "Luck Ring": ("Lck", 3),
             "Life Ring": ("HP", 7),
@@ -1027,10 +1021,10 @@ class Morph5(Morph):
         """
         Updates `growth_rates` in accordance with currently equipped scrolls.
         """
-        # TODO: Check if negative growth rates are zeroed out.
         self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
+        self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
 
     def unequip_scroll(self, scroll_name: str):
         """
@@ -1236,6 +1230,7 @@ class Morph6(Morph):
 
     def set_elffin_route_for_gonzales(self):
         """
+        Sets level of Gonzalez to 11 in accordance with debut on Elphin-route.
         """
         if self.name != "Gonzales":
             raise ValueError("Can only invoke this method on a morph of Gonzales.")
@@ -1257,8 +1252,6 @@ class Morph6(Morph):
         self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
-        """
-        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1274,6 +1267,7 @@ class Morph6(Morph):
 
     def as_string(self):
         """
+        Appends extra attributes to str-representation of Morph.
         """
         _meta = self._meta
         miscellany = []
@@ -1297,14 +1291,10 @@ class Morph7(Morph):
 
     @property
     def inventory_size(self):
-        """
-        """
         return 5
 
     @classmethod
     def CHARACTER_LIST(cls):
-        """
-        """
         return (
             'Lyn',
             'Sain',
@@ -1360,6 +1350,7 @@ class Morph7(Morph):
 
     def _set_min_promo_level(self):
         """
+        Sets minimum promo-level of main lords to 1; sets minimum promo-level of other units to usual.
         """
         # exceptions:
         # FE4: 20
@@ -1518,8 +1509,6 @@ class Morph8(Morph):
 
     @property
     def inventory_size(self):
-        """
-        """
         return 5
 
     def _set_min_promo_level(self):
@@ -1604,21 +1593,14 @@ class Morph8(Morph):
         else:
             self.max_level = 20
 
-    def get_promotion_item(self):
-        """
-        """
-        # TODO: Implement. Now.
-        return super().get_promotion_item()
-
     def promote(self):
         """
+        Promotes, then sets max_level to None so that it may be recalculated.
         """
         super().promote()
         self.max_level = None
 
     def use_stat_booster(self, item_name: str):
-        """
-        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1667,14 +1649,10 @@ class Morph9(Morph):
 
     @property
     def inventory_size(self):
-        """
-        """
         return 8
 
     @classmethod
     def CHARACTER_LIST(cls):
-        """
-        """
         return (
             'Ike',
             'Titania',
@@ -1728,6 +1706,7 @@ class Morph9(Morph):
 
     def __init__(self, name: str):
         """
+        Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
         # conditionally determine if unit can equip it
@@ -1792,8 +1771,6 @@ class Morph9(Morph):
         self._og_growth_rates = self.growth_rates.copy()
 
     def use_stat_booster(self, item_name: str):
-        """
-        """
         item_bonus_dict = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
@@ -1929,6 +1906,7 @@ class Morph9(Morph):
 
     def as_string(self):
         """
+        Appends equipped bands to str-representation of Morph.
         """
         _meta = self._meta
         miscellany = []
@@ -1940,6 +1918,7 @@ class Morph9(Morph):
 
 def get_morph(game_no: int, name: str, **kwargs):
     """
+    Ergonomic means whereby one may access all Morph classes.
     """
     try:
         morph_cls = {
