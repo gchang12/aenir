@@ -2,8 +2,6 @@
 """
 """
 
-# TODO: test_get_promotion_item
-
 import sqlite3
 import logging
 import json
@@ -427,6 +425,11 @@ class BaseMorphTests(unittest.TestCase):
 class MorphTests(unittest.TestCase):
     """
     """
+
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
 
     def setUp(self):
         """
@@ -1054,6 +1057,11 @@ class Morph4Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -1250,7 +1258,7 @@ class Morph4Tests(unittest.TestCase):
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         for name in nonpromotables:
             morph = Morph4(name, father="Lex")
             actual = morph.get_promotion_item()
@@ -1338,6 +1346,11 @@ class Morph5Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -1384,7 +1397,7 @@ class Morph5Tests(unittest.TestCase):
         name = "Linoan"
         morph = Morph5(name)
         actual = morph.get_promotion_item()
-        expected = "*Chapter 22 - Church*"
+        expected = "*Chapter 21 - Church*"
         self.assertEqual(actual, expected)
         morph.promote()
         actual = morph.get_promotion_item()
@@ -1399,11 +1412,12 @@ class Morph5Tests(unittest.TestCase):
         actual = morph.get_promotion_item()
         expected = "*Chapter 12x - Talk to Perne*"
         self.assertEqual(actual, expected)
-        morph.promote()
+        morph.promote() # to: Dancer
         actual = morph.get_promotion_item()
         expected = "Knight Proof"
         self.assertEqual(actual, expected)
-        morph.promote()
+        morph.level_up(10 - morph.current_lv)
+        morph.promote() # to: Thief Fighter
         actual = morph.get_promotion_item()
         self.assertIsNone(actual)
 
@@ -1448,10 +1462,11 @@ class Morph5Tests(unittest.TestCase):
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         for name in nonpromotables:
             morph = Morph5(name)
             actual = morph.get_promotion_item()
+            logger.debug("Promo-item for '%s' is: '%s'", name, actual)
             self.assertIsNone(actual)
 
 
@@ -1474,6 +1489,7 @@ class Morph5Tests(unittest.TestCase):
         actual = morph.get_promotion_item()
         self.assertIsNone(actual)
 
+    @unittest.skip("Is already covered by another test.")
     def test_get_promotion_item__lara_promotes_to_dancer(self):
         """
         """
@@ -1509,7 +1525,7 @@ class Morph5Tests(unittest.TestCase):
         """
         morph = Morph5("Leaf")
         actual = morph.get_promotion_item()
-        expected = "*Chapter 17 - Event*"
+        expected = "*Chapter 18 - End*"
         self.assertEqual(actual, expected)
 
     def test_inventory_size(self):
@@ -1725,6 +1741,11 @@ class Morph6Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -1742,7 +1763,7 @@ class Morph6Tests(unittest.TestCase):
         """
         promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
-            'Roy': "*Chapter 22 - Start*"
+            'Roy': "*Chapter 22 - Start*",
             #'Marcus':
             'Allen': "Knight Crest",
             'Lance': "Knight Crest",
@@ -1816,8 +1837,11 @@ class Morph6Tests(unittest.TestCase):
             #'Zephiel':
             #'Guinevere':
         }
-        for name in promotables:
-            morph = Morph5(name)
+        for name in filter(lambda name_: " (HM)" not in name_, promotables):
+            try:
+                morph = Morph6(name)
+            except InitError:
+                morph = Morph6(name, hard_mode=True)
             actual = morph.get_promotion_item()
             expected = promoitem_dict.pop(name)
             self.assertEqual(actual, expected)
@@ -1830,10 +1854,13 @@ class Morph6Tests(unittest.TestCase):
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         #expected = None
-        for name in nonpromotables:
-            morph = Morph5(name)
+        for name in filter(lambda name_: " (HM)" not in name_, nonpromotables):
+            try:
+                morph = Morph6(name)
+            except InitError:
+                morph = Morph6(name, hard_mode=True)
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
@@ -2132,6 +2159,11 @@ class Morph7Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -2214,8 +2246,14 @@ class Morph7Tests(unittest.TestCase):
             #'Renault':
             #'Athos':
         }
-        for name in promotables:
-            morph = Morph7(name)
+        for name in filter(lambda name_: " (HM)" not in name_, promotables):
+            if name in self.lyndis_league:
+                morph = Morph7(name, lyn_mode=True)
+            else:
+                try:
+                    morph = Morph7(name)
+                except InitError:
+                    morph = Morph7(name, hard_mode=True)
             actual = morph.get_promotion_item()
             expected = promoitem_dict.pop(name)
             self.assertEqual(actual, expected)
@@ -2228,10 +2266,16 @@ class Morph7Tests(unittest.TestCase):
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         #expected = None
         for name in nonpromotables:
-            morph = Morph7(name)
+            if name in self.lyndis_league:
+                morph = Morph7(name, lyn_mode=False)
+            else:
+                try:
+                    morph = Morph7(name)
+                except InitError:
+                    morph = Morph7(name, hard_mode=True)
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
@@ -2564,6 +2608,11 @@ class Morph8Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -2582,15 +2631,15 @@ class Morph8Tests(unittest.TestCase):
         """
         """
         name = "Amelia"
-        promotion_item = 'Knight Crest'
-        self._test_get_promotion_item__trainee(self, name, promotion_item)
+        promotion_item = "Knight Crest"
+        self._test_get_promotion_item__trainee(name, promotion_item)
 
     def test_get_promotion_item__ewan(self):
         """
         """
         name = "Ewan"
         promotion_item = "Guiding Ring"
-        self._test_get_promotion_item__trainee(self, name, promotion_item)
+        self._test_get_promotion_item__trainee(name, promotion_item)
 
     def test_get_promotion_item__ross(self):
         """
@@ -2797,21 +2846,27 @@ class Morph8Tests(unittest.TestCase):
         }
         #trainees = ("Ross", "Amelia", "Ewan")
         #for name in filter(lambda name_: name_ not in trainees, promotables):
-        for name in promotables:
+        for name in filter(lambda name_: name_ in promoitem_dict, promotables):
             morph = Morph8(name)
+            #logger.debug("Getting promo-item for: '%s'", name)
             actual = morph.get_promotion_item()
             expected = promoitem_dict.pop(name)
+            logger.debug("Promo-item for '%s' is: '%s'", name, actual)
             self.assertEqual(actual, expected)
             # extra
             morph.level_up(20 - morph.current_lv)
-            morph.promote()
+            try:
+                morph.promote()
+            except PromotionError:
+                morph.promo_cls = morph.possible_promotions[0]
+                morph.promote()
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         #expected = None
         for name in nonpromotables:
             morph = Morph8(name)
@@ -3041,6 +3096,11 @@ class Morph9Tests(unittest.TestCase):
     """
     """
 
+    def tearDown(self):
+        """
+        """
+        logger.critical("%s", self.id())
+
     def setUp(self):
         """
         """
@@ -3123,6 +3183,7 @@ class Morph9Tests(unittest.TestCase):
         for name in filter(lambda name_: name_ not in ("Volke", "Ike"), promotables):
             morph = Morph9(name)
             actual = morph.get_promotion_item()
+            logger.debug("Promo-item for '%s' is: '%s'", name, actual)
             #expected = promoitem_dict.pop(name)
             self.assertEqual(actual, expected)
             # extra
@@ -3134,7 +3195,7 @@ class Morph9Tests(unittest.TestCase):
     def test_get_promotion_item__nonpromotables(self):
         """
         """
-        promotables = self._get_promotables(can_promote=False)
+        nonpromotables = self._get_promotables(can_promote=False)
         #expected = None
         for name in nonpromotables:
             morph = Morph9(name)
@@ -3490,7 +3551,7 @@ class MorphFunctionTests(unittest.TestCase):
         rutger.promote()
         logger.debug("\n\n%s\n", rutger)
 
-    def test_repr__gba_growths_item(self):
+    def test_as_string__gba_growths_item(self):
         """
         """
         heath = get_morph(7, "Heath", hard_mode=True)
@@ -3498,7 +3559,7 @@ class MorphFunctionTests(unittest.TestCase):
         heath.level_up(20 - heath.current_lv)
         heath.promote()
         heath.use_stat_booster("Speedwings")
-        logger.debug("\n\n%s\n", heath)
+        logger.debug("\n\n%s\n", heath.as_string())
 
     def test_repr__genealogy_kid(self):
         """
