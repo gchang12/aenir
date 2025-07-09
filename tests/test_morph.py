@@ -2578,6 +2578,99 @@ class Morph8Tests(unittest.TestCase):
         url_name = "the-sacred-stones"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def test_get_promotion_item__amelia(self):
+        """
+        """
+        name = "Amelia"
+        promotion_item = 'Knight Crest'
+        self._test_get_promotion_item__trainee(self, name, promotion_item)
+
+    def test_get_promotion_item__ewan(self):
+        """
+        """
+        name = "Ewan"
+        promotion_item = "Guiding Ring"
+        self._test_get_promotion_item__trainee(self, name, promotion_item)
+
+    def test_get_promotion_item__ross(self):
+        """
+        """
+        name = "Ross"
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except PromotionError as error:
+            actual = error.reason
+            expected = PromotionError.Reason.INVALID_PROMOTION
+            self.assertEqual(actual, expected)
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError as error:
+                actual = error.reason
+                expected = PromotionError.Reason.INVALID_PROMOTION
+                self.assertEqual(actual, expected)
+            promo_dict[promo_cls] = morph.possible_promotions
+        expected1 = "*Reach Level 10*"
+        for promo_cls, promoclasses2 in promo_dict.items():
+            if promo_cls == "Pirate":
+                promotion_item = "Ocean Seal"
+            else:
+                promotion_item = "Hero Crest"
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(PromotionError) as exc_ctx:
+                    morph.promote()
+                actual = exc_ctx.exception.reason
+                expected = PromotionError.Reason.LEVEL_TOO_LOW
+                self.assertEqual(actual, expected)
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(LevelUpError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls
+                actual1 = morph.get_promotion_item()
+                self.assertEqual(actual1, expected1)
+                # promote
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                actual2 = morph.get_promotion_item()
+                expected2 = promotion_item
+                self.assertEqual(actual2, expected2)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                actual3 = morph.get_promotion_item()
+                expected3 = promotion_item
+                self.assertEqual(actual3, expected3)
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                actual4 = morph.get_promotion_item()
+                self.assertIsNone(actual4)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
+
     def _test_get_promotion_item__trainee(self, name, promotion_item):
         """
         """
