@@ -1678,11 +1678,11 @@ class Morph9(Morph):
         """
         if self.current_clstype == "characters__base_stats":
             if self.name == "Ike":
-                promotion_item = "*Chapter 18 - Start"
+                promotion_item = "*Chapter 18 - Start*"
             elif self.name == "Volke":
                 promotion_item = "*Chapter 19 - Pay Volke*"
             else:
-                promotion_item = super().get_promotion_item()
+                promotion_item = ("Master Seal" if super().get_promotion_item() else None)
         else:
             promotion_item = None
         return promotion_item
