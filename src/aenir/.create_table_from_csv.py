@@ -42,7 +42,7 @@ def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
     create_stmt = f"CREATE TABLE '{name_of_table}'({', '.join(fields)});"
     insertion_values = ", ".join(map(lambda field: ":" + field, fields))
     insert_stmt = f"INSERT INTO '{name_of_table}' VALUES ({insertion_values});"
-    query_stmt = f"SELECT COUNT(*) FROM {name_of_table};"
+    query_stmt = f"SELECT COUNT(*) FROM '{name_of_table}';"
     with sqlite3.connect(path_to_db) as cnxn:
         cnxn.row_factory = sqlite3.Row
         print("%s" % create_stmt)
