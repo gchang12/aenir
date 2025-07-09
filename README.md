@@ -12,7 +12,7 @@
 
 [![Project generated with PyScaffold](https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold)](https://pyscaffold.org/)
 
-![Logo](./static/logo.png)
+![Logo](./logo.png)
 
 > This module lets you perform stat calculations for Fire Emblem units.
 
