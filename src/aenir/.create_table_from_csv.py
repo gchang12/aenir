@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """
+Auxiliary module for loading CSV data into db-tables.
 """
 
 import argparse
@@ -13,6 +14,7 @@ from pathlib import Path
 
 def convert_to_numeric(record, nonnumeric_columns):
     """
+    Converts values in a record to numerical form, zero'ing them out if necessary.
     """
     new_record = {}
     # get nonnumeric values
@@ -30,16 +32,17 @@ def convert_to_numeric(record, nonnumeric_columns):
 
 def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
     """
+    Creates SQL table in db-file and loads it with data from the CSV table.
     """
     nonnumeric_columns = cs_nonnumeric_columns.split(",")
     with open(path_to_csv) as rfile:
         records = tuple(map(lambda record: convert_to_numeric(record, nonnumeric_columns), csv.DictReader(rfile)))
         fields = tuple(records[0].keys())
     name_of_table = Path(path_to_csv).with_suffix("").name
-    create_stmt = f"CREATE TABLE {name_of_table}({', '.join(fields)});"
+    create_stmt = f"CREATE TABLE '{name_of_table}'({', '.join(fields)});"
     insertion_values = ", ".join(map(lambda field: ":" + field, fields))
-    insert_stmt = f"INSERT INTO {name_of_table} VALUES ({insertion_values});"
-    query_stmt = f"SELECT COUNT(*) FROM {name_of_table};"
+    insert_stmt = f"INSERT INTO '{name_of_table}' VALUES ({insertion_values});"
+    query_stmt = f"SELECT COUNT(*) FROM '{name_of_table}';"
     with sqlite3.connect(path_to_db) as cnxn:
         cnxn.row_factory = sqlite3.Row
         print("%s" % create_stmt)

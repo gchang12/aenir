@@ -1,4 +1,5 @@
 """
+Declares classes that store numerical stat data for a given unit.
 """
 
 import abc
@@ -30,7 +31,7 @@ class AbstractStats(abc.ABC):
     @classmethod
     def get_stat_dict(cls, fill_value):
         """
-        Returns `kwargs` for initialization; each key mapped to `fill_value`.
+        Returns `kwargs` for initialization; each key is mapped to `fill_value`.
         """
         stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
         return stat_dict
@@ -38,23 +39,27 @@ class AbstractStats(abc.ABC):
     @classmethod
     def get_growable_stats(cls):
         """
+        Returns iterable of stats with growth rates.
         """
         return filter(lambda stat_: stat_ not in cls.ZERO_GROWTH_STAT_LIST(), cls.STAT_LIST())
 
     def as_dict(self):
         """
+        Returns key-val pairs of stats as dict object.
         """
         stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
         return stat_dict
 
     def as_list(self):
         """
+        Returns key-val pairs of stats as list of 2-tuples.
         """
         stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
         return stat_list
 
     def copy(self):
         """
+        Returns new instance of Stats identical to this one.
         """
         stat_dict = {}
         for stat in self.STAT_LIST():
@@ -95,6 +100,7 @@ class AbstractStats(abc.ABC):
 
     def __mul__(self, other):
         """
+        Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
         """
         stat_dict = {}
         for stat in self.STAT_LIST():
@@ -139,6 +145,8 @@ class AbstractStats(abc.ABC):
 
     def __add__(self, other):
         """
+        Adds two Stats objects like they're Euclidean vectors and returns the result in a new Stats object.
+        Error is thrown if the Stats objects are not of the same type.
         """
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
@@ -152,6 +160,8 @@ class AbstractStats(abc.ABC):
 
     def __sub__(self, other):
         """
+        Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
+        Error is thrown if the Stats objects are not of the same type.
         """
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
@@ -167,6 +177,7 @@ class AbstractStats(abc.ABC):
 
     def __eq__(self, other):
         """
+        Returns a Stats object stating which attributes are equal and which are unequal.
         """
         if not type(self) == type(other):
             raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
@@ -182,12 +193,14 @@ class AbstractStats(abc.ABC):
 
     def __iter__(self):
         """
+        Returns iterable of growable stats.
         """
         for stat in self.get_growable_stats():
             yield getattr(self, stat)
 
     def __repr__(self, with_title=True):
         """
+        Returns pretty-printed str-list of stats.
         """
         statlist = self.as_list()
         #format_str = "% 4s: %5.2s"
@@ -207,17 +220,17 @@ class AbstractStats(abc.ABC):
 
     def __str__(self):
         """
+        Returns pretty-printed str-list of stats.
         """
         return self.__repr__()
 
 class GenealogyStats(AbstractStats):
     """
+    Declares stats used for FE4: Genealogy of the Holy War.
     """
 
     @staticmethod
     def STAT_LIST():
-        """
-        """
         # constant
         return (
             "HP",
@@ -232,18 +245,15 @@ class GenealogyStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST():
-        """
-        """
         return ()
 
 class ThraciaStats(AbstractStats):
     """
+    Declares stats used for FE5: Thracia 776.
     """
 
     @staticmethod
     def STAT_LIST():
-        """
-        """
         # constant
         return (
             "HP",
@@ -262,8 +272,6 @@ class ThraciaStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST():
-        """
-        """
         return (
             "Lead",
             "MS",
@@ -273,12 +281,11 @@ class ThraciaStats(AbstractStats):
 
 class GBAStats(AbstractStats):
     """
+    Declares stats used for FE6, FE7, and FE8.
     """
 
     @staticmethod
     def STAT_LIST():
-        """
-        """
         # constant
         return (
             "HP",
@@ -294,8 +301,6 @@ class GBAStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST():
-        """
-        """
         return (
             "Con",
             "Mov",
@@ -304,12 +309,11 @@ class GBAStats(AbstractStats):
 
 class RadiantStats(AbstractStats):
     """
+    Declares stats used for FE9.
     """
 
     @staticmethod
     def STAT_LIST():
-        """
-        """
         # constant
         return (
             "HP",
@@ -327,8 +331,6 @@ class RadiantStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST():
-        """
-        """
         # constant
         return (
             "Mov",
