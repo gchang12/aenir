@@ -39,9 +39,9 @@ def create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns):
         records = tuple(map(lambda record: convert_to_numeric(record, nonnumeric_columns), csv.DictReader(rfile)))
         fields = tuple(records[0].keys())
     name_of_table = Path(path_to_csv).with_suffix("").name
-    create_stmt = f"CREATE TABLE {name_of_table}({', '.join(fields)});"
+    create_stmt = f"CREATE TABLE '{name_of_table}'({', '.join(fields)});"
     insertion_values = ", ".join(map(lambda field: ":" + field, fields))
-    insert_stmt = f"INSERT INTO {name_of_table} VALUES ({insertion_values});"
+    insert_stmt = f"INSERT INTO '{name_of_table}' VALUES ({insertion_values});"
     query_stmt = f"SELECT COUNT(*) FROM {name_of_table};"
     with sqlite3.connect(path_to_db) as cnxn:
         cnxn.row_factory = sqlite3.Row
