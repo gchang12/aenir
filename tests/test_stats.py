@@ -402,7 +402,7 @@ class StatsTests(unittest.TestCase):
 
     def test_get_stat_dict(self):
         """
-        Tests that key-set in stat-dict is identical to stats listed in setUp.
+        Tests that key-set in stat-dict is identical to stats listed.
         """
         actual = set(self.stats_class.get_stat_dict(0))
         expected = set(self.init_kwargs)
@@ -426,6 +426,32 @@ class StatsTests(unittest.TestCase):
         test_class = self.stats_class
         with self.assertLogs(logger, logging.WARNING) as log_ctx:
             stats_obj = test_class(**stat_dict)
+
+    def test_str(self):
+        """
+        """
+        kwargs = self.init_kwargs
+        stats = self.stats_class(**kwargs)
+        actual = stats.__str__()
+        logger.debug("actual: %s", actual)
+
+    def test_add__type_error(self):
+        """
+        """
+        kwargs = self.init_kwargs
+        stats1 = self.FunctionalStats(**kwargs)
+        stats2 = self.FunctionalStats2(**kwargs)
+        with self.assertRaises(TypeError):
+            stats1 + stats2
+
+    def test_sub__type_error(self):
+        """
+        """
+        kwargs = self.init_kwargs
+        stats1 = self.FunctionalStats(**kwargs)
+        stats2 = self.FunctionalStats2(**kwargs)
+        with self.assertRaises(TypeError):
+            stats1 - stats2
 
 class ImplementedStatsTests(unittest.TestCase):
     """
