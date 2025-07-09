@@ -279,6 +279,8 @@ class Morph(BaseMorph):
         # FE5: Leif, Linoan: 1
         # FE6: Roy: 1
         # FE7: Hector, Eliwood: 1
+        # FE8: Ephraim, Eirika
+        # FE9: Ike, Volke
         self.min_promo_level = 10
 
     def level_up(self, num_levels: int):
@@ -507,13 +509,14 @@ class Morph(BaseMorph):
             )
         #if miscellany or self._meta["Stat Boosters"]:
         if miscellany or show_stat_boosters:
-            data_as_str.append(" \nMiscellany\n==========")
             if show_stat_boosters and self._meta["Stat Boosters"]:
                 statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                miscellany.append(
-                    ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                )
+                if statboost_history:
+                    miscellany.append(
+                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                    )
             if miscellany:
+                data_as_str.append(" \nMiscellany\n==========")
                 data_as_str.extend(list(map(datapair_to_string, miscellany)))
         data_as_str.append("")
         return indent("\n".join(data_as_str), " " * 4)
@@ -540,11 +543,11 @@ class Morph(BaseMorph):
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats-JOIN-promotion_items"
         fields = [val_field]
-        unitcls_as_key = self.promo_cls or self.current_cls
+        #unitcls_as_key = self.promo_cls or self.current_cls
         filters = {
             "Name": {
                 "characters__base_stats": self.name,
-                "classes__promotion_gains": unitcls_as_key,
+                "classes__promotion_gains": self.current_cls,
             }[self.current_clstype]
         }
         record = self.query_db(
@@ -868,22 +871,22 @@ class Morph5(Morph):
         """
         Returns name of item used to promote, if applicable.
         """
-        if self.name == "Lara":
+        if (self.name, self.current_clstype) == ("Leaf", "characters__base_stats"):
+            promotion_item = "*Chapter 18 - End*"
+        elif self.name == "Lara":
             if "Dancer" in (cls for lv, cls in self.history):
                 # Lara has been a dancer
                 promotion_item = None
             elif (self.promo_cls == "Dancer" or self.current_cls == "Thief Fighter"):
                 # Lara is about to promote into a dancer.
-                promotion_item = "*Event in Chapter 12x*"
+                promotion_item = "*Chapter 12x - Talk to Perne*"
             else:
                 # Lara is a Dancer or a Thief
                 promotion_item = "Knight Proof"
+        elif (self.name, self.current_clstype) == ("Linoan", "characters__base_stats"):
+            promotion_item = "*Chapter 21 - Church*"
         else:
-            promotion_item = super().get_promotion_item()
-            if promotion_item:
-                promotion_item = "Knight Proof"
-            else:
-                promotion_item = None
+            promotion_item = ("Knight Proof" if super().get_promotion_item() else None)
         return promotion_item
 
     @classmethod
@@ -1104,10 +1107,18 @@ class Morph6(Morph):
         """
         return 5
 
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if (self.name, self.current_clstype) == ("Roy", "characters__base_stats"):
+            promotion_item = "*Chapter 22 - Start*"
+        else:
+            promotion_item = super().get_promotion_item()
+        return promotion_item
+
     @classmethod
     def CHARACTER_LIST(cls):
-        """
-        """
         return (
             'Roy',
             'Marcus',
@@ -1511,6 +1522,16 @@ class Morph8(Morph):
     def inventory_size(self):
         return 5
 
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.current_clstype == "characters__base_stats" and self.name in ("Ross", "Amelia", "Ewan"):
+            promotion_item = "*Reach Level 10*"
+        else:
+            promotion_item = super().get_promotion_item()
+        return promotion_item
+
     def _set_min_promo_level(self):
         """
         Declares that lords can promote whenever.
@@ -1651,6 +1672,21 @@ class Morph9(Morph):
     def inventory_size(self):
         return 8
 
+    def get_promotion_item(self):
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.current_clstype == "characters__base_stats":
+            if self.name == "Ike":
+                promotion_item = "*Chapter 18 - Start"
+            elif self.name == "Volke":
+                promotion_item = "*Chapter 19 - Pay Volke*"
+            else:
+                promotion_item = super().get_promotion_item()
+        else:
+            promotion_item = None
+        return promotion_item
+
     @classmethod
     def CHARACTER_LIST(cls):
         return (
@@ -1769,6 +1805,16 @@ class Morph9(Morph):
         self.knight_ward_is_equipped = knight_ward_is_equipped 
         self.equipped_bands = {}
         self._og_growth_rates = self.growth_rates.copy()
+
+    def _set_min_promo_level(self):
+        """
+        Sets the minimum level for a unit; for most, this is 10.
+        """
+        if self.name in ("Ike", "Volke"):
+            min_promo_level = 1
+        else:
+            min_promo_level = 10
+        self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
         item_bonus_dict = {
