@@ -7,6 +7,7 @@ import logging
 import json
 import unittest
 from unittest.mock import patch
+import importlib.resources
 
 from aenir.games import FireEmblemGame
 from aenir.morph import (
@@ -54,7 +55,7 @@ def _get_promotables(url_name, can_promote):
     """
     # query for list of units who cannot promote
     table_name = "characters__base_stats-JOIN-classes__promotion_gains"
-    path_to_db = f"static/{url_name}/cleaned_stats.db"
+    path_to_db = f"src/aenir/static/{url_name}/cleaned_stats.db"
     with sqlite3.connect(path_to_db) as cnxn:
         cnxn.row_factory = sqlite3.Row
         resultset = cnxn.execute(f"SELECT Name, Alias FROM '{table_name}';")
@@ -105,7 +106,7 @@ class BaseMorphTests(unittest.TestCase):
     def test_query_db__without_filters(self):
         """
         """
-        path_to_db = "static/binding-blade/cleaned_stats.db"
+        path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
         fields = ("HP", "Def")
         filters = None
@@ -125,7 +126,7 @@ class BaseMorphTests(unittest.TestCase):
     def test_query_db__with_filters(self):
         """
         """
-        path_to_db = "static/binding-blade/cleaned_stats.db"
+        path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
         fields = ("Pow", "Spd")
         filters = {"Name": "Rutger"}
@@ -145,7 +146,7 @@ class BaseMorphTests(unittest.TestCase):
     def test_query_db__with_filters__no_results(self):
         """
         """
-        path_to_db = "static/binding-blade/cleaned_stats.db"
+        path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
         fields = ("Pow", "Spd")
         filters = {"Name": "Ruter"}
@@ -290,8 +291,9 @@ class BaseMorphTests(unittest.TestCase):
             target_data,
             tableindex,
         )
+        path_to_db = importlib.resources.files("aenir") / "static/binding-blade/cleaned_stats.db"
         expected = {
-            "path_to_db": "static/binding-blade/cleaned_stats.db",
+            "path_to_db": str(path_to_db),
             "table": "classes__maximum_stats0",
             "fields": ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res", "Con", "Mov"),
             "filters": {"Class": "Non-promoted"},
@@ -400,7 +402,7 @@ class BaseMorphTests(unittest.TestCase):
     def test_query_db__more_than_one_filter_provided(self):
         """
         """
-        path_to_db = "static/binding-blade/cleaned_stats.db"
+        path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__growth_rates0"
         fields = ("Pow", "Spd")
         filters = {"Spd": 40, "Pow": 40}
@@ -1120,7 +1122,7 @@ class Morph4Tests(unittest.TestCase):
         """
         """
         # query for list of kids
-        path_to_db = "static/genealogy-of-the-holy-war/cleaned_stats.db"
+        path_to_db = "src/aenir/static/genealogy-of-the-holy-war/cleaned_stats.db"
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
             resultset = [result["Name"] for result in cnxn.execute("SELECT Name FROM characters__base_stats1;").fetchall()]
@@ -1132,7 +1134,7 @@ class Morph4Tests(unittest.TestCase):
         """
         """
         # query for list of fathers
-        path_to_db = "static/genealogy-of-the-holy-war/cleaned_stats.db"
+        path_to_db = "src/aenir/static/genealogy-of-the-holy-war/cleaned_stats.db"
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
             resultset = [result["Father"] for result in cnxn.execute("SELECT Father FROM characters__base_stats1;").fetchall()]

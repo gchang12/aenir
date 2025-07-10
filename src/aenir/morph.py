@@ -4,6 +4,7 @@ Defines classes essential to comparing Fire Emblem unit stats.
 
 # NOTE: `get_promotion_item` needs to be properly implemented prior to testing.
 
+import importlib.resources
 import abc
 import sqlite3
 #import json
@@ -65,7 +66,10 @@ class BaseMorph(abc.ABC):
         """
         Returns a path to the folder containing static files for `GAME`.
         """
-        return "/".join(("static", cls.GAME().url_name, file))
+        root = importlib.resources.files("aenir")
+        path = "/".join((str(root), "static", cls.GAME().url_name, file))
+        logger.debug("path: %s", path)
+        return path
 
     @staticmethod
     def query_db(
