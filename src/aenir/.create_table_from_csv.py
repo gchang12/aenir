@@ -65,3 +65,4 @@ cs_nonnumeric_columns = args.cs_nonnumeric_columns
 # invoke main
 print("create_table_from_csv('%s', '%s', '%s')" % (path_to_csv, path_to_db, cs_nonnumeric_columns))
 create_table_from_csv(path_to_csv, path_to_db, cs_nonnumeric_columns)
+#
