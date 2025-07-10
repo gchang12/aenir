@@ -69,7 +69,6 @@ For the fun of it, let's max him out.
 ```python
 num_levels = 19 # because he starts out at level one again.
 roy.level_up(num_levels)
-# implicit: roy.__repr__()
 print(roy)
 ```
  
