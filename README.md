@@ -100,6 +100,10 @@ Currently, this calculator works only for characters from:
 9. Path of Radiance
 
 
+## COMING SOON!
+
+Combat simulation
+
 <!-- pyscaffold-notes -->
 
 ## Note
