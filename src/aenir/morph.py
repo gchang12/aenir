@@ -66,7 +66,7 @@ class BaseMorph(abc.ABC):
         """
         Returns a path to the folder containing static files for `GAME`.
         """
-        root = importlib.resources.files("aenir") / "../.."
+        root = importlib.resources.files("aenir")
         path = "/".join((str(root), "static", cls.GAME().url_name, file))
         logger.debug("path: %s", path)
         return path
