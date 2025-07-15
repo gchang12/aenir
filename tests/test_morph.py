@@ -1452,7 +1452,7 @@ class Morph5Tests(unittest.TestCase):
         for name in nonpromotables:
             morph = Morph5(name)
             actual = morph.get_promotion_list()
-            self.assertListEqual(actual)
+            self.assertListEqual(actual, expected)
 
     def test_get_promotion_list__promotables(self):
         """
@@ -1849,9 +1849,9 @@ class Morph6Tests(unittest.TestCase):
         nonpromotables = self._get_promotables(can_promote=False)
         expected = []
         for name in nonpromotables:
-            morph = Morph6(name)
+            morph = Morph6(name, hard_mode=True)
             actual = morph.get_promotion_list()
-            self.assertListEqual(actual)
+            self.assertListEqual(actual, expected)
 
     def test_get_promotion_list__promotables(self):
         """
@@ -1859,7 +1859,7 @@ class Morph6Tests(unittest.TestCase):
         promotables = self._get_promotables(can_promote=True)
         #expected = []
         for name in promotables:
-            morph = Morph6(name)
+            morph = Morph6(name, hard_mode=True, route="Lalum", number_of_declines=0)
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
@@ -1978,7 +1978,7 @@ class Morph6Tests(unittest.TestCase):
     def test_as_string(self):
         """
         """
-        morph = Morph6("Hugh")
+        morph = Morph6("Hugh", number_of_declines=0)
         actual = morph.as_string()
         self.assertIsInstance(actual, str)
         logger.debug("as_string -> %s", actual)
@@ -2339,7 +2339,7 @@ class Morph6Tests(unittest.TestCase):
             "Con": 7,
             "Mov": 5,
         }
-        control_morph.current_stats = morph.STATS(**stat_dict)
+        control_morph.current_stats = control_morph.Stats(**stat_dict)
         return control_morph
 
     def test_hugh__number_of_declines0(self):
@@ -2357,11 +2357,12 @@ class Morph6Tests(unittest.TestCase):
         """
         for number_of_declines in range(1, 4):
             morph = Morph6("Hugh", number_of_declines=number_of_declines)
+            Stats = morph.STATS()
             # create control case
-            stat_dict = morph.STATS.get_stat_dict(-number_of_declines)
+            stat_dict = Stats.get_stat_dict(-number_of_declines)
             stat_dict["Con"] = 0
             stat_dict["Mov"] = 0
-            decrement = morph.STATS(**stat_dict)
+            decrement = Stats(**stat_dict)
             control_morph = self._create_control_hugh()
             control_morph.current_stats += decrement
             # compare
@@ -2374,7 +2375,7 @@ class Morph6Tests(unittest.TestCase):
         """
         number_of_declines = 3
         with self.assertLogs(logger, logging.WARNING):
-            morph = Morph6("Roy", route=route)
+            morph = Morph6("Roy", number_of_declines=number_of_declines)
         actual = morph._meta["Number of Declines"]
         self.assertIsNone(actual)
 
@@ -2452,7 +2453,7 @@ class Morph7Tests(unittest.TestCase):
         for name in nonpromotables:
             morph = Morph7(name, lyn_mode=False, hard_mode=True)
             actual = morph.get_promotion_list()
-            self.assertListEqual(actual)
+            self.assertListEqual(actual, expected)
 
     def test_get_promotion_list__promotables(self):
         """
@@ -2910,7 +2911,7 @@ class Morph8Tests(unittest.TestCase):
         for name in nonpromotables:
             morph = Morph8(name)
             actual = morph.get_promotion_list()
-            self.assertListEqual(actual)
+            self.assertListEqual(actual, expected)
 
     def test_get_promotion_list__promotables(self):
         """

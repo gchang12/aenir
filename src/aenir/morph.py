@@ -1249,13 +1249,13 @@ class Morph6(Morph):
         elif self.name == "Hugh":
             if number_of_declines not in range(4):
                 raise InitError(
-                    "Specify the number of times Hugh has been declined. Valid values: {0..3}",
+                    "Specify the number of times Hugh has been declined. Valid values: (0, 1, 2, 3)",
                     missing_value=InitError.MissingValue.NUMBER_OF_DECLINES,
                 )
             stat_dict = self.Stats.get_stat_dict(-1 * number_of_declines)
             stat_dict["Mov"] = 0
             stat_dict["Con"] = 0
-            decrement = self.Stats(**)
+            decrement = self.Stats(**stat_dict)
             self.current_stats += decrement
         # Gonzales exception
         if route is not None and self.name != "Gonzales":
