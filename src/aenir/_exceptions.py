@@ -35,6 +35,8 @@ class InitError(BaseException):
         """
         LYN_MODE = enum.auto()
         HARD_MODE = enum.auto()
+        NUMBER_OF_DECLINES = enum.auto()
+        ROUTE = enum.auto()
 
     def __init__(self, msg, *, missing_value):
         """
