@@ -38,12 +38,13 @@ class InitError(BaseException):
         NUMBER_OF_DECLINES = enum.auto()
         ROUTE = enum.auto()
 
-    def __init__(self, msg, *, missing_value):
+    def __init__(self, msg, *, missing_value, init_params):
         """
         Declares `missing_value` in addition to usual initialization.
         """
         super().__init__(msg)
         self.missing_value = missing_value
+        self.init_params = init_params
 
 class LevelUpError(BaseException):
     """
@@ -63,12 +64,13 @@ class PromotionError(BaseException):
         LEVEL_TOO_LOW = enum.auto()
         INVALID_PROMOTION = enum.auto()
 
-    def __init__(self, msg, *, reason):
+    def __init__(self, msg, *, reason, promotion_list=None):
         """
         Declares `reason` in addition to usual initialization.
         """
         super().__init__(msg)
         self.reason = reason
+        self.promotion_list = promotion_list
 
 class _ItemException(BaseException, abc.ABC):
     """

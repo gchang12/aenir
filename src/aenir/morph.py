@@ -365,6 +365,7 @@ class Morph(BaseMorph):
                 raise PromotionError(
                     f"{self.promo_cls} is an invalid promotion. Valid promotions: {valid_promotions}",
                     reason=PromotionError.Reason.INVALID_PROMOTION,
+                    promotion_list=valid_promotions,
                 )
             else:
                 resultset = new_resultset
@@ -524,10 +525,10 @@ class Morph(BaseMorph):
         if miscellany or show_stat_boosters:
             if show_stat_boosters and self._meta["Stat Boosters"]:
                 statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                if statboost_history:
-                    miscellany.append(
-                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                    )
+                #if statboost_history:
+                miscellany.append(
+                    ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                )
             if miscellany:
                 data_as_str.append(" \nMiscellany\n==========")
                 data_as_str.extend(list(map(datapair_to_string, miscellany)))
@@ -1230,9 +1231,13 @@ class Morph6(Morph):
         #self.name = name.replace(" (HM)", "")
         if name + " (HM)" in self.CHARACTER_LIST():
             if hard_mode is None:
+                init_params = {'hard_mode': (False, True)}
+                if name == "Gonzales":
+                    init_params['route'] = ("Lalum", "Elphin")
                 raise InitError(
                     f"Specify a `hard_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.HARD_MODE,
+                    init_params=init_params,
                 )
             if hard_mode:
                 name += " (HM)"
@@ -1251,6 +1256,7 @@ class Morph6(Morph):
                 raise InitError(
                     "Specify the number of times Hugh has been declined. Valid values: (0, 1, 2, 3)",
                     missing_value=InitError.MissingValue.NUMBER_OF_DECLINES,
+                    init_params={"number_of_declines": (0, 1, 2, 3)},
                 )
             stat_dict = self.Stats.get_stat_dict(-1 * number_of_declines)
             stat_dict["Mov"] = 0
@@ -1272,6 +1278,7 @@ class Morph6(Morph):
                 raise InitError(
                     f"You must choose a route on which you recruit Gonzales. Valid values: {valid_routes}",
                     missing_value=InitError.MissingValue.ROUTE,
+                    init_params={"route": ("Lalum", "Elphin")},
                 )
         # set instance attributes
         self._meta["Hard Mode"] = hard_mode
@@ -1428,6 +1435,7 @@ class Morph7(Morph):
                 raise InitError(
                     f"Please specify a `lyn_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.LYN_MODE,
+                    init_params={"lyn_mode": (False, True)},
                 )
             which_bases = {
                 True: 0,
@@ -1454,6 +1462,7 @@ class Morph7(Morph):
                 raise InitError(
                     f"Please specify a `hard_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.HARD_MODE,
+                    init_params={"hard_mode": (False, True)},
                 )
             if hard_mode:
                 name += " (HM)"

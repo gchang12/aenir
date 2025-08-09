@@ -1054,6 +1054,9 @@ class MorphTests(unittest.TestCase):
         actual = err_ctx.exception.reason
         expected = PromotionError.Reason.INVALID_PROMOTION
         self.assertEqual(actual, expected)
+        actual = err_ctx.exception.promotion_list
+        expected = valid_promotions
+        self.assertTupleEqual(actual, expected)
 
 class Morph4Tests(unittest.TestCase):
     """
@@ -2070,86 +2073,6 @@ class Morph6Tests(unittest.TestCase):
         morph.promote()
         self.assertEqual(morph.current_clstype, "classes__promotion_gains")
 
-    @unittest.skip("Method has been deleted.")
-    def test_not_gonzales_in_elffin_route(self):
-        """
-        """
-        cath = Morph6("Cath", hard_mode=True)
-        with self.assertRaises(ValueError):
-            cath.set_elffin_route_for_gonzales()
-
-    @unittest.skip("Method has been deleted.")
-    def test_gonzales_in_elffin_route__already_levelled_up(self):
-        """
-        """
-        gonzales = Morph6("Gonzales", hard_mode=True)
-        gonzales.level_up(1)
-        with self.assertRaises(InitError):
-            gonzales.set_elffin_route_for_gonzales()
-
-    @unittest.skip("Method has been deleted.")
-    def test_gonzales_in_elffin_route__already_promoted(self):
-        """
-        """
-        gonzales = Morph6("Gonzales", hard_mode=False)
-        gonzales.level_up(5)
-        gonzales.promote()
-        with self.assertRaises(InitError):
-            gonzales.set_elffin_route_for_gonzales()
-
-    @unittest.skip("Method has been deleted.")
-    def test_gonzales_in_elffin_route(self):
-        """
-        """
-        gonzales = Morph6("Gonzales", hard_mode=True)
-        gonzales.set_elffin_route_for_gonzales()
-        actual = gonzales.current_lv
-        expected = 11
-        self.assertEqual(actual, expected)
-
-    @unittest.skip("Method has been deleted.")
-    def test_hugh__already_levelled_up(self):
-        """
-        """
-        hugh = Morph6("Hugh")
-        hugh.level_up(1)
-        with self.assertRaises(InitError):
-            hugh.decline_hugh()
-
-    @unittest.skip("Method has been deleted.")
-    def test_hugh__already_been_promoted(self):
-        """
-        """
-        hugh = Morph6("Hugh")
-        hugh.promote()
-        with self.assertRaises(InitError):
-            hugh.decline_hugh()
-
-    @unittest.skip("Method has been deleted.")
-    def test_hugh(self):
-        """
-        """
-        hugh = Morph6("Hugh")
-        hugh.decline_hugh()
-        hugh.decline_hugh()
-        hugh.decline_hugh()
-        with self.assertRaises(OverflowError):
-            hugh.decline_hugh()
-        hugh2 = Morph6("Hugh")
-        diff = (hugh.current_stats - hugh2.current_stats).as_dict()
-        self.assertSetEqual(set(diff.values()), {-3, None})
-        self.assertEqual(hugh._meta["Number of Declines"], 3)
-        self.assertEqual(hugh2._meta["Number of Declines"], 0)
-
-    @unittest.skip("Method has been deleted.")
-    def test_not_hugh(self):
-        """
-        """
-        marcus = Morph6("Marcus")
-        with self.assertRaises(ValueError):
-            marcus.decline_hugh()
-        self.assertIsNone(marcus._meta["Number of Declines"])
-
     def test_rutger_no_hardmode_specified(self):
         """
         """
@@ -2159,6 +2082,9 @@ class Morph6Tests(unittest.TestCase):
         actual = exception.missing_value
         expected = InitError.MissingValue.HARD_MODE
         self.assertEqual(actual, expected)
+        actual = exception.init_params
+        expected = {"hard_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
 
     def test_no_hardmode_version(self):
         """
@@ -2282,6 +2208,9 @@ class Morph6Tests(unittest.TestCase):
         actual = error.missing_value
         expected = InitError.MissingValue.ROUTE
         self.assertEqual(actual, expected)
+        actual = error.init_params
+        expected = {"route": ("Lalum", "Elphin")}
+        self.assertDictEqual(actual, expected)
 
     def test_not_gonzales__ANY_route1(self):
         """
@@ -2320,6 +2249,9 @@ class Morph6Tests(unittest.TestCase):
         actual = error.missing_value
         expected = InitError.MissingValue.NUMBER_OF_DECLINES
         self.assertEqual(actual, expected)
+        actual = error.init_params
+        expected = {"number_of_declines": (0, 1, 2, 3)}
+        self.assertDictEqual(actual, expected)
 
     @staticmethod
     def _create_control_hugh():
@@ -2656,6 +2588,9 @@ class Morph7Tests(unittest.TestCase):
         actual = exception.missing_value
         expected = InitError.MissingValue.HARD_MODE
         self.assertEqual(actual, expected)
+        actual = exception.init_params
+        expected = {"hard_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
 
     def test_lyn_no_lynmode_specified(self):
         """
@@ -2666,6 +2601,9 @@ class Morph7Tests(unittest.TestCase):
         actual = exception.missing_value
         expected = InitError.MissingValue.LYN_MODE
         self.assertEqual(actual, expected)
+        actual = exception.init_params
+        expected = {"lyn_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
 
     def test_copy(self):
         """
