@@ -662,9 +662,9 @@ class MorphTests(unittest.TestCase):
             marth = self.TestMorph("Marth", which_bases=0, which_growths=0)
         (err_msg,) = assert_ctx.exception.args
         self.assertIn("%r" % (tuple(self.TestMorph.CHARACTER_LIST()),), err_msg)
-        actual = assert_ctx.exception.unit_type
-        expected = UnitNotFoundError.UnitType.NORMAL
-        self.assertEqual(actual, expected)
+        #actual = assert_ctx.exception.unit_type
+        #expected = UnitNotFoundError.UnitType.NORMAL
+        #self.assertEqual(actual, expected)
 
     def test_init__bad_bases_index(self):
         """
@@ -1259,11 +1259,11 @@ class Morph4Tests(unittest.TestCase):
     def test_lakche_as_bastard(self):
         """
         """
-        with self.assertRaises(UnitNotFoundError) as err_ctx:
+        with self.assertRaises(InitError) as err_ctx:
             Morph4("Lakche", father="")
         # generate father list
-        actual = err_ctx.exception.unit_type
-        expected = UnitNotFoundError.UnitType.FATHER
+        actual = err_ctx.exception.missing_value
+        expected = InitError.MissingValue.FATHER
         self.assertEqual(actual, expected)
         path_to_db = Morph4.path_to("cleaned_stats.db")
         table = "characters__base_stats1"
@@ -1284,9 +1284,13 @@ class Morph4Tests(unittest.TestCase):
         # check that father list is inside error message.
         father_list = [result["Father"] for result in resultset]
         father_list = sorted(set(father_list), key=lambda name: father_list.index(name))
-        (err_msg,) = err_ctx.exception.args
+        err = err_ctx.exception
+        (err_msg,) = err.args
         self.assertIn("%r" % (tuple(father_list),), err_msg)
         logger.debug("%s", father_list)
+        actual = err.init_params
+        expected = {"father": ('Arden', 'Azel', 'Alec', 'Claude', 'Jamka', 'Dew', 'Noish', 'Fin', 'Beowolf', 'Holyn', 'Midayle', 'Levin', 'Lex')}
+        self.assertDictEqual(actual, expected)
 
     def test_get_promotion_item__promotables(self):
         """
@@ -3807,9 +3811,9 @@ class MorphFunctionTests(unittest.TestCase):
         """
         with self.assertRaises(UnitNotFoundError) as err_ctx:
             get_morph(6, "Marth")
-        actual = err_ctx.exception.unit_type
-        expected = UnitNotFoundError.UnitType.NORMAL
-        self.assertEqual(actual, expected)
+        #actual = err_ctx.exception.unit_type
+        #expected = UnitNotFoundError.UnitType.NORMAL
+        #self.assertEqual(actual, expected)
 
     def test_get_morph__invalid_game(self):
         """

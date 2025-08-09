@@ -10,19 +10,11 @@ class UnitNotFoundError(BaseException):
     To be raised if the unit name has not been recognized.
     """
 
-    class UnitType(enum.Enum):
-        """
-        Declares the different types of FE unit.
-        """
-        NORMAL = enum.auto()
-        FATHER = enum.auto()
-
-    def __init__(self, msg, *, unit_type):
+    def __init__(self, msg):
         """
         Declares `unit_type` in addition to usual initialization.
         """
         super().__init__(msg)
-        self.unit_type = unit_type
 
 class InitError(BaseException):
     """
@@ -37,6 +29,7 @@ class InitError(BaseException):
         HARD_MODE = enum.auto()
         NUMBER_OF_DECLINES = enum.auto()
         ROUTE = enum.auto()
+        FATHER = enum.auto()
 
     def __init__(self, msg, *, missing_value, init_params):
         """

@@ -204,7 +204,7 @@ class Morph(BaseMorph):
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
-                unit_type=UnitNotFoundError.UnitType.NORMAL,
+                #unit_type=UnitNotFoundError.UnitType.NORMAL,
             )
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
@@ -731,9 +731,10 @@ class Morph4(Morph):
         else:
             father_list = self.FATHER_LIST()
             if father not in father_list:
-                raise UnitNotFoundError(
+                raise InitError(
                     f"'{father}' is not a valid father. List of valid fathers: {father_list}",
-                    unit_type=UnitNotFoundError.UnitType.FATHER,
+                    missing_value=InitError.MissingValue.FATHER,
+                    init_params={"father": father_list},
                 )
             # begin initialization here
             Stats = self.STATS()
@@ -1451,7 +1452,7 @@ class Morph7(Morph):
                 if name == "Ninian":
                     raise UnitNotFoundError(
                         "Ninian is not in the Lyndis League.",
-                        unit_type=UnitNotFoundError.UnitType.NORMAL,
+                        #unit_type=UnitNotFoundError.UnitType.NORMAL,
                     )
                 #name = "Nils"
             which_bases = 1
