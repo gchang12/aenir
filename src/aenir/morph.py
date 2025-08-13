@@ -1215,14 +1215,14 @@ class Morph6(Morph):
             'Juno',
             'Yodel',
             'Karel',
-            'Narshen',
-            'Gale',
-            'Hector',
-            'Brunya',
-            'Eliwood',
-            'Murdoch',
-            'Zephiel',
-            'Guinevere',
+            #'Narshen',
+            #'Gale',
+            #'Hector',
+            #'Brunya',
+            #'Eliwood',
+            #'Murdoch',
+            #'Zephiel',
+            #'Guinevere',
         )
 
     def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None, route: str = None):
@@ -1775,8 +1775,8 @@ class Morph9(Morph):
             'Tibarn',
             'Naesala',
             'Giffca',
-            'Sephiran',
-            'Leanne',
+            #'Sephiran',
+            #'Leanne',
         )
 
     def __init__(self, name: str):
