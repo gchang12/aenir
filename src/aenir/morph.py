@@ -1225,7 +1225,7 @@ class Morph6(Morph):
             #'Guinevere',
         )
 
-    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None, route: str = None):
+    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
@@ -1233,8 +1233,6 @@ class Morph6(Morph):
         if name + " (HM)" in self.CHARACTER_LIST():
             if hard_mode is None:
                 init_params = {'hard_mode': (False, True)}
-                if name == "Gonzales":
-                    init_params['route'] = ("Lalum", "Elphin")
                 raise InitError(
                     f"Specify a `hard_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.HARD_MODE,
@@ -1264,27 +1262,9 @@ class Morph6(Morph):
             stat_dict["Con"] = 0
             decrement = self.Stats(**stat_dict)
             self.current_stats += decrement
-        # Gonzales exception
-        if route is not None and self.name != "Gonzales":
-            logger.warning("`route=%s`, and unit is not Gonzales. Ignoring.", route)
-            route = None
-        elif self.name == "Gonzales":
-            try:
-                self.current_lv = {
-                    "Lalum": 5,
-                    "Elphin": 11,
-                }[route]
-            except KeyError:
-                valid_routes = ("Lalum", "Elphin")
-                raise InitError(
-                    f"You must choose a route on which you recruit Gonzales. Valid values: {valid_routes}",
-                    missing_value=InitError.MissingValue.ROUTE,
-                    init_params={"route": ("Lalum", "Elphin")},
-                )
         # set instance attributes
         self._meta["Hard Mode"] = hard_mode
         self._meta["Number of Declines"] = number_of_declines
-        self._meta["Route"] = route
 
     def _set_min_promo_level(self):
         """
