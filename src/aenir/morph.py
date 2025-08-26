@@ -294,7 +294,10 @@ class Morph(BaseMorph):
             self._set_max_level()
         # stop if user is going to overlevel
         if num_levels + self.current_lv > self.max_level:
-            raise LevelUpError(f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.")
+            raise LevelUpError(
+                f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
+                max_level=self.max_level,
+            )
         # ! increase stats
         self.current_stats += self.growth_rates * 0.01 * num_levels
         # ! increase level
@@ -413,6 +416,7 @@ class Morph(BaseMorph):
             raise StatBoosterError(
                 f"'{item_name}' is not a valid stat booster. Valid stat boosters: {list(item_bonus_dict.keys())}",
                 reason=StatBoosterError.Reason.NOT_FOUND,
+                valid_stat_boosters=item_bonus_dict,
             )
         stat, bonus = item_bonus_dict[item_name]
         current_val = getattr(self.max_stats, stat)
@@ -420,6 +424,7 @@ class Morph(BaseMorph):
             raise StatBoosterError(
                 f"{stat} is already maxed-out at {current_val}.",
                 reason=StatBoosterError.Reason.STAT_IS_MAXED,
+                max_stat=(stat, current_val),
             )
         setattr(increment, stat, bonus)
         self.current_stats += increment
@@ -1036,6 +1041,8 @@ class Morph5(Morph):
         self.min_promo_level = None
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Luck Ring": ("Lck", 3),
             "Life Ring": ("HP", 7),
@@ -1070,6 +1077,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
+                absent_scroll=scroll_name,
             )
 
     def equip_scroll(self, scroll_name: str):
@@ -1082,6 +1090,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
+                equipped_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
             raise ScrollError(
@@ -1107,6 +1116,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
                 reason=ScrollError.Reason.NOT_FOUND,
+                valid_scrolls=scroll_list,
             )
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
@@ -1225,25 +1235,53 @@ class Morph6(Morph):
             #'Guinevere',
         )
 
-    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None):
+    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None, route: str = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
         #self.name = name.replace(" (HM)", "")
-        if name + " (HM)" in self.CHARACTER_LIST():
-            if hard_mode is None:
-                init_params = {'hard_mode': (False, True)}
-                raise InitError(
-                    f"Specify a `hard_mode` boolean value for {name}.",
-                    missing_value=InitError.MissingValue.HARD_MODE,
-                    init_params=init_params,
-                )
-            if hard_mode:
-                name += " (HM)"
+        if name == "Gonzales":
+            valid_routes = ("Lalum", "Elphin")
+            valid_hm_values = (False, True)
+            if (route not in valid_routes) or (hard_mode not in valid_hm_values):
+                hm_params = {'hard_mode': valid_hm_values}
+                route_params = {'route': valid_routes}
+                if (route not in valid_routes) and (hard_mode not in valid_hm_values):
+                    raise InitError(
+                        "Specify `route` and `hard_mode` values.",
+                        missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
+                        init_params=route_params,
+                        init_params2=hm_params,
+                    )
+                elif (route not in valid_routes):
+                    raise InitError(
+                        "Specify `route` value.",
+                        missing_value=InitError.MissingValue.ROUTE,
+                        init_params=route_params,
+                    )
+                elif (hard_mode not in valid_hm_values):
+                    raise InitError(
+                        "Specify `hard_mode` value.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=hm_params,
+                    )
         else:
-            if hard_mode:
-                logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
-            hard_mode = None
+            if route is not None:
+                logger.warning("`route` value of %s will have no effect.", route)
+            if name + " (HM)" in self.CHARACTER_LIST():
+                if hard_mode is None:
+                    init_params = {'hard_mode': (False, True)}
+                    raise InitError(
+                        f"Specify a `hard_mode` boolean value for {name}.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=init_params,
+                    )
+                if hard_mode:
+                    name += " (HM)"
+            else:
+                if hard_mode:
+                    logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
+                hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self.name = name.replace(" (HM)", "")
         # Hugh exception
@@ -1277,6 +1315,8 @@ class Morph6(Morph):
         self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1640,6 +1680,8 @@ class Morph8(Morph):
         self.max_level = None
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1836,6 +1878,8 @@ class Morph9(Morph):
         self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
@@ -1868,6 +1912,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
+                equipped_band=band_name,
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise BandError(
@@ -1893,6 +1938,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.NOT_FOUND,
+                valid_bands=band_list,
             )
         self.equipped_bands[band_name] = self.Stats(**stat_dict)
         self._apply_band_bonuses()
@@ -1908,6 +1954,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
+                absent_band=band_name,
             )
 
     def equip_knight_ward(self):

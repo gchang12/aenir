@@ -720,7 +720,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        with self.assertRaises(LevelUpError):
+        with self.assertRaises(LevelUpError) as err_ctx:
             rutger.level_up(20)
         base_rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         self.assertEqual(rutger.current_lv, base_rutger.current_lv)
@@ -729,6 +729,10 @@ class MorphTests(unittest.TestCase):
             rutger.current_stats == base_rutger.current_stats,
         )
         self.assertIs(actual, expected)
+        err = err_ctx.exception
+        actual = err.max_level
+        expected = rutger.max_level
+        self.assertEqual(actual, expected)
 
     def test_promote(self):
         """
@@ -805,8 +809,12 @@ class MorphTests(unittest.TestCase):
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
         with self.assertRaises(PromotionError) as exc_ctx:
             rutger.promote()
-        actual = exc_ctx.exception.reason
+        err = exc_ctx.exception
+        actual = err.reason
         expected = PromotionError.Reason.LEVEL_TOO_LOW
+        self.assertEqual(actual, expected)
+        actual = err.min_promo_level
+        expected = rutger.min_promo_level
         self.assertEqual(actual, expected)
         self.assertListEqual(
             rutger.history,
@@ -1033,8 +1041,12 @@ class MorphTests(unittest.TestCase):
         roy.stat_boosters = item_bonus_dict
         with self.assertRaises(StatBoosterError) as err_ctx:
             roy.use_stat_booster(item, item_bonus_dict)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = StatBoosterError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+        actual = err.valid_stat_boosters
+        expected = item_bonus_dict
         self.assertEqual(actual, expected)
 
     def test_promote__branch_unspecified(self):
@@ -1733,19 +1745,32 @@ class Morph5Tests(unittest.TestCase):
         eda.unequip_scroll("Fala")
         with self.assertRaises(ScrollError) as err_ctx:
             eda.unequip_scroll("")
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception.
+        actual = err.reason
         expected = ScrollError.Reason.NOT_EQUIPPED
+        self.assertEqual(actual, expected)
+        actual = err.absent_scroll
+        expected = ""
         self.assertEqual(actual, expected)
         with self.assertRaises(ScrollError) as err_ctx:
             eda.equip_scroll("Heim")
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = ScrollError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+        actual = err.equipped_scroll
+        expected = "Heim"
         self.assertEqual(actual, expected)
         with self.assertRaises(ScrollError) as err_ctx:
             eda.equip_scroll("")
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = ScrollError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        print(err.valid_scrolls)
+        expected = []
+        self.assertListEqual(actual, expected)
         eda.level_up(10)
         eda2 = Morph5("Eda")
         eda2.level_up(10)
@@ -1820,6 +1845,9 @@ class Morph5Tests(unittest.TestCase):
         actual = exception.reason
         expected = StatBoosterError.Reason.STAT_IS_MAXED
         self.assertEqual(actual, expected)
+        actual = exception.max_stat
+        expected = ("Spd", 20)
+        self.assertTupleEqual(actual, expected)
 
     def test_inventory_size(self):
         """
@@ -1833,15 +1861,56 @@ class Morph6Tests(unittest.TestCase):
     """
     """
 
-    def tearDown(self):
-        """
-        """
-        logger.critical("%s", self.id())
-
     def setUp(self):
         """
         """
         logger.critical("%s", self.id())
+
+    def test_gonzales__no_route_or_hm(self):
+        """
+        """
+        with self.assertRaises(InitError) as err_ctx:
+            Morph6("Gonzales", hard_mode=None, route=None)
+        err = err_ctx.exception
+        actual = err.missing_value
+        expected = InitError.MissingValue.HARD_MODE_AND_ROUTE
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {"route": ("Lalum", "Elphin")}
+        self.assertDictEqual(actual, expected)
+        actual = err.init_params2
+        expected = {"hard_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
+
+    def test_gonzales__no_route(self):
+        """
+        """
+        with self.assertRaises(InitError) as err_ctx:
+            Morph6("Gonzales", hard_mode=None, route=None)
+        err = err_ctx.exception
+        actual = err.missing_value
+        expected = InitError.MissingValue.ROUTE
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {"route": ("Lalum", "Elphin")}
+        self.assertDictEqual(actual, expected)
+        actual = err.init_params2
+        self.assertIsNone(actual)
+
+    def test_gonzales__no_hm(self):
+        """
+        """
+        with self.assertRaises(InitError) as err_ctx:
+            Morph6("Gonzales", hard_mode=None, route=None)
+        err = err_ctx.exception
+        actual = err.missing_value
+        expected = InitError.MissingValue.HARD_MODE
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {"hard_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
+        actual = err.init_params2
+        self.assertIsNone(actual)
 
     @staticmethod
     def _get_promotables(can_promote):
@@ -1868,7 +1937,7 @@ class Morph6Tests(unittest.TestCase):
         promotables = self._get_promotables(can_promote=True)
         #expected = []
         for name in promotables:
-            morph = Morph6(name, hard_mode=True, number_of_declines=0)
+            morph = Morph6(name, hard_mode=True, number_of_declines=0, route="Lalum")
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
@@ -1959,6 +2028,8 @@ class Morph6Tests(unittest.TestCase):
                 kwargs = {}
                 if name == "Hugh":
                     kwargs['number_of_declines'] = 3
+                elif name == "Gonzales":
+                    kwargs['route'] = "Lalum"
                 morph = Morph6(name, hard_mode=True, **kwargs)
             actual = morph.get_promotion_item()
             expected = promoitem_dict.pop(name)
@@ -2146,6 +2217,8 @@ class Morph6Tests(unittest.TestCase):
             kwargs = {}
             if name == "Hugh":
                 kwargs['number_of_declines'] = 3
+            elif name == "Gonzales":
+                kwargs['route'] = "Lalum"
             morph = Morph6(name, hard_mode=hard_mode, **kwargs)
             morph.level_up(20 - morph.current_lv)
             morph.promote()
@@ -3612,20 +3685,32 @@ class Morph9Tests(unittest.TestCase):
         jill.unequip_band(band)
         with self.assertRaises(BandError) as err_ctx:
             jill.unequip_band("")
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.NOT_EQUIPPED
+        self.assertEqual(actual, expected)
+        actual = err.absent_band
+        expected = ""
         self.assertEqual(actual, expected)
         first_band = bands[0]
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(first_band)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+        actual = err.equipped_band
+        expected = first_band
         self.assertEqual(actual, expected)
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band("")
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        expected = []
+        self.assertListEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph5("Eda")
         jill2.level_up(10)
