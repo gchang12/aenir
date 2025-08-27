@@ -807,6 +807,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
+        #rutger.min_promo_level = 10
         with self.assertRaises(PromotionError) as exc_ctx:
             rutger.promote()
         err = exc_ctx.exception
@@ -1745,7 +1746,7 @@ class Morph5Tests(unittest.TestCase):
         eda.unequip_scroll("Fala")
         with self.assertRaises(ScrollError) as err_ctx:
             eda.unequip_scroll("")
-        err = err_ctx.exception.
+        err = err_ctx.exception
         actual = err.reason
         expected = ScrollError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
@@ -1768,8 +1769,8 @@ class Morph5Tests(unittest.TestCase):
         expected = ScrollError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
-        print(err.valid_scrolls)
-        expected = []
+        logger.debug("valid_scrolls: %s", actual)
+        expected = ['Baldo', 'Blaggi', 'Dain', 'Fala', 'Heim', 'Hezul', 'Neir', 'Noba', 'Odo', 'Sety', 'Tordo', 'Ulir']
         self.assertListEqual(actual, expected)
         eda.level_up(10)
         eda2 = Morph5("Eda")
@@ -1886,7 +1887,7 @@ class Morph6Tests(unittest.TestCase):
         """
         """
         with self.assertRaises(InitError) as err_ctx:
-            Morph6("Gonzales", hard_mode=None, route=None)
+            Morph6("Gonzales", hard_mode=True, route=None)
         err = err_ctx.exception
         actual = err.missing_value
         expected = InitError.MissingValue.ROUTE
@@ -1901,7 +1902,7 @@ class Morph6Tests(unittest.TestCase):
         """
         """
         with self.assertRaises(InitError) as err_ctx:
-            Morph6("Gonzales", hard_mode=None, route=None)
+            Morph6("Gonzales", hard_mode=None, route="Lalum")
         err = err_ctx.exception
         actual = err.missing_value
         expected = InitError.MissingValue.HARD_MODE
@@ -3709,7 +3710,8 @@ class Morph9Tests(unittest.TestCase):
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         actual = err.valid_bands
-        expected = []
+        logger.debug("valid_bands: %s", actual)
+        expected = ['Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band']
         self.assertListEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph5("Eda")

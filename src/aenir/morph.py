@@ -351,6 +351,7 @@ class Morph(BaseMorph):
             raise PromotionError(
                 f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.",
                 reason=PromotionError.Reason.LEVEL_TOO_LOW,
+                min_promo_level=self.min_promo_level,
             )
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
@@ -419,12 +420,12 @@ class Morph(BaseMorph):
                 valid_stat_boosters=item_bonus_dict,
             )
         stat, bonus = item_bonus_dict[item_name]
-        current_val = getattr(self.max_stats, stat)
-        if current_val == getattr(self.current_stats, stat):
+        current_max = getattr(self.max_stats, stat)
+        if getattr(self.current_stats, stat) == current_max:
             raise StatBoosterError(
-                f"{stat} is already maxed-out at {current_val}.",
+                f"{stat} is already maxed-out at {current_max}.",
                 reason=StatBoosterError.Reason.STAT_IS_MAXED,
-                max_stat=(stat, current_val),
+                max_stat=(stat, current_max),
             )
         setattr(increment, stat, bonus)
         self.current_stats += increment

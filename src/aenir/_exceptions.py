@@ -77,14 +77,12 @@ class _ItemException(BaseException, abc.ABC):
     To be subclassed; should never be instantiated directly.
     """
 
-    def __init__(self, msg, *, reason):
+    def __init__(self, msg, reason):
         """
         Declares `reason` in addition to usual initialization.
         """
         super().__init__(msg)
         self.reason = reason
-
-#TODO
 
 class StatBoosterError(_ItemException):
     """
