@@ -1867,6 +1867,15 @@ class Morph6Tests(unittest.TestCase):
         """
         logger.critical("%s", self.id())
 
+    def test_hardmode_explicit_and_via_option(self):
+        """
+        """
+        hm_morph1 = Morph6("Rutger (HM)")
+        hm_morph2 = Morph6("Rutger", hard_mode=True)
+        expected = True
+        actual = all((hm_morph1.current_stats == hm_morph2.current_stats).as_dict().values())
+        self.assertIs(actual, expected)
+
     def test_gonzales__no_route_or_hm(self):
         """
         """
