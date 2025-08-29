@@ -850,7 +850,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         rutger = self.TestMorph("Rutger", which_bases=0, which_growths=0)
-        rutger.name = "Marcus"
+        rutger._name = "Marcus"
         with self.assertRaises(PromotionError) as exc_ctx:
             rutger.promote()
         actual = exc_ctx.exception.reason
@@ -2274,7 +2274,7 @@ class Morph6Tests(unittest.TestCase):
         Creates a Morph of Hugh with no alterations.
         """
         control_morph = Morph6("Roy")
-        control_morph.name = "Hugh"
+        control_morph._name = "Hugh"
         stat_dict = {
             "HP": 26,
             "Pow": 13,

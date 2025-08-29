@@ -246,8 +246,8 @@ class Morph(BaseMorph):
         if name.replace(" (HM)", "") + " (HM)" in character_list:
             _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
-        self.game = game
-        self.name = name
+        self._game = game
+        self._name = name
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -261,6 +261,18 @@ class Morph(BaseMorph):
         self.promo_cls = None
         self.possible_promotions = None
         #self.stat_boosters = None
+
+    @property
+    def game(self):
+        """
+        """
+        return self._game
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
 
     def _set_max_level(self):
         """
@@ -442,7 +454,7 @@ class Morph(BaseMorph):
         """
         Zeroes out the attributes common to all Morph subclasses.
         """
-        self.name = None
+        self._name = None
         #self.game = None
         #self.current_cls = None
         #self.current_lv = None
@@ -822,9 +834,9 @@ class Morph4(Morph):
         self.min_promo_level = 20
         self.max_level = max_level
         self._meta = _meta
-        self.father = father
-        self.game = game
-        self.name = name
+        self._father = father
+        self._game = game
+        self._name = name
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -834,6 +846,24 @@ class Morph4(Morph):
         self.promo_cls = promo_cls
         self.history = []
         #self._meta.pop("Stat Boosters")
+
+    @property
+    def game(self):
+        """
+        """
+        return self._game
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
+
+    @property
+    def father(self):
+        """
+        """
+        return self._father
 
     def _set_min_promo_level(self):
         """
@@ -1284,7 +1314,7 @@ class Morph6(Morph):
                     logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
-        self.name = name.replace(" (HM)", "")
+        self._name = name.replace(" (HM)", "")
         # Hugh exception
         if number_of_declines is not None and self.name != "Hugh":
             logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
@@ -1502,7 +1532,7 @@ class Morph7(Morph):
         _growths_item = "Afa's Drops"
         # set instance attributes
         self.current_clstype = current_clstype
-        self.name = name.replace(" (HM)", "")
+        self._name = name.replace(" (HM)", "")
         self._meta["Lyn Mode"] = lyn_mode
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
