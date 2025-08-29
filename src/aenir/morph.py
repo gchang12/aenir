@@ -1296,6 +1296,9 @@ class Morph6(Morph):
                         missing_value=InitError.MissingValue.HARD_MODE,
                         init_params=hm_params,
                     )
+            else:
+                if hard_mode:
+                    name += " (HM)"
         else:
             if route is not None:
                 logger.warning("`route` value of %s will have no effect.", route)
@@ -1315,6 +1318,11 @@ class Morph6(Morph):
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
+        if name == "Gonzales":
+            self.current_lv = {
+                "Lalum": 5,
+                "Elphin": 11,
+            }[route]
         # Hugh exception
         if number_of_declines is not None and self.name != "Hugh":
             logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
