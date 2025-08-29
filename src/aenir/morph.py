@@ -1318,7 +1318,7 @@ class Morph6(Morph):
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
-        if name == "Gonzales":
+        if "Gonzales" == self._name:
             self.current_lv = {
                 "Lalum": 5,
                 "Elphin": 11,

@@ -1892,6 +1892,22 @@ class Morph6Tests(unittest.TestCase):
         expected = {"hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
 
+    def test_gonzales__lalum_route(self):
+        """
+        """
+        morph = Morph6("Gonzales", hard_mode=True, route="Lalum")
+        actual = morph.current_lv
+        expected = 5
+        self.assertEqual(actual, expected)
+
+    def test_gonzales__elphin_route(self):
+        """
+        """
+        morph = Morph6("Gonzales", hard_mode=True, route="Elphin")
+        actual = morph.current_lv
+        expected = 11
+        self.assertEqual(actual, expected)
+
     def test_gonzales__no_route(self):
         """
         """
