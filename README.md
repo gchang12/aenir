@@ -35,7 +35,7 @@ pip install aenir
 Let's begin by starting up an interactive Python shell.
 We will start by importing the shortcut function `get_morph`.
 ```python
-from aenir.morph import get_morph
+from aenir import get_morph
 ```
 
 To create a virtual copy of a unit (i.e. a 'Morph'), bear in mind the following:
@@ -69,7 +69,6 @@ For the fun of it, let's max him out.
 ```python
 num_levels = 19 # because he starts out at level one again.
 roy.level_up(num_levels)
-# implicit: roy.__repr__()
 print(roy)
 ```
  

@@ -2,8 +2,6 @@
 Defines classes essential to comparing Fire Emblem unit stats.
 """
 
-# NOTE: `get_promotion_item` needs to be properly implemented prior to testing.
-
 import importlib.resources
 import abc
 import sqlite3
@@ -206,7 +204,7 @@ class Morph(BaseMorph):
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
-                unit_type=UnitNotFoundError.UnitType.NORMAL,
+                #unit_type=UnitNotFoundError.UnitType.NORMAL,
             )
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
@@ -248,8 +246,8 @@ class Morph(BaseMorph):
         if name.replace(" (HM)", "") + " (HM)" in character_list:
             _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
-        self.game = game
-        self.name = name
+        self._game = game
+        self._name = name
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -263,6 +261,18 @@ class Morph(BaseMorph):
         self.promo_cls = None
         self.possible_promotions = None
         #self.stat_boosters = None
+
+    @property
+    def game(self):
+        """
+        """
+        return self._game
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
 
     def _set_max_level(self):
         """
@@ -296,7 +306,10 @@ class Morph(BaseMorph):
             self._set_max_level()
         # stop if user is going to overlevel
         if num_levels + self.current_lv > self.max_level:
-            raise LevelUpError(f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.")
+            raise LevelUpError(
+                f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
+                max_level=self.max_level,
+            )
         # ! increase stats
         self.current_stats += self.growth_rates * 0.01 * num_levels
         # ! increase level
@@ -319,6 +332,17 @@ class Morph(BaseMorph):
         )
         return query_kwargs
 
+    def get_promotion_list(self):
+        """
+        Gets a list of classes a unit can promote to.
+        """
+        query_kwargs = self._get_promo_query_kwargs()
+        if query_kwargs is None:
+            return []
+        query_kwargs['fields'] += ("Promotion",)
+        resultset = self.query_db(**query_kwargs).fetchall()
+        return [result["Promotion"] for result in resultset]
+
     def promote(self):
         """
         Changes unit class and boosts stats among other parameters, given the right conditions are met.
@@ -339,6 +363,7 @@ class Morph(BaseMorph):
             raise PromotionError(
                 f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.",
                 reason=PromotionError.Reason.LEVEL_TOO_LOW,
+                min_promo_level=self.min_promo_level,
             )
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
@@ -356,6 +381,7 @@ class Morph(BaseMorph):
                 raise PromotionError(
                     f"{self.promo_cls} is an invalid promotion. Valid promotions: {valid_promotions}",
                     reason=PromotionError.Reason.INVALID_PROMOTION,
+                    promotion_list=valid_promotions,
                 )
             else:
                 resultset = new_resultset
@@ -403,13 +429,15 @@ class Morph(BaseMorph):
             raise StatBoosterError(
                 f"'{item_name}' is not a valid stat booster. Valid stat boosters: {list(item_bonus_dict.keys())}",
                 reason=StatBoosterError.Reason.NOT_FOUND,
+                valid_stat_boosters=item_bonus_dict,
             )
         stat, bonus = item_bonus_dict[item_name]
-        current_val = getattr(self.max_stats, stat)
-        if current_val == getattr(self.current_stats, stat):
+        current_max = getattr(self.max_stats, stat)
+        if getattr(self.current_stats, stat) == current_max:
             raise StatBoosterError(
-                f"{stat} is already maxed-out at {current_val}.",
+                f"{stat} is already maxed-out at {current_max}.",
                 reason=StatBoosterError.Reason.STAT_IS_MAXED,
+                max_stat=(stat, current_max),
             )
         setattr(increment, stat, bonus)
         self.current_stats += increment
@@ -426,7 +454,7 @@ class Morph(BaseMorph):
         """
         Zeroes out the attributes common to all Morph subclasses.
         """
-        self.name = None
+        self._name = None
         #self.game = None
         #self.current_cls = None
         #self.current_lv = None
@@ -515,10 +543,10 @@ class Morph(BaseMorph):
         if miscellany or show_stat_boosters:
             if show_stat_boosters and self._meta["Stat Boosters"]:
                 statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                if statboost_history:
-                    miscellany.append(
-                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                    )
+                #if statboost_history:
+                miscellany.append(
+                    ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                )
             if miscellany:
                 data_as_str.append(" \nMiscellany\n==========")
                 data_as_str.extend(list(map(datapair_to_string, miscellany)))
@@ -585,8 +613,50 @@ class Morph4(Morph):
         """
         return 7
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def FATHER_LIST():
+        """
+        """
+        return (
+            'Arden',
+            'Azel',
+            'Alec',
+            'Claude',
+            'Jamka',
+            'Dew',
+            'Noish',
+            'Fin',
+            'Beowolf',
+            'Holyn',
+            'Midayle',
+            'Levin',
+            'Lex',
+        )
+
+    @staticmethod
+    def CHILD_LIST():
+        """
+        """
+        return (
+            'Rana',
+            'Lakche',
+            'Skasaher',
+            'Delmud',
+            'Lester',
+            'Fee',
+            'Arthur',
+            'Patty',
+            'Nanna',
+            'Leen',
+            'Tinny',
+            'Faval',
+            'Sety',
+            'Corpul',
+        )
+
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         """
         """
         return (
@@ -659,22 +729,7 @@ class Morph4(Morph):
         Implements creation of kids with variable stats, in addition to normal units.
         """
         # test if name refers to a child with father-dependent stats
-        kid_list = (
-            'Rana',
-            'Lakche',
-            'Skasaher',
-            'Delmud',
-            'Lester',
-            'Fee',
-            'Arthur',
-            'Patty',
-            'Nanna',
-            'Leen',
-            'Tinny',
-            'Faval',
-            'Sety',
-            'Corpul',
-        )
+        kid_list = self.CHILD_LIST()
         if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
@@ -692,25 +747,12 @@ class Morph4(Morph):
             max_stats = self.max_stats
             promo_cls = self.promo_cls
         else:
-            father_list = (
-                'Arden',
-                'Azel',
-                'Alec',
-                'Claude',
-                'Jamka',
-                'Dew',
-                'Noish',
-                'Fin',
-                'Beowolf',
-                'Holyn',
-                'Midayle',
-                'Levin',
-                'Lex',
-            )
+            father_list = self.FATHER_LIST()
             if father not in father_list:
-                raise UnitNotFoundError(
+                raise InitError(
                     f"'{father}' is not a valid father. List of valid fathers: {father_list}",
-                    unit_type=UnitNotFoundError.UnitType.FATHER,
+                    missing_value=InitError.MissingValue.FATHER,
+                    init_params={"father": father_list},
                 )
             # begin initialization here
             Stats = self.STATS()
@@ -792,9 +834,9 @@ class Morph4(Morph):
         self.min_promo_level = 20
         self.max_level = max_level
         self._meta = _meta
-        self.father = father
-        self.game = game
-        self.name = name
+        self._father = father
+        self._game = game
+        self._name = name
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -804,6 +846,24 @@ class Morph4(Morph):
         self.promo_cls = promo_cls
         self.history = []
         #self._meta.pop("Stat Boosters")
+
+    @property
+    def game(self):
+        """
+        """
+        return self._game
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
+
+    @property
+    def father(self):
+        """
+        """
+        return self._father
 
     def _set_min_promo_level(self):
         """
@@ -893,8 +953,9 @@ class Morph5(Morph):
             promotion_item = ("Knight Proof" if super().get_promotion_item() else None)
         return promotion_item
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         return (
             'Leaf',
             'Fin',
@@ -1011,6 +1072,8 @@ class Morph5(Morph):
         self.min_promo_level = None
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Luck Ring": ("Lck", 3),
             "Life Ring": ("HP", 7),
@@ -1045,6 +1108,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
+                absent_scroll=scroll_name,
             )
 
     def equip_scroll(self, scroll_name: str):
@@ -1057,6 +1121,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
+                equipped_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
             raise ScrollError(
@@ -1082,6 +1147,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
                 reason=ScrollError.Reason.NOT_FOUND,
+                valid_scrolls=scroll_list,
             )
         self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
         self._apply_scroll_bonuses()
@@ -1121,8 +1187,9 @@ class Morph6(Morph):
             promotion_item = super().get_promotion_item()
         return promotion_item
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         return (
             'Roy',
             'Marcus',
@@ -1189,72 +1256,92 @@ class Morph6(Morph):
             'Juno',
             'Yodel',
             'Karel',
-            'Narshen',
-            'Gale',
-            'Hector',
-            'Brunya',
-            'Eliwood',
-            'Murdoch',
-            'Zephiel',
-            'Guinevere',
+            #'Narshen',
+            #'Gale',
+            #'Hector',
+            #'Brunya',
+            #'Eliwood',
+            #'Murdoch',
+            #'Zephiel',
+            #'Guinevere',
         )
 
-    def __init__(self, name: str, *, hard_mode: bool = None):
+    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None, route: str = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
         #self.name = name.replace(" (HM)", "")
-        if name + " (HM)" in self.CHARACTER_LIST():
-            if hard_mode is None:
-                raise InitError(
-                    f"Please specify a `hard_mode` boolean value for {name}.",
-                    missing_value=InitError.MissingValue.HARD_MODE,
-                )
-            if hard_mode:
-                name += " (HM)"
+        if name == "Gonzales":
+            valid_routes = ("Lalum", "Elphin")
+            valid_hm_values = (False, True)
+            if (route not in valid_routes) or (hard_mode not in valid_hm_values):
+                hm_params = {'hard_mode': valid_hm_values}
+                route_params = {'route': valid_routes}
+                if (route not in valid_routes) and (hard_mode not in valid_hm_values):
+                    raise InitError(
+                        "Specify `route` and `hard_mode` values.",
+                        missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
+                        init_params=route_params,
+                        init_params2=hm_params,
+                    )
+                elif (route not in valid_routes):
+                    raise InitError(
+                        "Specify `route` value.",
+                        missing_value=InitError.MissingValue.ROUTE,
+                        init_params=route_params,
+                    )
+                elif (hard_mode not in valid_hm_values):
+                    raise InitError(
+                        "Specify `hard_mode` value.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=hm_params,
+                    )
+            else:
+                if hard_mode:
+                    name += " (HM)"
         else:
-            if hard_mode:
-                logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
-            hard_mode = None
+            if route is not None:
+                logger.warning("`route` value of %s will have no effect.", route)
+            if name + " (HM)" in self.CHARACTER_LIST():
+                if hard_mode is None:
+                    init_params = {'hard_mode': (False, True)}
+                    raise InitError(
+                        f"Specify a `hard_mode` boolean value for {name}.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=init_params,
+                    )
+                if hard_mode:
+                    name += " (HM)"
+            else:
+                if hard_mode:
+                    logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
+                hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
-        if name == "Hugh":
-            num_declines = 0
-        else:
-            num_declines = None
+        self._name = name.replace(" (HM)", "")
+        if "Gonzales" == self._name:
+            self.current_lv = {
+                "Lalum": 5,
+                "Elphin": 11,
+            }[route]
+        # Hugh exception
+        if number_of_declines is not None and self.name != "Hugh":
+            logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
+            number_of_declines = None
+        elif self.name == "Hugh":
+            if number_of_declines not in range(4):
+                raise InitError(
+                    "Specify the number of times Hugh has been declined. Valid values: (0, 1, 2, 3)",
+                    missing_value=InitError.MissingValue.NUMBER_OF_DECLINES,
+                    init_params={"number_of_declines": (0, 1, 2, 3)},
+                )
+            stat_dict = self.Stats.get_stat_dict(-1 * number_of_declines)
+            stat_dict["Mov"] = 0
+            stat_dict["Con"] = 0
+            decrement = self.Stats(**stat_dict)
+            self.current_stats += decrement
         # set instance attributes
-        self.name = name.replace(" (HM)", "")
         self._meta["Hard Mode"] = hard_mode
-        self._meta["Number of Declines"] = num_declines
-
-    def decline_hugh(self):
-        """
-        Decreases stats for Hugh for each declination he receives.
-        """
-        if self.name != "Hugh":
-            raise ValueError("Can only invoke this method on a morph of Hugh.")
-        if self._meta["Number of Declines"] == 3:
-            raise OverflowError("Can invoke this method up to three times.")
-        if self.history or self.current_lv > 15:
-            raise InitError(
-                "This Hugh has already been levelled-up or promoted. Cannot decline.",
-                missing_value=None,
-            )
-        self._meta["Number of Declines"] += 1
-        decrement = self.Stats(**self.Stats.get_stat_dict(-1))
-        self.current_stats += decrement
-
-    def set_elffin_route_for_gonzales(self):
-        """
-        Sets level of Gonzalez to 11 in accordance with debut on Elphin-route.
-        """
-        if self.name != "Gonzales":
-            raise ValueError("Can only invoke this method on a morph of Gonzales.")
-        if self.history or self.current_lv > 5:
-            raise InitError(
-                "This Gonzales has already been levelled-up or promoted. Cannot switch routes.",
-                missing_value=None,
-            )
-        self.current_lv = 11
+        self._meta["Number of Declines"] = number_of_declines
 
     def _set_min_promo_level(self):
         """
@@ -1267,6 +1354,8 @@ class Morph6(Morph):
         self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1308,8 +1397,9 @@ class Morph7(Morph):
     def inventory_size(self):
         return 5
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         return (
             'Lyn',
             'Sain',
@@ -1405,6 +1495,7 @@ class Morph7(Morph):
                 raise InitError(
                     f"Please specify a `lyn_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.LYN_MODE,
+                    init_params={"lyn_mode": (False, True)},
                 )
             which_bases = {
                 True: 0,
@@ -1420,7 +1511,7 @@ class Morph7(Morph):
                 if name == "Ninian":
                     raise UnitNotFoundError(
                         "Ninian is not in the Lyndis League.",
-                        unit_type=UnitNotFoundError.UnitType.NORMAL,
+                        #unit_type=UnitNotFoundError.UnitType.NORMAL,
                     )
                 #name = "Nils"
             which_bases = 1
@@ -1431,6 +1522,7 @@ class Morph7(Morph):
                 raise InitError(
                     f"Please specify a `hard_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.HARD_MODE,
+                    init_params={"hard_mode": (False, True)},
                 )
             if hard_mode:
                 name += " (HM)"
@@ -1448,7 +1540,7 @@ class Morph7(Morph):
         _growths_item = "Afa's Drops"
         # set instance attributes
         self.current_clstype = current_clstype
-        self.name = name.replace(" (HM)", "")
+        self._name = name.replace(" (HM)", "")
         self._meta["Lyn Mode"] = lyn_mode
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
@@ -1546,8 +1638,9 @@ class Morph8(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         """
         """
         return (
@@ -1626,6 +1719,8 @@ class Morph8(Morph):
         self.max_level = None
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -1691,8 +1786,9 @@ class Morph9(Morph):
             promotion_item = None
         return promotion_item
 
-    @classmethod
-    def CHARACTER_LIST(cls):
+    @staticmethod
+    def CHARACTER_LIST():
+        #def CHARACTER_LIST(cls):
         return (
             'Ike',
             'Titania',
@@ -1740,8 +1836,8 @@ class Morph9(Morph):
             'Tibarn',
             'Naesala',
             'Giffca',
-            'Sephiran',
-            'Leanne',
+            #'Sephiran',
+            #'Leanne',
         )
 
     def __init__(self, name: str):
@@ -1821,6 +1917,8 @@ class Morph9(Morph):
         self.min_promo_level = min_promo_level
 
     def use_stat_booster(self, item_name: str):
+        """
+        """
         item_bonus_dict = {
             "Seraph Robe": ("HP", 7),
             "Energy Drop": ("Str", 2),
@@ -1853,6 +1951,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
+                equipped_band=band_name,
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise BandError(
@@ -1878,6 +1977,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.NOT_FOUND,
+                valid_bands=band_list,
             )
         self.equipped_bands[band_name] = self.Stats(**stat_dict)
         self._apply_band_bonuses()
@@ -1893,6 +1993,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
+                absent_band=band_name,
             )
 
     def equip_knight_ward(self):
