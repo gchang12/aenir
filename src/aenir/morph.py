@@ -221,7 +221,7 @@ class Morph(BaseMorph):
         current_cls = stat_dict.pop("Class")
         current_lv = stat_dict.pop("Lv")
         # bases
-        current_stats = self.Stats(**stat_dict)
+        current_stats = self.Stats(multiplier=100, **stat_dict)
         # growths
         resultset = self.query_db(
             **self.lookup(
@@ -230,7 +230,7 @@ class Morph(BaseMorph):
                 which_growths,
             )
         ).fetchall()
-        growth_rates = self.Stats(**resultset.pop(which_growths))
+        growth_rates = self.Stats(multiplier=1, **resultset.pop(which_growths))
         # maximum
         current_clstype = "characters__base_stats"
         stat_dict2 = self.query_db(
@@ -311,7 +311,7 @@ class Morph(BaseMorph):
                 max_level=self.max_level,
             )
         # ! increase stats
-        self.current_stats += self.growth_rates * 0.01 * num_levels
+        self.current_stats += self.growth_rates * num_levels
         # ! increase level
         self.current_lv += num_levels
         # cap stats
@@ -439,7 +439,7 @@ class Morph(BaseMorph):
                 reason=StatBoosterError.Reason.STAT_IS_MAXED,
                 max_stat=(stat, current_max),
             )
-        setattr(increment, stat, bonus)
+        setattr(increment, stat, bonus * 100)
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
@@ -791,7 +791,7 @@ class Morph4(Morph):
                     filters={"Name": name, "Father": father},
                 ).fetchone()
             )
-            growth_rates = Stats(**stat_dict2)
+            growth_rates = Stats(multiplier=1, **stat_dict2)
             # maximum
             current_clstype = "characters__base_stats"
             stat_dict3 = self.query_db(
@@ -1149,7 +1149,7 @@ class Morph5(Morph):
                 reason=ScrollError.Reason.NOT_FOUND,
                 valid_scrolls=scroll_list,
             )
-        self.equipped_scrolls[scroll_name] = self.Stats(**stat_dict)
+        self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
     def as_string(self):
@@ -1556,7 +1556,7 @@ class Morph7(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
-        growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
+        growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
@@ -1744,7 +1744,7 @@ class Morph8(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
-        growths_increment = self.Stats(**self.Stats.get_stat_dict(5))
+        growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
@@ -1944,7 +1944,7 @@ class Morph9(Morph):
     def equip_band(self, band_name: str):
         """
         Simulates equipping of growth band specified by `band_name`.
-        Throws error if band is already equipped or DNE>
+        Throws error if band is already equipped or DNE.
         """
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if band_name in self.equipped_bands:
@@ -1979,7 +1979,7 @@ class Morph9(Morph):
                 reason=BandError.Reason.NOT_FOUND,
                 valid_bands=band_list,
             )
-        self.equipped_bands[band_name] = self.Stats(**stat_dict)
+        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
 
     def unequip_band(self, band_name: str):
@@ -2031,7 +2031,7 @@ class Morph9(Morph):
             #filters={"Name": band_name},
         #).fetchone()
         # set to list of bands
-        self.equipped_bands[band_name] = self.Stats(**stat_dict)
+        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
         # set the thing
         self.knight_ward_is_equipped = True

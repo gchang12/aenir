@@ -472,6 +472,7 @@ class MorphTests(unittest.TestCase):
         """
         """
         kwargs = self.init_kwargs
+        multiplier = 100
         morph = self.TestMorph(**kwargs)
         _expected = [
             ("HP", 22),
@@ -488,7 +489,7 @@ class MorphTests(unittest.TestCase):
         actual = []
         for statval in morph:
             actual.append(statval)
-        expected = [numval for (_, numval) in _expected]
+        expected = [numval * multiplier for (_, numval) in _expected]
         self.assertListEqual(actual, expected)
 
     def test_get_true_character_list5(self):
@@ -1016,7 +1017,7 @@ class MorphTests(unittest.TestCase):
         }
         expected = roy.current_stats.as_dict()
         for stat, bonus in item_bonus_dict.values():
-            expected[stat] += bonus
+            expected[stat] += bonus * 100
         roy.stat_boosters = item_bonus_dict
         for item in item_bonus_dict:
             roy.use_stat_booster(item, item_bonus_dict)
@@ -1252,6 +1253,36 @@ class Morph4Tests(unittest.TestCase):
         arden.level_up(10)
         with self.assertRaises(LevelUpError):
             arden.level_up(1)
+
+    def test_lakche__level_up(self):
+        """
+        """
+        lakche = Morph4("Lakche", father="Lex")
+        lakche.level_up(10)
+        bases = {
+            "HP": 30,
+            "Str": 10,
+            "Mag": 0,
+            "Skl": 13,
+            "Spd": 13,
+            "Lck": 8,
+            "Def": 7,
+            "Res": 0,
+        }
+        growths = {
+            "HP": 125,
+            "Str": 50,
+            "Mag": 7,
+            "Skl": 70,
+            "Spd": 40,
+            "Lck": 30,
+            "Def": 60,
+            "Res": 7,
+        }
+        for stat in growths:
+            expected = bases[stat] * 100 + growths[stat] * 10
+            actual = getattr(lakche.current_stats, stat)
+            self.assertEqual(actual, expected)
 
     def test_lakche_with_father_lex(self):
         """
@@ -1736,7 +1767,7 @@ class Morph5Tests(unittest.TestCase):
         actual = PromotionError.Reason.NO_PROMOTIONS
         self.assertEqual(actual, expected)
 
-    def test_scroll_level_up(self):
+    def test_eda__unequip_scroll(self):
         """
         """
         eda = Morph5("Eda")
@@ -1762,6 +1793,11 @@ class Morph5Tests(unittest.TestCase):
         actual = err.equipped_scroll
         expected = "Heim"
         self.assertEqual(actual, expected)
+
+    def test_eda__equip_scroll__invalid_scroll(self):
+        """
+        """
+        eda = Morph5("Eda")
         with self.assertRaises(ScrollError) as err_ctx:
             eda.equip_scroll("")
         err = err_ctx.exception
@@ -1772,13 +1808,24 @@ class Morph5Tests(unittest.TestCase):
         logger.debug("valid_scrolls: %s", actual)
         expected = ['Baldo', 'Blaggi', 'Dain', 'Fala', 'Heim', 'Hezul', 'Neir', 'Noba', 'Odo', 'Sety', 'Tordo', 'Ulir']
         self.assertListEqual(actual, expected)
+
+    def test_level_up__with_hezul_scroll(self):
+        """
+        """
+        eda = Morph5("Eda")
+        eda.equip_scroll("Hezul")
+        # HP +30, Str +10, Lck -10
         eda.level_up(10)
         eda2 = Morph5("Eda")
         eda2.level_up(10)
-        self.assertEqual(eda.current_stats.Str - eda2.current_stats.Str, -1)
-        self.assertEqual(eda.current_stats.Mag - eda2.current_stats.Mag, 4)
-        self.assertEqual(eda.current_stats.Lck - eda2.current_stats.Lck, 4)
-        self.assertEqual(eda.current_stats.Def - eda2.current_stats.Def, -1)
+        diff = {
+            "HP": 300,
+            "Str": 100,
+            "Lck": -100,
+        }
+        for stat, expected in diff.items():
+            actual = getattr(eda.current_stats, stat) - getattr(eda2.current_stats, stat)
+            self.assertEqual(actual, expected)
 
     def test_equip_scroll(self):
         """
@@ -1839,7 +1886,7 @@ class Morph5Tests(unittest.TestCase):
         """
         """
         leaf = Morph5("Leaf")
-        leaf.current_stats.Spd = 20
+        leaf.current_stats.Spd = 2000
         with self.assertRaises(StatBoosterError) as exception_ctx:
             leaf.use_stat_booster("Speed Ring")
         exception = exception_ctx.exception
@@ -1847,7 +1894,7 @@ class Morph5Tests(unittest.TestCase):
         expected = StatBoosterError.Reason.STAT_IS_MAXED
         self.assertEqual(actual, expected)
         actual = exception.max_stat
-        expected = ("Spd", 20)
+        expected = ("Spd", 2000)
         self.assertTupleEqual(actual, expected)
 
     def test_inventory_size(self):
@@ -2370,7 +2417,7 @@ class Morph6Tests(unittest.TestCase):
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus
+            expected = getattr(original_stats, stat) + bonus * 100
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
@@ -2390,6 +2437,82 @@ class Morph7Tests(unittest.TestCase):
         """
         """
         logger.critical("%s", self.id())
+
+    def test_eliwood(self):
+        """
+        """
+        eliwood = Morph7("Eliwood")
+        actual = eliwood.current_lv
+        expected = 1
+        self.assertEqual(actual, expected)
+        bases = {
+            "HP": 1800,
+            "Pow": 500,
+            "Skl": 500,
+            "Spd": 700,
+            "Lck": 700,
+            "Def": 500,
+            "Res": 0,
+            "Con": 700,
+            "Mov": 500,
+        }
+        for stat, expected in bases.items():
+            actual = getattr(eliwood.current_stats, stat)
+            self.assertEqual(actual, expected)
+        eliwood.level_up(19)
+        stats_at_lv20 = {
+            "HP": 3320,
+            "Pow": 1355,
+            "Skl": 1450,
+            "Spd": 1460,
+            "Lck": 1555,
+            "Def": 1070,
+            "Res": 665,
+            "Con": 700,
+            "Mov": 500,
+        }
+        for stat, expected in stats_at_lv20.items():
+            actual = getattr(eliwood.current_stats, stat)
+            self.assertEqual(actual, expected)
+        eliwood.promote()
+        stats_at_lv20_01 = {
+            "HP": 3720,
+            "Pow": 1555,
+            "Skl": 1450,
+            "Spd": 1560,
+            "Lck": 1555,
+            "Def": 1170,
+            "Res": 965,
+            "Con": 900,
+            "Mov": 700,
+        }
+        for stat, expected in stats_at_lv20_01.items():
+            actual = getattr(eliwood.current_stats, stat)
+            self.assertEqual(actual, expected)
+        eliwood.use_stat_booster("Angelic Robe")
+        expected = 4420
+        actual = eliwood.current_stats.HP
+        self.assertEqual(actual, expected)
+
+    def test_nino(self):
+        """
+        """
+        nino = Morph7("Nino")
+        nino.use_afas_drops()
+        nino.level_up(10)
+        stats_at_lv15 = {
+            "HP": 2450,
+            "Pow": 1200,
+            "Skl": 1350,
+            "Spd": 1700,
+            "Lck": 1450,
+            "Def": 550,
+            "Res": 1200,
+        }
+        for stat, expected in stats_at_lv15.items():
+            actual = getattr(nino.current_stats, stat)
+            expected += 5 * 10
+            self.assertEqual(actual, expected)
 
     def setUp(self):
         """
@@ -2846,7 +2969,7 @@ class Morph7Tests(unittest.TestCase):
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus
+            expected = getattr(original_stats, stat) + bonus * 100
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
@@ -3404,7 +3527,7 @@ class Morph8Tests(unittest.TestCase):
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus
+            expected = getattr(original_stats, stat) + bonus * 100
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
@@ -3604,7 +3727,7 @@ class Morph9Tests(unittest.TestCase):
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus
+            expected = getattr(original_stats, stat) + bonus * 100
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
@@ -3996,3 +4119,11 @@ class MorphFunctionTests(unittest.TestCase):
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
 
+class MorphDisplay(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        logger.critical("%s", self.id())

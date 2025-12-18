@@ -64,9 +64,9 @@ class AbstractStats(abc.ABC):
         stat_dict = {}
         for stat in self.STAT_LIST():
             stat_dict[stat] = getattr(self, stat)
-        return self.__class__(**stat_dict)
+        return self.__class__(multiplier=1, **stat_dict)
 
-    def __init__(self, **stat_dict):
+    def __init__(self, *, multiplier=100, **stat_dict):
         """
         Alerts user of which stats want declaration if `stat_dict` is incomplete.
         Warns user about unused kwargs.
@@ -92,6 +92,8 @@ class AbstractStats(abc.ABC):
         # initialize
         for stat in statlist:
             stat_value = stat_dict[stat]
+            if isinstance(stat_value, int):
+                stat_value *= multiplier
             setattr(self, stat, stat_value)
         # warn user of unused kwargs
         unused_stats = set(stat_dict) - set(statlist)
@@ -105,8 +107,8 @@ class AbstractStats(abc.ABC):
         stat_dict = {}
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
-            stat_dict[stat] = round(self_stat * other, 2)
-        return self.__class__(**stat_dict)
+            stat_dict[stat] = self_stat * other
+        return self.__class__(multiplier=1, **stat_dict)
 
     def imin(self, other):
         """
@@ -139,7 +141,7 @@ class AbstractStats(abc.ABC):
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            new_stat = round(self_stat + other_stat, 2)
+            new_stat = self_stat + other_stat
             setattr(self, stat, new_stat)
         return self
 
@@ -155,8 +157,8 @@ class AbstractStats(abc.ABC):
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            stat_dict[stat] = round(self_stat + other_stat, 2)
-        return self.__class__(**stat_dict)
+            stat_dict[stat] = self_stat + other_stat
+        return self.__class__(multiplier=1, **stat_dict)
 
     def __sub__(self, other):
         """
@@ -170,10 +172,10 @@ class AbstractStats(abc.ABC):
             #for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
-            stat_dict[stat] = round(self_stat - other_stat, 2)
+            stat_dict[stat] = self_stat - other_stat
         for stat in self.ZERO_GROWTH_STAT_LIST():
             stat_dict[stat] = None
-        return self.__class__(**stat_dict)
+        return self.__class__(multiplier=1, **stat_dict)
 
     def __eq__(self, other):
         """
@@ -189,7 +191,7 @@ class AbstractStats(abc.ABC):
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             stat_dict[stat] = self_stat == other_stat
-        return self.__class__(**stat_dict)
+        return self.__class__(multiplier=1, **stat_dict)
 
     def __iter__(self):
         """
@@ -210,7 +212,7 @@ class AbstractStats(abc.ABC):
             format_str = "% 4s: %5.2f"
             field, value = statval
             value = value or 0
-            return format_str % (field, value)
+            return format_str % (field, value * 0.01)
         statlist_as_str = "\n".join(get_formatted_statlist(statval) for statval in statlist)
         if with_title:
             header = self.__class__.__name__

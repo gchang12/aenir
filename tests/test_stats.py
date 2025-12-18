@@ -122,6 +122,31 @@ class StatsTests(unittest.TestCase):
         stats = self.stats_class(**self.init_kwargs)
         logger.debug("\n%r", stats)
 
+    def test_repr1(self):
+        """
+        """
+        init_kwargs = {
+            "a": 18,
+            "b": 7,
+            "c": 5,
+            "d": 9,
+            "e": 2,
+            "f": 5,
+            "g": 1,
+        }
+        stats = self.stats_class(**init_kwargs)
+        expected = '''FunctionalStats
+===============
+   a: 18.00
+   b:  7.00
+   c:  5.00
+   d:  9.00
+   e:  2.00
+   f:  5.00
+   g:  1.00'''
+        actual = stats.__repr__()
+        self.assertEqual(actual, expected)
+
     def test_sum(self):
         """
         """
@@ -135,23 +160,23 @@ class StatsTests(unittest.TestCase):
             "g": 1,
         }
         stats = self.stats_class(**statdict)
-        expected = sum(statdict.values())
+        expected = sum(statdict.values()) * 100
         actual = sum(stats)
         self.assertEqual(actual, expected)
 
     def test_as_list(self):
         """
         """
-        expected = list(self.statdict2.items())
         stats = self.stats_class(**self.statdict2)
+        expected = [(stat, value * 100) for stat, value in self.statdict2.items()]
         actual = stats.as_list()
         self.assertListEqual(actual, expected)
 
     def test_as_dict(self):
         """
         """
-        expected = self.statdict2
-        stats = self.stats_class(**expected)
+        stats = self.stats_class(**self.statdict2)
+        expected = {stat: value * 100 for stat, value in self.statdict2.items()}
         actual = stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -232,7 +257,7 @@ class StatsTests(unittest.TestCase):
         actual = all(stats1 == stats2)
         expected = False
         self.assertIs(actual, expected)
-        stats1.a = 99
+        stats1.a = 9900
         expected = True
         actual = all(stats1 == stats2)
         self.assertIs(actual, expected)
@@ -245,6 +270,7 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
         expected_stats = self.FunctionalStats(
+            multiplier=1,
             **{
                 "a": min(stats1.a, stats2.a),
                 "b": min(stats1.b, stats2.b),
@@ -270,6 +296,7 @@ class StatsTests(unittest.TestCase):
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats(**self.statdict2)
         expected_stats = self.FunctionalStats(
+            multiplier=1,
             **{
                 "a": max(stats1.a, stats2.a),
                 "b": max(stats1.b, stats2.b),
