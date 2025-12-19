@@ -16,7 +16,7 @@ time_logger.critical("")
 
 class FireEmblemGameTest(unittest.TestCase):
     """
-    Defines tests for FEGame enum.
+    Contains all test cases (i.e., all six).
     """
 
     def setUp(self):
