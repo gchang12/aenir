@@ -21,14 +21,14 @@ from aenir._logging import (
 configure_logging()
 time_logger.critical("")
 
-class StatsTests(unittest.TestCase):
+class IntStatsTest(unittest.TestCase):
     """
-    Demo of methods of a functional subclass of AbstractStats.
+    Demo of methods of a functional int-based subclass of AbstractStats.
     """
 
     def setUp(self):
         """
-        Initializes minimal kwargs for initialization of FunctionalStats.
+        Initializes minimal kwargs for initialization of FunctionalStats2?, which are defined here also.
         """
         self.init_kwargs = {
             "a": 0,
@@ -110,21 +110,23 @@ class StatsTests(unittest.TestCase):
             @staticmethod
             def ZERO_GROWTH_STAT_LIST():
                 """
+                Returns empty tuple.
                 """
                 return ()
 
-        self.stats_class = FunctionalStats
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
 
     def test_repr(self):
         """
+        Prints repr of stats to log-report.
         """
-        stats = self.stats_class(**self.init_kwargs)
+        stats = self.FunctionalStats(**self.init_kwargs)
         logger.debug("\n%r", stats)
 
     def test_repr1(self):
         """
+        Validates repr of stats.
         """
         init_kwargs = {
             "a": 18,
@@ -135,7 +137,7 @@ class StatsTests(unittest.TestCase):
             "f": 5,
             "g": 1,
         }
-        stats = self.stats_class(**init_kwargs)
+        stats = self.FunctionalStats(**init_kwargs)
         expected = '''FunctionalStats
 ===============
    a: 18.00
@@ -150,6 +152,7 @@ class StatsTests(unittest.TestCase):
 
     def test_sum(self):
         """
+        Tests sum method.
         """
         statdict = {
             "a": 18,
@@ -160,32 +163,35 @@ class StatsTests(unittest.TestCase):
             "f": 5,
             "g": 1,
         }
-        stats = self.stats_class(**statdict)
+        stats = self.FunctionalStats(**statdict)
         expected = sum(statdict.values()) * 100
         actual = sum(stats)
         self.assertEqual(actual, expected)
 
     def test_as_list(self):
         """
+        Tests as_list method.
         """
-        stats = self.stats_class(**self.statdict2)
+        stats = self.FunctionalStats(**self.statdict2)
         expected = [(stat, value * 100) for stat, value in self.statdict2.items()]
         actual = stats.as_list()
         self.assertListEqual(actual, expected)
 
     def test_as_dict(self):
         """
+        Tests as_dict method.
         """
-        stats = self.stats_class(**self.statdict2)
+        stats = self.FunctionalStats(**self.statdict2)
         expected = {stat: value * 100 for stat, value in self.statdict2.items()}
         actual = stats.as_dict()
         self.assertDictEqual(actual, expected)
 
     def test_copy(self):
         """
+        Tests copy method.
         """
         stat_dict = self.statdict1
-        expected = self.stats_class(**stat_dict)
+        expected = self.FunctionalStats(**stat_dict)
         actual = expected.copy()
         for key in stat_dict:
             expected_val = getattr(expected, key)
@@ -194,6 +200,7 @@ class StatsTests(unittest.TestCase):
 
     def test_mul(self):
         """
+        Tests mul method.
         """
         stat_dict = {
             "a": 18,
@@ -207,8 +214,8 @@ class StatsTests(unittest.TestCase):
         stat_dict3 = {}
         for key, val in stat_dict.items():
             stat_dict3[key] = val * 3
-        expected = self.stats_class(**stat_dict3)
-        actual = self.stats_class(**stat_dict) * 3
+        expected = self.FunctionalStats(**stat_dict3)
+        actual = self.FunctionalStats(**stat_dict) * 3
         for key in stat_dict:
             expected_val = getattr(expected, key)
             actual_val = getattr(actual, key)
@@ -216,6 +223,7 @@ class StatsTests(unittest.TestCase):
 
     def test_eq__type_mismatch(self):
         """
+        Tests eq method.
         """
         stats1 = self.FunctionalStats(**self.init_kwargs)
         stats2 = self.FunctionalStats2(**self.init_kwargs)
@@ -224,6 +232,7 @@ class StatsTests(unittest.TestCase):
 
     def test_add(self):
         """
+        Tests add method.
         """
         new_statdict = {}
         statlist = tuple(self.statdict1)
@@ -242,6 +251,7 @@ class StatsTests(unittest.TestCase):
 
     def test_eq__all_matching(self):
         """
+        Tests eq method.
         """
         stats1 = self.FunctionalStats(**self.init_kwargs)
         stats2 = self.FunctionalStats(**self.init_kwargs)
@@ -251,6 +261,7 @@ class StatsTests(unittest.TestCase):
 
     def test_eq__not_all_matching(self):
         """
+        Tests eq method.
         """
         stats1 = self.FunctionalStats(**self.init_kwargs)
         self.init_kwargs['a'] = 99
@@ -341,31 +352,6 @@ class StatsTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             stats2.imin(stats1)
 
-    @unittest.skip("Marked for deletion.")
-    def test_lt(self):
-        """
-        Tests that a Stats object of booleans is returned.
-        """
-        expected_stats = self.FunctionalStats(
-            **{
-                "a": False,
-                "b": True,
-                "c": False,
-                "d": True,
-                "e": False,
-                "f": True,
-                "g": None,
-            }
-        )
-        self.statdict2["g"] = self.statdict1["g"]
-        stats1 = self.FunctionalStats(**self.statdict1)
-        stats2 = self.FunctionalStats(**self.statdict2)
-        actual_stats = stats1.__lt__(stats2)
-        for attrname in ("a", "b", "c", "d", "e", "f", "g"):
-            actual = getattr(actual_stats, attrname)
-            expected = getattr(expected_stats, attrname)
-            self.assertIs(actual, expected)
-
     def test_iadd(self):
         """
         Tests that the Stats object is incremented.
@@ -391,21 +377,6 @@ class StatsTests(unittest.TestCase):
             expected = getattr(expected_stats, attrname)
             self.assertEqual(actual, expected)
 
-    @unittest.skip("No longer being implemented")
-    def test_lt__different_classes(self):
-        """
-        Asserts that lt method fails if operands are of different Stats
-        classes, and even if the STAT_LIST for both are identical.
-        """
-        # copy-paste to lt
-        stats1 = self.FunctionalStats(**self.statdict1)
-        stats2 = self.FunctionalStats2(**self.statdict2)
-        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
-        with self.assertRaises(TypeError):
-            stats1.__lt__(stats2)
-        with self.assertRaises(TypeError):
-            stats2.__lt__(stats1)
-
     def test_iadd__different_classes(self):
         """
         Asserts that iadd method fails if operands are of different Stats
@@ -424,15 +395,15 @@ class StatsTests(unittest.TestCase):
         """
         Tests that key-set in stat-dict is identical to STAT_LIST.
         """
-        actual = set(self.stats_class.get_stat_dict(0))
-        expected = set(self.stats_class.STAT_LIST())
+        actual = set(self.FunctionalStats.get_stat_dict(0))
+        expected = set(self.FunctionalStats.STAT_LIST())
         self.assertSetEqual(actual, expected)
 
     def test_get_stat_dict(self):
         """
         Tests that key-set in stat-dict is identical to stats listed.
         """
-        actual = set(self.stats_class.get_stat_dict(0))
+        actual = set(self.FunctionalStats.get_stat_dict(0))
         expected = set(self.init_kwargs)
         self.assertSetEqual(actual, expected)
 
@@ -442,7 +413,7 @@ class StatsTests(unittest.TestCase):
         """
         kwargs = self.init_kwargs
         hp = kwargs.pop('a')
-        test_class = self.stats_class
+        test_class = self.FunctionalStats
         with self.assertRaises(AttributeError) as type_err:
             test_class(**kwargs)
 
@@ -453,7 +424,7 @@ class StatsTests(unittest.TestCase):
         stat_dict = self.init_kwargs
         stat_dict['unexpected_kwarg'] = None
         #with self.assertLogs(logger, logging.CRITICAL) as log_ctx:
-        test_class = self.stats_class
+        test_class = self.FunctionalStats
         with self.assertLogs(logger, logging.WARNING) as log_ctx:
             stats_obj = test_class(**stat_dict)
 
@@ -462,7 +433,7 @@ class StatsTests(unittest.TestCase):
         Prints str-dunder of class to log-report.
         """
         kwargs = self.init_kwargs
-        stats = self.stats_class(**kwargs)
+        stats = self.FunctionalStats(**kwargs)
         actual = stats.__str__()
         logger.debug("actual: %s", actual)
 
