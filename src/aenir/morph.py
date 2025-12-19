@@ -265,12 +265,14 @@ class Morph(BaseMorph):
     @property
     def game(self):
         """
+        The FireEmblemGame enum that denotes the game to which the unit belongs.
         """
         return self._game
 
     @property
     def name(self):
         """
+        The name of the unit.
         """
         return self._name
 
@@ -616,6 +618,7 @@ class Morph4(Morph):
     @staticmethod
     def FATHER_LIST():
         """
+        Declares the list of all valid FE4 fathers.
         """
         return (
             'Arden',
@@ -636,6 +639,7 @@ class Morph4(Morph):
     @staticmethod
     def CHILD_LIST():
         """
+        Declares the list of all valid FE4 children whose fathers can vary.
         """
         return (
             'Rana',
@@ -658,6 +662,7 @@ class Morph4(Morph):
     def CHARACTER_LIST():
         #def CHARACTER_LIST(cls):
         """
+        Declares the list of all valid FE4 characters.
         """
         return (
             'Sigurd',
@@ -850,18 +855,21 @@ class Morph4(Morph):
     @property
     def game(self):
         """
+        The FireEmblemGame enum that denotes the game to which the unit belongs.
         """
         return self._game
 
     @property
     def name(self):
         """
+        The name of the unit.
         """
         return self._name
 
     @property
     def father(self):
         """
+        The name of the unit's father, if any.
         """
         return self._father
 
@@ -955,7 +963,9 @@ class Morph5(Morph):
 
     @staticmethod
     def CHARACTER_LIST():
-        #def CHARACTER_LIST(cls):
+        """
+        Declares the list of all valid FE5 characters.
+        """
         return (
             'Leaf',
             'Fin',
@@ -1073,6 +1083,7 @@ class Morph5(Morph):
 
     def use_stat_booster(self, item_name: str):
         """
+        Simulates usage of stat-booster.
         """
         item_bonus_dict = {
             "Luck Ring": ("Lck", 3),
@@ -1189,7 +1200,9 @@ class Morph6(Morph):
 
     @staticmethod
     def CHARACTER_LIST():
-        #def CHARACTER_LIST(cls):
+        """
+        Declares the list of all valid FE6 characters.
+        """
         return (
             'Roy',
             'Marcus',
@@ -1355,6 +1368,7 @@ class Morph6(Morph):
 
     def use_stat_booster(self, item_name: str):
         """
+        Simulates usage of stat-booster.
         """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
@@ -1399,7 +1413,9 @@ class Morph7(Morph):
 
     @staticmethod
     def CHARACTER_LIST():
-        #def CHARACTER_LIST(cls):
+        """
+        Declares the list of all valid FE7 characters.
+        """
         return (
             'Lyn',
             'Sain',
@@ -1562,6 +1578,7 @@ class Morph7(Morph):
 
     def use_stat_booster(self, item_name: str):
         """
+        Simulates usage of stat-booster.
         """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
@@ -1640,8 +1657,8 @@ class Morph8(Morph):
 
     @staticmethod
     def CHARACTER_LIST():
-        #def CHARACTER_LIST(cls):
         """
+        Declares the list of all valid FE8 characters.
         """
         return (
             'Eirika',
@@ -1720,6 +1737,7 @@ class Morph8(Morph):
 
     def use_stat_booster(self, item_name: str):
         """
+        Simulates usage of stat-booster.
         """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
@@ -1788,7 +1806,9 @@ class Morph9(Morph):
 
     @staticmethod
     def CHARACTER_LIST():
-        #def CHARACTER_LIST(cls):
+        """
+        Declares the list of all valid FE8 characters.
+        """
         return (
             'Ike',
             'Titania',
@@ -1918,6 +1938,7 @@ class Morph9(Morph):
 
     def use_stat_booster(self, item_name: str):
         """
+        Simulates usage of stat-booster.
         """
         item_bonus_dict = {
             "Seraph Robe": ("HP", 7),

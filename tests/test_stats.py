@@ -1,4 +1,5 @@
 """
+Defines tests for Stats objects and all subclasses thereof.
 """
 
 import unittest
@@ -437,6 +438,7 @@ class StatsTests(unittest.TestCase):
 
     def test_init__missing_kwarg(self):
         """
+        Asserts raising of AttributeError if an attempt to initialize a stat-list without all fields is made.
         """
         kwargs = self.init_kwargs
         hp = kwargs.pop('a')
@@ -446,6 +448,7 @@ class StatsTests(unittest.TestCase):
 
     def test_init__unexpected_kwarg(self):
         """
+        Asserts logger-warning if attempt to initialize a stat-list with invalid field is made.
         """
         stat_dict = self.init_kwargs
         stat_dict['unexpected_kwarg'] = None
@@ -456,6 +459,7 @@ class StatsTests(unittest.TestCase):
 
     def test_str(self):
         """
+        Prints str-dunder of class to log-report.
         """
         kwargs = self.init_kwargs
         stats = self.stats_class(**kwargs)
@@ -464,6 +468,7 @@ class StatsTests(unittest.TestCase):
 
     def test_add__type_error(self):
         """
+        Asserts raising of type error if addition of two Stats object is attempted.
         """
         kwargs = self.init_kwargs
         stats1 = self.FunctionalStats(**kwargs)
@@ -473,6 +478,7 @@ class StatsTests(unittest.TestCase):
 
     def test_sub__type_error(self):
         """
+        Asserts raising of type error if subtraction of two Stats object is attempted.
         """
         kwargs = self.init_kwargs
         stats1 = self.FunctionalStats(**kwargs)
@@ -487,6 +493,7 @@ class ImplementedStatsTests(unittest.TestCase):
 
     def setUp(self):
         """
+        Logs test-id for demarcation of log-lines in report.
         """
         logger.critical("%s", self.id())
 
@@ -554,6 +561,7 @@ class AbstractStatsTests(unittest.TestCase):
 
     def setUp(self):
         """
+        Logs test-id for demarcation of log-lines in report.
         """
         logger.critical("%s", self.id())
 
@@ -577,6 +585,7 @@ class AbstractStatsTests(unittest.TestCase):
         @staticmethod
         def ZERO_GROWTH_STAT_LIST():
             """
+            Defines list of stats that cannot grow.
             """
             return ()
 
@@ -600,6 +609,7 @@ class AbstractStatsTests(unittest.TestCase):
         @staticmethod
         def ZERO_GROWTH_STAT_LIST():
             """
+            Defines list of stats that cannot grow.
             """
             return ()
 
@@ -622,6 +632,7 @@ class AbstractStatsTests(unittest.TestCase):
         @staticmethod
         def ZERO_GROWTH_STAT_LIST():
             """
+            Defines list of stats that cannot grow.
             """
             return ()
 

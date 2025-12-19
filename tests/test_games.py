@@ -1,4 +1,5 @@
 """
+Defines tests for FEGame enum.
 """
 
 import unittest
@@ -15,15 +16,18 @@ time_logger.critical("")
 
 class FireEmblemGameTest(unittest.TestCase):
     """
+    Defines tests for FEGame enum.
     """
 
     def setUp(self):
         """
+        Prints test-id for test-demarcation purposes.
         """
         logger.critical("%s", self.id())
 
     def test_is_gba_game__true(self):
         """
+        Tests `is_gba_game` method.
         """
         gba_games = (
             FireEmblemGame.SWORD_OF_SEALS,
@@ -37,6 +41,7 @@ class FireEmblemGameTest(unittest.TestCase):
 
     def test_is_gba_game__false(self):
         """
+        Tests `is_gba_game` method.
         """
         non_gba_games = (
             FireEmblemGame.GENEALOGY_OF_THE_HOLY_WAR,
@@ -50,6 +55,7 @@ class FireEmblemGameTest(unittest.TestCase):
 
     def test_url_name(self):
         """
+        Affirms values defined for `url_name` property.
         """
         gamerank_to_urlname = {
             4: "genealogy-of-the-holy-war",
@@ -67,6 +73,7 @@ class FireEmblemGameTest(unittest.TestCase):
 
     def test_formal_name(self):
         """
+        Affirms values defined for `formal_name` property.
         """
         gamerank_to_formalname = {
             4: "Genealogy of the Holy War",

@@ -1,5 +1,5 @@
-#!/usr/bin/python3
 """
+Defines tests for Morph class.
 """
 
 import sqlite3
@@ -52,6 +52,7 @@ time_logger.critical("")
 
 def _get_promotables(url_name, can_promote):
     """
+    Shortcut function to get list of units who can be promoted.
     """
     # query for list of units who cannot promote
     table_name = "characters__base_stats-JOIN-classes__promotion_gains"
@@ -75,15 +76,12 @@ def _get_promotables(url_name, can_promote):
 
 class BaseMorphTests(unittest.TestCase):
     """
+    Demonstrates proper subclassing of BaseMorph.
     """
-
-    def tearDown(self):
-        """
-        """
-        logger.critical("%s", self.id())
 
     def setUp(self):
         """
+        Defines mock-subclasses of BaseMorph.
         """
         logger.critical("%s", self.id())
 
@@ -105,6 +103,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__without_filters(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
@@ -125,6 +124,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__with_filters(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
@@ -145,6 +145,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__with_filters__no_results(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "src/aenir/static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
@@ -165,6 +166,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__fields_not_iterable(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
@@ -180,6 +182,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__filterset_has_no_items_method(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats0"
@@ -195,6 +198,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__path_not_str(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = None
         table = "characters__base_stats0"
@@ -210,6 +214,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_query_db__table_dne(self):
         """
+        Tests helper function for querying database.
         """
         path_to_db = "static/binding-blade/cleaned_stats.db"
         table = "characters__base_stats"
@@ -225,12 +230,14 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_GAME(self):
         """
+        Asserts that static GAME method isn't implemented.
         """
         with self.assertRaises(NotImplementedError):
             self.TestMorph.GAME()
 
     def test_STATS(self):
         """
+        Asserts that FEGame enumerations are aligned properly to their proper Morph subclasses.
         """
         gameno_to_stats = {
             4: GenealogyStats,
@@ -255,6 +262,7 @@ class BaseMorphTests(unittest.TestCase):
 
     def test_path_to__GAME_not_implemented(self):
         """
+        Asserts that 'path_to' isn't implemented.
         """
         with self.assertRaises(NotImplementedError):
             self.TestMorph.path_to("something")
@@ -4118,12 +4126,3 @@ class MorphFunctionTests(unittest.TestCase):
         morph2 = Morph4("Sigurd")
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
-
-class MorphDisplay(unittest.TestCase):
-    """
-    """
-
-    def setUp(self):
-        """
-        """
-        logger.critical("%s", self.id())
