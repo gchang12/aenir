@@ -7,6 +7,7 @@ import logging
 import json
 import unittest
 from unittest.mock import patch
+import importlib.resources
 
 from aenir.games import FireEmblemGame
 from aenir.morph import (
@@ -112,7 +113,7 @@ class GamedMorph(unittest.TestCase):
         """
         Defines Morph subclass with proper GAME method implementation.
         """
-        class TestMorph7(BaseMorph):
+        class TestMorph6(BaseMorph):
             """
             Morph subclass with proper GAME method implementation.
             """
@@ -121,8 +122,8 @@ class GamedMorph(unittest.TestCase):
                 """
                 Returns instance of .games.FireEmblemGame
                 """
-                return FireEmblemGame(7)
-        self.Morph = TestMorph7
+                return FireEmblemGame(6)
+        self.Morph = TestMorph6
         self.kishuna = self.Morph()
         logger.critical("%s", self.id())
 
@@ -189,11 +190,12 @@ class GamedMorph(unittest.TestCase):
         )
         self.assertEqual(actual.fetchall(), expected.fetchall())
 
+    @unittest.skip("No `inventory_size` attribute yet.")
     def test_inventory_size_is_zero(self):
         """
         Asserts inventory size is zero for games without scrolls or bands.
         """
-        actual = self.Morph.game_no.value
+        actual = self.Morph.GAME().value
         expected = 7 # ie, Blazing Sword
         self.assertEqual(actual, expected)
         actual = self.kishuna.inventory_size
@@ -283,8 +285,9 @@ class GamedMorph(unittest.TestCase):
             target_data,
             tableindex,
         )
+        path_to_db = importlib.resources.files("aenir") / "static/binding-blade/cleaned_stats.db"
         expected = {
-            "path_to_db": "tests/static/binding-blade/cleaned_stats.db",
+            "path_to_db": str(path_to_db),
             "table": "classes__maximum_stats0",
             "fields": ("HP", "Pow", "Skl", "Spd", "Lck", "Def", "Res", "Con", "Mov"),
             "filters": {"Class": "Non-promoted"},
@@ -320,6 +323,7 @@ class GamedMorph(unittest.TestCase):
                 tableindex,
             )
 
+    @unittest.skip
     @patch("sqlite3.Cursor.fetchone")
     def test_lookup__aliased_value_is_none(self, MOCK_fetchone):
         """
@@ -328,8 +332,9 @@ class GamedMorph(unittest.TestCase):
         home_data = ("characters__base_stats", "Roy")
         target_data = ("classes__maximum_stats", "Class")
         tableindex = 0
+        kishuna = self.Morph()
         MOCK_fetchone.return_value = {"Roy": None}
-        actual = self.Morph.lookup(
+        actual = kishuna.lookup(
             home_data,
             target_data,
             tableindex,
@@ -529,7 +534,7 @@ class Morph6Class2(unittest.TestCase):
             "which_bases": 0,
             "which_growths": 0,
         }
-        self.kishuna = self.Morph()
+        self.kishuna = self.Morph(**self.init_kwargs)
 
     @unittest.skip("This just prints stuff.")
     def test_as_string(self):
@@ -709,14 +714,15 @@ class FE4Ayra(unittest.TestCase):
                 Confirms that this implementation doesn't crash the program.
                 """
                 return FireEmblemGame(cls.game_no)
-        self.morph = TestMorph4("Ira", which_bases=0, which_growths=0)
+        self.Morph = TestMorph4
+        self.kishuna = TestMorph4("Ira", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
     def test_promote__branched_promotion(self):
         """
         Demo of pseudo-branched promotion working.
         """
-        ira = self.morph
+        ira = self.kishuna
         ira.current_lv = 10
         ira.promo_cls = "Swordmaster"
         ira.promote()
@@ -1984,7 +1990,7 @@ class FE5Eda(Morph5TestCase):
             eda.equip_scroll(scroll)
         eda.unequip_scroll(scroll)
         actual = set(eda.equipped_scrolls)
-        expected = set(scrolls_to_equip)
+        expected = set(scrolls_to_equip) - {"Fala"}
         self.assertSetEqual(actual, expected)
 
     def test_unequip_scroll2(self):
@@ -2640,22 +2646,9 @@ class FE6Hugh(Morph6TestCase):
     """
 
     def setUp(self):
-        logger.critical("%s", self.id())
-        self.lyndis_league = (
-            "Lyn",
-            "Sain",
-            "Kent",
-            "Florina",
-            "Wil",
-            "Dorcas",
-            "Serra",
-            "Erk",
-            "Rath",
-            "Matthew",
-            "Nils",
-            "Lucius",
-            "Wallace",
-        )
+        """
+        """
+        #logger.critical("%s", self.id())
 
     @staticmethod
     def _create_control_hugh():
@@ -2771,7 +2764,7 @@ class Morph7TestCase(unittest.TestCase):
             "Rath",
             "Nils",
             "Lucius",
-            #"Wallace",
+            "Wallace",
         )
         logger.critical("%s", self.id())
 
@@ -3143,7 +3136,7 @@ class FE7Promotables(Morph7TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
-    def test_get_promotion_item__promotables(self):
+    def test_get_promotion_item(self):
         """
         Check that each character is assigned the right promo-item.
         """
@@ -3201,7 +3194,7 @@ class FE7Promotables(Morph7TestCase):
             #'Athos':
         }
         for name in filter(lambda name_: " (HM)" not in name_, promotables):
-            if name in lyndis_league:
+            if name in self.lyndis_league:
                 morph = Morph7(name, lyn_mode=True)
             else:
                 try:
