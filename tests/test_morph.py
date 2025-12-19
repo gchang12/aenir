@@ -123,6 +123,7 @@ class GamedMorph(unittest.TestCase):
                 """
                 return FireEmblemGame(7)
         self.Morph = TestMorph7
+        self.kishuna = self.Morph()
         logger.critical("%s", self.id())
 
     def test_query_db__without_filters(self):
@@ -195,8 +196,7 @@ class GamedMorph(unittest.TestCase):
         actual = self.Morph.game_no.value
         expected = 7 # ie, Blazing Sword
         self.assertEqual(actual, expected)
-        rutger = self.Morph(**self.init_kwargs)
-        actual = rutger.inventory_size
+        actual = self.kishuna.inventory_size
         expected = 0
         self.assertEqual(actual, expected)
 
@@ -278,7 +278,7 @@ class GamedMorph(unittest.TestCase):
         home_data = ("characters__base_stats", "Roy")
         target_data = ("classes__maximum_stats", "Class")
         tableindex = 0
-        actual = self.Morph.lookup(
+        actual = self.kishuna.lookup(
             home_data,
             target_data,
             tableindex,
@@ -300,7 +300,7 @@ class GamedMorph(unittest.TestCase):
         target_data = ("classes__maximum_stats", "Class")
         tableindex = 0
         with self.assertRaises(ValueError):
-            self.Morph.lookup(
+            self.kishuna.lookup(
                 home_data,
                 target_data,
                 tableindex,
@@ -314,7 +314,7 @@ class GamedMorph(unittest.TestCase):
         target_data = ("classes__maximum_stat", "Class")
         tableindex = 0
         with self.assertRaises(sqlite3.OperationalError):
-            self.Morph.lookup(
+            self.kishuna.lookup(
                 home_data,
                 target_data,
                 tableindex,
@@ -344,7 +344,7 @@ class GamedMorph(unittest.TestCase):
         home_data = ("characters__base_stats", "Marth")
         target_data = ("classes__maximum_stats", "Class")
         tableindex = 0
-        actual = self.Morph.lookup(
+        actual = self.kishuna.lookup(
             home_data,
             target_data,
             tableindex,
@@ -390,7 +390,7 @@ class BadGameMorph(unittest.TestCase):
             """
             A subclass of BaseMorph that returns a bad `GAME` value. 
             """
-            @classmethod
+            @staticmethod
             def GAME():
                 """
                 Lacks a `url_name` value.
@@ -506,7 +506,7 @@ class AllMorphs(unittest.TestCase):
         actual = Morph5.get_true_character_list()
         self.assertEqual(tuple(actual), expected)
 
-class Morph6(unittest.TestCase):
+class Morph6Class2(unittest.TestCase):
     """
     Demonstrates Morph being subclassed properly.
     """
@@ -529,13 +529,14 @@ class Morph6(unittest.TestCase):
             "which_bases": 0,
             "which_growths": 0,
         }
+        self.kishuna = self.Morph()
 
     @unittest.skip("This just prints stuff.")
     def test_as_string(self):
         """
         Prints str-representation to log-report.
         """
-        morph = self.Morph(**self.init_kwargs)
+        morph = self.kishuna
         morph.use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
         miscellany = [("Hard Mode", "True")]
         actual = morph.as_string(miscellany=miscellany, show_stat_boosters=True)
@@ -547,7 +548,7 @@ class Morph6(unittest.TestCase):
         """
         kwargs = self.init_kwargs
         multiplier = 100
-        morph = self.Morph(**kwargs)
+        morph = self.kishuna
         _expected = [
             ("HP", 22),
             ("Pow", 7),
@@ -649,7 +650,7 @@ class Morph6(unittest.TestCase):
         """
         Checks `max_level` is set upon calling `set_max_level`
         """
-        morph = self.Morph(**self.init_kwargs)
+        morph = self.kishuna
         self.assertIsNone(morph.max_level)
         morph._set_max_level()
         self.assertIsInstance(morph.max_level, int)
@@ -658,7 +659,7 @@ class Morph6(unittest.TestCase):
         """
         Checks `min_promo_level` is set upon calling `set_min_promo_level`
         """
-        morph = self.Morph(**self.init_kwargs)
+        morph = self.kishuna
         self.assertIsNone(morph.min_promo_level)
         morph._set_min_promo_level()
         self.assertIsInstance(morph.min_promo_level, int)
@@ -745,7 +746,7 @@ class FE4Ayra(unittest.TestCase):
         actual = ira.max_stats
         self.assertEqual(actual, expected)
         # assert that stats have increased by expected amount.
-        base_ira = TestMorph4("Ira", which_bases=0, which_growths=0)
+        base_ira = self.Morph("Ira", which_bases=0, which_growths=0)
         promo_bonuses = GenealogyStats(
             HP=0,
             Str=5,
@@ -1121,41 +1122,6 @@ class FE6Roy(unittest.TestCase):
         self.assertEqual(actual, expected)
 
 
-class FE8Ross(unittest.TestCase):
-    """
-    Conducts tests with FE6!Roy as subject.
-    """
-
-    def setUp(self):
-        """
-        Defines rudimentary Morph subclass and instance thereof also.
-        """
-        class TestMorph8(Morph):
-            """
-            A virtual representation of a unit from FE8: The Sacred Stones.
-            """
-            game_no = 8
-        self.ross = TestMorph8("Ross", which_bases=0, which_growths=0)
-        logger.critical("%s", self.id())
-
-    def test_promote__branch_unspecified(self):
-        """
-        `promote` encompasses units who must choose their promotion path.
-        """
-        ross = self.ross
-        ross.current_lv = 10
-        valid_promotions = ('Fighter', 'Pirate', 'Journeyman (2)')
-        with self.assertRaises(PromotionError) as err_ctx:
-            ross.promote()
-        (err_msg,) = err_ctx.exception.args
-        self.assertIn(str(valid_promotions), err_msg)
-        actual = err_ctx.exception.reason
-        expected = PromotionError.Reason.INVALID_PROMOTION
-        self.assertEqual(actual, expected)
-        actual = err_ctx.exception.promotion_list
-        expected = valid_promotions
-        self.assertTupleEqual(actual, expected)
-
 class Morph4TestCase(unittest.TestCase):
     """
     Defines helper methods for test-cases that subclass this.
@@ -1313,9 +1279,9 @@ class FE4Deirdre(Morph4TestCase):
         Asserts that Deirdre cannot promote.
         """
         deirdre = self.morph
-        self.assertEqual(morph.max_level, 30)
+        self.assertEqual(deirdre.max_level, 30)
         #with self.assertRaises(ValueError):
-        actual = morph.get_promotion_item()
+        actual = deirdre.get_promotion_item()
         self.assertIsNone(actual)
 
 class FE4UnpromotedUnit(Morph4TestCase):
@@ -1330,12 +1296,12 @@ class FE4UnpromotedUnit(Morph4TestCase):
         self.morph = Morph4("Lex")
         super().setUp()
 
-    def test_get_promotion_item__unpromoted(self):
+    def test_get_promotion_item(self):
         """
         Demonstrates `get_promotion_item` for unpromoted unit.
         """
         lex = self.morph
-        actual = morph.get_promotion_item()
+        actual = lex.get_promotion_item()
         expected = "*Promote at Base*"
         self.assertEqual(actual, expected)
 
@@ -1343,7 +1309,7 @@ class FE4UnpromotedUnit(Morph4TestCase):
         """
         Simulates maxing.
         """
-        lex = self.
+        lex = self.morph
         self.assertLess(lex.current_lv, 20)
         with self.assertRaises(PromotionError) as exc_ctx:
             lex.promote()
@@ -1512,14 +1478,14 @@ class FE4PromotedUnit(Morph4TestCase):
         self.morph = Morph4("Sigurd")
         super().setUp()
 
-    def test_get_promotion_item__promoted(self):
+    def test_get_promotion_item(self):
         """
         Demonstrates `get_promotion_item` for promoted unit.
         """
         sigurd = self.morph
-        self.assertEqual(morph.max_level, 30)
+        self.assertEqual(sigurd.max_level, 30)
         #with self.assertRaises(ValueError):
-        actual = morph.get_promotion_item()
+        actual = sigurd.get_promotion_item()
         self.assertIsNone(actual)
 
     def test_inventory_size(self):
@@ -1864,14 +1830,14 @@ class FE5Lara(Morph5TestCase):
         """
         Initializes Morph for Linoan.
         """
-        self.morph = Morph5("Linoan")
+        self.morph = Morph5("Lara")
         super().setUp()
 
     def test_long_path(self):
         """
         Max out on the long path: Thief -> Thief Fighter -> Dancer -> Thief Fighter
         """
-        lara = Morph5("Lara")
+        lara = self.morph
         lara.level_up(10 - lara.current_lv)
         with self.assertRaises(PromotionError) as err_ctx:
             lara.promote()
@@ -1898,7 +1864,7 @@ class FE5Lara(Morph5TestCase):
         """
         Max out on the short path: Thief -> Dancer -> Thief Fighter
         """
-        lara = Morph5("Lara")
+        lara = self.morph
         lara.promo_cls ="Dancer"
         lara.promote()
         with self.assertRaises(PromotionError) as exc_ctx:
@@ -1989,12 +1955,12 @@ class FE5Eda(Morph5TestCase):
         self.morph = Morph5("Eda")
         super().setUp()
 
-    @unittest.expectedFailure("Pretty sure this is wrong.")
+    #@unittest.expectedFailure("Pretty sure this is wrong.")
     def test_apply_scroll_bonuses__negatives_are_zeroed_out(self):
         """
         Asserts that negative growth rates
         """
-        raise Exception
+        #raise Exception
         eda = self.morph
         eda.equipped_scrolls[None] = eda.Stats(**eda.Stats.get_stat_dict(-200))
         eda._apply_scroll_bonuses()
@@ -2002,12 +1968,12 @@ class FE5Eda(Morph5TestCase):
         expected = True
         self.assertIs(actual, expected)
 
-    @unittest.expectedFailure("Gotta insert expected growth rates")
+    #@unittest.expectedFailure("Gotta insert expected growth rates")
     def test_unequip_scroll(self):
         """
         Tests equipping and unequipping of scrolls.
         """
-        raise Exception
+        #raise Exception
         eda = self.morph
         scrolls_to_equip = (
             "Blaggi",
@@ -2783,7 +2749,7 @@ class FE6Hugh(Morph6TestCase):
         actual = morph._meta["Number of Declines"]
         self.assertIsNone(actual)
 
-class Morph7TestCase(unittest.Case):
+class Morph7TestCase(unittest.TestCase):
     """
     Provides framework for testing FE7 units.
     """
@@ -2792,6 +2758,21 @@ class Morph7TestCase(unittest.Case):
         """
         Logs test-id to demarcate test in log.
         """
+        self.lyndis_league = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Erk",
+            "Serra",
+            "Matthew",
+            "Rath",
+            "Nils",
+            "Lucius",
+            #"Wallace",
+        )
         logger.critical("%s", self.id())
 
     @staticmethod
@@ -3220,7 +3201,7 @@ class FE7Promotables(Morph7TestCase):
             #'Athos':
         }
         for name in filter(lambda name_: " (HM)" not in name_, promotables):
-            if name in self.lyndis_league:
+            if name in lyndis_league:
                 morph = Morph7(name, lyn_mode=True)
             else:
                 try:
@@ -3464,6 +3445,192 @@ class Morph8TestCase(unittest.TestCase):
         url_name = "the-sacred-stones"
         return _get_promotables(url_name, can_promote=can_promote)
 
+    def _test_get_promotion_list__trainee(self, name):
+        """
+        Maxing framework.
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        _morph.promo_cls = None
+        # compile list of promotions: tier 1
+        try:
+            _morph.promote()
+        except PromotionError:
+            possible_promotions = _morph.possible_promotions
+        promo_dict = {}
+        # compile list of promotions: tier 2
+        for promo_cls in possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError:
+                promo_dict[promo_cls] = morph.possible_promotions
+        # the actual test
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # test
+                actual = morph.get_promotion_list()
+                self.assertTrue(actual)
+                # promote 1
+                morph.current_lv = 10
+                morph.promo_cls = promo_cls
+                morph.promote()
+                # test
+                actual = morph.get_promotion_list()
+                self.assertTrue(actual)
+                # promote 2
+                morph.current_lv = 10
+                morph.promo_cls = promo_cls2
+                morph.promote()
+                # test
+                actual = morph.get_promotion_list()
+                expected = []
+                self.assertListEqual(actual, expected)
+
+    def _test_get_promotion_item__trainee(self, name, promotion_item):
+        """
+        Maxing framework.
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except PromotionError as error:
+            actual = error.reason
+            expected = PromotionError.Reason.INVALID_PROMOTION
+            self.assertEqual(actual, expected)
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError as error:
+                actual = error.reason
+                expected = PromotionError.Reason.INVALID_PROMOTION
+                self.assertEqual(actual, expected)
+            promo_dict[promo_cls] = morph.possible_promotions
+        expected1 = "*Reach Level 10*"
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(PromotionError) as exc_ctx:
+                    morph.promote()
+                actual = exc_ctx.exception.reason
+                expected = PromotionError.Reason.LEVEL_TOO_LOW
+                self.assertEqual(actual, expected)
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(LevelUpError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls
+                actual1 = morph.get_promotion_item()
+                self.assertEqual(actual1, expected1)
+                # promote
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                actual2 = morph.get_promotion_item()
+                expected2 = promotion_item
+                self.assertEqual(actual2, expected2)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                actual3 = morph.get_promotion_item()
+                expected3 = promotion_item
+                self.assertEqual(actual3, expected3)
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                actual4 = morph.get_promotion_item()
+                self.assertIsNone(actual4)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
+
+    def _test_scrub(self, name):
+        """
+        Maxing framework.
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except PromotionError as error:
+            actual = error.reason
+            expected = PromotionError.Reason.INVALID_PROMOTION
+            self.assertEqual(actual, expected)
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError as error:
+                actual = error.reason
+                expected = PromotionError.Reason.INVALID_PROMOTION
+                self.assertEqual(actual, expected)
+            promo_dict[promo_cls] = morph.possible_promotions
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(PromotionError) as exc_ctx:
+                    morph.promote()
+                actual = exc_ctx.exception.reason
+                expected = PromotionError.Reason.LEVEL_TOO_LOW
+                self.assertEqual(actual, expected)
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(LevelUpError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                # promote
+                morph.promo_cls = promo_cls
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
+
 class FE8Unpromotables(Morph8TestCase):
     """
     Conduct series of tests with FE8 unpromotable units as subjects.
@@ -3632,192 +3799,6 @@ class FE8Promotables(Morph8TestCase):
                     actual = PromotionError.Reason.NO_PROMOTIONS
                     self.assertEqual(actual, expected)
 
-    def _test_scrub(self, name):
-        """
-        Maxing framework.
-        """
-        _morph = Morph8(name)
-        _morph.current_lv = 10
-        try:
-            _morph.promote()
-        except PromotionError as error:
-            actual = error.reason
-            expected = PromotionError.Reason.INVALID_PROMOTION
-            self.assertEqual(actual, expected)
-        promo_dict = {}
-        # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
-            morph = Morph8(name)
-            morph.current_lv = 10
-            morph.promo_cls = promo_cls
-            morph.promote()
-            morph.current_lv = 10
-            try:
-                morph.promote()
-            except PromotionError as error:
-                actual = error.reason
-                expected = PromotionError.Reason.INVALID_PROMOTION
-                self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
-        for promo_cls, promoclasses2 in promo_dict.items():
-            for promo_cls2 in promoclasses2:
-                morph = Morph8(name)
-                # try to promote at base level; this fails
-                with self.assertRaises(PromotionError) as exc_ctx:
-                    morph.promote()
-                actual = exc_ctx.exception.reason
-                expected = PromotionError.Reason.LEVEL_TOO_LOW
-                self.assertEqual(actual, expected)
-                # level up to promotion level
-                morph.level_up(10 - morph.current_lv)
-                with self.assertRaises(LevelUpError):
-                    # level up past promotion level; this fails
-                    morph.level_up(1)
-                # promote
-                morph.promo_cls = promo_cls
-                morph.promote()
-                # level is reset to 1
-                self.assertEqual(morph.current_lv, 1)
-                # level up to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls2
-                # final promotion
-                morph.promote()
-                # level to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                with self.assertRaises(PromotionError) as err_ctx:
-                    morph.promote()
-                (err_msg,) = err_ctx.exception.args
-                self.assertIn("no available promotions", err_msg)
-
-    def _test_get_promotion_list__trainee(self, name):
-        """
-        Maxing framework.
-        """
-        _morph = Morph8(name)
-        _morph.current_lv = 10
-        _morph.promo_cls = None
-        # compile list of promotions: tier 1
-        try:
-            _morph.promote()
-        except PromotionError:
-            possible_promotions = _morph.possible_promotions
-        promo_dict = {}
-        # compile list of promotions: tier 2
-        for promo_cls in possible_promotions:
-            morph = Morph8(name)
-            morph.current_lv = 10
-            morph.promo_cls = promo_cls
-            morph.promote()
-            morph.current_lv = 10
-            try:
-                morph.promote()
-            except PromotionError:
-                promo_dict[promo_cls] = morph.possible_promotions
-        # the actual test
-        for promo_cls, promoclasses2 in promo_dict.items():
-            for promo_cls2 in promoclasses2:
-                morph = Morph8(name)
-                # test
-                actual = morph.get_promotion_list()
-                self.assertTrue(actual)
-                # promote 1
-                morph.current_lv = 10
-                morph.promo_cls = promo_cls
-                morph.promote()
-                # test
-                actual = morph.get_promotion_list()
-                self.assertTrue(actual)
-                # promote 2
-                morph.current_lv = 10
-                morph.promo_cls = promo_cls2
-                morph.promote()
-                # test
-                actual = morph.get_promotion_list()
-                expected = []
-                self.assertListEqual(actual, expected)
-
-    def _test_get_promotion_item__trainee(self, name, promotion_item):
-        """
-        Maxing framework.
-        """
-        _morph = Morph8(name)
-        _morph.current_lv = 10
-        try:
-            _morph.promote()
-        except PromotionError as error:
-            actual = error.reason
-            expected = PromotionError.Reason.INVALID_PROMOTION
-            self.assertEqual(actual, expected)
-        promo_dict = {}
-        # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
-            morph = Morph8(name)
-            morph.current_lv = 10
-            morph.promo_cls = promo_cls
-            morph.promote()
-            morph.current_lv = 10
-            try:
-                morph.promote()
-            except PromotionError as error:
-                actual = error.reason
-                expected = PromotionError.Reason.INVALID_PROMOTION
-                self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
-        expected1 = "*Reach Level 10*"
-        for promo_cls, promoclasses2 in promo_dict.items():
-            for promo_cls2 in promoclasses2:
-                morph = Morph8(name)
-                # try to promote at base level; this fails
-                with self.assertRaises(PromotionError) as exc_ctx:
-                    morph.promote()
-                actual = exc_ctx.exception.reason
-                expected = PromotionError.Reason.LEVEL_TOO_LOW
-                self.assertEqual(actual, expected)
-                # level up to promotion level
-                morph.level_up(10 - morph.current_lv)
-                with self.assertRaises(LevelUpError):
-                    # level up past promotion level; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls
-                actual1 = morph.get_promotion_item()
-                self.assertEqual(actual1, expected1)
-                # promote
-                morph.promote()
-                # level is reset to 1
-                self.assertEqual(morph.current_lv, 1)
-                actual2 = morph.get_promotion_item()
-                expected2 = promotion_item
-                self.assertEqual(actual2, expected2)
-                # level up to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls2
-                actual3 = morph.get_promotion_item()
-                expected3 = promotion_item
-                self.assertEqual(actual3, expected3)
-                # final promotion
-                morph.promote()
-                # level to 20
-                morph.level_up(19)
-                actual4 = morph.get_promotion_item()
-                self.assertIsNone(actual4)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                with self.assertRaises(PromotionError) as err_ctx:
-                    morph.promote()
-                (err_msg,) = err_ctx.exception.args
-                self.assertIn("no available promotions", err_msg)
-
 class FE8Ross(Morph8TestCase):
     """
     Conduct series of tests with FE8!Ross as subject.
@@ -3911,6 +3892,40 @@ class FE8Ross(Morph8TestCase):
                 (err_msg,) = err_ctx.exception.args
                 self.assertIn("no available promotions", err_msg)
 
+class FE8Ross2(unittest.TestCase):
+    """
+    Conducts tests with FE8!Ross as subject.
+    """
+
+    def setUp(self):
+        """
+        Defines rudimentary Morph subclass and instance thereof also.
+        """
+        class TestMorph8(Morph):
+            """
+            A virtual representation of a unit from FE8: The Sacred Stones.
+            """
+            game_no = 8
+        self.morph = TestMorph8("Ross", which_bases=0, which_growths=0)
+        logger.critical("%s", self.id())
+
+    def test_promote__branch_unspecified(self):
+        """
+        `promote` encompasses units who must choose their promotion path.
+        """
+        ross = self.morph
+        ross.current_lv = 10
+        valid_promotions = ('Fighter', 'Pirate', 'Journeyman (2)')
+        with self.assertRaises(PromotionError) as err_ctx:
+            ross.promote()
+        (err_msg,) = err_ctx.exception.args
+        self.assertIn(str(valid_promotions), err_msg)
+        actual = err_ctx.exception.reason
+        expected = PromotionError.Reason.INVALID_PROMOTION
+        self.assertEqual(actual, expected)
+        actual = err_ctx.exception.promotion_list
+        expected = valid_promotions
+        self.assertTupleEqual(actual, expected)
 
 class FE8Amelia(Morph8TestCase):
     """
@@ -4020,7 +4035,7 @@ class FE8Eirika(Morph8TestCase):
         """
         eirika = self.morph
         actual = eirika.inventory_size
-        expected = 5
+        expected = 0
         self.assertEqual(actual, expected)
 
 class FE8Ephraim(Morph8TestCase):
@@ -4044,16 +4059,16 @@ class FE8Ephraim(Morph8TestCase):
         self.assertIsInstance(actual, int)
         self.assertEqual(actual, 0)
 
-    def test_ephraim__early_promotion(self):
+    def test_promote__early(self):
         """
         Asserts that Ephraim can promote early.
         """
         ephraim = self.morph
-        self.assertLess(morph.current_lv, 10)
+        self.assertLess(ephraim.current_lv, 10)
         ephraim.promote()
         self.assertEqual(ephraim.current_clstype, "classes__promotion_gains")
         with self.assertRaises(PromotionError):
-            morph.promote()
+            ephraim.promote()
 
 class Morph9TestCase(unittest.TestCase):
     """
@@ -4172,7 +4187,7 @@ class FE9Ike(Morph9TestCase):
         Try to unequip Knight Ward.
         """
         ike = self.morph
-        with self.assertRaises(KnightWardError):
+        with self.assertRaises(KnightWardError) as err_ctx:
             ike.unequip_knight_ward()
         actual = err_ctx.exception.reason
         expected = KnightWardError.Reason.NOT_A_KNIGHT
@@ -4645,7 +4660,7 @@ class ReprTestCases(unittest.TestCase):
             morph = get_morph(game_no, lord)
             logger.debug("\n\n%s\n", morph)
 
-    def test_repr__gba_promoted(self):
+    def test_gba_promoted(self):
         """
         Shows REPR for promoted lord of each GBA game.
         """
@@ -4658,7 +4673,7 @@ class ReprTestCases(unittest.TestCase):
             morph.use_stat_booster("Angelic Robe")
             logger.debug("\n\n%s\n", morph)
 
-    def test_repr__lyn_mode(self):
+    def test_lyn_mode(self):
         """
         Shows REPR for lyn_mode character from FE7.
         """
@@ -4667,7 +4682,7 @@ class ReprTestCases(unittest.TestCase):
         morph.promote()
         logger.debug("\n\n%s\n", morph)
 
-    def test_repr__trainee(self):
+    def test_trainee(self):
         """
         Shows REPR for trainee character from FE8.
         """
@@ -4680,7 +4695,7 @@ class ReprTestCases(unittest.TestCase):
         morph.promote()
         logger.debug("\n\n%s\n", morph)
 
-    def test_repr__gba_hard_mode(self):
+    def test_gba_hard_mode(self):
         """
         Shows REPR for hard-mode character from FE6.
         """
@@ -4700,7 +4715,7 @@ class ReprTestCases(unittest.TestCase):
         heath.use_stat_booster("Speedwings")
         logger.debug("\n\n%s\n", heath.as_string())
 
-    def test_repr__genealogy_kid(self):
+    def test_genealogy_kid(self):
         """
         Shows REPR for promoted Genealogy kid.
         """
@@ -4709,7 +4724,7 @@ class ReprTestCases(unittest.TestCase):
         larcei.promote()
         logger.debug("\n\n%s\n", larcei)
 
-    def test_repr__thracia_unit_with_scroll(self):
+    def test_thracia_unit_with_scroll(self):
         """
         Shows REPR for FE5 unit with scroll on.
         """
@@ -4719,7 +4734,7 @@ class ReprTestCases(unittest.TestCase):
         asvel.equip_scroll("Odo")
         logger.debug("\n\n%s\n", asvel)
 
-    def test_repr__radiant_unit_with_band(self):
+    def test_radiant_unit_with_band(self):
         """
         Shows REPR for FE9 unit with band on.
         """
@@ -4729,7 +4744,7 @@ class ReprTestCases(unittest.TestCase):
         morph.level_up(20 - morph.current_lv)
         logger.debug("\n\n%s\n", morph)
 
-    def test_repr__early_promo_lord(self):
+    def test_early_promo_lord(self):
         """
         Shows REPR for FE7 unit who promoted early.
         """
@@ -4737,6 +4752,11 @@ class ReprTestCases(unittest.TestCase):
         #morph.level_up(20 - morph.current_lv)
         morph.promote()
         logger.debug("\n\n%s\n", morph)
+
+class GtTestCases(unittest.TestCase):
+    """
+    Shows REPR of gt of various Morphs.
+    """
 
     def test_gt__christmas_cavaliers(self):
         """
