@@ -1,5 +1,5 @@
 """
-Defines tests for Stats objects and all subclasses thereof.
+Demo of how 'STAT_LIST' should be implemented to be a valid subclass of AbstractStats.
 """
 
 import unittest
@@ -30,35 +30,6 @@ class IntStatsTest(unittest.TestCase):
         """
         Initializes minimal kwargs for initialization of FunctionalStats2?, which are defined here also.
         """
-        self.init_kwargs = {
-            "a": 0,
-            "b": 0,
-            "c": 0,
-            "d": 0,
-            "e": 0,
-            "f": 0,
-            "g": 0,
-        }
-        # 1.odd > 2.odd; 1.even > 2.even
-        self.statdict1 = {
-            "a": 18,
-            "b": 7,
-            "c": 5,
-            "d": 9,
-            "e": 2,
-            "f": 5,
-            "g": 1,
-        }
-        self.statdict2 = {
-            "a": 1,
-            "b": 8,
-            "c": 2,
-            "d": 10,
-            "e": 1,
-            "f": 8,
-            "g": 0,
-        }
-        logger.critical("%s", self.id())
 
         class FunctionalStats(AbstractStats):
             """
@@ -116,12 +87,31 @@ class IntStatsTest(unittest.TestCase):
 
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
+        self.statdict1 = {
+            "a": 18,
+            "b": 7,
+            "c": 5,
+            "d": 9,
+            "e": 2,
+            "f": 5,
+            "g": 1,
+        }
+        self.statdict2 = {
+            "a": 1,
+            "b": 8,
+            "c": 2,
+            "d": 10,
+            "e": 1,
+            "f": 8,
+            "g": 0,
+        }
+        logger.critical("%s", self.id())
 
     def test_repr(self):
         """
         Prints repr of stats to log-report.
         """
-        stats = self.FunctionalStats(**self.init_kwargs)
+        stats = self.FunctionalStats(**self.statdict1)
         logger.debug("\n%r", stats)
 
     def test_repr1(self):
@@ -225,8 +215,8 @@ class IntStatsTest(unittest.TestCase):
         """
         Tests eq method.
         """
-        stats1 = self.FunctionalStats(**self.init_kwargs)
-        stats2 = self.FunctionalStats2(**self.init_kwargs)
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats2(**self.statdict1)
         with self.assertRaises(TypeError):
             stats1 == stats2
 
@@ -253,8 +243,8 @@ class IntStatsTest(unittest.TestCase):
         """
         Tests eq method.
         """
-        stats1 = self.FunctionalStats(**self.init_kwargs)
-        stats2 = self.FunctionalStats(**self.init_kwargs)
+        stats1 = self.FunctionalStats(**self.statdict1)
+        stats2 = self.FunctionalStats(**self.statdict1)
         actual = all(stats1 == stats2)
         expected = True
         self.assertIs(actual, expected)
@@ -263,9 +253,9 @@ class IntStatsTest(unittest.TestCase):
         """
         Tests eq method.
         """
-        stats1 = self.FunctionalStats(**self.init_kwargs)
-        self.init_kwargs['a'] = 99
-        stats2 = self.FunctionalStats(**self.init_kwargs)
+        stats1 = self.FunctionalStats(**self.statdict1)
+        self.statdict1['a'] = 99
+        stats2 = self.FunctionalStats(**self.statdict1)
         actual = all(stats1 == stats2)
         expected = False
         self.assertIs(actual, expected)
@@ -404,35 +394,33 @@ class IntStatsTest(unittest.TestCase):
         Tests that key-set in stat-dict is identical to stats listed.
         """
         actual = set(self.FunctionalStats.get_stat_dict(0))
-        expected = set(self.init_kwargs)
+        expected = set(self.statdict1)
         self.assertSetEqual(actual, expected)
 
     def test_init__missing_kwarg(self):
         """
         Asserts raising of AttributeError if an attempt to initialize a stat-list without all fields is made.
         """
-        kwargs = self.init_kwargs
+        kwargs = self.statdict1
         hp = kwargs.pop('a')
-        test_class = self.FunctionalStats
         with self.assertRaises(AttributeError) as type_err:
-            test_class(**kwargs)
+            self.FunctionalStats(**kwargs)
 
     def test_init__unexpected_kwarg(self):
         """
         Asserts logger-warning if attempt to initialize a stat-list with invalid field is made.
         """
-        stat_dict = self.init_kwargs
+        stat_dict = self.statdict1
         stat_dict['unexpected_kwarg'] = None
         #with self.assertLogs(logger, logging.CRITICAL) as log_ctx:
-        test_class = self.FunctionalStats
         with self.assertLogs(logger, logging.WARNING) as log_ctx:
-            stats_obj = test_class(**stat_dict)
+            stats_obj = self.FunctionalStats(**stat_dict)
 
     def test_str(self):
         """
         Prints str-dunder of class to log-report.
         """
-        kwargs = self.init_kwargs
+        kwargs = self.statdict1
         stats = self.FunctionalStats(**kwargs)
         actual = stats.__str__()
         logger.debug("actual: %s", actual)
@@ -441,7 +429,7 @@ class IntStatsTest(unittest.TestCase):
         """
         Asserts raising of type error if addition of two Stats object is attempted.
         """
-        kwargs = self.init_kwargs
+        kwargs = self.statdict1
         stats1 = self.FunctionalStats(**kwargs)
         stats2 = self.FunctionalStats2(**kwargs)
         with self.assertRaises(TypeError):
@@ -451,7 +439,7 @@ class IntStatsTest(unittest.TestCase):
         """
         Asserts raising of type error if subtraction of two Stats object is attempted.
         """
-        kwargs = self.init_kwargs
+        kwargs = self.statdict1
         stats1 = self.FunctionalStats(**kwargs)
         stats2 = self.FunctionalStats2(**kwargs)
         with self.assertRaises(TypeError):
@@ -524,10 +512,9 @@ class ImplementedStatsTests(unittest.TestCase):
         actual = ThraciaStats.STAT_LIST()
         self.assertTupleEqual(actual, expected)
 
-class AbstractStatsTests(unittest.TestCase):
+class NonTupleStatsTest(unittest.TestCase):
     """
-    Demo of how 'STAT_LIST' should be implemented to be a valid subclass of
-    AbstractStats.
+    Inspects behavior for Stats subclasses with non-tuple `STAT_LIST` values.
     """
 
     def setUp(self):
@@ -536,108 +523,51 @@ class AbstractStatsTests(unittest.TestCase):
         """
         logger.critical("%s", self.id())
 
-    class NoStatListStats(AbstractStats):
-        """
-        Where 'STAT_LIST' class method is not implemented.
-        """
+        class NonTupleStats(AbstractStats):
+            """
+            Where 'STAT_LIST' returns a non-tuple.
+            """
 
-    class NonTupleStats(AbstractStats):
-        """
-        Where 'STAT_LIST' returns a non-tuple.
-        """
+            @staticmethod
+            def STAT_LIST():
+                """
+                Returns non-tuple.
+                """
+                return None
 
-        @staticmethod
-        def STAT_LIST():
-            """
-            Returns non-tuple.
-            """
-            return None
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
+                """
+                Defines list of stats that cannot grow.
+                """
+                return ()
 
-        @staticmethod
-        def ZERO_GROWTH_STAT_LIST():
-            """
-            Defines list of stats that cannot grow.
-            """
-            return ()
-
-    class NonStrTupleStats(AbstractStats):
-        """
-        Where 'STAT_LIST' is a tuple containing at least one str.
-        """
-
-        @staticmethod
-        def STAT_LIST():
-            """
-            Returns a tuple containing at least one non-str.
-            """
-            return (
-                "a",
-                "b",
-                3,
-                "c",
-            )
-
-        @staticmethod
-        def ZERO_GROWTH_STAT_LIST():
-            """
-            Defines list of stats that cannot grow.
-            """
-            return ()
-
-    class InvalidIdentifierStats(AbstractStats):
-        """
-        Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
-        """
-
-        @staticmethod
-        def STAT_LIST():
-            """
-            Returns tuple of strings that cannot be used as Python identifiers.
-            """
-            return (
-                "a",
-                "b",
-                ".",
-            )
-
-        @staticmethod
-        def ZERO_GROWTH_STAT_LIST():
-            """
-            Defines list of stats that cannot grow.
-            """
-            return ()
-
-    #@unittest.skip( "Apparently, attributes can be assigned invalid identifiers, but they'll be hidden.")
-    def test_STAT_LIST_must_have_valid_identifiers(self):
-        """
-        Asserts that 'STAT_LIST' class method must return tuple.
-        """
-        test_class = self.InvalidIdentifierStats
-        stat_dict = test_class.get_stat_dict(0)
-        #with self.assertRaises(AttributeError) as assert_err:
-        test_obj = test_class(**stat_dict)
-        test_obj_period = getattr(test_obj, ".")
-        logger.debug(
-            "Hidden attribute has been defined: getattr(%s(**%s)., '.') = %d",
-            test_class.__name__, stat_dict, test_obj_period,
-        )
-
-    def test_STAT_LIST_must_be_tuple_of_strings(self):
-        """
-        Asserts that 'STAT_LIST' class method must return str-tuple.
-        """
-        test_class = self.NonStrTupleStats
-        stat_dict = test_class.get_stat_dict(0)
-        #with self.assertRaises(AttributeError) as assert_err:
-        with self.assertRaises(TypeError) as assert_err:
-            test_obj = test_class(**stat_dict)
+        self.Stats = NonTupleStats
 
     def test_STAT_LIST_must_be_tuple(self):
         """
         Asserts that 'STAT_LIST' class method must return tuple.
         """
         with self.assertRaises(NotImplementedError) as assert_err:
-            self.NonTupleStats()
+            self.Stats()
+
+class NoStatListStatTest(unittest.TestCase):
+    """
+    Inspects behavior for Stats subclasses with unimplemented `STAT_LIST` method.
+    """
+
+    def setUp(self):
+        """
+        Logs test-id for demarcation of log-lines in report.
+        """
+        logger.critical("%s", self.id())
+
+        class NoStatListStats(AbstractStats):
+            """
+            Where 'STAT_LIST' class method is not implemented.
+            """
+
+        self.Stats = NoStatListStats
 
     def test_cannot_initialize(self):
         """
@@ -645,5 +575,101 @@ class AbstractStatsTests(unittest.TestCase):
         method cannot be used to create an object.
         """
         with self.assertRaises(TypeError) as type_err:
-            self.NoStatListStats()
+            self.Stats()
+
+class InvalidIdentifierStatsTest(unittest.TestCase):
+    """
+    Inspects behavior for Stats subclasses with invalid stat str-fields.
+    """
+
+    def setUp(self):
+        """
+        Logs test-id for demarcation of log-lines in report.
+        """
+        logger.critical("%s", self.id())
+
+        class InvalidIdentifierStats(AbstractStats):
+            """
+            Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
+            """
+
+            @staticmethod
+            def STAT_LIST():
+                """
+                Returns tuple of strings that cannot be used as Python identifiers.
+                """
+                return (
+                    "a",
+                    "b",
+                    ".",
+                )
+
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
+                """
+                Defines list of stats that cannot grow.
+                """
+                return ()
+
+        self.Stats = InvalidIdentifierStats
+
+    def test_STAT_LIST_must_have_valid_identifiers(self):
+        """
+        Asserts that 'STAT_LIST' class method must return tuple.
+        """
+        stat_dict = self.Stats.get_stat_dict(0)
+        #with self.assertRaises(AttributeError) as assert_err:
+        test_obj = self.Stats(**stat_dict)
+        test_obj_period = getattr(test_obj, ".")
+        logger.debug(
+            "Hidden attribute has been defined: getattr(%s(**%s)., '.') = %d",
+            self.Stats.__name__, stat_dict, test_obj_period,
+        )
+
+
+class NonStrTupleStatsTest(unittest.TestCase):
+    """
+    Inspects behavior for Stats subclasses with stat fields that are invalid because of type.
+    """
+
+    def setUp(self):
+        """
+        Logs test-id for demarcation of log-lines in report.
+        """
+        logger.critical("%s", self.id())
+
+        class NonStrTupleStats(AbstractStats):
+            """
+            Where 'STAT_LIST' is a tuple containing at least one str.
+            """
+
+            @staticmethod
+            def STAT_LIST():
+                """
+                Returns a tuple containing at least one non-str.
+                """
+                return (
+                    "a",
+                    "b",
+                    3,
+                    "c",
+                )
+
+            @staticmethod
+            def ZERO_GROWTH_STAT_LIST():
+                """
+                Defines list of stats that cannot grow.
+                """
+                return ()
+
+        self.Stats = NonStrTupleStats
+
+    def test_STAT_LIST_must_be_tuple_of_strings(self):
+        """
+        Asserts that 'STAT_LIST' class method must return str-tuple.
+        """
+        stat_dict = self.Stats.get_stat_dict(0)
+        #with self.assertRaises(AttributeError) as assert_err:
+        with self.assertRaises(TypeError) as assert_err:
+            test_obj = self.Stats(**stat_dict)
 
