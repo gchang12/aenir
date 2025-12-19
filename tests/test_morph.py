@@ -4776,3 +4776,85 @@ class GtTestCases(unittest.TestCase):
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
 
+Morph4Tests = unittest.TestSuite(
+    [
+        FE4Ayra,
+        Morph4Class,
+        FE4Deirdre,
+        FE4UnpromotedUnit,
+        FE4Nonpromotables,
+        FE4Promotables,
+        FE4PromotedUnit,
+        FE4ChildUnit,
+    ]
+)
+
+Morph5Tests = unittest.TestSuite(
+    [
+        FE5Promotables,
+        FE5Unpromotables,
+        FE5Leif,
+        FE5Linoan,
+        FE5Lara,
+        FE5PromotedUnit,
+        FE5Eda,
+    ]
+)
+
+Morph6Tests = unittest.TestSuite(
+    [
+        Morph6Class2,
+        FE6Rutger,
+        FE6Roy,
+        Morph6TestCase,
+        Morph6Class,
+        FE6Gonzales,
+        FE6Unpromotables,
+        FE6Promotables,
+        FE6Rutger,
+        FE6Roy,
+        FE6Hugh,
+    ]
+)
+
+Morph7Tests = unittest.TestSuite(
+    [
+        Morph7Class,
+        FE7Ninian,
+        FE7Hector,
+        FE7Eliwood,
+        FE7Nino,
+        FE7Unpromotables,
+        FE7Promotables,
+        FE7HardModeUnit,
+        FE7NormalOnlyUnit,
+        FE7NonLyndisLeague,
+        FE7LyndisLeague,
+        FE7Wallace,
+    ]
+)
+
+Morph8Tests = unittest.TestSuite(
+    [
+        Morph8TestCase,
+        FE8Unpromotables,
+        FE8Promotables,
+        FE8Ross,
+        FE8Ross2,
+        FE8Amelia,
+        FE8Ewan,
+        FE8Eirika,
+        FE8Ephraim,
+    ]
+)
+
+Morph9Tests = unittest.TestSuite(
+    [
+        FE9Ike,
+        FE9Volke,
+        FE9Promotables,
+        FE9Unpromotables,
+        FE9Knight,
+        FE9BandEquipper,
+    ]
+)
