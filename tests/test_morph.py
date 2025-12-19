@@ -323,7 +323,7 @@ class GamedMorph(unittest.TestCase):
                 tableindex,
             )
 
-    @unittest.skip
+    @unittest.expectedFailure # You know, because sqlite3.Cursor is immutable and its attributes cannot be reset
     @patch("sqlite3.Cursor.fetchone")
     def test_lookup__aliased_value_is_none(self, MOCK_fetchone):
         """
@@ -1961,12 +1961,10 @@ class FE5Eda(Morph5TestCase):
         self.morph = Morph5("Eda")
         super().setUp()
 
-    #@unittest.expectedFailure("Pretty sure this is wrong.")
     def test_apply_scroll_bonuses__negatives_are_zeroed_out(self):
         """
-        Asserts that negative growth rates
+        Asserts that effectively negative growth rates are zero.
         """
-        #raise Exception
         eda = self.morph
         eda.equipped_scrolls[None] = eda.Stats(**eda.Stats.get_stat_dict(-200))
         eda._apply_scroll_bonuses()
@@ -1974,12 +1972,10 @@ class FE5Eda(Morph5TestCase):
         expected = True
         self.assertIs(actual, expected)
 
-    #@unittest.expectedFailure("Gotta insert expected growth rates")
     def test_unequip_scroll(self):
         """
         Tests equipping and unequipping of scrolls.
         """
-        #raise Exception
         eda = self.morph
         scrolls_to_equip = (
             "Blaggi",
@@ -2124,6 +2120,8 @@ class FE5Eda(Morph5TestCase):
         #expected = [(stat, value) for stat, value in eda.current_stats.as_list()]
         eda.level_up(10)
         eda2 = Morph5("Eda")
+        eda2.equip_scroll("Hezul")
+        eda2.unequip_scroll("Hezul")
         eda2.level_up(10)
         diff = {
             "HP": 300,
