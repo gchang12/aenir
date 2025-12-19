@@ -708,13 +708,14 @@ class FE4Ayra(unittest.TestCase):
                 Confirms that this implementation doesn't crash the program.
                 """
                 return FireEmblemGame(cls.game_no)
-        self.ira = TestMorph4("Ira", which_bases=0, which_growths=0)
+        self.morph = TestMorph4("Ira", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
     def test_promote__branched_promotion(self):
         """
+        Demo of pseudo-branched promotion working.
         """
-        ira = self.ira
+        ira = self.morph
         ira.current_lv = 10
         ira.promo_cls = "Swordmaster"
         ira.promote()
@@ -2161,21 +2162,111 @@ class FE5Eda(Morph5TestCase):
             actual = getattr(eda.current_stats, stat) - getattr(eda2.current_stats, stat)
             self.assertEqual(actual, expected)
 
-class Morph6Tests(unittest.TestCase):
+class Morph6TestCase(unittest.TestCase):
     """
+    Provides framework for testing FE6 units.
     """
 
     def setUp(self):
+        """
+        Logs test-id to demarcate test in log report.
+        """
         logger.critical("%s", self.id())
 
-    def test_hardmode_explicit_and_via_option(self):
-        hm_morph1 = Morph6("Rutger (HM)")
-        hm_morph2 = Morph6("Rutger", hard_mode=True)
-        expected = True
-        actual = all((hm_morph1.current_stats == hm_morph2.current_stats).as_dict().values())
-        self.assertIs(actual, expected)
+    @staticmethod
+    def _get_promotables(can_promote):
+        """
+        Gets list of units filtered by whether or not they can promote.
+        """
+        url_name = "binding-blade"
+        return _get_promotables(url_name, can_promote)
+
+class Morph6Class(Morph6TestCase):
+    """
+    Conducts tests on the Morph6 class itself.
+    """
+
+    def test_get_true_character_list6(self):
+        """
+        Validates character list.
+        """
+        expected = (
+            'Roy',
+            'Marcus',
+            'Allen',
+            'Lance',
+            'Wolt',
+            'Bors',
+            'Merlinus',
+            'Ellen',
+            'Dieck',
+            'Wade',
+            'Lott',
+            'Thany',
+            'Chad',
+            'Lugh',
+            'Clarine',
+            'Rutger',
+            'Saul',
+            'Dorothy',
+            'Sue',
+            'Zealot',
+            'Treck',
+            'Noah',
+            'Astohl',
+            'Lilina',
+            'Wendy',
+            'Barth',
+            'Oujay',
+            'Fir',
+            'Shin',
+            'Gonzales',
+            'Geese',
+            'Klein',
+            'Tate',
+            'Lalum',
+            'Echidna',
+            'Elphin',
+            'Bartre',
+            'Ray',
+            'Cath',
+            'Miredy',
+            'Percival',
+            'Cecilia',
+            'Sofiya',
+            'Igrene',
+            'Garret',
+            'Fa',
+            'Hugh',
+            'Zeis',
+            'Douglas',
+            'Niime',
+            'Dayan',
+            'Juno',
+            'Yodel',
+            'Karel',
+            #'Narshen',
+            #'Gale',
+            #'Hector',
+            #'Brunya',
+            #'Eliwood',
+            #'Murdoch',
+            #'Zephiel',
+            #'Guinevere',
+        )
+        actual = tuple(Morph6.get_true_character_list())
+        self.assertTupleEqual(actual, expected)
+
+
+class FE6Gonzales(Morph6TestCase):
+    """
+    Conduct series of tests with FE6!Gonzales as subject.
+    """
 
     def test_gonzales__no_route_or_hm(self):
+        """
+        What happens when one tries to initialize a Morph with neither route nor mode.
+        """
         with self.assertRaises(InitError) as err_ctx:
             Morph6("Gonzales", hard_mode=None, route=None)
         err = err_ctx.exception
@@ -2190,18 +2281,27 @@ class Morph6Tests(unittest.TestCase):
         self.assertDictEqual(actual, expected)
 
     def test_gonzales__lalum_route(self):
+        """
+        Get Morph of Gonzales on Lalum's route.
+        """
         morph = Morph6("Gonzales", hard_mode=True, route="Lalum")
         actual = morph.current_lv
         expected = 5
         self.assertEqual(actual, expected)
 
     def test_gonzales__elphin_route(self):
+        """
+        Get Morph of Gonzales on Lalum's route.
+        """
         morph = Morph6("Gonzales", hard_mode=True, route="Elphin")
         actual = morph.current_lv
         expected = 11
         self.assertEqual(actual, expected)
 
     def test_gonzales__no_route(self):
+        """
+        Get Morph of Gonzales without a specified route.
+        """
         with self.assertRaises(InitError) as err_ctx:
             Morph6("Gonzales", hard_mode=True, route=None)
         err = err_ctx.exception
@@ -2215,6 +2315,9 @@ class Morph6Tests(unittest.TestCase):
         self.assertIsNone(actual)
 
     def test_gonzales__no_hm(self):
+        """
+        Get Morph of Gonzales without a specified mode.
+        """
         with self.assertRaises(InitError) as err_ctx:
             Morph6("Gonzales", hard_mode=None, route="Lalum")
         err = err_ctx.exception
@@ -2227,12 +2330,16 @@ class Morph6Tests(unittest.TestCase):
         actual = err.init_params2
         self.assertIsNone(actual)
 
-    @staticmethod
-    def _get_promotables(can_promote):
-        url_name = "binding-blade"
-        return _get_promotables(url_name, can_promote)
 
-    def test_get_promotion_list__nonpromotables(self):
+class FE6Unpromotables(Morph6TestCase):
+    """
+    Conduct series of tests with unpromotable units of FE6 as subjects.
+    """
+
+    def test_get_promotion_list(self):
+        """
+        Asserts that promotion lists for these lot are empty.
+        """
         nonpromotables = self._get_promotables(can_promote=False)
         expected = []
         for name in nonpromotables:
@@ -2242,7 +2349,54 @@ class Morph6Tests(unittest.TestCase):
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
 
-    def test_get_promotion_list__promotables(self):
+    def test_get_promotion_item__nonpromotables(self):
+        """
+        Asserts that promotion lists for these lot are null.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        #expected = None
+        for name in filter(lambda name_: " (HM)" not in name_, nonpromotables):
+            if name == "Narshen":
+                break
+            try:
+                morph = Morph6(name)
+            except InitError:
+                morph = Morph6(name, hard_mode=True)
+            actual = morph.get_promotion_item()
+            self.assertIsNone(actual)
+
+    def test_nonpromotables(self):
+        """
+        Simulates maxing.
+        """
+        nonpromotables = self._get_promotables(False)
+        for name in nonpromotables:
+            if name == "Narshen":
+                break
+            hard_mode = " (HM)" in name
+            name = name.replace(" (HM)", "")
+            logger.debug("Morph6(%r, hard_mode=%r)", name, hard_mode)
+            morph = Morph6(name, hard_mode=hard_mode)
+            with self.assertRaises(PromotionError) as exc_ctx:
+                morph.promote()
+            actual = exc_ctx.exception.reason
+            expected = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
+            morph.level_up(20 - morph.current_lv)
+            #morph.promote()
+            #morph.level_up(19)
+            with self.assertRaises(LevelUpError):
+                morph.level_up(1)
+
+class FE6Promotables(Morph6TestCase):
+    """
+    Conduct series of tests with promotable units of FE6 as subjects.
+    """
+
+    def test_get_promotion_list(self):
+        """
+        Asserts promotion lists are non-empty.
+        """
         promotables = self._get_promotables(can_promote=True)
         #expected = []
         for name in promotables:
@@ -2250,8 +2404,10 @@ class Morph6Tests(unittest.TestCase):
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
-
-    def test_get_promotion_item__promotables(self):
+    def test_get_promotion_item(self):
+        """
+        Checks that the promotion item for each promotable is as expected.
+        """
         promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
             'Roy': "*Chapter 22 - Start*",
@@ -2347,153 +2503,10 @@ class Morph6Tests(unittest.TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
-    def test_get_promotion_item__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in filter(lambda name_: " (HM)" not in name_, nonpromotables):
-            if name == "Narshen":
-                break
-            try:
-                morph = Morph6(name)
-            except InitError:
-                morph = Morph6(name, hard_mode=True)
-            actual = morph.get_promotion_item()
-            self.assertIsNone(actual)
-
-    def test_as_string(self):
-        morph = Morph6("Hugh", number_of_declines=0)
-        actual = morph.as_string()
-        self.assertIsInstance(actual, str)
-        logger.debug("as_string -> %s", actual)
-
-    def test_inventory_size(self):
-        morph = Morph6("Roy")
-        actual = morph.inventory_size
-        self.assertIsInstance(actual, int)
-        self.assertGreater(actual, 0)
-
-    def test_get_true_character_list6(self):
-        expected = (
-            'Roy',
-            'Marcus',
-            'Allen',
-            'Lance',
-            'Wolt',
-            'Bors',
-            'Merlinus',
-            'Ellen',
-            'Dieck',
-            'Wade',
-            'Lott',
-            'Thany',
-            'Chad',
-            'Lugh',
-            'Clarine',
-            'Rutger',
-            'Saul',
-            'Dorothy',
-            'Sue',
-            'Zealot',
-            'Treck',
-            'Noah',
-            'Astohl',
-            'Lilina',
-            'Wendy',
-            'Barth',
-            'Oujay',
-            'Fir',
-            'Shin',
-            'Gonzales',
-            'Geese',
-            'Klein',
-            'Tate',
-            'Lalum',
-            'Echidna',
-            'Elphin',
-            'Bartre',
-            'Ray',
-            'Cath',
-            'Miredy',
-            'Percival',
-            'Cecilia',
-            'Sofiya',
-            'Igrene',
-            'Garret',
-            'Fa',
-            'Hugh',
-            'Zeis',
-            'Douglas',
-            'Niime',
-            'Dayan',
-            'Juno',
-            'Yodel',
-            'Karel',
-            #'Narshen',
-            #'Gale',
-            #'Hector',
-            #'Brunya',
-            #'Eliwood',
-            #'Murdoch',
-            #'Zephiel',
-            #'Guinevere',
-        )
-        actual = tuple(Morph6.get_true_character_list())
-        self.assertTupleEqual(actual, expected)
-
-    def test_roy__early_promotion(self):
-        name = "Roy"
-        morph = Morph6(name)
-        self.assertEqual(morph.current_lv, 1)
-        morph.promote()
-        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
-
-    def test_rutger_no_hardmode_specified(self):
-        with self.assertRaises(InitError) as exc_ctx:
-            rutger = Morph6("Rutger")
-        exception = exc_ctx.exception
-        actual = exception.missing_value
-        expected = InitError.MissingValue.HARD_MODE
-        self.assertEqual(actual, expected)
-        actual = exception.init_params
-        expected = {"hard_mode": (False, True)}
-        self.assertDictEqual(actual, expected)
-
-    def test_no_hardmode_version(self):
-        with self.assertLogs(logger, logging.WARNING):
-            wolt = Morph6("Wolt", hard_mode=True)
-        self.assertIsNone(wolt._meta["Hard Mode"])
-
-    def test_hardmode_version_exists(self):
-        hard_mode = False
-        rutger = Morph6("Rutger", hard_mode=hard_mode)
-        self.assertIs(rutger._meta["Hard Mode"], hard_mode)
-        hard_mode = True
-        rutger2 = Morph6("Rutger", hard_mode=hard_mode)
-        self.assertIs(rutger2._meta["Hard Mode"], hard_mode)
-        self.assertEqual(rutger2.name, "Rutger")
-
-    def test_hardmode_diff(self):
-        rutger = Morph6("Rutger", hard_mode=False)
-        rutger_hm = Morph6("Rutger", hard_mode=True)
-        diff = (rutger.current_stats - rutger_hm.current_stats).as_dict()
-        for stat, val in diff.items():
-            if stat in ("Mov", "Con"):
-                logger.debug("%s is None.", stat)
-                self.assertIsNone(val)
-            else:
-                logger.debug("Difference in %s: %.2f", stat, val)
-                self.assertLess(val, 0)
-
-    def test_roy_promo_level(self):
-        morph = Morph6("Roy")
-        #self.assertEqual(roy.current_lv, 1)
-        self.assertLess(morph.current_lv, 10)
-        morph.promote()
-        self.assertEqual(morph.current_cls, "Master Lord")
-        with self.assertRaises(PromotionError):
-            morph.promote()
-
     def test_promotables(self):
+        """
+        Maxing.
+        """
         promotables = self._get_promotables(True)
         for name in promotables:
             hard_mode = " (HM)" in name
@@ -2516,89 +2529,125 @@ class Morph6Tests(unittest.TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
-    def test_nonpromotables(self):
-        nonpromotables = self._get_promotables(False)
-        for name in nonpromotables:
-            if name == "Narshen":
-                break
-            hard_mode = " (HM)" in name
-            name = name.replace(" (HM)", "")
-            logger.debug("Morph6(%r, hard_mode=%r)", name, hard_mode)
-            morph = Morph6(name, hard_mode=hard_mode)
-            with self.assertRaises(PromotionError) as exc_ctx:
-                morph.promote()
-            actual = exc_ctx.exception.reason
-            expected = PromotionError.Reason.NO_PROMOTIONS
-            self.assertEqual(actual, expected)
-            morph.level_up(20 - morph.current_lv)
-            #morph.promote()
-            #morph.level_up(19)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
+class FE6Rutger(Morph6TestCase):
+    """
+    Conduct series of tests with FE6!Rutger as subject.
+    """
 
-    def test_hugh__INVALID_number_of_declines(self):
-        number_of_declines = "fish"
-        with self.assertRaises(InitError) as err_ctx:
-            Morph6("Hugh", number_of_declines=number_of_declines)
-        error = err_ctx.exception
-        actual = error.missing_value
-        expected = InitError.MissingValue.NUMBER_OF_DECLINES
-        self.assertEqual(actual, expected)
-        actual = error.init_params
-        expected = {"number_of_declines": (0, 1, 2, 3)}
-        self.assertDictEqual(actual, expected)
-
-    @staticmethod
-    def _create_control_hugh():
-        Creates a Morph of Hugh with no alterations.
-        control_morph = Morph6("Roy")
-        control_morph._name = "Hugh"
-        stat_dict = {
-            "HP": 26,
-            "Pow": 13,
-            "Skl": 11,
-            "Spd": 12,
-            "Lck": 10,
-            "Def": 9,
-            "Res": 9,
-            "Con": 7,
-            "Mov": 5,
-        }
-        control_morph.current_stats = control_morph.Stats(**stat_dict)
-        return control_morph
-
-    def test_hugh__number_of_declines0(self):
-        number_of_declines = 0
-        morph = Morph6("Hugh", number_of_declines=number_of_declines)
-        control_morph = self._create_control_hugh()
-        actual = all(morph.current_stats == control_morph.current_stats)
+    def test_hardmode_explicit_and_via_option(self):
+        """
+        Checks the initialization of Rutger Morph.
+        """
+        hm_morph1 = Morph6("Rutger (HM)")
+        hm_morph2 = Morph6("Rutger", hard_mode=True)
         expected = True
+        actual = all((hm_morph1.current_stats == hm_morph2.current_stats).as_dict().values())
         self.assertIs(actual, expected)
 
-    def test_hugh__number_of_declines__nonzero(self):
-        for number_of_declines in range(1, 4):
-            morph = Morph6("Hugh", number_of_declines=number_of_declines)
-            Stats = morph.STATS()
-            # create control case
-            stat_dict = Stats.get_stat_dict(-number_of_declines)
-            stat_dict["Con"] = 0
-            stat_dict["Mov"] = 0
-            decrement = Stats(**stat_dict)
-            control_morph = self._create_control_hugh()
-            control_morph.current_stats += decrement
-            # compare
-            actual = all(morph.current_stats == control_morph.current_stats)
-            expected = True
-            self.assertIs(actual, expected)
+    def test_no_hardmode_specified(self):
+        """
+        Try to initialize Rutger Morph without specifying hard_mode option.
+        """
+        with self.assertRaises(InitError) as exc_ctx:
+            rutger = Morph6("Rutger")
+        exception = exc_ctx.exception
+        actual = exception.missing_value
+        expected = InitError.MissingValue.HARD_MODE
+        self.assertEqual(actual, expected)
+        actual = exception.init_params
+        expected = {"hard_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
 
-    def test_not_hugh__number_of_declines3(self):
-        number_of_declines = 3
+    def test_hardmode_version_exists(self):
+        """
+        Validate _meta['Hard Mode'] value.
+        """
+        hard_mode = False
+        rutger = Morph6("Rutger", hard_mode=hard_mode)
+        self.assertIs(rutger._meta["Hard Mode"], hard_mode)
+        hard_mode = True
+        rutger2 = Morph6("Rutger", hard_mode=hard_mode)
+        self.assertIs(rutger2._meta["Hard Mode"], hard_mode)
+        self.assertEqual(rutger2.name, "Rutger")
+
+    def test_hardmode_diff(self):
+        """
+        Validate stat differences across difficulty modes.
+        """
+        rutger = Morph6("Rutger", hard_mode=False)
+        rutger_hm = Morph6("Rutger", hard_mode=True)
+        diff = (rutger.current_stats - rutger_hm.current_stats).as_dict()
+        for stat, val in diff.items():
+            if stat in ("Mov", "Con"):
+                logger.debug("%s is None.", stat)
+                self.assertIsNone(val)
+            else:
+                logger.debug("Difference in %s: %.2f", stat, val)
+                self.assertLess(val, 0)
+
+class FE6Roy(Morph6TestCase):
+    """
+    Conduct series of tests with FE6!Roy as subject.
+    """
+
+    def setUp(self):
+        """
+        Initialize Morph instance for Roy
+        """
+        self.morph = Morph6("Roy")
+        super().setUp()
+
+    def test_no_hardmode_version(self):
+        """
+        Demo of initializing a non-HM unit with `hard_mode` specified.
+        """
         with self.assertLogs(logger, logging.WARNING):
-            morph = Morph6("Roy", number_of_declines=number_of_declines)
-        actual = morph._meta["Number of Declines"]
-        self.assertIsNone(actual)
+            wolt = Morph6("Roy", hard_mode=True)
+        self.assertIsNone(wolt._meta["Hard Mode"])
+
+    def test_inventory_size(self):
+        """
+        Assert inventory size is equal to 0.
+        """
+        roy = self.morph
+        actual = roy.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertEqual(actual, 0)
+
+    def test_inventory_size2(self):
+        """
+        Assert inventory size is equal to 0.
+        """
+        lord = Morph6("Roy")
+        actual = lord.inventory_size
+        expected = 0
+        self.assertEqual(actual, expected)
+
+    def test_promote__early(self):
+        """
+        Assert that Roy can promote at level one.
+        """
+        roy = self.morph
+        self.assertEqual(roy.current_lv, 1)
+        roy.promote()
+        self.assertEqual(roy.current_clstype, "classes__promotion_gains")
+
+    def test_promote__early2(self):
+        """
+        Assert that Roy can promote at level one.
+        """
+        morph = Morph6("Roy")
+        #self.assertEqual(roy.current_lv, 1)
+        self.assertLess(morph.current_lv, 10)
+        morph.promote()
+        self.assertEqual(morph.current_cls, "Master Lord")
+        with self.assertRaises(PromotionError):
+            morph.promote()
 
     def test_stat_boosters(self):
+        """
+        Use a bunch of stat boosters.
+        """
         item_bonus_dict = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
@@ -2619,19 +2668,251 @@ class Morph6Tests(unittest.TestCase):
             actual = getattr(morph.current_stats, stat)
             self.assertEqual(actual, expected)
 
-    def test_inventory_size(self):
-        lord = Morph6("Roy")
-        actual = lord.inventory_size
-        expected = 5
+class FE6Hugh(Morph6TestCase):
+    """
+    Conduct series of tests with FE6!Hugh as subject.
+    """
+
+    def setUp(self):
+        logger.critical("%s", self.id())
+        self.lyndis_league = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+
+    @staticmethod
+    def _create_control_hugh():
+        """
+        Creates a Morph of Hugh with no alterations.
+        """
+        control_morph = Morph6("Roy")
+        control_morph._name = "Hugh"
+        stat_dict = {
+            "HP": 26,
+            "Pow": 13,
+            "Skl": 11,
+            "Spd": 12,
+            "Lck": 10,
+            "Def": 9,
+            "Res": 9,
+            "Con": 7,
+            "Mov": 5,
+        }
+        control_morph.current_stats = control_morph.Stats(**stat_dict)
+        return control_morph
+
+    def setUp(self):
+        """
+        Initialize Morph instance for FE6!Hugh.
+        """
+        self.morph = self._create_control_hugh()
+        super().setUp()
+
+    def test_as_string(self):
+        """
+        Prints repr to log.
+        """
+        hugh = self.morph
+        actual = hugh.as_string()
+        self.assertIsInstance(actual, str)
+        logger.debug("as_string -> %s", actual)
+
+    def test_hugh__INVALID_number_of_declines(self):
+        """
+        Try initializing Morph of Hugh with invalid decline count.
+        """
+        number_of_declines = "fish"
+        with self.assertRaises(InitError) as err_ctx:
+            Morph6("Hugh", number_of_declines=number_of_declines)
+        error = err_ctx.exception
+        actual = error.missing_value
+        expected = InitError.MissingValue.NUMBER_OF_DECLINES
         self.assertEqual(actual, expected)
+        actual = error.init_params
+        expected = {"number_of_declines": (0, 1, 2, 3)}
+        self.assertDictEqual(actual, expected)
 
-class Morph7Tests(unittest.TestCase):
+    def test_hugh__number_of_declines0(self):
+        """
+        Validate own helper function. (TODO: Consider deleting.)
+        """
+        number_of_declines = 0
+        morph = Morph6("Hugh", number_of_declines=number_of_declines)
+        control_morph = self._create_control_hugh()
+        actual = all(morph.current_stats == control_morph.current_stats)
+        expected = True
+        self.assertIs(actual, expected)
 
-    def tearDown(self):
+    def test_hugh__number_of_declines__nonzero(self):
+        """
+        Validates stats of Hugh across decline-counts.
+        """
+        for number_of_declines in range(1, 4):
+            morph = Morph6("Hugh", number_of_declines=number_of_declines)
+            Stats = morph.STATS()
+            # create control case
+            stat_dict = Stats.get_stat_dict(-number_of_declines)
+            stat_dict["Con"] = 0
+            stat_dict["Mov"] = 0
+            decrement = Stats(**stat_dict)
+            control_morph = self._create_control_hugh()
+            control_morph.current_stats += decrement
+            # compare
+            actual = all(morph.current_stats == control_morph.current_stats)
+            expected = True
+            self.assertIs(actual, expected)
+
+    def test_not_hugh__number_of_declines3(self):
+        """
+        Checks that logger warns user if `num_declines` is specified for non-Hugh units.
+        """
+        number_of_declines = 3
+        with self.assertLogs(logger, logging.WARNING):
+            morph = Morph6("Roy", number_of_declines=number_of_declines)
+        actual = morph._meta["Number of Declines"]
+        self.assertIsNone(actual)
+
+class Morph7TestCase(unittest.Case):
+    """
+    Provides framework for testing FE7 units.
+    """
+
+    def setUp(self):
+        """
+        Logs test-id to demarcate test in log.
+        """
         logger.critical("%s", self.id())
 
+    @staticmethod
+    def _get_promotables(can_promote):
+        """
+        Get list of units filtered by ability to promote.
+        """
+        # query for list of units who cannot promote
+        url_name = "blazing-sword"
+        return _get_promotables(url_name, can_promote=can_promote)
+
+class Morph7Class(Morph7TestCase):
+    """
+    Conduct series of tests on Morph7 class itself.
+    """
+
+    def test_get_true_character_list7(self):
+        """
+        Validates `get_true_character_list`.
+        """
+        expected = (
+            'Lyn',
+            'Sain',
+            'Kent',
+            'Florina',
+            'Wil',
+            'Dorcas',
+            'Serra',
+            'Erk',
+            'Rath',
+            'Matthew',
+            'Nils',
+            'Lucius',
+            'Wallace',
+            'Eliwood',
+            'Lowen',
+            'Marcus',
+            'Rebecca',
+            'Bartre',
+            'Hector',
+            'Oswin',
+            'Guy',
+            'Merlinus',
+            'Priscilla',
+            'Raven',
+            'Canas',
+            'Dart',
+            'Fiora',
+            'Legault',
+            'Ninian',
+            'Isadora',
+            'Heath',
+            'Hawkeye',
+            'Geitz',
+            'Farina',
+            'Pent',
+            'Louise',
+            'Karel',
+            'Harken',
+            'Nino',
+            'Jaffar',
+            'Vaida',
+            'Karla',
+            'Renault',
+            'Athos',
+        )
+        actual = tuple(Morph7.get_true_character_list())
+        self.assertTupleEqual(actual, expected)
+
+class FE7Ninian(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!Ninian as subject.
+    """
+
+    def test_ninian__lyn_mode(self):
+        """
+        Attempting to initialize LM!Ninian results in an error.
+        """
+        with self.assertRaises(UnitNotFoundError):
+            Morph7("Ninian", lyn_mode=True)
+
+class FE7Hector(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!Hector as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instances.
+        """
+        self.morph = Morph7("Hector")
+        super().setUp()
+
+    def test_promote__early(self):
+        """
+        Emphasize special promotion.
+        """
+        hector = self.morph
+        self.assertLess(hector.current_lv, 10)
+        hector.promote()
+        self.assertEqual(hector.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            hector.promote()
+
+class FE7Eliwood(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!Eliwood as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instances.
+        """
+        self.morph = Morph7("Eliwood")
+        super().setUp()
+
     def test_eliwood(self):
-        eliwood = Morph7("Eliwood")
+        """
+        Maxing.
+        """
+        eliwood = self.morph
         actual = eliwood.current_lv
         expected = 1
         self.assertEqual(actual, expected)
@@ -2684,8 +2965,78 @@ class Morph7Tests(unittest.TestCase):
         actual = eliwood.current_stats.HP
         self.assertEqual(actual, expected)
 
-    def test_nino(self):
-        nino = Morph7("Nino")
+    def test_inventory_size(self):
+        """
+        Validate inventory size.
+        """
+        eliwood = self.morph
+        actual = eliwood.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertEqual(actual, 0)
+
+    def test_promote__early(self):
+        """
+        Emphasize special promotion.
+        """
+        eliwood = self.morph
+        self.assertLess(eliwood.current_lv, 10)
+        #self.assertEqual(morph.current_lv, 1)
+        eliwood.promote()
+        self.assertEqual(eliwood.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            eliwood.promote()
+
+    def test_stat_boosters(self):
+        """
+        Demo stat booster usage.
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        eliwood = self.morph
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = eliwood.current_stats.copy()
+            eliwood.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus * 100
+            actual = getattr(eliwood.current_stats, stat)
+            self.assertEqual(actual, expected)
+
+    def test_inventory_size(self):
+        """
+        Validate inventory size.
+        """
+        lord = Morph7("Eliwood")
+        actual = lord.inventory_size
+        expected = 0
+        self.assertEqual(actual, expected)
+
+class FE7Nino(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!Nino as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instances.
+        """
+        self.morph = Morph7("Nino")
+        super().setUp()
+
+
+    def test_level_up(self):
+        """
+        Tests level-up function.
+        """
+        nino = self.morph
         nino.use_afas_drops()
         nino.level_up(10)
         stats_at_lv15 = {
@@ -2702,29 +3053,30 @@ class Morph7Tests(unittest.TestCase):
             expected += 5 * 10
             self.assertEqual(actual, expected)
 
-    def setUp(self):
-        logger.critical("%s", self.id())
-        self.lyndis_league = (
-            "Lyn",
-            "Sain",
-            "Kent",
-            "Florina",
-            "Wil",
-            "Dorcas",
-            "Serra",
-            "Erk",
-            "Rath",
-            "Matthew",
-            "Nils",
-            "Lucius",
-            "Wallace",
-        )
+    def test_afas_drops(self):
+        """
+        Tests use of Afa's Drops.
+        """
+        nino = self.morph
+        nino.use_afas_drops()
+        nino2 = Morph7("Nino")
+        diff = (nino.growth_rates - nino2.growth_rates).as_dict()
+        self.assertSetEqual(set(diff.values()), {5, None})
+        with self.assertRaises(GrowthsItemError) as err_ctx:
+            nino.use_afas_drops()
+        actual = err_ctx.exception.reason
+        expected = GrowthsItemError.Reason.ALREADY_CONSUMED
+        self.assertEqual(actual, expected)
 
-    def test_ninian__lyn_mode(self):
-        with self.assertRaises(UnitNotFoundError):
-            Morph7("Ninian", lyn_mode=True)
+class FE7Unpromotables(Morph7TestCase):
+    """
+    Conduct series of tests with FE7 unpromotable units as subjects.
+    """
 
-    def test_get_promotion_list__nonpromotables(self):
+    def test_get_promotion_list(self):
+        """
+        Asserts that promo-list is empty.
+        """
         nonpromotables = self._get_promotables(can_promote=False)
         expected = []
         for name in nonpromotables:
@@ -2732,7 +3084,56 @@ class Morph7Tests(unittest.TestCase):
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
 
-    def test_get_promotion_list__promotables(self):
+    def test_get_promotion_item(self):
+        """
+        Asserts that promo-item is null.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        #expected = None
+        for name in nonpromotables:
+            if name in self.lyndis_league:
+                morph = Morph7(name, lyn_mode=False)
+            else:
+                try:
+                    morph = Morph7(name)
+                except InitError:
+                    morph = Morph7(name, hard_mode=True)
+            actual = morph.get_promotion_item()
+            self.assertIsNone(actual)
+
+    def test_nonpromotables(self):
+        """
+        Maxing.
+        """
+        nonpromotables = self._get_promotables(False)
+        for name in filter(lambda name: name not in self.lyndis_league, nonpromotables):
+            hard_mode = " (HM)" in name
+            name = name.replace(" (HM)", "")
+            logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
+            morph = Morph7(name, hard_mode=hard_mode)
+            with self.assertRaises(PromotionError) as exc_ctx:
+                morph.promote()
+            actual = exc_ctx.exception.reason
+            expected = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
+            morph.level_up(20 - morph.current_lv)
+            with self.assertRaises(LevelUpError):
+                morph.level_up(1)
+            with self.assertRaises(PromotionError) as err_ctx:
+                morph.promote()
+            expected = err_ctx.exception.reason
+            actual = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
+
+class FE7Promotables(Morph7TestCase):
+    """
+    Conduct series of tests with FE7 promotable units as subjects.
+    """
+
+    def test_get_promotion_list(self):
+        """
+        Assert that list is non-empty.
+        """
         promotables = self._get_promotables(can_promote=True)
         #expected = []
         for name in promotables:
@@ -2740,8 +3141,31 @@ class Morph7Tests(unittest.TestCase):
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
+    def test_promotables(self):
+        """
+        Maxing.
+        """
+        promotables = self._get_promotables(True)
+        for name in filter(lambda name: name not in self.lyndis_league, promotables):
+            hard_mode = " (HM)" in name
+            name = name.replace(" (HM)", "")
+            logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
+            morph = Morph7(name, hard_mode=hard_mode)
+            morph.level_up(20 - morph.current_lv)
+            morph.promote()
+            morph.level_up(19)
+            with self.assertRaises(LevelUpError):
+                morph.level_up(1)
+            with self.assertRaises(PromotionError) as err_ctx:
+                morph.promote()
+            expected = err_ctx.exception.reason
+            actual = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
 
     def test_get_promotion_item__promotables(self):
+        """
+        Check that each character is assigned the right promo-item.
+        """
         promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
             'Lyn': "Heaven Seal",
@@ -2812,103 +3236,22 @@ class Morph7Tests(unittest.TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
-    def test_get_promotion_item__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
-            if name in self.lyndis_league:
-                morph = Morph7(name, lyn_mode=False)
-            else:
-                try:
-                    morph = Morph7(name)
-                except InitError:
-                    morph = Morph7(name, hard_mode=True)
-            actual = morph.get_promotion_item()
-            self.assertIsNone(actual)
+class FE7HardModeUnit(Morph7TestCase):
+    """
+    Conduct series of tests with FE7 HM-unit as subject.
+    """
 
-    def test_inventory_size(self):
-        morph = Morph7("Hector")
-        actual = morph.inventory_size
-        self.assertIsInstance(actual, int)
-        self.assertGreater(actual, 0)
-
-    def test_hector__early_promotion(self):
-        name = "Hector"
-        morph = Morph7(name)
-        self.assertLess(morph.current_lv, 10)
-        #self.assertEqual(morph.current_lv, 1)
-        morph.promote()
-        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
-        with self.assertRaises(PromotionError):
-            morph.promote()
-
-    def test_eliwood__early_promotion(self):
-        name = "Eliwood"
-        morph = Morph7(name)
-        self.assertLess(morph.current_lv, 10)
-        #self.assertEqual(morph.current_lv, 1)
-        morph.promote()
-        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
-        with self.assertRaises(PromotionError):
-            morph.promote()
-
-    @staticmethod
-    def _get_promotables(can_promote):
-        # query for list of units who cannot promote
-        url_name = "blazing-sword"
-        return _get_promotables(url_name, can_promote=can_promote)
-
-    def test_get_true_character_list7(self):
-        expected = (
-            'Lyn',
-            'Sain',
-            'Kent',
-            'Florina',
-            'Wil',
-            'Dorcas',
-            'Serra',
-            'Erk',
-            'Rath',
-            'Matthew',
-            'Nils',
-            'Lucius',
-            'Wallace',
-            'Eliwood',
-            'Lowen',
-            'Marcus',
-            'Rebecca',
-            'Bartre',
-            'Hector',
-            'Oswin',
-            'Guy',
-            'Merlinus',
-            'Priscilla',
-            'Raven',
-            'Canas',
-            'Dart',
-            'Fiora',
-            'Legault',
-            'Ninian',
-            'Isadora',
-            'Heath',
-            'Hawkeye',
-            'Geitz',
-            'Farina',
-            'Pent',
-            'Louise',
-            'Karel',
-            'Harken',
-            'Nino',
-            'Jaffar',
-            'Vaida',
-            'Karla',
-            'Renault',
-            'Athos',
-        )
-        actual = tuple(Morph7.get_true_character_list())
-        self.assertTupleEqual(actual, expected)
+    def setUp(self):
+        """
+        Initializes Morph for Raven.
+        """
+        #self.morph = Morph7("Raven")
+        super().setUp()
 
     def test_raven_no_hardmode_specified(self):
+        """
+        Try initializing HM-unit without hard-mode option.
+        """
         with self.assertRaises(InitError) as exc_ctx:
             raven = Morph7("Raven")
         exception = exc_ctx.exception
@@ -2919,18 +3262,10 @@ class Morph7Tests(unittest.TestCase):
         expected = {"hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
 
-    def test_lyn_no_lynmode_specified(self):
-        with self.assertRaises(InitError) as exc_ctx:
-            raven = Morph7("Lyn")
-        exception = exc_ctx.exception
-        actual = exception.missing_value
-        expected = InitError.MissingValue.LYN_MODE
-        self.assertEqual(actual, expected)
-        actual = exception.init_params
-        expected = {"lyn_mode": (False, True)}
-        self.assertDictEqual(actual, expected)
-
     def test_copy(self):
+        """
+        Test copy method of Morph.
+        """
         raven = Morph7("Raven", hard_mode=True)
         raven_clone = raven.copy()
         raven.level_up(15)
@@ -2953,36 +3288,36 @@ class Morph7Tests(unittest.TestCase):
             expected = getattr(raven_clone.current_stats, stat)
             self.assertGreater(actual, expected)
 
-    def test_afas_drops(self):
-        nino = Morph7("Nino")
-        nino.use_afas_drops()
-        nino2 = Morph7("Nino")
-        diff = (nino.growth_rates - nino2.growth_rates).as_dict()
-        self.assertSetEqual(set(diff.values()), {5, None})
-        with self.assertRaises(GrowthsItemError) as err_ctx:
-            nino.use_afas_drops()
-        actual = err_ctx.exception.reason
-        expected = GrowthsItemError.Reason.ALREADY_CONSUMED
-        self.assertEqual(actual, expected)
-
-    def test_no_hardmode_version(self):
-        with self.assertLogs(logger, logging.WARNING):
-            matthew = Morph7("Matthew", hard_mode=True, lyn_mode=True)
-        self.assertIsNone(matthew._meta["Hard Mode"])
+    def test_hardmode_override(self):
+        """
+        What happens when you try to manually query HM version of character
+        """
+        raven = Morph7("Raven (HM)", hard_mode=False)
+        self.assertIsNone(raven._meta["Hard Mode"])
+        raven2 = Morph7("Raven", hard_mode=True)
+        self.assertIs(raven2._meta["Hard Mode"], True)
+        diff = (raven.current_stats - raven2.current_stats).as_dict()
+        self.assertSetEqual(set(diff.values()), {0, None})
 
     def test_hardmode_version_exists(self):
+        """
+        Validates `_meta['Hard Mode']` parameter of morph instance.
+        """
         hard_mode = False
-        guy = Morph7("Guy", hard_mode=hard_mode)
-        self.assertIs(guy._meta["Hard Mode"], hard_mode)
+        raven = Morph7("Raven", hard_mode=hard_mode)
+        self.assertIs(raven._meta["Hard Mode"], hard_mode)
         hard_mode = True
-        guy2 = Morph7("Guy", hard_mode=hard_mode)
-        self.assertIs(guy2._meta["Hard Mode"], hard_mode)
-        self.assertEqual(guy2.name, "Guy")
+        raven2 = Morph7("Raven", hard_mode=hard_mode)
+        self.assertIs(raven2._meta["Hard Mode"], hard_mode)
+        self.assertEqual(raven2.name, "Raven")
 
     def test_hardmode_diff(self):
-        guy = Morph7("Guy", hard_mode=False)
-        guy_hm = Morph7("Guy", hard_mode=True)
-        diff = (guy.current_stats - guy_hm.current_stats).as_dict()
+        """
+        Confirms that non-HM and HM stats differ.
+        """
+        raven = Morph7("Raven", hard_mode=False)
+        raven_hm = Morph7("Raven", hard_mode=True)
+        diff = (raven.current_stats - raven_hm.current_stats).as_dict()
         for stat, val in diff.items():
             if stat == "Lck":
                 logger.debug("Stat is 'Lck'. Expecting zero-diff.")
@@ -2995,12 +3330,55 @@ class Morph7Tests(unittest.TestCase):
             logger.debug("Difference in %s: %.2f", stat, val)
             self.assertLess(val, 0)
 
+class FE7NormalOnlyUnit(Morph7TestCase):
+    """
+    Conduct series of tests with FE7 non-HM unit as subject.
+    """
+
+    def test_no_hardmode_version(self):
+        """
+        Asserts that logger prints warning for units without non-HM stats.
+        """
+        with self.assertLogs(logger, logging.WARNING):
+            lyn = Morph7("Lyn", hard_mode=True, lyn_mode=True)
+        self.assertIsNone(lyn._meta["Hard Mode"])
+
+class FE7NonLyndisLeague(Morph7TestCase):
+    """
+    Conduct series of tests with unit not in FE7!'Lyndis League' as subject.
+    """
+
     def test_not_in_lyndis_league(self):
+        """
+        Asserts that logger prints warning upon trying to specify a value for `lyn_mode`.
+        """
         with self.assertLogs(logger, logging.WARNING):
             athos = Morph7("Athos", lyn_mode=True)
         self.assertIsNone(athos._meta["Lyn Mode"])
 
+class FE7LyndisLeague(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!'Lyndis League' unit as subject.
+    """
+
+    def test_no_lynmode_specified(self):
+        """
+        No value specified for `lyn_mode`.
+        """
+        with self.assertRaises(InitError) as exc_ctx:
+            Morph7("Lyn")
+        exception = exc_ctx.exception
+        actual = exception.missing_value
+        expected = InitError.MissingValue.LYN_MODE
+        self.assertEqual(actual, expected)
+        actual = exception.init_params
+        expected = {"lyn_mode": (False, True)}
+        self.assertDictEqual(actual, expected)
+
     def test_lyn(self):
+        """
+        Comparing across campaigns.
+        """
         lyn = Morph7("Lyn", lyn_mode=True)
         self.assertIs(lyn._meta["Lyn Mode"], True)
         lyn2 = Morph7("Lyn", lyn_mode=False)
@@ -3008,33 +3386,25 @@ class Morph7Tests(unittest.TestCase):
         diff = (lyn.current_stats - lyn2.current_stats).as_dict()
         self.assertNotEqual(set(diff.values()), {0})
 
-    def test_wallace__unpromoted(self):
-        wallace = Morph7("Wallace", lyn_mode=True)
-        wallace.level_up(20 - wallace.current_lv)
-        wallace.promote()
-        wallace.level_up(19)
-
-    def test_wallace__promoted(self):
-        wallace = Morph7("Wallace", lyn_mode=False)
-        wallace.level_up(20 - wallace.current_lv)
-        with self.assertRaises(PromotionError) as err_ctx:
-            wallace.promote()
-        expected = err_ctx.exception.reason
-        actual = PromotionError.Reason.NO_PROMOTIONS
-        self.assertEqual(actual, expected)
-        #wallace.level_up(19)
-
-    def test_hardmode_override(self):
-        # documents what happens when you try to manually query HM version of character
-        raven = Morph7("Raven (HM)", hard_mode=False)
-        self.assertIsNone(raven._meta["Hard Mode"])
-        raven2 = Morph7("Raven", hard_mode=True)
-        self.assertIs(raven2._meta["Hard Mode"], True)
-        diff = (raven.current_stats - raven2.current_stats).as_dict()
-        self.assertSetEqual(set(diff.values()), {0, None})
-
     def test_lyndis_league(self):
-        lyndis_league = self.lyndis_league
+        """
+        Initialize all Lyn Mode units sans Wallace.
+        """
+        lyndis_league = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Erk",
+            "Serra",
+            "Matthew",
+            "Rath",
+            "Nils",
+            "Lucius",
+            #"Wallace",
+        )
         for name in filter(lambda name: name != "Wallace", lyndis_league):
             logger.debug("name: '%s'", name)
             morph = Morph7(name, lyn_mode=True)
@@ -3047,31 +3417,88 @@ class Morph7Tests(unittest.TestCase):
                 continue
             self.assertNotEqual(set(diff.values()), {0})
 
-    def test_promotables(self):
-        promotables = self._get_promotables(True)
-        for name in filter(lambda name: name not in self.lyndis_league, promotables):
-            hard_mode = " (HM)" in name
-            name = name.replace(" (HM)", "")
-            logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
-            morph = Morph7(name, hard_mode=hard_mode)
-            morph.level_up(20 - morph.current_lv)
-            morph.promote()
-            morph.level_up(19)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
-            with self.assertRaises(PromotionError) as err_ctx:
-                morph.promote()
-            expected = err_ctx.exception.reason
-            actual = PromotionError.Reason.NO_PROMOTIONS
-            self.assertEqual(actual, expected)
+class FE7Wallace(Morph7TestCase):
+    """
+    Conduct series of tests with FE7!'Lyndis League' unit as subject.
+    """
+
+    def test_wallace__unpromoted(self):
+        """
+        Maxing LynMode version.
+        """
+        wallace = Morph7("Wallace", lyn_mode=True)
+        wallace.level_up(20 - wallace.current_lv)
+        wallace.promote()
+        wallace.level_up(19)
+
+    def test_wallace__promoted(self):
+        """
+        Maxing Bern version.
+        """
+        wallace = Morph7("Wallace", lyn_mode=False)
+        wallace.level_up(20 - wallace.current_lv)
+        with self.assertRaises(PromotionError) as err_ctx:
+            wallace.promote()
+        expected = err_ctx.exception.reason
+        actual = PromotionError.Reason.NO_PROMOTIONS
+        self.assertEqual(actual, expected)
+        #wallace.level_up(19)
+
+class Morph8TestCase(unittest.TestCase):
+    """
+    Provides framework for testing FE8 units.
+    """
+
+    def setUp(self):
+        """
+        Initializes trainee list.
+        """
+        self.trainees = ("Ross", "Amelia", "Ewan")
+        logger.critical("%s", self.id())
+
+    @staticmethod
+    def _get_promotables(can_promote):
+        """
+        Get list of units filtered by ability to promote.
+        """
+        url_name = "the-sacred-stones"
+        return _get_promotables(url_name, can_promote=can_promote)
+
+class FE8Unpromotables(Morph8TestCase):
+    """
+    Conduct series of tests with FE8 unpromotable units as subjects.
+    """
+
+    def test_get_promotion_list(self):
+        """
+        Assert that promo-list is empty.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        expected = []
+        for name in nonpromotables:
+            morph = Morph8(name)
+            actual = morph.get_promotion_list()
+            self.assertListEqual(actual, expected)
+
+    def test_get_promotion_item(self):
+        """
+        Assert that promo-item is null.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        #expected = None
+        for name in nonpromotables:
+            morph = Morph8(name)
+            actual = morph.get_promotion_item()
+            self.assertIsNone(actual)
 
     def test_nonpromotables(self):
+        """
+        Maxing.
+        """
         nonpromotables = self._get_promotables(False)
-        for name in filter(lambda name: name not in self.lyndis_league, nonpromotables):
-            hard_mode = " (HM)" in name
-            name = name.replace(" (HM)", "")
-            logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
-            morph = Morph7(name, hard_mode=hard_mode)
+        for name in nonpromotables:
+            logger.debug("Morph8(%r)", name)
+            morph = Morph8(name)
             with self.assertRaises(PromotionError) as exc_ctx:
                 morph.promote()
             actual = exc_ctx.exception.reason
@@ -3086,57 +3513,15 @@ class Morph7Tests(unittest.TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
-    def test_stat_boosters(self):
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        morph = Morph7("Eliwood")
-        for item, statbonus in item_bonus_dict.items():
-            original_stats = morph.current_stats.copy()
-            morph.use_stat_booster(item)
-            stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus * 100
-            actual = getattr(morph.current_stats, stat)
-            self.assertEqual(actual, expected)
+class FE8Promotables(Morph8TestCase):
+    """
+    Conduct series of tests with FE8 promotable units as subjects.
+    """
 
-    def test_inventory_size(self):
-        lord = Morph7("Eliwood")
-        actual = lord.inventory_size
-        expected = 5
-        self.assertEqual(actual, expected)
-
-class Morph8Tests(unittest.TestCase):
-
-    def tearDown(self):
-        logger.critical("%s", self.id())
-
-    def setUp(self):
-        logger.critical("%s", self.id())
-        self.trainees = ("Ross", "Amelia", "Ewan")
-
-    @staticmethod
-    def _get_promotables(can_promote):
-        # query for list of units who cannot promote
-        url_name = "the-sacred-stones"
-        return _get_promotables(url_name, can_promote=can_promote)
-
-    def test_get_promotion_list__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        expected = []
-        for name in nonpromotables:
-            morph = Morph8(name)
-            actual = morph.get_promotion_list()
-            self.assertListEqual(actual, expected)
-
-    def test_get_promotion_list__promotables(self):
+    def test_get_promotion_list(self):
+        """
+        Assert promo-list non-empty.
+        """
         promotables = self._get_promotables(can_promote=True)
         #expected = []
         for name in filter(lambda name_: name_ not in self.trainees, promotables):
@@ -3144,7 +3529,177 @@ class Morph8Tests(unittest.TestCase):
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
+    def test_get_promotion_item(self):
+        """
+        Assert that for each unit, the promo-item is correct.
+        """
+        promotables = self._get_promotables(can_promote=True)
+        promoitem_dict = {
+            'Eirika': "Lunar Brace",
+            #'Seth',
+            'Franz': "Knight Crest",
+            'Gilliam': "Knight Crest",
+            'Vanessa': "Elysian Whip",
+            'Moulder': "Guiding Ring",
+            #'Ross': None,
+            'Garcia': "Hero Crest",
+            'Neimi': "Orion's Bolt",
+            'Colm': "Ocean Seal",
+            'Artur': "Guiding Ring",
+            'Lute': "Guiding Ring",
+            'Natasha': "Guiding Ring",
+            'Joshua': "Hero Crest",
+            'Ephraim': "Solar Brace",
+            'Forde': "Knight Crest",
+            'Kyle': "Knight Crest",
+            #'Orson',
+            'Tana': "Elysian Whip",
+            #'Amelia',
+            #'Innes',
+            'Gerik': "Hero Crest",
+            #'Tethys',
+            'Marisa': "Hero Crest",
+            "L'Arachel": "Guiding Ring",
+            #'Dozla',
+            #'Saleh',
+            #'Ewan',
+            'Cormag': "Elysian Whip",
+            #'Rennac',
+            #'Duessel',
+            'Knoll': "Guiding Ring",
+            #'Myrrh',
+            #'Syrene',
+            #'Caellach',
+            #'Riev',
+            #'Ismaire',
+            #'Selena',
+            #'Glen',
+            #'Hayden',
+            #'Valter',
+            #'Fado',
+            #'Lyon',
+        }
+        #trainees = ("Ross", "Amelia", "Ewan")
+        #for name in filter(lambda name_: name_ not in trainees, promotables):
+        for name in filter(lambda name_: name_ in promoitem_dict, promotables):
+            morph = Morph8(name)
+            #logger.debug("Getting promo-item for: '%s'", name)
+            actual = morph.get_promotion_item()
+            expected = promoitem_dict.pop(name)
+            logger.debug("Promo-item for '%s' is: '%s'", name, actual)
+            self.assertEqual(actual, expected)
+            # extra
+            morph.level_up(20 - morph.current_lv)
+            try:
+                morph.promote()
+            except PromotionError:
+                morph.promo_cls = morph.possible_promotions[0]
+                morph.promote()
+            actual = morph.get_promotion_item()
+            self.assertIsNone(actual)
+
+    def test_promotables(self):
+        """
+        Maxing.
+        """
+        promotables = self._get_promotables(True)
+        for name in filter(lambda name: name not in self.trainees, promotables):
+            logger.debug("Morph8(%r)", name)
+            morph = Morph8(name)
+            morph.level_up(20 - morph.current_lv)
+            try:
+                morph.promote()
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                expected = err_ctx.exception.reason
+                actual = PromotionError.Reason.NO_PROMOTIONS
+                self.assertEqual(actual, expected)
+            except PromotionError:
+                for promo_cls in morph.possible_promotions:
+                    morph = Morph8(name)
+                    morph.level_up(20 - morph.current_lv)
+                    morph.promo_cls = promo_cls
+                    morph.promote()
+                    morph.level_up(19)
+                    with self.assertRaises(LevelUpError):
+                        morph.level_up(1)
+                    with self.assertRaises(PromotionError) as err_ctx:
+                        morph.promote()
+                    expected = err_ctx.exception.reason
+                    actual = PromotionError.Reason.NO_PROMOTIONS
+                    self.assertEqual(actual, expected)
+
+    def _test_scrub(self, name):
+        """
+        Maxing framework.
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except PromotionError as error:
+            actual = error.reason
+            expected = PromotionError.Reason.INVALID_PROMOTION
+            self.assertEqual(actual, expected)
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError as error:
+                actual = error.reason
+                expected = PromotionError.Reason.INVALID_PROMOTION
+                self.assertEqual(actual, expected)
+            promo_dict[promo_cls] = morph.possible_promotions
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(PromotionError) as exc_ctx:
+                    morph.promote()
+                actual = exc_ctx.exception.reason
+                expected = PromotionError.Reason.LEVEL_TOO_LOW
+                self.assertEqual(actual, expected)
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(LevelUpError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                # promote
+                morph.promo_cls = promo_cls
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
+
     def _test_get_promotion_list__trainee(self, name):
+        """
+        Maxing framework.
+        """
         _morph = Morph8(name)
         _morph.current_lv = 10
         _morph.promo_cls = None
@@ -3188,27 +3743,96 @@ class Morph8Tests(unittest.TestCase):
                 expected = []
                 self.assertListEqual(actual, expected)
 
-    def test_get_promotion_list__amelia(self):
-        name = "Amelia"
-        self._test_get_promotion_list__trainee(name)
+    def _test_get_promotion_item__trainee(self, name, promotion_item):
+        """
+        Maxing framework.
+        """
+        _morph = Morph8(name)
+        _morph.current_lv = 10
+        try:
+            _morph.promote()
+        except PromotionError as error:
+            actual = error.reason
+            expected = PromotionError.Reason.INVALID_PROMOTION
+            self.assertEqual(actual, expected)
+        promo_dict = {}
+        # compile list of promotions
+        for promo_cls in _morph.possible_promotions:
+            morph = Morph8(name)
+            morph.current_lv = 10
+            morph.promo_cls = promo_cls
+            morph.promote()
+            morph.current_lv = 10
+            try:
+                morph.promote()
+            except PromotionError as error:
+                actual = error.reason
+                expected = PromotionError.Reason.INVALID_PROMOTION
+                self.assertEqual(actual, expected)
+            promo_dict[promo_cls] = morph.possible_promotions
+        expected1 = "*Reach Level 10*"
+        for promo_cls, promoclasses2 in promo_dict.items():
+            for promo_cls2 in promoclasses2:
+                morph = Morph8(name)
+                # try to promote at base level; this fails
+                with self.assertRaises(PromotionError) as exc_ctx:
+                    morph.promote()
+                actual = exc_ctx.exception.reason
+                expected = PromotionError.Reason.LEVEL_TOO_LOW
+                self.assertEqual(actual, expected)
+                # level up to promotion level
+                morph.level_up(10 - morph.current_lv)
+                with self.assertRaises(LevelUpError):
+                    # level up past promotion level; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls
+                actual1 = morph.get_promotion_item()
+                self.assertEqual(actual1, expected1)
+                # promote
+                morph.promote()
+                # level is reset to 1
+                self.assertEqual(morph.current_lv, 1)
+                actual2 = morph.get_promotion_item()
+                expected2 = promotion_item
+                self.assertEqual(actual2, expected2)
+                # level up to 20
+                morph.level_up(19)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                morph.promo_cls = promo_cls2
+                actual3 = morph.get_promotion_item()
+                expected3 = promotion_item
+                self.assertEqual(actual3, expected3)
+                # final promotion
+                morph.promote()
+                # level to 20
+                morph.level_up(19)
+                actual4 = morph.get_promotion_item()
+                self.assertIsNone(actual4)
+                with self.assertRaises(LevelUpError):
+                    # level up past 20; this fails
+                    morph.level_up(1)
+                with self.assertRaises(PromotionError) as err_ctx:
+                    morph.promote()
+                (err_msg,) = err_ctx.exception.args
+                self.assertIn("no available promotions", err_msg)
 
-    def test_get_promotion_list__ewan(self):
-        name = "Ewan"
-        self._test_get_promotion_list__trainee(name)
+class FE8Ross(Morph8TestCase):
+    """
+    Conduct series of tests with FE8!Ross as subject.
+    """
 
-    def test_get_promotion_list__ross(self):
+    def test_get_promotion_list(self):
+        """
+        Tests output.
+        """
         name = "Ross"
         self._test_get_promotion_list__trainee(name)
 
-    def test_get_promotion_item__amelia(self):
-        name = "Amelia"
-        promotion_item = "Knight Crest"
-        self._test_get_promotion_item__trainee(name, promotion_item)
-
-    def test_get_promotion_item__ewan(self):
-        name = "Ewan"
-        promotion_item = "Guiding Ring"
-        self._test_get_promotion_item__trainee(name, promotion_item)
+    def test_ross(self):
+        name = "Ross"
+        self._test_scrub(name)
 
     def test_get_promotion_item__ross(self):
         name = "Ross"
@@ -3287,327 +3911,42 @@ class Morph8Tests(unittest.TestCase):
                 (err_msg,) = err_ctx.exception.args
                 self.assertIn("no available promotions", err_msg)
 
-    def _test_get_promotion_item__trainee(self, name, promotion_item):
-        _morph = Morph8(name)
-        _morph.current_lv = 10
-        try:
-            _morph.promote()
-        except PromotionError as error:
-            actual = error.reason
-            expected = PromotionError.Reason.INVALID_PROMOTION
-            self.assertEqual(actual, expected)
-        promo_dict = {}
-        # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
-            morph = Morph8(name)
-            morph.current_lv = 10
-            morph.promo_cls = promo_cls
-            morph.promote()
-            morph.current_lv = 10
-            try:
-                morph.promote()
-            except PromotionError as error:
-                actual = error.reason
-                expected = PromotionError.Reason.INVALID_PROMOTION
-                self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
-        expected1 = "*Reach Level 10*"
-        for promo_cls, promoclasses2 in promo_dict.items():
-            for promo_cls2 in promoclasses2:
-                morph = Morph8(name)
-                # try to promote at base level; this fails
-                with self.assertRaises(PromotionError) as exc_ctx:
-                    morph.promote()
-                actual = exc_ctx.exception.reason
-                expected = PromotionError.Reason.LEVEL_TOO_LOW
-                self.assertEqual(actual, expected)
-                # level up to promotion level
-                morph.level_up(10 - morph.current_lv)
-                with self.assertRaises(LevelUpError):
-                    # level up past promotion level; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls
-                actual1 = morph.get_promotion_item()
-                self.assertEqual(actual1, expected1)
-                # promote
-                morph.promote()
-                # level is reset to 1
-                self.assertEqual(morph.current_lv, 1)
-                actual2 = morph.get_promotion_item()
-                expected2 = promotion_item
-                self.assertEqual(actual2, expected2)
-                # level up to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls2
-                actual3 = morph.get_promotion_item()
-                expected3 = promotion_item
-                self.assertEqual(actual3, expected3)
-                # final promotion
-                morph.promote()
-                # level to 20
-                morph.level_up(19)
-                actual4 = morph.get_promotion_item()
-                self.assertIsNone(actual4)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                with self.assertRaises(PromotionError) as err_ctx:
-                    morph.promote()
-                (err_msg,) = err_ctx.exception.args
-                self.assertIn("no available promotions", err_msg)
 
+class FE8Amelia(Morph8TestCase):
+    """
+    Conduct series of tests with FE8!Amelia as subject.
+    """
 
-    def test_get_promotion_item__promotables(self):
-        promotables = self._get_promotables(can_promote=True)
-        promoitem_dict = {
-            'Eirika': "Lunar Brace",
-            #'Seth',
-            'Franz': "Knight Crest",
-            'Gilliam': "Knight Crest",
-            'Vanessa': "Elysian Whip",
-            'Moulder': "Guiding Ring",
-            #'Ross': None,
-            'Garcia': "Hero Crest",
-            'Neimi': "Orion's Bolt",
-            'Colm': "Ocean Seal",
-            'Artur': "Guiding Ring",
-            'Lute': "Guiding Ring",
-            'Natasha': "Guiding Ring",
-            'Joshua': "Hero Crest",
-            'Ephraim': "Solar Brace",
-            'Forde': "Knight Crest",
-            'Kyle': "Knight Crest",
-            #'Orson',
-            'Tana': "Elysian Whip",
-            #'Amelia',
-            #'Innes',
-            'Gerik': "Hero Crest",
-            #'Tethys',
-            'Marisa': "Hero Crest",
-            "L'Arachel": "Guiding Ring",
-            #'Dozla',
-            #'Saleh',
-            #'Ewan',
-            'Cormag': "Elysian Whip",
-            #'Rennac',
-            #'Duessel',
-            'Knoll': "Guiding Ring",
-            #'Myrrh',
-            #'Syrene',
-            #'Caellach',
-            #'Riev',
-            #'Ismaire',
-            #'Selena',
-            #'Glen',
-            #'Hayden',
-            #'Valter',
-            #'Fado',
-            #'Lyon',
-        }
-        #trainees = ("Ross", "Amelia", "Ewan")
-        #for name in filter(lambda name_: name_ not in trainees, promotables):
-        for name in filter(lambda name_: name_ in promoitem_dict, promotables):
-            morph = Morph8(name)
-            #logger.debug("Getting promo-item for: '%s'", name)
-            actual = morph.get_promotion_item()
-            expected = promoitem_dict.pop(name)
-            logger.debug("Promo-item for '%s' is: '%s'", name, actual)
-            self.assertEqual(actual, expected)
-            # extra
-            morph.level_up(20 - morph.current_lv)
-            try:
-                morph.promote()
-            except PromotionError:
-                morph.promo_cls = morph.possible_promotions[0]
-                morph.promote()
-            actual = morph.get_promotion_item()
-            self.assertIsNone(actual)
+    def test_get_promotion_list__amelia(self):
+        name = "Amelia"
+        self._test_get_promotion_list__trainee(name)
 
-    def test_get_promotion_item__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
-            morph = Morph8(name)
-            actual = morph.get_promotion_item()
-            self.assertIsNone(actual)
-
-    def test_as_string(self):
-        morph = Morph8("Ewan")
-        morph.use_metiss_tome()
-        actual = morph.as_string()
-        self.assertIsInstance(actual, str)
-        logger.debug("as_string -> %s", actual)
-
-    def test_inventory_size(self):
-        morph = Morph8("Ephraim")
-        actual = morph.inventory_size
-        self.assertIsInstance(actual, int)
-        self.assertGreater(actual, 0)
-
-    def test_eirika__early_promotion(self):
-        name = "Eirika"
-        morph = Morph8(name)
-        self.assertLess(morph.current_lv, 10)
-        morph.promote()
-        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
-        with self.assertRaises(PromotionError):
-            morph.promote()
-
-    def test_ephraim__early_promotion(self):
-        name = "Ephraim"
-        morph = Morph8(name)
-        self.assertLess(morph.current_lv, 10)
-        morph.promote()
-        self.assertEqual(morph.current_clstype, "classes__promotion_gains")
-        with self.assertRaises(PromotionError):
-            morph.promote()
-
-    def test_ross(self):
-        name = "Ross"
-        self._test_scrub(name)
+    def test_get_promotion_item__amelia(self):
+        name = "Amelia"
+        promotion_item = "Knight Crest"
+        self._test_get_promotion_item__trainee(name, promotion_item)
 
     def test_amelia(self):
         name = "Amelia"
         self._test_scrub(name)
 
+class FE8Ewan(Morph8TestCase):
+    """
+    Conduct series of tests with FE8!Ewan as subject.
+    """
+
+    def test_get_promotion_list__ewan(self):
+        name = "Ewan"
+        self._test_get_promotion_list__trainee(name)
+
+    def test_get_promotion_item__ewan(self):
+        name = "Ewan"
+        promotion_item = "Guiding Ring"
+        self._test_get_promotion_item__trainee(name, promotion_item)
+
     def test_ewan(self):
         name = "Ewan"
         self._test_scrub(name)
-
-    def _test_scrub(self, name):
-        _morph = Morph8(name)
-        _morph.current_lv = 10
-        try:
-            _morph.promote()
-        except PromotionError as error:
-            actual = error.reason
-            expected = PromotionError.Reason.INVALID_PROMOTION
-            self.assertEqual(actual, expected)
-        promo_dict = {}
-        # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
-            morph = Morph8(name)
-            morph.current_lv = 10
-            morph.promo_cls = promo_cls
-            morph.promote()
-            morph.current_lv = 10
-            try:
-                morph.promote()
-            except PromotionError as error:
-                actual = error.reason
-                expected = PromotionError.Reason.INVALID_PROMOTION
-                self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
-        for promo_cls, promoclasses2 in promo_dict.items():
-            for promo_cls2 in promoclasses2:
-                morph = Morph8(name)
-                # try to promote at base level; this fails
-                with self.assertRaises(PromotionError) as exc_ctx:
-                    morph.promote()
-                actual = exc_ctx.exception.reason
-                expected = PromotionError.Reason.LEVEL_TOO_LOW
-                self.assertEqual(actual, expected)
-                # level up to promotion level
-                morph.level_up(10 - morph.current_lv)
-                with self.assertRaises(LevelUpError):
-                    # level up past promotion level; this fails
-                    morph.level_up(1)
-                # promote
-                morph.promo_cls = promo_cls
-                morph.promote()
-                # level is reset to 1
-                self.assertEqual(morph.current_lv, 1)
-                # level up to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                morph.promo_cls = promo_cls2
-                # final promotion
-                morph.promote()
-                # level to 20
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    # level up past 20; this fails
-                    morph.level_up(1)
-                with self.assertRaises(PromotionError) as err_ctx:
-                    morph.promote()
-                (err_msg,) = err_ctx.exception.args
-                self.assertIn("no available promotions", err_msg)
-
-    def test_nonpromotables(self):
-        nonpromotables = self._get_promotables(False)
-        for name in nonpromotables:
-            logger.debug("Morph8(%r)", name)
-            morph = Morph8(name)
-            with self.assertRaises(PromotionError) as exc_ctx:
-                morph.promote()
-            actual = exc_ctx.exception.reason
-            expected = PromotionError.Reason.NO_PROMOTIONS
-            self.assertEqual(actual, expected)
-            morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
-            with self.assertRaises(PromotionError) as err_ctx:
-                morph.promote()
-            expected = err_ctx.exception.reason
-            actual = PromotionError.Reason.NO_PROMOTIONS
-            self.assertEqual(actual, expected)
-
-    def test_promotables(self):
-        promotables = self._get_promotables(True)
-        for name in filter(lambda name: name not in self.trainees, promotables):
-            logger.debug("Morph8(%r)", name)
-            morph = Morph8(name)
-            morph.level_up(20 - morph.current_lv)
-            try:
-                morph.promote()
-                morph.level_up(19)
-                with self.assertRaises(LevelUpError):
-                    morph.level_up(1)
-                with self.assertRaises(PromotionError) as err_ctx:
-                    morph.promote()
-                expected = err_ctx.exception.reason
-                actual = PromotionError.Reason.NO_PROMOTIONS
-                self.assertEqual(actual, expected)
-            except PromotionError:
-                for promo_cls in morph.possible_promotions:
-                    morph = Morph8(name)
-                    morph.level_up(20 - morph.current_lv)
-                    morph.promo_cls = promo_cls
-                    morph.promote()
-                    morph.level_up(19)
-                    with self.assertRaises(LevelUpError):
-                        morph.level_up(1)
-                    with self.assertRaises(PromotionError) as err_ctx:
-                        morph.promote()
-                    expected = err_ctx.exception.reason
-                    actual = PromotionError.Reason.NO_PROMOTIONS
-                    self.assertEqual(actual, expected)
-
-    def test_stat_boosters(self):
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        morph = Morph8("Eirika")
-        for item, statbonus in item_bonus_dict.items():
-            original_stats = morph.current_stats.copy()
-            morph.use_stat_booster(item)
-            stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus * 100
-            actual = getattr(morph.current_stats, stat)
-            self.assertEqual(actual, expected)
 
     def test_metiss_tome(self):
         ewan = Morph8("Ewan")
@@ -3621,20 +3960,110 @@ class Morph8Tests(unittest.TestCase):
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
 
+    def test_as_string(self):
+        morph = Morph8("Ewan")
+        morph.use_metiss_tome()
+        actual = morph.as_string()
+        self.assertIsInstance(actual, str)
+        logger.debug("as_string -> %s", actual)
+
+class FE8Eirika(Morph8TestCase):
+    """
+    Conduct series of tests with FE8!Eirika as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes lord morph.
+        """
+        self.morph = Morph8("Eirika")
+        super().setUp()
+
+    def test_promote__early(self):
+        """
+        Asserts that Eirika can promote early.
+        """
+        eirika = self.morph
+        self.assertLess(eirika.current_lv, 10)
+        eirika.promote()
+        self.assertEqual(eirika.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            eirika.promote()
+
+    def test_stat_boosters(self):
+        """
+        Test stat-boosting functionality.
+        """
+        item_bonus_dict = {
+            "Angelic Robe": ("HP", 7),
+            "Energy Ring": ("Pow", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwings": ("Spd", 2),
+            "Goddess Icon": ("Lck", 2),
+            "Dragonshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        eirika = self.morph
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = eirika.current_stats.copy()
+            eirika.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus * 100
+            actual = getattr(eirika.current_stats, stat)
+            self.assertEqual(actual, expected)
+
     def test_inventory_size(self):
-        lord = Morph8("Eirika")
-        actual = lord.inventory_size
+        """
+        Validate inventory size.
+        """
+        eirika = self.morph
+        actual = eirika.inventory_size
         expected = 5
         self.assertEqual(actual, expected)
 
-class Morph9Tests(unittest.TestCase):
-
-    def tearDown(self):
-        logger.critical("%s", self.id())
+class FE8Ephraim(Morph8TestCase):
+    """
+    Conduct series of tests with FE8!Ephraim as subject.
+    """
 
     def setUp(self):
-        logger.critical("%s", self.id())
-        self.jill = Morph9("Jill")
+        """
+        Initializes lord morph.
+        """
+        self.morph = Morph8("Ephraim")
+        super().setUp()
+
+    def test_inventory_size(self):
+        """
+        Validates inventory size.
+        """
+        ephraim = self.morph
+        actual = ephraim.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertEqual(actual, 0)
+
+    def test_ephraim__early_promotion(self):
+        """
+        Asserts that Ephraim can promote early.
+        """
+        ephraim = self.morph
+        self.assertLess(morph.current_lv, 10)
+        ephraim.promote()
+        self.assertEqual(ephraim.current_clstype, "classes__promotion_gains")
+        with self.assertRaises(PromotionError):
+            morph.promote()
+
+class Morph9TestCase(unittest.TestCase):
+    """
+    Provides framework for testing FE9 units.
+    """
+
+    def setUp(self):
+        """
+        Initializes band list.
+        """
         self.bands = (
             "Sword Band",
             "Soldier Band",
@@ -3649,50 +4078,148 @@ class Morph9Tests(unittest.TestCase):
             "Thief Band",
             #"Knight Ward",
         )
-
-    def test_inventory_size(self):
-        morph = Morph9("Ike")
-        actual = morph.inventory_size
-        self.assertIsInstance(actual, int)
-        self.assertGreater(actual, 0)
-
-    def test_ike_can_promote_at_lv1(self):
-        morph = Morph9("Ike")
-        morph.promote()
-
-    def test_volke_can_promote_at_base_lv(self):
-        morph = Morph9("Volke")
-        morph.promote()
+        logger.critical("%s", self.id())
 
     @staticmethod
     def _get_promotables(can_promote):
+        """
+        Gets unit list filtered by ability to promote.
+        """
         # query for list of units who cannot promote
         url_name = "path-of-radiance"
         return _get_promotables(url_name, can_promote=can_promote)
 
-    def test_get_promotion_item__ike(self):
-        # ike
+class FE9Ike(Morph9TestCase):
+    """
+    Conduct series of tests with FE9!Ike as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instance.
+        """
         name = "Ike"
-        morph = Morph9(name)
-        actual = morph.get_promotion_item()
+        self.morph = Morph9(name)
+        super().setUp()
+
+    def test_inventory_size(self):
+        """
+        Validate inventory size
+        """
+        ike = self.morph
+        actual = ike.inventory_size
+        self.assertIsInstance(actual, int)
+        self.assertGreater(actual, 0)
+
+    def test_promote__early(self):
+        """
+        Show that Ike can promote early.
+        """
+        ike = self.morph
+        self.assertLess(ike.current_lv, 10)
+        ike.promote()
+
+    def test_get_promotion_item(self):
+        """
+        Validate 'promo-item'
+        """
+        ike = self.morph
+        actual = ike.get_promotion_item()
         expected = "*Chapter 18 - Start*"
         self.assertEqual(actual, expected)
-        morph.promote()
-        actual = morph.get_promotion_item()
+        ike.promote()
+        actual = ike.get_promotion_item()
         self.assertIsNone(actual)
 
-    def test_get_promotion_item__volke(self):
-        # volke
+    def test_stat_boosters(self):
+        """
+        Demo of stat-boosting.
+        """
+        item_bonus_dict = {
+            "Seraph Robe": ("HP", 7),
+            "Energy Drop": ("Str", 2),
+            "Spirit Dust": ("Mag", 2),
+            "Secret Book": ("Skl", 2),
+            "Speedwing": ("Spd", 2),
+            "Ashera Icon": ("Lck", 2),
+            "Dracoshield": ("Def", 2),
+            "Talisman": ("Res", 2),
+            "Boots": ("Mov", 2),
+            "Body Ring": ("Con", 3),
+        }
+        ike = self.morph
+        for item, statbonus in item_bonus_dict.items():
+            original_stats = ike.current_stats.copy()
+            ike.use_stat_booster(item)
+            stat, bonus = statbonus
+            expected = getattr(original_stats, stat) + bonus * 100
+            actual = getattr(ike.current_stats, stat)
+            self.assertEqual(actual, expected)
+
+    def test_equip_knight_ward__not_a_knight(self):
+        """
+        Try to equip Knight Ward.
+        """
+        ike = self.morph
+        with self.assertRaises(KnightWardError) as err_ctx:
+            ike.equip_knight_ward()
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.NOT_A_KNIGHT
+        self.assertEqual(actual, expected)
+
+    def test_unequip_knight_ward__not_a_knight(self):
+        """
+        Try to unequip Knight Ward.
+        """
+        ike = self.morph
+        with self.assertRaises(KnightWardError):
+            ike.unequip_knight_ward()
+        actual = err_ctx.exception.reason
+        expected = KnightWardError.Reason.NOT_A_KNIGHT
+        self.assertEqual(actual, expected)
+
+class FE9Volke(Morph9TestCase):
+    """
+    Conduct series of tests with FE9!Volke as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instance.
+        """
         name = "Volke"
-        morph = Morph9(name)
-        actual = morph.get_promotion_item()
+        self.morph = Morph9(name)
+        super().setUp()
+
+    def test_promote(self):
+        """
+        Volke can promote at base-level.
+        """
+        volke = self.morph
+        self.assertEqual(volke.current_lv, 10)
+        volke.promote()
+
+    def test_get_promotion_item(self):
+        """
+        Validate 'promo-item'
+        """
+        volke = self.morph
+        actual = volke.get_promotion_item()
         expected = "*Chapter 19 - Pay Volke*"
         self.assertEqual(actual, expected)
-        morph.promote()
-        actual = morph.get_promotion_item()
+        volke.promote()
+        actual = volke.get_promotion_item()
         self.assertIsNone(actual)
 
-    def test_get_promotion_item__promotables(self):
+class FE9Promotables(Morph9TestCase):
+    """
+    Conduct series of tests with FE9 promotables as subject.
+    """
+
+    def test_get_promotion_item(self):
+        """
+        Validate promo-item for each unit.
+        """
         promotables = self._get_promotables(can_promote=True)
         expected = "Master Seal"
         for name in filter(lambda name_: name_ not in ("Volke", "Ike"), promotables):
@@ -3707,18 +4234,10 @@ class Morph9Tests(unittest.TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
-    def test_get_promotion_item__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
-            if name == "Sephiran":
-                break
-            morph = Morph9(name)
-            actual = morph.get_promotion_item()
-            self.assertIsNone(actual)
-
-
     def test_promotables(self):
+        """
+        Maxing.
+        """
         promotables = self._get_promotables(True)
         for name in promotables:
             logger.debug("Morph9(%r)", name)
@@ -3734,7 +4253,66 @@ class Morph9Tests(unittest.TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
+    def test_get_promotion_list(self):
+        """
+        Assert promo-list is non-empty.
+        """
+        promotables = self._get_promotables(can_promote=True)
+        #expected = []
+        for name in promotables:
+            morph = Morph9(name)
+            actual = morph.get_promotion_list()
+            self.assertTrue(actual)
+
+class FE9Unpromotables(Morph9TestCase):
+    """
+    Conduct series of tests with FE9 unpromotables as subject.
+    """
+
+    def test_get_promotion_list__nonpromotables(self):
+        """
+        Assert promo-list is empty.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        expected = []
+        for name in nonpromotables:
+            if name == "Sephiran":
+                break
+            morph = Morph9(name)
+            actual = morph.get_promotion_list()
+            self.assertListEqual(actual, expected)
+
+    def test_get_promotion_item(self):
+        """
+        Validate promo-item for each unit.
+        """
+        nonpromotables = self._get_promotables(can_promote=False)
+        #expected = None
+        for name in nonpromotables:
+            if name == "Sephiran":
+                break
+            morph = Morph9(name)
+            actual = morph.get_promotion_item()
+            self.assertIsNone(actual)
+
     def test_nonpromotables(self):
+        """
+        Maxing.
+        """
+        promotables = self._get_promotables(True)
+        for name in promotables:
+            logger.debug("Morph9(%r)", name)
+            morph = Morph9(name)
+            morph.level_up(20 - morph.current_lv)
+            morph.promote()
+            morph.level_up(19)
+            with self.assertRaises(LevelUpError):
+                morph.level_up(1)
+            with self.assertRaises(PromotionError) as err_ctx:
+                morph.promote()
+            expected = err_ctx.exception.reason
+            actual = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
         nonpromotables = self._get_promotables(False)
         for name in nonpromotables:
             if name == "Sephiran":
@@ -3755,44 +4333,32 @@ class Morph9Tests(unittest.TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
-    def test_stat_boosters(self):
-        item_bonus_dict = {
-            "Seraph Robe": ("HP", 7),
-            "Energy Drop": ("Str", 2),
-            "Spirit Dust": ("Mag", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwing": ("Spd", 2),
-            "Ashera Icon": ("Lck", 2),
-            "Dracoshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        morph = Morph9("Ike")
-        for item, statbonus in item_bonus_dict.items():
-            original_stats = morph.current_stats.copy()
-            morph.use_stat_booster(item)
-            stat, bonus = statbonus
-            expected = getattr(original_stats, stat) + bonus * 100
-            actual = getattr(morph.current_stats, stat)
-            self.assertEqual(actual, expected)
+class FE9Knight(Morph9TestCase):
+    """
+    Conduct series of tests with a FE9 knight as subject.
+    """
 
-    def test_equip_knight_ward__not_a_knight(self):
-        ike = Morph9("Ike")
-        with self.assertRaises(KnightWardError) as err_ctx:
-            ike.equip_knight_ward()
-        actual = err_ctx.exception.reason
-        expected = KnightWardError.Reason.NOT_A_KNIGHT
-        self.assertEqual(actual, expected)
+    def setUp(self):
+        """
+        Initializes morph instance.
+        """
+        name = "Kieran"
+        self.morph = Morph9(name)
+        super().setUp()
 
     def test_inventory_size(self):
-        kieran = Morph9("Kieran")
+        """
+        Validate inventory size.
+        """
+        kieran = self.morph
         actual = kieran.inventory_size
         expected = 8
         self.assertEqual(actual, expected)
 
     def test_equip_knight_ward__no_space(self):
-        # initialize
+        """
+        Try to equip Knight Ward without any free space.
+        """
         kieran = Morph9("Kieran")
         inventory_size = kieran.inventory_size
         kieran.equipped_bands.update({i: None for i in range(inventory_size)})
@@ -3804,27 +4370,28 @@ class Morph9Tests(unittest.TestCase):
         logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
 
-    def test_unequip_knight_ward__not_a_knight(self):
-        morph = Morph9("Ike")
-        with self.assertRaises(KnightWardError):
-            morph.unequip_knight_ward()
-
     def test_unequip_knight_ward(self):
-        morph = Morph9("Oscar")
+        """
+        Try to unequip Knight Ward that morph hasn't got on.
+        """
+        kieran = self.morph
         with self.assertRaises(KnightWardError):
-            morph.unequip_knight_ward()
-        morph.equipped_bands = {"Knight Ward": None}
-        morph.knight_ward_is_equipped = True
-        morph.unequip_knight_ward()
-        actual = morph.knight_ward_is_equipped
+            kieran.unequip_knight_ward()
+        kieran.equipped_bands = {"Knight Ward": None}
+        kieran.knight_ward_is_equipped = True
+        kieran.unequip_knight_ward()
+        actual = kieran.knight_ward_is_equipped
         self.assertIs(actual, False)
-        actual = morph.equipped_bands
+        actual = kieran.equipped_bands
         self.assertDictEqual(actual, {})
-        self.assertEqual(morph.growth_rates, morph._og_growth_rates)
+        self.assertEqual(kieran.growth_rates, kieran._og_growth_rates)
 
     def test_equip_knight_ward(self):
+        """
+        Successful equipping of Knight Ward.
+        """
         # initialize
-        kieran = Morph9("Kieran")
+        kieran = self.morph
         # assess state
         actual = kieran.knight_ward_is_equipped
         expected = False
@@ -3857,8 +4424,45 @@ class Morph9Tests(unittest.TestCase):
         comparison.Spd = 0
         self.assertIs(all(comparison == kieran.Stats(**kieran.Stats.get_stat_dict(0))), True)
 
-    def test_band_level_up(self):
-        jill = self.jill
+
+class FE9BandEquipper(Morph9TestCase):
+    """
+    Conduct series of tests with a FE9 unit who can equip a band as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes morph instance.
+        """
+        name = "Jill"
+        self.morph = Morph9(name)
+        super().setUp()
+
+    def test_equip_band(self):
+        """
+        Test equipping of band.
+        """
+        jill = self.morph
+        band_name = self.bands[0]
+        og_growths = jill.growth_rates.copy()
+        jill.equip_band(band_name)
+        self.assertIn(band_name, jill.equipped_bands)
+        self.assertEqual(len(jill.equipped_bands), 1)
+        new_growths = jill.growth_rates
+        actual = all(og_growths == new_growths)
+        expected = False
+        self.assertIs(actual, expected)
+        with self.assertRaises(BandError) as err_ctx:
+            jill.equip_band(band_name)
+        actual = err_ctx.exception.reason
+        expected = BandError.Reason.ALREADY_EQUIPPED
+        self.assertEqual(actual, expected)
+
+    def test_level_up__with_band(self):
+        """
+        Test level-up with band on.
+        """
+        jill = self.morph
         bands = self.bands
         for i in range(3):
             band = bands[i]
@@ -3894,28 +4498,16 @@ class Morph9Tests(unittest.TestCase):
         expected = ['Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band']
         self.assertListEqual(actual, expected)
         jill.level_up(10)
-        jill2 = Morph5("Eda")
+        jill2 = Morph9("Jill")
         jill2.level_up(10)
-
-    def test_equip_band(self):
-        band_name = self.bands[0]
-        og_growths = self.jill.growth_rates.copy()
-        self.jill.equip_band(band_name)
-        self.assertIn(band_name, self.jill.equipped_bands)
-        self.assertEqual(len(self.jill.equipped_bands), 1)
-        new_growths = self.jill.growth_rates
-        actual = all(og_growths == new_growths)
-        expected = False
-        self.assertIs(actual, expected)
-        with self.assertRaises(BandError) as err_ctx:
-            self.jill.equip_band(band_name)
-        actual = err_ctx.exception.reason
-        expected = BandError.Reason.ALREADY_EQUIPPED
-        self.assertEqual(actual, expected)
+        logger.debug("%r", jill > jill2)
 
     def test_equip_band__exceed_inventory_space(self):
+        """
+        Try to equip band without any space to hold it.
+        """
         # equip bands
-        jill = self.jill
+        jill = self.morph
         for i in range(8):
             band_name = self.bands[i]
             jill.equip_band(band_name)
@@ -3935,45 +4527,95 @@ class Morph9Tests(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_equip_band__band_dne(self):
+        """
+        Try to equip invalid band to hold it.
+        """
         band_name = ""
-        og_growths = self.jill.growth_rates.copy()
+        jill = self.morph
+        og_growths = jill.growth_rates.copy()
         with self.assertRaises(BandError) as err_ctx:
-            self.jill.equip_band(band_name)
+            jill.equip_band(band_name)
         # check error
         actual = err_ctx.exception.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
-        self.assertNotIn(band_name, self.jill.equipped_bands)
-        self.assertEqual(len(self.jill.equipped_bands), 0)
-        new_growths = self.jill.growth_rates
+        self.assertNotIn(band_name, jill.equipped_bands)
+        self.assertEqual(len(jill.equipped_bands), 0)
+        new_growths = jill.growth_rates
         actual = all(og_growths == new_growths)
         expected = True
         self.assertIs(actual, expected)
 
-    def test_get_promotion_list__nonpromotables(self):
-        nonpromotables = self._get_promotables(can_promote=False)
-        expected = []
-        for name in nonpromotables:
-            if name == "Sephiran":
-                break
-            morph = Morph9(name)
-            actual = morph.get_promotion_list()
-            self.assertListEqual(actual, expected)
-
-    def test_get_promotion_list__promotables(self):
-        promotables = self._get_promotables(can_promote=True)
-        #expected = []
-        for name in promotables:
-            morph = Morph9(name)
-            actual = morph.get_promotion_list()
-            self.assertTrue(actual)
-
-
-class MorphFunctionTests(unittest.TestCase):
+class GetMorph(unittest.TestCase):
+    """
+    Tests `get_morph` shortcut function on a few test cases.
+    """
 
     def setUp(self):
-        logger.debug("%s", self.id())
+        """
+        Adds test-id to log for demarcation
+        """
+        logger.critical("%s", self.id())
+
+    def test_roy(self):
+        """
+        Roy
+        """
+        roy = get_morph(6, "Roy")
+        actual = "Roy"
+        expected = roy.name
+        self.assertEqual(actual, expected)
+
+    def test_error_propagated_from_morph(self):
+        """
+        FE6!Marth
+        """
+        with self.assertRaises(UnitNotFoundError) as err_ctx:
+            get_morph(6, "Marth")
+        #actual = err_ctx.exception.unit_type
+        #expected = UnitNotFoundError.UnitType.NORMAL
+        #self.assertEqual(actual, expected)
+
+    def test_invalid_game(self):
+        """
+        For FE games excluding 4-9.
+        """
+        lords_and_games = {
+            1: "Marth",
+            2: "Alm",
+            3: "Marth",
+            4: "Sigurd",
+            5: "Leaf",
+            6: "Roy",
+            7: "Eliwood",
+            8: "Ephraim",
+            9: "Ike",
+            10: "Micaiah",
+            11: "Marth",
+            12: "Marth",
+            13: "Chrom",
+            14: "Corrin",
+            15: "Celica",
+            16: "Byleth",
+            17: "Alear",
+        }
+        for game_no in range(4, 10):
+            lords_and_games.pop(game_no)
+        for game, lord in lords_and_games.items():
+            with self.assertRaises(NotImplementedError):
+                get_morph(game, lord)
+
+class ReprTestCases(unittest.TestCase):
+    """
+    Shows REPR of various Morphs.
+    """
+
+    def setUp(self):
+        """
+        Adds test-id to log for demarcation
+        """
+        logger.critical("%s", self.id())
         self.lords_and_games = {
             1: "Marth",
             2: "Alm",
@@ -3994,34 +4636,19 @@ class MorphFunctionTests(unittest.TestCase):
             17: "Alear",
         }
 
-    def test_get_morph__roy(self):
-        roy = get_morph(6, "Roy")
-        actual = "Roy"
-        expected = roy.name
-        self.assertEqual(actual, expected)
-
-    def test_get_morph__error_propagated_from_morph(self):
-        with self.assertRaises(UnitNotFoundError) as err_ctx:
-            get_morph(6, "Marth")
-        #actual = err_ctx.exception.unit_type
-        #expected = UnitNotFoundError.UnitType.NORMAL
-        #self.assertEqual(actual, expected)
-
-    def test_get_morph__invalid_game(self):
-        lords_and_games = self.lords_and_games
-        for game_no in range(4, 10):
-            lords_and_games.pop(game_no)
-        for game, lord in lords_and_games.items():
-            with self.assertRaises(NotImplementedError):
-                get_morph(game, lord)
-
     def test_repr(self):
+        """
+        Shows REPR for lord of each game.
+        """
         for game_no in range(4, 10):
             lord = self.lords_and_games[game_no]
             morph = get_morph(game_no, lord)
             logger.debug("\n\n%s\n", morph)
 
     def test_repr__gba_promoted(self):
+        """
+        Shows REPR for promoted lord of each GBA game.
+        """
         for game_no in range(6, 9):
             lord = self.lords_and_games[game_no]
             morph = get_morph(game_no, lord)
@@ -4032,12 +4659,18 @@ class MorphFunctionTests(unittest.TestCase):
             logger.debug("\n\n%s\n", morph)
 
     def test_repr__lyn_mode(self):
+        """
+        Shows REPR for lyn_mode character from FE7.
+        """
         morph = get_morph(7, "Florina", lyn_mode=True)
         morph.level_up(20 - morph.current_lv)
         morph.promote()
         logger.debug("\n\n%s\n", morph)
 
     def test_repr__trainee(self):
+        """
+        Shows REPR for trainee character from FE8.
+        """
         morph = get_morph(8, "Amelia")
         morph.level_up(10 - morph.current_lv)
         morph.promo_cls = "Cavalier (F)"
@@ -4048,12 +4681,18 @@ class MorphFunctionTests(unittest.TestCase):
         logger.debug("\n\n%s\n", morph)
 
     def test_repr__gba_hard_mode(self):
+        """
+        Shows REPR for hard-mode character from FE6.
+        """
         rutger = get_morph(6, "Rutger", hard_mode=True)
         rutger.level_up(20 - rutger.current_lv)
         rutger.promote()
         logger.debug("\n\n%s\n", rutger)
 
     def test_as_string__gba_growths_item(self):
+        """
+        Shows REPR for Afa's Drops character from FE8.
+        """
         heath = get_morph(7, "Heath", hard_mode=True)
         heath.use_afas_drops()
         heath.level_up(20 - heath.current_lv)
@@ -4062,12 +4701,18 @@ class MorphFunctionTests(unittest.TestCase):
         logger.debug("\n\n%s\n", heath.as_string())
 
     def test_repr__genealogy_kid(self):
+        """
+        Shows REPR for promoted Genealogy kid.
+        """
         larcei = get_morph(4, "Lakche", father="Lex")
         larcei.level_up(20 - larcei.current_lv)
         larcei.promote()
         logger.debug("\n\n%s\n", larcei)
 
     def test_repr__thracia_unit_with_scroll(self):
+        """
+        Shows REPR for FE5 unit with scroll on.
+        """
         asvel = get_morph(5, "Asvel")
         asvel.level_up(20 - asvel.current_lv)
         asvel.equip_scroll("Blaggi")
@@ -4075,6 +4720,9 @@ class MorphFunctionTests(unittest.TestCase):
         logger.debug("\n\n%s\n", asvel)
 
     def test_repr__radiant_unit_with_band(self):
+        """
+        Shows REPR for FE9 unit with band on.
+        """
         morph = get_morph(9, "Oscar")
         morph.equip_band("Thief Band")
         morph.equip_knight_ward()
@@ -4082,25 +4730,38 @@ class MorphFunctionTests(unittest.TestCase):
         logger.debug("\n\n%s\n", morph)
 
     def test_repr__early_promo_lord(self):
+        """
+        Shows REPR for FE7 unit who promoted early.
+        """
         morph = get_morph(7, "Hector")
         #morph.level_up(20 - morph.current_lv)
         morph.promote()
         logger.debug("\n\n%s\n", morph)
 
     def test_gt__christmas_cavaliers(self):
+        """
+        Shows REPR for unit comparison of XMas Cavaliers.
+        """
         morph1 = Morph6("Allen")
         morph2 = Morph6("Lance")
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
 
     def test_gt__hm_and_nonhm(self):
+        """
+        Shows REPR for comparison of a unit across difficulties.
+        """
         morph1 = Morph6("Rutger", hard_mode=True)
         morph2 = Morph6("Marcus")
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
 
     def test_gt__genealogykid_and_adult(self):
+        """
+        Shows REPR for comparison of two units with differing attributes.
+        """
         morph1 = Morph4("Lakche", father="Lex")
         morph2 = Morph4("Sigurd")
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
+

@@ -1184,9 +1184,9 @@ class Morph6(Morph):
     @property
     def inventory_size(self):
         """
-        Specified just for the fun of it.
+        The number of growths-enhancing items one can carry.
         """
-        return 5
+        return 0
 
     def get_promotion_item(self):
         """
@@ -1409,7 +1409,7 @@ class Morph7(Morph):
 
     @property
     def inventory_size(self):
-        return 5
+        return 0
 
     @staticmethod
     def CHARACTER_LIST():
@@ -1633,7 +1633,7 @@ class Morph8(Morph):
 
     @property
     def inventory_size(self):
-        return 5
+        return 0
 
     def get_promotion_item(self):
         """
