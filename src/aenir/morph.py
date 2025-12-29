@@ -6,7 +6,7 @@ import importlib.resources
 import abc
 import sqlite3
 #import json
-from typing import Tuple
+from typing import ( Tuple, Any, List, Iterable, Mapping,)
 import copy
 from textwrap import indent
 
@@ -73,8 +73,8 @@ class BaseMorph(abc.ABC):
     def query_db(
             path_to_db: str,
             table: str,
-            fields: Tuple[str],
-            filters: dict[str, str],
+            fields: Iterable[str],
+            filters: Mapping[str, str | None] | None,
         ):
         """
         Queries `table` from db referenced by `path_to_db` for `fields` for which `filters` hold.
@@ -160,7 +160,7 @@ class Morph(BaseMorph):
     """
     Represents a Fire Emblem unit from the game associated with `game_no`.
     """
-    game_no = None
+    game_no: int | None = None
     character_list_filter = lambda name: True
 
     @classmethod
@@ -242,7 +242,7 @@ class Morph(BaseMorph):
         ).fetchone()
         max_stats = self.Stats(**stat_dict2)
         # (miscellany)
-        _meta = {"Stat Boosters": []}
+        _meta: dict[str, Any] = {"Stat Boosters": []}
         if name.replace(" (HM)", "") + " (HM)" in character_list:
             _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
@@ -255,10 +255,10 @@ class Morph(BaseMorph):
         self.current_clstype = current_clstype
         self.max_stats = max_stats
         self._meta = _meta
-        self.history = []
-        self.max_level = None
-        self.min_promo_level = None
-        self.promo_cls = None
+        self.history: List[Tuple[str, str]] = []
+        self.max_level: int | None = None
+        self.min_promo_level: int | None = None
+        self.promo_cls: str | None = None
         self.possible_promotions = None
         #self.stat_boosters = None
 
@@ -729,7 +729,7 @@ class Morph4(Morph):
             'Corpul',
         )
 
-    def __init__(self, name: str, *, father: str = None):
+    def __init__(self, name: str, *, father: str | None = None):
         """
         Implements creation of kids with variable stats, in addition to normal units.
         """
@@ -740,7 +740,7 @@ class Morph4(Morph):
             super().__init__(name, which_bases=0, which_growths=0)
             if father is not None:
                 logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
-            father = None
+            father: str | None = None
             #self._meta["Father"] = self.father
             _meta = self._meta
             game = self.game
@@ -1046,7 +1046,7 @@ class Morph5(Morph):
         # set instance attributes
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
-        self.equipped_scrolls = {}
+        self.equipped_scrolls: dict[str, self.Stats] = {}
         #self.is_mounted = None
 
     def _set_min_promo_level(self):
@@ -1096,7 +1096,7 @@ class Morph5(Morph):
             "Skill Ring": ("Skl", 3),
             "Leg Ring": ("Mov", 2),
         }
-        return super().use_stat_booster(item_name, item_bonus_dict)
+        super().use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_scroll_bonuses(self):
         """
@@ -1279,7 +1279,7 @@ class Morph6(Morph):
             #'Guinevere',
         )
 
-    def __init__(self, name: str, *, hard_mode: bool = None, number_of_declines: int = None, route: str = None):
+    def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, route: str | None = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
@@ -1332,6 +1332,7 @@ class Morph6(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
         if "Gonzales" == self._name:
+            # TODO: Raise Exception if None.
             self.current_lv = {
                 "Lalum": 5,
                 "Elphin": 11,
@@ -1485,7 +1486,7 @@ class Morph7(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def __init__(self, name: str, *, lyn_mode: bool = None, hard_mode: bool = None):
+    def __init__(self, name: str, *, lyn_mode: bool | None = None, hard_mode: bool | None = None):
         """
         Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
         Support for growths item present.
@@ -1923,7 +1924,7 @@ class Morph9(Morph):
             knight_ward_is_equipped = None
         # set instance attributes
         self.knight_ward_is_equipped = knight_ward_is_equipped 
-        self.equipped_bands = {}
+        self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
 
     def _set_min_promo_level(self):
