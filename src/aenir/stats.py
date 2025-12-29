@@ -2,7 +2,7 @@
 Declares classes that store numerical stat data for a given unit.
 """
 
-import abc
+import abc; from typing import (Iterable, Any, Mapping, List, Tuple,)
 
 from aenir._logging import logger
 
@@ -14,7 +14,7 @@ class AbstractStats(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def STAT_LIST():
+    def STAT_LIST() -> Iterable[str]:
         """
         A kernel of the class; expects a tuple of the names of all stats.
         """
@@ -22,14 +22,14 @@ class AbstractStats(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def ZERO_GROWTH_STAT_LIST():
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
         """
         A kernel of the class; expects a tuple of the names of stats that have zero growth rates.
         """
         raise NotImplementedError
 
     @classmethod
-    def get_stat_dict(cls, fill_value):
+    def get_stat_dict(cls, fill_value: Any) -> Mapping[str, Any]:
         """
         Returns `kwargs` for initialization; each key is mapped to `fill_value`.
         """
@@ -43,21 +43,21 @@ class AbstractStats(abc.ABC):
         """
         return filter(lambda stat_: stat_ not in cls.ZERO_GROWTH_STAT_LIST(), cls.STAT_LIST())
 
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """
         Returns key-val pairs of stats as dict object.
         """
         stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
         return stat_dict
 
-    def as_list(self):
+    def as_list(self) -> List[Tuple[str, Any]]:
         """
         Returns key-val pairs of stats as list of 2-tuples.
         """
         stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
         return stat_list
 
-    def copy(self):
+    def copy(self) -> AbstractStats:
         """
         Returns new instance of Stats identical to this one.
         """
@@ -100,7 +100,7 @@ class AbstractStats(abc.ABC):
         if unused_stats:
             logger.warning("These keyword arguments have gone unused: %s", unused_stats)
 
-    def __mul__(self, other):
+    def __mul__(self, other: AbstractStats) -> AbstractStats:
         """
         Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
         """
@@ -110,7 +110,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat * other
         return self.__class__(multiplier=1, **stat_dict)
 
-    def imin(self, other):
+    def imin(self, other: AbstractStats) -> None:
         """
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
@@ -121,7 +121,7 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, min(self_stat, other_stat))
 
-    def imax(self, other):
+    def imax(self, other: AbstractStats) -> None:
         """
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
@@ -132,7 +132,7 @@ class AbstractStats(abc.ABC):
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
 
-    def __iadd__(self, other):
+    def __iadd__(self, other: AbstractStats) -> AbstractStats:
         """
         Increments values of `self` by corresponding values in `other`.
         """
@@ -145,7 +145,7 @@ class AbstractStats(abc.ABC):
             setattr(self, stat, new_stat)
         return self
 
-    def __add__(self, other):
+    def __add__(self, other: AbstractStats) -> AbstractStats:
         """
         Adds two Stats objects like they're Euclidean vectors and returns the result in a new Stats object.
         Error is thrown if the Stats objects are not of the same type.
@@ -160,7 +160,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat + other_stat
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __sub__(self, other):
+    def __sub__(self, other: AbstractStats) -> AbstractStats:
         """
         Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
         Error is thrown if the Stats objects are not of the same type.
@@ -177,7 +177,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = None
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __eq__(self, other):
+    def __eq__(self, other: AbstractStats) -> AbstractStats:
         """
         Returns a Stats object stating which attributes are equal and which are unequal.
         """
@@ -200,13 +200,13 @@ class AbstractStats(abc.ABC):
         for stat in self.get_growable_stats():
             yield getattr(self, stat)
 
-    def __repr__(self, with_title=True):
+    def __repr__(self, with_title: bool = True) -> str:
         """
         Returns pretty-printed str-list of stats.
         """
         statlist = self.as_list()
         #format_str = "% 4s: %5.2s"
-        def get_formatted_statlist(statval):
+        def get_formatted_statlist(statval: Tuple[str, int]):
             """
             """
             format_str = "% 4s: %5.2f"
@@ -220,7 +220,7 @@ class AbstractStats(abc.ABC):
             statlist_as_str = "\n".join([header, header_border, statlist_as_str])
         return statlist_as_str
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns pretty-printed str-list of stats.
         """
@@ -232,7 +232,7 @@ class GenealogyStats(AbstractStats):
     """
 
     @staticmethod
-    def STAT_LIST():
+    def STAT_LIST() -> Iterable[str]:
         # constant
         return (
             "HP",
@@ -246,7 +246,7 @@ class GenealogyStats(AbstractStats):
         )
 
     @staticmethod
-    def ZERO_GROWTH_STAT_LIST():
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
         return ()
 
 class ThraciaStats(AbstractStats):
@@ -255,7 +255,7 @@ class ThraciaStats(AbstractStats):
     """
 
     @staticmethod
-    def STAT_LIST():
+    def STAT_LIST() -> Iterable[str]:
         # constant
         return (
             "HP",
@@ -273,7 +273,7 @@ class ThraciaStats(AbstractStats):
         )
 
     @staticmethod
-    def ZERO_GROWTH_STAT_LIST():
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
         return (
             "Lead",
             "MS",
@@ -287,7 +287,7 @@ class GBAStats(AbstractStats):
     """
 
     @staticmethod
-    def STAT_LIST():
+    def STAT_LIST() -> Iterable[str]:
         # constant
         return (
             "HP",
@@ -302,7 +302,7 @@ class GBAStats(AbstractStats):
         )
 
     @staticmethod
-    def ZERO_GROWTH_STAT_LIST():
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
         return (
             "Con",
             "Mov",
@@ -315,7 +315,7 @@ class RadiantStats(AbstractStats):
     """
 
     @staticmethod
-    def STAT_LIST():
+    def STAT_LIST() -> Iterable[str]:
         # constant
         return (
             "HP",
@@ -332,7 +332,7 @@ class RadiantStats(AbstractStats):
         )
 
     @staticmethod
-    def ZERO_GROWTH_STAT_LIST():
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
         # constant
         return (
             "Mov",

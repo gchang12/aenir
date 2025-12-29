@@ -38,7 +38,7 @@ class BaseMorph(abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def GAME(cls):
+    def GAME(cls) -> FireEmblemGame:
         """
         Returns an object that uniquely identifies a Fire Emblem game.
         """
@@ -46,7 +46,7 @@ class BaseMorph(abc.ABC):
         raise NotImplementedError("Not implemented by design; implement in any subclass")
 
     @classmethod
-    def STATS(cls):
+    def STATS(cls) -> Iterable[str]:
         """
         Returns a Stats class appropriate to `GAME`.
         """
@@ -60,7 +60,7 @@ class BaseMorph(abc.ABC):
         }[cls.GAME().value]
 
     @classmethod
-    def path_to(cls, file: str):
+    def path_to(cls, file: str) -> str:
         """
         Returns a path to the folder containing static files for `GAME`.
         """
@@ -164,21 +164,21 @@ class Morph(BaseMorph):
     character_list_filter = lambda name: True
 
     @classmethod
-    def get_true_character_list(cls):
+    def get_true_character_list(cls) -> Iterable[str]:
         """
         Returns list of unique characters.
         """
         return filter(cls.character_list_filter, cls.CHARACTER_LIST())
 
     @classmethod
-    def GAME(cls):
+    def GAME(cls) -> FireEmblemGame:
         """
         Returns aenir.games.FireEmblemGame instance corresponding to `game_no`.
         """
         return FireEmblemGame(cls.game_no)
 
     @classmethod
-    def CHARACTER_LIST(cls):
+    def CHARACTER_LIST(cls) -> Tuple[str]:
         """
         Returns list of characters from `GAME` as specified by characters__base_stats table.
         """
@@ -263,20 +263,20 @@ class Morph(BaseMorph):
         #self.stat_boosters = None
 
     @property
-    def game(self):
+    def game(self) -> FireEmblemGame:
         """
         The FireEmblemGame enum that denotes the game to which the unit belongs.
         """
         return self._game
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         The name of the unit.
         """
         return self._name
 
-    def _set_max_level(self):
+    def _set_max_level(self) -> None:
         """
         Sets the maximum level for a unit; for most FE units, this is 20.
         """
@@ -285,7 +285,7 @@ class Morph(BaseMorph):
         # FE8: unpromoted trainees are capped at 10
         self.max_level = 20
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Sets the minimum level for a unit; for most, this is 10.
         """
@@ -299,7 +299,7 @@ class Morph(BaseMorph):
         # FE9: Ike, Volke
         self.min_promo_level = 10
 
-    def level_up(self, num_levels: int):
+    def level_up(self, num_levels: int) -> None:
         """
         Increases stats and level; throws an error if unit's max level is exceeded.
         """
@@ -319,7 +319,7 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def _get_promo_query_kwargs(self):
+    def _get_promo_query_kwargs(self) -> Mapping[str, Any]:
         """
         Gets data to use to query for promotion, including list of classes to promote to.
         """
@@ -334,7 +334,7 @@ class Morph(BaseMorph):
         )
         return query_kwargs
 
-    def get_promotion_list(self):
+    def get_promotion_list(self) -> Unknown:
         """
         Gets a list of classes a unit can promote to.
         """
@@ -345,7 +345,7 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         return [result["Promotion"] for result in resultset]
 
-    def promote(self):
+    def promote(self) -> None:
         """
         Changes unit class and boosts stats among other parameters, given the right conditions are met.
         """
@@ -416,7 +416,7 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def use_stat_booster(self, item_name: str, item_bonus_dict: dict):
+    def use_stat_booster(self, item_name: str, item_bonus_dict: dict) -> None:
         """
         Boosts stats in accordance with item specified; appends record to `_meta`.
         """
@@ -452,7 +452,7 @@ class Morph(BaseMorph):
         """
         return copy.deepcopy(self)
 
-    def _tare(self):
+    def _tare(self) -> None:
         """
         Zeroes out the attributes common to all Morph subclasses.
         """
@@ -490,7 +490,7 @@ class Morph(BaseMorph):
         """
         return self.current_stats.__iter__()
 
-    def as_string(self, *, header_data=None, miscellany=None, show_stat_boosters=True):
+    def as_string(self, *, header_data: List[str] | None = None, miscellany: None | Iterable = None, show_stat_boosters: bool = True):
         """
         Returns pertinent data about Morph as string.
         """
@@ -555,13 +555,13 @@ class Morph(BaseMorph):
         data_as_str.append("")
         return indent("\n".join(data_as_str), " " * 4)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Returns pertinent data about Morph as string.
         """
         return self.__str__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Returns pertinent data about Morph as string. Effectively a decorator for `as_string`.
         """
@@ -569,7 +569,7 @@ class Morph(BaseMorph):
             return "\n" + indent(self.current_stats.__repr__(with_title=True), " " * 4) + "\n"
         return self.as_string()
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -597,7 +597,7 @@ class Morph(BaseMorph):
         return promotion_item
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         """
         Declares inventory size; essential to implementing equipping of growths items in FE5 and FE9.
         """
@@ -610,13 +610,13 @@ class Morph4(Morph):
     game_no = 4
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         """
         """
         return 7
 
     @staticmethod
-    def FATHER_LIST():
+    def FATHER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE4 fathers.
         """
@@ -637,7 +637,7 @@ class Morph4(Morph):
         )
 
     @staticmethod
-    def CHILD_LIST():
+    def CHILD_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE4 children whose fathers can vary.
         """
@@ -853,27 +853,27 @@ class Morph4(Morph):
         #self._meta.pop("Stat Boosters")
 
     @property
-    def game(self):
+    def game(self) -> FireEmblemGame:
         """
         The FireEmblemGame enum that denotes the game to which the unit belongs.
         """
         return self._game
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         The name of the unit.
         """
         return self._name
 
     @property
-    def father(self):
+    def father(self) -> str:
         """
         The name of the unit's father, if any.
         """
         return self._father
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         By design, this should never be called.
         # lifetime of non-promo:
@@ -885,7 +885,7 @@ class Morph4(Morph):
         """
         raise NotImplementedError("This wasn't supposed to be called.")
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -895,7 +895,7 @@ class Morph4(Morph):
             promotion_item = "*Promote at Base*"
         return promotion_item
 
-    def _set_max_level(self):
+    def _set_max_level(self) -> None:
         """
         By design, this should never be called.
         # lifetime of non-promo:
@@ -907,7 +907,7 @@ class Morph4(Morph):
         """
         raise NotImplementedError("This wasn't supposed to be called.")
 
-    def promote(self):
+    def promote(self) -> None:
         """
         Promotes unit and resets max level and current level to original.
         """
@@ -917,7 +917,7 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends 'Sire' field to str-version of Morph as needed.
         """
@@ -935,11 +935,11 @@ class Morph5(Morph):
     game_no = 5
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         # https://fireemblemwiki.org/wiki/Inventory#Inventory_size_by_game
         return 7
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -962,7 +962,7 @@ class Morph5(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE5 characters.
         """
@@ -1049,7 +1049,7 @@ class Morph5(Morph):
         self.equipped_scrolls: dict[str, self.Stats] = {}
         #self.is_mounted = None
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Sets min-promo level in accordance with name and next promo class;
         essential for Leif, Linoan, and Lara.
@@ -1062,7 +1062,7 @@ class Morph5(Morph):
             min_promo_level = 1
         self.min_promo_level = min_promo_level
 
-    def promote(self):
+    def promote(self) -> None:
         """
         Provides logic for promotion of Lara and other thieves in addition to usual units.
         """
@@ -1081,7 +1081,7 @@ class Morph5(Morph):
         self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Simulates usage of stat-booster.
         """
@@ -1098,7 +1098,7 @@ class Morph5(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def _apply_scroll_bonuses(self):
+    def _apply_scroll_bonuses(self) -> None:
         """
         Updates `growth_rates` in accordance with currently equipped scrolls.
         """
@@ -1107,7 +1107,7 @@ class Morph5(Morph):
             self.growth_rates += bonus
         self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
 
-    def unequip_scroll(self, scroll_name: str):
+    def unequip_scroll(self, scroll_name: str) -> None:
         """
         Removes `scroll_name` from list of equipped scrolls and updates
         `growth_rates` accordingly. Throws error if scroll isn't equipped.
@@ -1163,7 +1163,7 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends `Scrolls` field to str-representation as necessary.
         """
@@ -1182,13 +1182,13 @@ class Morph6(Morph):
     character_list_filter = lambda name: " (HM)" not in name
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         """
         The number of growths-enhancing items one can carry.
         """
         return 0
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -1199,7 +1199,7 @@ class Morph6(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE6 characters.
         """
@@ -1357,7 +1357,7 @@ class Morph6(Morph):
         self._meta["Hard Mode"] = hard_mode
         self._meta["Number of Declines"] = number_of_declines
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Declares that Roy can promote at any level.
         """
@@ -1367,7 +1367,7 @@ class Morph6(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Simulates usage of stat-booster.
         """
@@ -1384,7 +1384,7 @@ class Morph6(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends extra attributes to str-representation of Morph.
         """
@@ -1409,11 +1409,11 @@ class Morph7(Morph):
     character_list_filter = lambda name: " (HM)" not in name
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         return 0
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE7 characters.
         """
@@ -1470,7 +1470,7 @@ class Morph7(Morph):
             'Athos',
         )
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Sets minimum promo-level of main lords to 1; sets minimum promo-level of other units to usual.
         """
@@ -1563,7 +1563,7 @@ class Morph7(Morph):
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
 
-    def use_afas_drops(self):
+    def use_afas_drops(self) -> None:
         """
         Increases `growth_rates` by 5; throws error if this was already invokedd.
         """
@@ -1577,7 +1577,7 @@ class Morph7(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Simulates usage of stat-booster.
         """
@@ -1594,7 +1594,7 @@ class Morph7(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends LM and HM fields to str-representation, plus Afa's Drops field.
         """
@@ -1633,10 +1633,10 @@ class Morph8(Morph):
     game_no = 8
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         return 0
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -1646,7 +1646,7 @@ class Morph8(Morph):
             promotion_item = super().get_promotion_item()
         return promotion_item
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Declares that lords can promote whenever.
         """
@@ -1657,7 +1657,7 @@ class Morph8(Morph):
         self.min_promo_level = min_promo_level
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE8 characters.
         """
@@ -1717,7 +1717,7 @@ class Morph8(Morph):
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
 
-    def _set_max_level(self):
+    def _set_max_level(self) -> None:
         """
         Declares that max level for trainees at starting class is 10; 20 o.w.
         """
@@ -1729,14 +1729,14 @@ class Morph8(Morph):
         else:
             self.max_level = 20
 
-    def promote(self):
+    def promote(self) -> None:
         """
         Promotes, then sets max_level to None so that it may be recalculated.
         """
         super().promote()
         self.max_level = None
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Simulates usage of stat-booster.
         """
@@ -1753,7 +1753,7 @@ class Morph8(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def use_metiss_tome(self):
+    def use_metiss_tome(self) -> None:
         """
         Increases growths by 5
         """
@@ -1767,7 +1767,7 @@ class Morph8(Morph):
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends growths item field to str-representation of Morph.
         """
@@ -1787,10 +1787,10 @@ class Morph9(Morph):
     game_no = 9
 
     @property
-    def inventory_size(self):
+    def inventory_size(self) -> int:
         return 8
 
-    def get_promotion_item(self):
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -1806,7 +1806,7 @@ class Morph9(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Tuple[str]:
         """
         Declares the list of all valid FE8 characters.
         """
@@ -1927,7 +1927,7 @@ class Morph9(Morph):
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
 
-    def _set_min_promo_level(self):
+    def _set_min_promo_level(self) -> None:
         """
         Sets the minimum level for a unit; for most, this is 10.
         """
@@ -1937,7 +1937,7 @@ class Morph9(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def use_stat_booster(self, item_name: str):
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Simulates usage of stat-booster.
         """
@@ -1955,7 +1955,7 @@ class Morph9(Morph):
         }
         super().use_stat_booster(item_name, item_bonus_dict)
 
-    def _apply_band_bonuses(self):
+    def _apply_band_bonuses(self) -> None:
         """
         Updates growth rates in accordance with currently equipped bands.
         """
@@ -1963,7 +1963,7 @@ class Morph9(Morph):
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
 
-    def equip_band(self, band_name: str):
+    def equip_band(self, band_name: str) -> None:
         """
         Simulates equipping of growth band specified by `band_name`.
         Throws error if band is already equipped or DNE.
@@ -2004,7 +2004,7 @@ class Morph9(Morph):
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
 
-    def unequip_band(self, band_name: str):
+    def unequip_band(self, band_name: str) -> None:
         """
         Simulates removal of band; throws error if band isn't equipped.
         """
@@ -2018,7 +2018,7 @@ class Morph9(Morph):
                 absent_band=band_name,
             )
 
-    def equip_knight_ward(self):
+    def equip_knight_ward(self) -> None:
         """
         Simulates equipping of Knight Ward.
         Throws error if it is already equipped or unit is not a knight.
@@ -2058,7 +2058,7 @@ class Morph9(Morph):
         # set the thing
         self.knight_ward_is_equipped = True
 
-    def unequip_knight_ward(self):
+    def unequip_knight_ward(self) -> None:
         """
         Simulates removal of Knight Ward; throws error if band isn't equipped or if unit is not a knight.
         """
@@ -2077,7 +2077,7 @@ class Morph9(Morph):
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
 
-    def as_string(self):
+    def as_string(self) -> str:
         """
         Appends equipped bands to str-representation of Morph.
         """

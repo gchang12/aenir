@@ -8,7 +8,7 @@ import logging.config
 logger = logging.getLogger("aenir")
 time_logger = logging.getLogger("timer")
 
-def configure_logging():
+def configure_logging() -> None:
     """
     Instructs interpreter to log in accordance with configuration below.
     """

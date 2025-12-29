@@ -4,13 +4,19 @@ Declares exceptions pertaining to virtual unit manipulation.
 
 import abc
 import enum
+from typing import (
+    Unknown,
+    Mapping,
+    Any,
+    Iterable,
+)
 
 class UnitNotFoundError(BaseException):
     """
     To be raised if the unit name has not been recognized.
     """
 
-    def __init__(self, msg):
+    def __init__(self, msg: str):
         """
         Declares `unit_type` in addition to usual initialization.
         """
@@ -32,7 +38,7 @@ class InitError(BaseException):
         FATHER = enum.auto()
         HARD_MODE_AND_ROUTE = enum.auto()
 
-    def __init__(self, msg, *, missing_value, init_params, init_params2 = None):
+    def __init__(self, msg: str, *, missing_value: Unknown, init_params: Mapping[str, Any], init_params2: Mapping[str, Any] = None):
         """
         Declares `missing_value` in addition to usual initialization.
         """
@@ -46,7 +52,7 @@ class LevelUpError(BaseException):
     To be raised if an error occurred while levelling up a unit (e.g. level too high).
     """
 
-    def __init__(self, msg, *, max_level):
+    def __init__(self, msg: str, *, max_level: int):
         super().__init__(msg)
         self.max_level = max_level
 
@@ -63,7 +69,7 @@ class PromotionError(BaseException):
         LEVEL_TOO_LOW = enum.auto()
         INVALID_PROMOTION = enum.auto()
 
-    def __init__(self, msg, *, reason, promotion_list=None, min_promo_level=None):
+    def __init__(self, msg: str, *, reason: Reason, promotion_list: Any | None = None, min_promo_level: int | None = None):
         """
         Declares `reason` in addition to usual initialization.
         """
@@ -77,7 +83,7 @@ class _ItemException(BaseException, abc.ABC):
     To be subclassed; should never be instantiated directly.
     """
 
-    def __init__(self, msg, reason):
+    def __init__(self, msg: str, reason: Any):
         """
         Declares `reason` in addition to usual initialization.
         """
@@ -97,7 +103,7 @@ class StatBoosterError(_ItemException):
         NOT_FOUND = enum.auto()
         STAT_IS_MAXED = enum.auto()
 
-    def __init__(self, msg, reason, *, max_stat=None, valid_stat_boosters=None):
+    def __init__(self, msg: str, reason: Reason, *, max_stat: str | None = None, valid_stat_boosters: Iterable[str] | None = None):
         """
         """
         super().__init__(msg, reason)
@@ -118,7 +124,7 @@ class ScrollError(_ItemException):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg, reason, *, valid_scrolls=None, equipped_scroll=None, absent_scroll=None):
+    def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Iterable[str] | None = None, equipped_scroll: str | None = None, absent_scroll: str | None = None):
         """
         """
         super().__init__(msg, reason)
@@ -137,7 +143,7 @@ class GrowthsItemError(_ItemException):
         """
         ALREADY_CONSUMED = enum.auto()
 
-    def __init__(self, msg, reason):
+    def __init__(self, msg: str, reason: str):
         """
         """
         super().__init__(msg, reason)
@@ -156,7 +162,7 @@ class BandError(_ItemException):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg, reason, *, valid_bands=None, equipped_band=None, absent_band=None):
+    def __init__(self, msg: str, reason: str, *, valid_bands: Iterable[str] | None = None, equipped_band: str | None = None, absent_band: str | None = None):
         """
         """
         super().__init__(msg, reason)

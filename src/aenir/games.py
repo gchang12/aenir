@@ -16,7 +16,7 @@ class FireEmblemGame(enum.IntEnum):
     PATH_OF_RADIANCE = enum.auto()
 
     @property
-    def url_name(self):
+    def url_name(self) -> str:
         """
         For internal use; referenced for data access.
         """
@@ -30,7 +30,7 @@ class FireEmblemGame(enum.IntEnum):
         }[self.value]
 
     @property
-    def formal_name(self):
+    def formal_name(self) -> str:
         """
         The formal spelling of the title of the game.
         """
@@ -43,7 +43,7 @@ class FireEmblemGame(enum.IntEnum):
             9: "Path of Radiance",
         }[self.value]
 
-    def is_gba_game(self):
+    def is_gba_game(self) -> bool:
         """
         Returns True if a game was released for the GBA.
         """
