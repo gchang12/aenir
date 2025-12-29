@@ -744,12 +744,13 @@ class Morph4(Morph):
         """
         # test if name refers to a child with father-dependent stats
         kid_list = self.CHILD_LIST()
+        father_: str | None
         if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
             if father is not None:
                 logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
-            father_: str | None = None
+            father_ = None
             #self._meta["Father"] = self.father
             _meta = self._meta
             game = self.game
@@ -769,7 +770,7 @@ class Morph4(Morph):
                     init_params={"father": father_list},
                 )
             # begin initialization here
-            father_: str | None = father
+            father_ = father
             Stats = self.STATS()
             game = self.GAME()
             # begin query
