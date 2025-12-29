@@ -6,7 +6,14 @@ import importlib.resources
 import abc
 import sqlite3
 #import json
-from typing import ( Tuple, Any, List, Iterable, Mapping,)
+from typing import (
+    Tuple,
+    Any,
+    List,
+    Iterable,
+    Iterator,
+    Mapping,
+)
 import copy
 from textwrap import indent
 
@@ -15,7 +22,7 @@ from aenir.stats import (
     GenealogyStats,
     GBAStats,
     ThraciaStats,
-    #AbstractStats,
+    AbstractStats,
     RadiantStats,
 )
 from aenir._exceptions import (
@@ -46,7 +53,7 @@ class BaseMorph(abc.ABC):
         raise NotImplementedError("Not implemented by design; implement in any subclass")
 
     @classmethod
-    def STATS(cls) -> Iterable[str]:
+    def STATS(cls) -> type[AbstractStats]:
         """
         Returns a Stats class appropriate to `GAME`.
         """
@@ -160,7 +167,7 @@ class Morph(BaseMorph):
     """
     Represents a Fire Emblem unit from the game associated with `game_no`.
     """
-    game_no: int | None = None
+    game_no: int = 0
     character_list_filter = lambda name: True
 
     @classmethod
@@ -178,7 +185,7 @@ class Morph(BaseMorph):
         return FireEmblemGame(cls.game_no)
 
     @classmethod
-    def CHARACTER_LIST(cls) -> Tuple[str]:
+    def CHARACTER_LIST(cls) -> Iterable[str]:
         """
         Returns list of characters from `GAME` as specified by characters__base_stats table.
         """
@@ -247,7 +254,7 @@ class Morph(BaseMorph):
             _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
         self._game = game
-        self._name = name
+        self._name: str | None = name
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -259,7 +266,7 @@ class Morph(BaseMorph):
         self.max_level: int | None = None
         self.min_promo_level: int | None = None
         self.promo_cls: str | None = None
-        self.possible_promotions = None
+        self.possible_promotions: Tuple[str] | None = None
         #self.stat_boosters = None
 
     @property
@@ -270,7 +277,7 @@ class Morph(BaseMorph):
         return self._game
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         """
         The name of the unit.
         """
@@ -334,7 +341,7 @@ class Morph(BaseMorph):
         )
         return query_kwargs
 
-    def get_promotion_list(self) -> Unknown:
+    def get_promotion_list(self) -> List[str]:
         """
         Gets a list of classes a unit can promote to.
         """
@@ -416,7 +423,7 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def use_stat_booster(self, item_name: str, item_bonus_dict: dict) -> None:
+    def _use_stat_booster(self, item_name: str, item_bonus_dict: dict) -> None:
         """
         Boosts stats in accordance with item specified; appends record to `_meta`.
         """
@@ -484,13 +491,13 @@ class Morph(BaseMorph):
         kishuna.current_stats = diff
         return kishuna
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[str]:
         """
         Iterates over dynamic stats in self.Stats.
         """
         return self.current_stats.__iter__()
 
-    def as_string(self, *, header_data: List[str] | None = None, miscellany: None | Iterable = None, show_stat_boosters: bool = True):
+    def _as_string(self, *, header_data: List[Tuple[str, str]] | None = None, miscellany: None | Iterable = None, show_stat_boosters: bool = True) -> str:
         """
         Returns pertinent data about Morph as string.
         """
@@ -545,7 +552,7 @@ class Morph(BaseMorph):
         if miscellany or show_stat_boosters:
             if show_stat_boosters and self._meta["Stat Boosters"]:
                 statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                #if statboost_history:
+                # TODO: This can apparently be None
                 miscellany.append(
                     ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
                 )
@@ -567,7 +574,7 @@ class Morph(BaseMorph):
         """
         if self.name is None:
             return "\n" + indent(self.current_stats.__repr__(with_title=True), " " * 4) + "\n"
-        return self.as_string()
+        return self._as_string()
 
     def get_promotion_item(self) -> str | None:
         """
@@ -616,7 +623,7 @@ class Morph4(Morph):
         return 7
 
     @staticmethod
-    def FATHER_LIST() -> Tuple[str]:
+    def FATHER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE4 fathers.
         """
@@ -637,7 +644,7 @@ class Morph4(Morph):
         )
 
     @staticmethod
-    def CHILD_LIST() -> Tuple[str]:
+    def CHILD_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE4 children whose fathers can vary.
         """
@@ -740,7 +747,7 @@ class Morph4(Morph):
             super().__init__(name, which_bases=0, which_growths=0)
             if father is not None:
                 logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
-            father: str | None = None
+            father_: str | None = None
             #self._meta["Father"] = self.father
             _meta = self._meta
             game = self.game
@@ -760,13 +767,14 @@ class Morph4(Morph):
                     init_params={"father": father_list},
                 )
             # begin initialization here
+            father_: str | None = father
             Stats = self.STATS()
             game = self.GAME()
             # begin query
             path_to_db = self.path_to("cleaned_stats.db")
             table = "characters__base_stats1"
             fields = Stats.STAT_LIST() + ("Class", "Lv", "Name", "Father")
-            filters = {"Name": name, "Father": father}
+            filters = {"Name": name, "Father": father_}
             logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
                 path_to_db,
                 table,
@@ -793,7 +801,7 @@ class Morph4(Morph):
                     path_to_db,
                     table="characters__growth_rates1",
                     fields=Stats.STAT_LIST(),
-                    filters={"Name": name, "Father": father},
+                    filters={"Name": name, "Father": father_},
                 ).fetchone()
             )
             growth_rates = Stats(multiplier=1, **stat_dict2)
@@ -839,7 +847,7 @@ class Morph4(Morph):
         self.min_promo_level = 20
         self.max_level = max_level
         self._meta = _meta
-        self._father = father
+        self._father = father_
         self._game = game
         self._name = name
         self.current_cls = current_cls
@@ -867,7 +875,7 @@ class Morph4(Morph):
         return self._name
 
     @property
-    def father(self) -> str:
+    def father(self) -> str | None:
         """
         The name of the unit's father, if any.
         """
@@ -926,7 +934,7 @@ class Morph4(Morph):
             header_data.append(
                 ("Sire", self.father),
             )
-        return super().as_string(header_data=header_data, show_stat_boosters=False)
+        return super()._as_string(header_data=header_data, show_stat_boosters=False)
 
 class Morph5(Morph):
     """
@@ -962,7 +970,7 @@ class Morph5(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST() -> Tuple[str]:
+    def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE5 characters.
         """
@@ -1096,7 +1104,7 @@ class Morph5(Morph):
             "Skill Ring": ("Skl", 3),
             "Leg Ring": ("Mov", 2),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_scroll_bonuses(self) -> None:
         """
@@ -1172,7 +1180,7 @@ class Morph5(Morph):
             miscellany.append(
                 ("Scrolls", ", ".join(self.equipped_scrolls)),
             )
-        return super().as_string(miscellany=miscellany)
+        return super()._as_string(miscellany=miscellany)
 
 class Morph6(Morph):
     """
@@ -1188,7 +1196,7 @@ class Morph6(Morph):
         """
         return 0
 
-    def get_promotion_item(self) -> str:
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -1199,7 +1207,7 @@ class Morph6(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST() -> Tuple[str]:
+    def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE6 characters.
         """
@@ -1382,7 +1390,7 @@ class Morph6(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def as_string(self) -> str:
         """
@@ -1399,7 +1407,7 @@ class Morph6(Morph):
             header_data.append(
                 ("HM", _meta["Hard Mode"]),
             )
-        return super().as_string(header_data=header_data, miscellany=miscellany)
+        return super()._as_string(header_data=header_data, miscellany=miscellany)
 
 class Morph7(Morph):
     """
@@ -1413,7 +1421,7 @@ class Morph7(Morph):
         return 0
 
     @staticmethod
-    def CHARACTER_LIST() -> Tuple[str]:
+    def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE7 characters.
         """
@@ -1592,7 +1600,7 @@ class Morph7(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def as_string(self) -> str:
         """
@@ -1623,7 +1631,7 @@ class Morph7(Morph):
             miscellany.append(
                 (_growths_item, "Lv%02d-%s" % _meta[_growths_item]),
             )
-        return super().as_string(header_data=header_data, miscellany=miscellany)
+        return super()._as_string(header_data=header_data, miscellany=miscellany)
 
 
 class Morph8(Morph):
@@ -1636,7 +1644,7 @@ class Morph8(Morph):
     def inventory_size(self) -> int:
         return 0
 
-    def get_promotion_item(self) -> str:
+    def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
         """
@@ -1657,7 +1665,7 @@ class Morph8(Morph):
         self.min_promo_level = min_promo_level
 
     @staticmethod
-    def CHARACTER_LIST() -> Tuple[str]:
+    def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE8 characters.
         """
@@ -1751,7 +1759,7 @@ class Morph8(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def use_metiss_tome(self) -> None:
         """
@@ -1778,7 +1786,7 @@ class Morph8(Morph):
             miscellany.append(
                 (_growths_item, _meta[_growths_item]),
             )
-        return super().as_string(miscellany=miscellany)
+        return super()._as_string(miscellany=miscellany)
 
 class Morph9(Morph):
     """
@@ -1794,6 +1802,7 @@ class Morph9(Morph):
         """
         Returns name of item used to promote, if applicable.
         """
+        promotion_item: str | None
         if self.current_clstype == "characters__base_stats":
             if self.name == "Ike":
                 promotion_item = "*Chapter 18 - Start*"
@@ -1806,7 +1815,7 @@ class Morph9(Morph):
         return promotion_item
 
     @staticmethod
-    def CHARACTER_LIST() -> Tuple[str]:
+    def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE8 characters.
         """
@@ -1953,7 +1962,7 @@ class Morph9(Morph):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        super().use_stat_booster(item_name, item_bonus_dict)
+        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_band_bonuses(self) -> None:
         """
@@ -2087,7 +2096,7 @@ class Morph9(Morph):
             miscellany.append(
                 ("Bands", ", ".join(self.equipped_bands)),
             )
-        return super().as_string(miscellany=miscellany)
+        return super()._as_string(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs):
     """

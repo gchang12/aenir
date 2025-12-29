@@ -542,9 +542,9 @@ class Morph6Class2(unittest.TestCase):
         Prints str-representation to log-report.
         """
         morph = self.kishuna
-        morph.use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
+        morph._use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
         miscellany = [("Hard Mode", "True")]
-        actual = morph.as_string(miscellany=miscellany, show_stat_boosters=True)
+        actual = morph._as_string(miscellany=miscellany, show_stat_boosters=True)
         logger.debug("as_string -> %s", actual)
 
     def test_iter(self):
@@ -1095,7 +1095,7 @@ class FE6Roy(unittest.TestCase):
             expected[stat] += bonus * 100
         roy.stat_boosters = item_bonus_dict
         for item in item_bonus_dict:
-            roy.use_stat_booster(item, item_bonus_dict)
+            roy._use_stat_booster(item, item_bonus_dict)
         actual = roy.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -1118,7 +1118,7 @@ class FE6Roy(unittest.TestCase):
         item = ""
         roy.stat_boosters = item_bonus_dict
         with self.assertRaises(StatBoosterError) as err_ctx:
-            roy.use_stat_booster(item, item_bonus_dict)
+            roy._use_stat_booster(item, item_bonus_dict)
         err = err_ctx.exception
         actual = err.reason
         expected = StatBoosterError.Reason.NOT_FOUND
@@ -1525,7 +1525,7 @@ class FE4PromotedUnit(Morph4TestCase):
         """
         sigurd = self.morph
         with self.assertRaises(StatBoosterError) as err_ctx:
-            sigurd.use_stat_booster(None, None)
+            sigurd._use_stat_booster(None, None)
         actual = err_ctx.exception.reason
         expected = StatBoosterError.Reason.NO_IMPLEMENTATION
         self.assertEqual(actual, expected)
@@ -2645,8 +2645,10 @@ class FE6Hugh(Morph6TestCase):
 
     def setUp(self):
         """
+        Initialize Morph instance for FE6!Hugh.
         """
-        #logger.critical("%s", self.id())
+        self.morph = self._create_control_hugh()
+        super().setUp()
 
     @staticmethod
     def _create_control_hugh():
@@ -2668,13 +2670,6 @@ class FE6Hugh(Morph6TestCase):
         }
         control_morph.current_stats = control_morph.Stats(**stat_dict)
         return control_morph
-
-    def setUp(self):
-        """
-        Initialize Morph instance for FE6!Hugh.
-        """
-        self.morph = self._create_control_hugh()
-        super().setUp()
 
     def test_as_string(self):
         """
@@ -4776,6 +4771,7 @@ class GtTestCases(unittest.TestCase):
         actual = (morph1 > morph2).__str__()
         logger.debug("\n\n%s\n", actual)
 
+'''
 Morph4Tests = unittest.TestSuite(
     [
         FE4Ayra,
@@ -4858,3 +4854,4 @@ Morph9Tests = unittest.TestSuite(
         FE9BandEquipper,
     ]
 )
+'''

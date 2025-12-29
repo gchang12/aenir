@@ -2,7 +2,15 @@
 Declares classes that store numerical stat data for a given unit.
 """
 
-import abc; from typing import (Iterable, Any, Mapping, List, Tuple,)
+import abc
+from typing import (
+    Iterable,
+    Any,
+    Mapping,
+    List,
+    Tuple,
+    Self,
+)
 
 from aenir._logging import logger
 
@@ -57,7 +65,7 @@ class AbstractStats(abc.ABC):
         stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
         return stat_list
 
-    def copy(self) -> AbstractStats:
+    def copy(self) -> Self:
         """
         Returns new instance of Stats identical to this one.
         """
@@ -100,7 +108,7 @@ class AbstractStats(abc.ABC):
         if unused_stats:
             logger.warning("These keyword arguments have gone unused: %s", unused_stats)
 
-    def __mul__(self, other: AbstractStats) -> AbstractStats:
+    def __mul__(self, other: Self) -> Self:
         """
         Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
         """
@@ -110,34 +118,34 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat * other
         return self.__class__(multiplier=1, **stat_dict)
 
-    def imin(self, other: AbstractStats) -> None:
+    def imin(self: Self, other: Self) -> None:
         """
         Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             setattr(self, stat, min(self_stat, other_stat))
 
-    def imax(self, other: AbstractStats) -> None:
+    def imax(self, other: Self) -> None:
         """
         Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
             setattr(self, stat, max(self_stat, other_stat))
 
-    def __iadd__(self, other: AbstractStats) -> AbstractStats:
+    def __iadd__(self, other: Self) -> Self:
         """
         Increments values of `self` by corresponding values in `other`.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
         for stat in self.STAT_LIST():
             self_stat = getattr(self, stat)
             other_stat = getattr(other, stat)
@@ -145,13 +153,13 @@ class AbstractStats(abc.ABC):
             setattr(self, stat, new_stat)
         return self
 
-    def __add__(self, other: AbstractStats) -> AbstractStats:
+    def __add__(self, other: Self) -> Self:
         """
         Adds two Stats objects like they're Euclidean vectors and returns the result in a new Stats object.
         Error is thrown if the Stats objects are not of the same type.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
         stat_dict = {}
         for stat in self.STAT_LIST():
             #for stat in self.STAT_LIST():
@@ -160,13 +168,13 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat + other_stat
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __sub__(self, other: AbstractStats) -> AbstractStats:
+    def __sub__(self, other: Self) -> Self:
         """
         Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
         Error is thrown if the Stats objects are not of the same type.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
         stat_dict = {}
         for stat in self.get_growable_stats():
             #for stat in self.STAT_LIST():
@@ -177,12 +185,12 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = None
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __eq__(self, other: AbstractStats) -> AbstractStats:
+    def __eq__(self: Self, other: Self) -> Self:
         """
         Returns a Stats object stating which attributes are equal and which are unequal.
         """
         if not type(self) == type(other):
-            raise TypeError("Stats must be of the same type: %r != %r", (type(self) % type(other)))
+            raise TypeError("Stats must be of the same type: %r != %r" % (type(self), type(other)))
         #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
         stat_dict = {}
         for stat in self.STAT_LIST():

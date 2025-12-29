@@ -5,10 +5,11 @@ Declares exceptions pertaining to virtual unit manipulation.
 import abc
 import enum
 from typing import (
-    Unknown,
+    #Unknown,
     Mapping,
     Any,
     Iterable,
+    Tuple,
 )
 
 class UnitNotFoundError(BaseException):
@@ -38,7 +39,7 @@ class InitError(BaseException):
         FATHER = enum.auto()
         HARD_MODE_AND_ROUTE = enum.auto()
 
-    def __init__(self, msg: str, *, missing_value: Unknown, init_params: Mapping[str, Any], init_params2: Mapping[str, Any] = None):
+    def __init__(self, msg: str, *, missing_value: Any, init_params: Mapping[str, Any], init_params2: Mapping[str, Any] | None = None):
         """
         Declares `missing_value` in addition to usual initialization.
         """
@@ -52,7 +53,7 @@ class LevelUpError(BaseException):
     To be raised if an error occurred while levelling up a unit (e.g. level too high).
     """
 
-    def __init__(self, msg: str, *, max_level: int):
+    def __init__(self, msg: str, *, max_level: int | None):
         super().__init__(msg)
         self.max_level = max_level
 
@@ -103,7 +104,7 @@ class StatBoosterError(_ItemException):
         NOT_FOUND = enum.auto()
         STAT_IS_MAXED = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, max_stat: str | None = None, valid_stat_boosters: Iterable[str] | None = None):
+    def __init__(self, msg: str, reason: Reason, *, max_stat: Tuple[str, int] | None = None, valid_stat_boosters: Iterable[str] | None = None):
         """
         """
         super().__init__(msg, reason)
@@ -143,7 +144,7 @@ class GrowthsItemError(_ItemException):
         """
         ALREADY_CONSUMED = enum.auto()
 
-    def __init__(self, msg: str, reason: str):
+    def __init__(self, msg: str, reason: Reason):
         """
         """
         super().__init__(msg, reason)
@@ -162,7 +163,7 @@ class BandError(_ItemException):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: str, *, valid_bands: Iterable[str] | None = None, equipped_band: str | None = None, absent_band: str | None = None):
+    def __init__(self, msg: str, reason: Reason, *, valid_bands: Iterable[str] | None = None, equipped_band: str | None = None, absent_band: str | None = None):
         """
         """
         super().__init__(msg, reason)
