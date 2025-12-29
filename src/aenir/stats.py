@@ -5,6 +5,7 @@ Declares classes that store numerical stat data for a given unit.
 import abc
 from typing import (
     Iterable,
+    Iterator,
     Any,
     Mapping,
     List,
@@ -45,7 +46,7 @@ class AbstractStats(abc.ABC):
         return stat_dict
 
     @classmethod
-    def get_growable_stats(cls):
+    def get_growable_stats(cls) -> Iterable[str]:
         """
         Returns iterable of stats with growth rates.
         """
@@ -74,7 +75,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = getattr(self, stat)
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __init__(self, *, multiplier=100, **stat_dict):
+    def __init__(self: Self, *, multiplier: int = 100, **stat_dict) -> None:
         """
         Alerts user of which stats want declaration if `stat_dict` is incomplete.
         Warns user about unused kwargs.
@@ -87,7 +88,7 @@ class AbstractStats(abc.ABC):
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
             # get list of missing keywords and report to user
-            def by_statlist_ordering(stat):
+            def by_statlist_ordering(stat: str) -> int:
                 """
                 Returns position of `stat` in `cls.STAT_LIST()`.
                 """
@@ -108,7 +109,7 @@ class AbstractStats(abc.ABC):
         if unused_stats:
             logger.warning("These keyword arguments have gone unused: %s", unused_stats)
 
-    def __mul__(self, other: Self) -> Self:
+    def __mul__(self, other: int) -> Self:
         """
         Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
         """
@@ -201,7 +202,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat == other_stat
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[int]:
         """
         Returns iterable of growable stats.
         """
@@ -213,8 +214,7 @@ class AbstractStats(abc.ABC):
         Returns pretty-printed str-list of stats.
         """
         statlist = self.as_list()
-        #format_str = "% 4s: %5.2s"
-        def get_formatted_statlist(statval: Tuple[str, int]):
+        def get_formatted_statlist(statval: Tuple[str, int]) -> str:
             """
             """
             format_str = "% 4s: %5.2f"

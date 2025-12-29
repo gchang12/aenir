@@ -536,7 +536,6 @@ class Morph6Class2(unittest.TestCase):
         }
         self.kishuna = self.Morph(**self.init_kwargs)
 
-    @unittest.skip("This just prints stuff.")
     def test_as_string(self):
         """
         Prints str-representation to log-report.
@@ -544,6 +543,16 @@ class Morph6Class2(unittest.TestCase):
         morph = self.kishuna
         morph._use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
         miscellany = [("Hard Mode", "True")]
+        actual = morph._as_string(miscellany=miscellany, show_stat_boosters=True)
+        logger.debug("as_string -> %s", actual)
+
+    def test_as_string2(self):
+        """
+        Prints str-representation to log-report when miscellany=None
+        """
+        morph = self.kishuna
+        morph._use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
+        miscellany = None
         actual = morph._as_string(miscellany=miscellany, show_stat_boosters=True)
         logger.debug("as_string -> %s", actual)
 
@@ -4784,7 +4793,6 @@ Morph4Tests = unittest.TestSuite(
         FE4ChildUnit,
     ]
 )
-
 Morph5Tests = unittest.TestSuite(
     [
         FE5Promotables,
@@ -4796,7 +4804,6 @@ Morph5Tests = unittest.TestSuite(
         FE5Eda,
     ]
 )
-
 Morph6Tests = unittest.TestSuite(
     [
         Morph6Class2,
@@ -4812,7 +4819,6 @@ Morph6Tests = unittest.TestSuite(
         FE6Hugh,
     ]
 )
-
 Morph7Tests = unittest.TestSuite(
     [
         Morph7Class,
@@ -4829,7 +4835,6 @@ Morph7Tests = unittest.TestSuite(
         FE7Wallace,
     ]
 )
-
 Morph8Tests = unittest.TestSuite(
     [
         Morph8TestCase,
@@ -4843,7 +4848,6 @@ Morph8Tests = unittest.TestSuite(
         FE8Ephraim,
     ]
 )
-
 Morph9Tests = unittest.TestSuite(
     [
         FE9Ike,

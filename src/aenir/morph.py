@@ -7,6 +7,7 @@ import abc
 import sqlite3
 #import json
 from typing import (
+    Self,
     Tuple,
     Any,
     List,
@@ -82,7 +83,7 @@ class BaseMorph(abc.ABC):
             table: str,
             fields: Iterable[str],
             filters: Mapping[str, str | None] | None,
-        ):
+        ) -> Any:
         """
         Queries `table` from db referenced by `path_to_db` for `fields` for which `filters` hold.
         """
@@ -102,7 +103,7 @@ class BaseMorph(abc.ABC):
             cnxn.row_factory = sqlite3.Row
         return cnxn.execute(query)
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initializes appropriate Stats class for this instance.
         """
@@ -113,7 +114,7 @@ class BaseMorph(abc.ABC):
             home_data: Tuple[str, str],
             target_data: Tuple[str, str],
             tableindex: int,
-        ):
+        ) -> Mapping[str, Any] | None:
         """
         Looks up alias of `home_data` that's recognized by `target_data` and returns
         it as a set of filters alongside the table to query and the fields to fetch.
@@ -326,7 +327,7 @@ class Morph(BaseMorph):
         # cap stats
         self.current_stats.imin(self.max_stats)
 
-    def _get_promo_query_kwargs(self) -> Mapping[str, Any]:
+    def _get_promo_query_kwargs(self) -> Mapping[str, Any] | None:
         """
         Gets data to use to query for promotion, including list of classes to promote to.
         """
@@ -453,7 +454,7 @@ class Morph(BaseMorph):
         self.current_stats.imin(self.max_stats)
         self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
-    def copy(self):
+    def copy(self) -> Self:
         """
         Returns copy of self; for preview purposes.
         """
@@ -479,7 +480,7 @@ class Morph(BaseMorph):
         #self.stat_boosters.clear()
         self.history.clear()
 
-    def __gt__(self, other):
+    def __gt__(self, other: Self) -> Self:
         """
         Returns a Morph containing a list of stat differences.
         """
@@ -491,13 +492,13 @@ class Morph(BaseMorph):
         kishuna.current_stats = diff
         return kishuna
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[int]:
         """
         Iterates over dynamic stats in self.Stats.
         """
         return self.current_stats.__iter__()
 
-    def _as_string(self, *, header_data: List[Tuple[str, str]] | None = None, miscellany: None | Iterable = None, show_stat_boosters: bool = True) -> str:
+    def _as_string(self, *, header_data: List[Tuple[str, str]] | None = None, miscellany: None | List = None, show_stat_boosters: bool = True) -> str:
         """
         Returns pertinent data about Morph as string.
         """
@@ -520,7 +521,7 @@ class Morph(BaseMorph):
         #self._meta = None
         #self.stat_boosters = None
         # stats:
-        def datapair_to_string(keyval):
+        def datapair_to_string(keyval: Tuple[str, str] | None) -> str:
             """
             """
             format_str = "% 6s: %s"
@@ -553,10 +554,11 @@ class Morph(BaseMorph):
             if show_stat_boosters and self._meta["Stat Boosters"]:
                 statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
                 # TODO: This can apparently be None
-                miscellany.append(
-                    ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                )
-            if miscellany:
+                if miscellany is not None:
+                    miscellany.append(
+                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
+                    )
+            if miscellany is not None:
                 data_as_str.append(" \nMiscellany\n==========")
                 data_as_str.extend(list(map(datapair_to_string, miscellany)))
         data_as_str.append("")
@@ -666,7 +668,7 @@ class Morph4(Morph):
         )
 
     @staticmethod
-    def CHARACTER_LIST():
+    def CHARACTER_LIST() -> Iterable[str]:
         #def CHARACTER_LIST(cls):
         """
         Declares the list of all valid FE4 characters.
@@ -868,7 +870,7 @@ class Morph4(Morph):
         return self._game
 
     @property
-    def name(self) -> str:
+    def name(self) -> str | None:
         """
         The name of the unit.
         """
@@ -1048,7 +1050,7 @@ class Morph5(Morph):
                 "Shiva": "Swordmaster",
                 "Mareeta": "Swordmaster",
                 "Trewd": "Swordmaster",
-            }[self.name]
+            }[name]
         except KeyError:
             promo_cls = None
         # set instance attributes
@@ -1130,7 +1132,7 @@ class Morph5(Morph):
                 absent_scroll=scroll_name,
             )
 
-    def equip_scroll(self, scroll_name: str):
+    def equip_scroll(self, scroll_name: str) -> None:
         """
         Appends `scroll_name` to list of equipped scrolls and updates
         `growth_rates` accordingly. Throws error if scroll DNE or is already on.
@@ -1200,6 +1202,7 @@ class Morph6(Morph):
         """
         Returns name of item used to promote, if applicable.
         """
+        promotion_item: str | None
         if (self.name, self.current_clstype) == ("Roy", "characters__base_stats"):
             promotion_item = "*Chapter 22 - Start*"
         else:
@@ -1613,7 +1616,7 @@ class Morph7(Morph):
             "Hard Mode",
         )
         _meta = self._meta
-        def get_initials(name):
+        def get_initials(name: str) -> str:
             """
             """
             initials = []
@@ -1648,6 +1651,7 @@ class Morph8(Morph):
         """
         Returns name of item used to promote, if applicable.
         """
+        promotion_item: str | None
         if self.current_clstype == "characters__base_stats" and self.name in ("Ross", "Amelia", "Ewan"):
             promotion_item = "*Reach Level 10*"
         else:
@@ -2098,7 +2102,7 @@ class Morph9(Morph):
             )
         return super()._as_string(miscellany=miscellany)
 
-def get_morph(game_no: int, name: str, **kwargs):
+def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """
     Ergonomic means whereby one may access all Morph classes.
     """
