@@ -54,6 +54,9 @@ class LevelUpError(BaseException):
     """
 
     def __init__(self, msg: str, *, max_level: int | None):
+        """
+        Declares `max_level`.
+        """
         super().__init__(msg)
         self.max_level = max_level
 
@@ -106,6 +109,7 @@ class StatBoosterError(_ItemException):
 
     def __init__(self, msg: str, reason: Reason, *, max_stat: Tuple[str, int] | None = None, valid_stat_boosters: Iterable[str] | None = None):
         """
+        Declares name and value of `max_stat` plus list of valid stat-boosters.
         """
         super().__init__(msg, reason)
         self.max_stat = max_stat
@@ -127,6 +131,7 @@ class ScrollError(_ItemException):
 
     def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Iterable[str] | None = None, equipped_scroll: str | None = None, absent_scroll: str | None = None):
         """
+        Declares list of `valid_scrolls`, `equipped_scroll` and `absent_scroll`.
         """
         super().__init__(msg, reason)
         self.valid_scrolls = valid_scrolls
@@ -146,6 +151,7 @@ class GrowthsItemError(_ItemException):
 
     def __init__(self, msg: str, reason: Reason):
         """
+        No new attributes declared.
         """
         super().__init__(msg, reason)
 
@@ -165,6 +171,7 @@ class BandError(_ItemException):
 
     def __init__(self, msg: str, reason: Reason, *, valid_bands: Iterable[str] | None = None, equipped_band: str | None = None, absent_band: str | None = None):
         """
+        Declares list of `valid_bands`, `equipped_band` and `absent_band`.
         """
         super().__init__(msg, reason)
         self.valid_bands = valid_bands

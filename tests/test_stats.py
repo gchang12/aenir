@@ -54,6 +54,7 @@ class IntStatsTest(unittest.TestCase):
             @staticmethod
             def ZERO_GROWTH_STAT_LIST():
                 """
+                Returns empty tuple.
                 """
                 return ()
 

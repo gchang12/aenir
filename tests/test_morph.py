@@ -417,6 +417,9 @@ class AllMorphs(unittest.TestCase):
     """
 
     def test_STATS(self):
+        """
+        Validates Stats classes used for each Morph subclass.
+        """
         gameno_to_stats = {
             4: GenealogyStats,
             5: ThraciaStats,
@@ -433,6 +436,7 @@ class AllMorphs(unittest.TestCase):
                 @classmethod
                 def GAME(cls):
                     """
+                    Declares which game a unit belongs to.
                     """
                     return FireEmblemGame(game_no)
             expected = gameno_to_stats[game_no]

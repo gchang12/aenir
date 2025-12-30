@@ -523,6 +523,7 @@ class Morph(BaseMorph):
         # stats:
         def datapair_to_string(keyval: Tuple[str, str] | None) -> str:
             """
+            For printing header data.
             """
             format_str = "% 6s: %s"
             return format_str % keyval
@@ -621,6 +622,7 @@ class Morph4(Morph):
     @property
     def inventory_size(self) -> int:
         """
+        Declares maximum number of rings that can be held.
         """
         return 7
 
@@ -669,7 +671,6 @@ class Morph4(Morph):
 
     @staticmethod
     def CHARACTER_LIST() -> Iterable[str]:
-        #def CHARACTER_LIST(cls):
         """
         Declares the list of all valid FE4 characters.
         """
@@ -947,7 +948,9 @@ class Morph5(Morph):
 
     @property
     def inventory_size(self) -> int:
-        # https://fireemblemwiki.org/wiki/Inventory#Inventory_size_by_game
+        """
+        Declares the number of Crusader Scrolls one can equip.
+        """
         return 7
 
     def get_promotion_item(self) -> str | None:
@@ -1422,6 +1425,9 @@ class Morph7(Morph):
 
     @property
     def inventory_size(self) -> int:
+        """
+        The number of growths-enhancing items one can carry.
+        """
         return 0
 
     @staticmethod
@@ -1619,6 +1625,7 @@ class Morph7(Morph):
         _meta = self._meta
         def get_initials(name: str) -> str:
             """
+            Returns the first letter of each word in `name`.
             """
             initials = []
             for word in name.split(' '):
@@ -1646,6 +1653,9 @@ class Morph8(Morph):
 
     @property
     def inventory_size(self) -> int:
+        """
+        Declares that nobody can hold any growths-enhancing items.
+        """
         return 0
 
     def get_promotion_item(self) -> str | None:
@@ -1801,6 +1811,9 @@ class Morph9(Morph):
 
     @property
     def inventory_size(self) -> int:
+        """
+        Declares the maximum number of bands that can be held.
+        """
         return 8
 
     def get_promotion_item(self) -> str | None:
@@ -2120,4 +2133,3 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
         raise NotImplementedError("Stat comparison for FE%s has not been implemented." % game_no)
     morph = morph_cls(name, **kwargs)
     return morph
-
