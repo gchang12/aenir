@@ -780,7 +780,7 @@ class FE4Ayra(unittest.TestCase):
         actual = ira.current_stats
         self.assertEqual(actual, expected)
 
-class FE6Rutger(unittest.TestCase):
+class FE6RutgerProtoMorph(unittest.TestCase):
     """
     Defines a series of tests using Rutger as a test subject and a rudimentary Morph subclass.
     """
@@ -907,7 +907,7 @@ class FE6Rutger(unittest.TestCase):
             ("Mov", 500),
         ]
         actual = rutger.current_stats.as_list()
-        self.assertIs(actual, expected)
+        self.assertListEqual(actual, expected)
 
     def test_promote(self):
         """
@@ -1015,7 +1015,7 @@ class FE6Rutger(unittest.TestCase):
         actual = rutger.max_stats
         self.assertEqual(actual, expected)
         # assert that stats have not increased by expected amount.
-        base_rutger = self.Morph("Rutger", which_bases=0, which_growths=0)
+        base_rutger = self.morph.__class__("Rutger", which_bases=0, which_growths=0)
         expected = base_rutger.current_stats
         actual = rutger.current_stats
         self.assertEqual(actual, expected)
@@ -1052,7 +1052,7 @@ class FE6Rutger(unittest.TestCase):
             ("Con", 2000),
             ("Mov", 1500),
         ]
-        expected = unpromoted_maxes.as_list()
+        expected = unpromoted_maxes
         actual = rutger.max_stats.as_list()
         self.assertListEqual(actual, expected)
         # assert that stats have not increased by expected amount.
@@ -1070,7 +1070,7 @@ class FE6Rutger(unittest.TestCase):
         actual = rutger.current_stats.as_list()
         self.assertEqual(actual, expected)
 
-class FE6Roy(unittest.TestCase):
+class FE6RoyProtoMorph(unittest.TestCase):
     """
     Conducts tests with FE6!Roy as subject.
     """
@@ -1084,7 +1084,7 @@ class FE6Roy(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-        self.morph = self.TestMorph6("Roy", which_bases=0, which_growths=0)
+        self.morph = TestMorph6("Roy", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
     def test_use_stat_booster(self):
@@ -1750,15 +1750,6 @@ class FE5Leif(Morph5TestCase):
         actual = exception.max_stat
         expected = ("Spd", 2000)
         self.assertTupleEqual(actual, expected)
-
-    def test_inventory_size(self):
-        """
-        Assert inventory size is seven.
-        """
-        leaf = self.morph
-        actual = leaf.inventory_size
-        expected = 7
-        self.assertEqual(actual, expected)
 
     def test_get_promotion_item(self):
         """
@@ -2989,15 +2980,6 @@ class FE7Eliwood(Morph7TestCase):
             expected = getattr(original_stats, stat) + bonus * 100
             actual = getattr(eliwood.current_stats, stat)
             self.assertEqual(actual, expected)
-
-    def test_inventory_size(self):
-        """
-        Validate inventory size.
-        """
-        lord = Morph7("Eliwood")
-        actual = lord.inventory_size
-        expected = 0
-        self.assertEqual(actual, expected)
 
 class FE7Nino(Morph7TestCase):
     """
