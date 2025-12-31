@@ -1949,6 +1949,9 @@ class FE5PromotedUnit(Morph5TestCase):
     """
 
     def test_get_promotion_item__promoted(self):
+        """
+        Asserts that promo-item for a promoted unit is None.
+        """
         morph = Morph5("Evayle")
         actual = morph.get_promotion_item()
         self.assertIsNone(actual)
@@ -3793,10 +3796,16 @@ class FE8Ross(Morph8TestCase):
         self._test_get_promotion_list__trainee(name)
 
     def test_ross(self):
+        """
+        Runs Ross through a series of level-ups and promotions.
+        """
         name = "Ross"
         self._test_scrub(name)
 
     def test_get_promotion_item__ross(self):
+        """
+        Tests return-value of 'get-promo-item' throughout Ross' growth.
+        """
         name = "Ross"
         _morph = Morph8(name)
         _morph.current_lv = 10
@@ -3914,15 +3923,24 @@ class FE8Amelia(Morph8TestCase):
     """
 
     def test_get_promotion_list__amelia(self):
+        """
+        Tests value of 'get-promo-list' throughout lifespan of Amelia.
+        """
         name = "Amelia"
         self._test_get_promotion_list__trainee(name)
 
     def test_get_promotion_item__amelia(self):
+        """
+        Tests value of 'get-promo-item' throughout lifespan of Amelia.
+        """
         name = "Amelia"
         promotion_item = "Knight Crest"
         self._test_get_promotion_item__trainee(name, promotion_item)
 
     def test_amelia(self):
+        """
+        Runs Amelia through a series of level-ups and promotions.
+        """
         name = "Amelia"
         self._test_scrub(name)
 
@@ -3932,19 +3950,31 @@ class FE8Ewan(Morph8TestCase):
     """
 
     def test_get_promotion_list__ewan(self):
+        """
+        Tests value of 'get-promo-list' throughout lifespan of Ewan.
+        """
         name = "Ewan"
         self._test_get_promotion_list__trainee(name)
 
     def test_get_promotion_item__ewan(self):
+        """
+        Tests value of 'get-promo-item' throughout lifespan of Ewan.
+        """
         name = "Ewan"
         promotion_item = "Guiding Ring"
         self._test_get_promotion_item__trainee(name, promotion_item)
 
     def test_ewan(self):
+        """
+        Runs Ewan through a series of level-ups and promotions.
+        """
         name = "Ewan"
         self._test_scrub(name)
 
     def test_metiss_tome(self):
+        """
+        Demo usage of FE8 growths item on Ewan.
+        """
         ewan = Morph8("Ewan")
         ewan.use_metiss_tome()
         ewan2 = Morph8("Ewan")
@@ -3957,6 +3987,9 @@ class FE8Ewan(Morph8TestCase):
         self.assertEqual(actual, expected)
 
     def test_as_string(self):
+        """
+        Demo repr of FE8 unit Ewan.
+        """
         morph = Morph8("Ewan")
         morph.use_metiss_tome()
         actual = morph.as_string()

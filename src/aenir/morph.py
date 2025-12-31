@@ -200,8 +200,6 @@ class Morph(BaseMorph):
         return tuple(character_list)
 
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
-        #if self.__class__.__name__ == "Morph":
-        #logger.warning("Instantiating Morph class; some features will be unavailable. Please use appropriate subclass of Morph for full functionality.")
         """
         Initializes game, name, base stats, growth rates, max stats, and other variables for containing
         data pertinent to stat comparison calculations.

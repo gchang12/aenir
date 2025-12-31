@@ -216,6 +216,7 @@ class AbstractStats(abc.ABC):
         statlist = self.as_list()
         def get_formatted_statlist(statval: Tuple[str, int]) -> str:
             """
+            Returns field-stat pair.
             """
             format_str = "% 4s: %5.2f"
             field, value = statval
@@ -241,7 +242,9 @@ class GenealogyStats(AbstractStats):
 
     @staticmethod
     def STAT_LIST() -> Iterable[str]:
-        # constant
+        """
+        Returns list of all stats.
+        """
         return (
             "HP",
             "Str",
@@ -255,6 +258,9 @@ class GenealogyStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
+        """
+        Returns list of stats with zero growths.
+        """
         return ()
 
 class ThraciaStats(AbstractStats):
@@ -264,7 +270,9 @@ class ThraciaStats(AbstractStats):
 
     @staticmethod
     def STAT_LIST() -> Iterable[str]:
-        # constant
+        """
+        Returns list of all stats.
+        """
         return (
             "HP",
             "Str",
@@ -282,6 +290,9 @@ class ThraciaStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
+        """
+        Returns list of stats with zero growths.
+        """
         return (
             "Lead",
             "MS",
@@ -296,7 +307,9 @@ class GBAStats(AbstractStats):
 
     @staticmethod
     def STAT_LIST() -> Iterable[str]:
-        # constant
+        """
+        Returns list of all stats.
+        """
         return (
             "HP",
             "Pow",
@@ -311,6 +324,9 @@ class GBAStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
+        """
+        Returns list of stats with zero growths.
+        """
         return (
             "Con",
             "Mov",
@@ -324,7 +340,9 @@ class RadiantStats(AbstractStats):
 
     @staticmethod
     def STAT_LIST() -> Iterable[str]:
-        # constant
+        """
+        Returns list of all stats.
+        """
         return (
             "HP",
             "Str",
@@ -341,6 +359,9 @@ class RadiantStats(AbstractStats):
 
     @staticmethod
     def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
+        """
+        Returns list of stats with zero growths.
+        """
         # constant
         return (
             "Mov",
