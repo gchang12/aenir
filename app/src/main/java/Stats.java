@@ -1,187 +1,137 @@
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.EnumMap;
 
-class StatsDemo {
+class Stats {
     public static void main(String[] args) {
-        System.out.println("Hello world.");
-        RadiantStats ike = new RadiantStats();
+        System.out.println("Too much pressure.");
+        EnumMap<RadiantStatList, Integer> em = new EnumMap<>(RadiantStatList.class);
     }
 }
 
 /**
-Defines methods for comparison, setting, and incrementation of numerical stats.
+  Stat list for FE9: Path of Radiance
 */
-class Stats {
+enum RadiantStatList {
+    HP,
+    Str,
+    Mag,
+    Skl,
+    Spd,
+    Lck,
+    Def,
+    Res,
+    Mov,
+    Con,
+    Wt;
 
     /**
-    A kernel of the class; expects an array of the names of all stats.
+      List of stats that have zero growths.
     */
-    static String[] STAT_LIST = null;
+    static String[] ZERO_GROWTH_STAT_LIST = {
+        "Mov",
+        "Con",
+        "Wt",
+    };
+}
+
+/**
+  Stat list for:
+  - FE6: Sword of Seals
+  - FE7: Blazing Sword
+  - FE8: The Sacred Stones
+*/
+enum GBAStatList {
+    HP,
+    Pow,
+    Skl,
+    Spd,
+    Lck,
+    Def,
+    Res,
+    Con,
+    Mov;
 
     /**
-    A kernel of the class; expects an array of the names of stats that have zero growth rates.
+      List of stats that have zero growths.
     */
+    static String[] ZERO_GROWTH_STAT_LIST = {
+        "Con",
+        "Mov",
+    };
+}
+
+/**
+  Stat list for FE5: Thracia 776
+*/
+enum ThraciaStatList {
+    HP,
+    Str,
+    Mag,
+    Skl,
+    Spd,
+    Lck,
+    Def,
+    Con,
+    Mov,
+    Lead,
+    MS,
+    PC;
+
+    /**
+      List of stats that have zero growths.
+    */
+    static String[] ZERO_GROWTH_STAT_LIST = {
+        "Lead",
+        "MS",
+        "PC",
+    };
+}
+
+/**
+  Stat list for FE4: Genealogy of the Holy War
+*/
+enum GenealogyStatList {
+    HP,
+    Str,
+    Mag,
+    Skl,
+    Spd,
+    Lck,
+    Def,
+    Res;
+
+    /**
+      List of stats that have zero growths.
+    */
+    static String[] ZERO_GROWTH_STAT_LIST = {
+    };
+}
+
+interface StatOperations {
     static String[] ZERO_GROWTH_STAT_LIST = null;
 
-    /**
-    A kernel of the class; expects an array of the names of all stats.
+    /*
+    @staticmethod
+    @abc.abstractmethod
+    def STAT_LIST() -> Iterable[str]:
+        """
+        A kernel of the class; expects a tuple of the names of all stats.
+        """
+        raise NotImplementedError
+    @staticmethod
+    @abc.abstractmethod
+    def ZERO_GROWTH_STAT_LIST() -> Iterable[str]:
+        """
+        A kernel of the class; expects a tuple of the names of stats that have zero growth rates.
+        """
+        raise NotImplementedError
     */
-    int[] statValues = {};
 
-    /**
-    */
-    private static int index(String arr[], String t, int start) {
-        if (start == arr.length) {
-            return -1;
-        };
-        // if element at index start equals t
-        // we return start
-        if (arr[start] == t)
-            return start;
-        return index(arr, t, start + 1);
-    };
-
-    /**
-    */
-    private static int findStat(String[] arr, String t, int[] values) throws ArrayIndexOutOfBoundsException {
-        int stringLoc = index(arr, t, 0);
-        try {
-            return values[stringLoc];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw e;
-        }
-    };
-
-    /**
-    Helper class for tests to retrieve stat values
-    */
-    int get(String statName) {
-        int statValue = findStat(STAT_LIST, statName, statValues);
-        return statValue;
-    };
-
-    /**
-    Returns key-val pairs of stats as Map object.
-    */
-    Map<String, Integer> asMap() {
-        Map<String, Integer> statsAsMap = new LinkedHashMap<>();
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statsAsMap.put(STAT_LIST[i], statValues[i]);
-        };
-        return statsAsMap;
-    };
-
-    /**
-    Returns key-val pairs of stats as list of 2-tuples.
-    */
-    Map<String, Integer> asList() {
-        Map<String, Integer> statsAsList = new LinkedHashMap<>();
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statsAsList.put(STAT_LIST[i], statValues[i]);
-        };
-        return statsAsList;
-    };
-
-    /**
-    Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
-    */
-    void imul(int factor) {
-        for (int i=0; i<STAT_LIST.length; i++) {
-            this.statValues[i] *= factor;
-        };
-    };
-
-    /**
-    Sets each stat in `this` to minimum of itself and corresponding stat in `that`.
-    */
-    void imin(Stats that) {
-        int statValue;
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statValue = findStat(that.STAT_LIST, this.STAT_LIST[i], that.statValues);
-            this.statValues[i] = Math.min(this.statValues[i], statValue);
-        };
-    };
-
-    /**
-    Sets each stat in `this` to maximum of itself and corresponding stat in `that`.
-    */
-    void imax(Stats that) {
-        int statValue;
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statValue = findStat(that.STAT_LIST, this.STAT_LIST[i], that.statValues);
-            try {
-                this.statValues[i] = Math.max(this.statValues[i], statValue);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                System.err.println("'" + this.STAT_LIST[i] + "' not in `that` STAT_LIST.");
-                throw e;
-            };
-        };
-    };
-
-    /**
-    Increments values of `this` by corresponding values in `that`.
-    */
-    void iadd(Stats that) {
-        int statValue;
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statValue = findStat(that.STAT_LIST, this.STAT_LIST[i], that.statValues);
-            this.statValues[i] = this.statValues[i] + statValue;
-        };
-    };
-
-    /**
-    Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
-    Error is thrown if the Stats objects are not of the same type.
-    */
-    void isub(Stats that) {
-        int statValue;
-        for (int i=0; i<STAT_LIST.length; i++) {
-            statValue = findStat(that.STAT_LIST, this.STAT_LIST[i], that.statValues);
-            this.statValues[i] = this.statValues[i] - statValue;
-        };
-    };
-
-    /**
-    Returns iterable of stats with growth rates.
-    */
-    static String[] /* Stats */ getGrowableStats() {
-        // TODO: Replace with actual blah blah blah.
-        // return filter(lambda stat_: stat_ not in cls.ZERO_GROWTH_STAT_LIST(), cls.STAT_LIST())
-        /* return STAT_LIST.filter(ZERO_GROWTH_STAT_LIST); */
-        String[] growableStats = {"", ""};
-        return growableStats;
-    };
-
-    /**
-    Returns pretty-printed str-list of stats.
-    */
-    public final String toString() {
-        return "";
-        /*
-        statlist = self.as_list()
-        #format_str = "% 4s: %5.2s"
-        def get_formatted_statlist(statval):
-            """
-            """
-            format_str = "% 4s: %5.2f"
-            field, value = statval
-            value = value or 0
-            return format_str % (field, value * 0.01)
-        statlist_as_str = "\n".join(get_formatted_statlist(statval) for statval in statlist)
-        header = self.__class__.__name__
-        header_border = len(header) * "="
-        statlist_as_str = "\n".join([header, header_border, statlist_as_str])
-        return statlist_as_str
-        */
-    };
-
-    /**
-    Alerts user of which stats want declaration if `stat_dict` is incomplete.
-    Warns user about unused kwargs.
-    */
-    /* Stats(Map<String, Integer> statMap) { */
-        // TODO: Replace with actual thing.
-        /*
+    /*
+    def __init__(self: Self, *, multiplier: int = 100, **stat_dict) -> None:
+        """
+        Alerts user of which stats want declaration if `stat_dict` is incomplete.
+        Warns user about unused kwargs.
+        """
         # check if statlist in statdict
         statlist = self.STAT_LIST()
         if not isinstance(statlist, tuple):
@@ -190,7 +140,7 @@ class Stats {
         actual_stats = set(stat_dict)
         if not expected_stats.issubset(actual_stats):
             # get list of missing keywords and report to user
-            def by_statlist_ordering(stat):
+            def by_statlist_ordering(stat: str) -> int:
                 """
                 Returns position of `stat` in `cls.STAT_LIST()`.
                 """
@@ -210,95 +160,169 @@ class Stats {
         unused_stats = set(stat_dict) - set(statlist)
         if unused_stats:
             logger.warning("These keyword arguments have gone unused: %s", unused_stats)
-        */
-    /* }; */
 
-};
+    @classmethod
+    def get_stat_dict(cls, fill_value: Any) -> Mapping[str, Any]:
+        """
+        Returns `kwargs` for initialization; each key is mapped to `fill_value`.
+        """
+        stat_dict = dict((stat, fill_value) for stat in cls.STAT_LIST())
+        return stat_dict
 
-/**
-Declares stats used for FE4: Genealogy of the Holy War.
-*/
-final class GenealogyStats extends Stats {
-    static final String[] STAT_LIST = {
-        "HP",
-        "Str",
-        "Mag",
-        "Skl",
-        "Spd",
-        "Lck",
-        "Def",
-        "Res"
-    };
-    static final String[] ZERO_GROWTH_STAT_LIST = {};
-};
+    @classmethod
+    def get_growable_stats(cls) -> Iterable[str]:
+        """
+        Returns iterable of stats with growth rates.
+        """
+        return filter(lambda stat_: stat_ not in cls.ZERO_GROWTH_STAT_LIST(), cls.STAT_LIST())
 
-/**
-Declares stats used for FE5: Thracia 776.
-*/
-final class ThraciaStats extends Stats {
-    static final String[] STAT_LIST = {
-        "HP",
-        "Str",
-        "Mag",
-        "Skl",
-        "Spd",
-        "Lck",
-        "Def",
-        "Con",
-        "Mov",
-        "Lead",
-        "MS",
-        "PC"
-    };
-    static final String[] ZERO_GROWTH_STAT_LIST = {
-        "Lead",
-        "MS",
-        "PC"
-    };
-};
+    def as_dict(self) -> dict[str, Any]:
+        """
+        Returns key-val pairs of stats as dict object.
+        """
+        stat_dict = {stat: getattr(self, stat) for stat in self.STAT_LIST()}
+        return stat_dict
 
-/**
-Declares stats used for FE6, FE7, and FE8.
-*/
-final class GBAStats extends Stats {
-    static final String[] STAT_LIST = {
-        "HP",
-        "Pow",
-        "Skl",
-        "Spd",
-        "Lck",
-        "Def",
-        "Res",
-        "Con",
-        "Mov"
-    };
-    static final String[] ZERO_GROWTH_STAT_LIST = {
-        "Con",
-        "Mov"
-    };
-};
+    def as_list(self) -> List[Tuple[str, Any]]:
+        """
+        Returns key-val pairs of stats as list of 2-tuples.
+        """
+        stat_list = [(stat, getattr(self, stat)) for stat in self.STAT_LIST()]
+        return stat_list
 
-/**
-Declares stats used for FE9.
-*/
-final class RadiantStats extends Stats {
-    static final String[] STAT_LIST = {
-        "HP",
-        "Str",
-        "Mag",
-        "Skl",
-        "Spd",
-        "Lck",
-        "Def",
-        "Res",
-        "Mov",
-        "Con",
-        "Wt"
-    };
-    static final String[] ZERO_GROWTH_STAT_LIST = {
-        "Mov",
-        "Con",
-        "Wt"
-    };
-};
+    def copy(self) -> Self:
+        """
+        Returns new instance of Stats identical to this one.
+        """
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            stat_dict[stat] = getattr(self, stat)
+        return self.__class__(multiplier=1, **stat_dict)
 
+    def __mul__(self, other: int) -> Self:
+        """
+        Reads current stats, multiplies each stat by a scalar, then returns the result in a new Stats object.
+        """
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            stat_dict[stat] = self_stat * other
+        return self.__class__(multiplier=1, **stat_dict)
+
+    def imin(self: Self, other: Self) -> None:
+        """
+        Sets each stat in `self` to minimum of itself and corresponding stat in `other`.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            setattr(self, stat, min(self_stat, other_stat))
+
+    def imax(self, other: Self) -> None:
+        """
+        Sets each stat in `self` to maximum of itself and corresponding stat in `other`.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            setattr(self, stat, max(self_stat, other_stat))
+
+    def __iadd__(self, other: Self) -> Self:
+        """
+        Increments values of `self` by corresponding values in `other`.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
+        for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            new_stat = self_stat + other_stat
+            setattr(self, stat, new_stat)
+        return self
+
+    def __add__(self, other: Self) -> Self:
+        """
+        Adds two Stats objects like they're Euclidean vectors and returns the result in a new Stats object.
+        Error is thrown if the Stats objects are not of the same type.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            #for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat + other_stat
+        return self.__class__(multiplier=1, **stat_dict)
+
+    def __sub__(self, other: Self) -> Self:
+        """
+        Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
+        Error is thrown if the Stats objects are not of the same type.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r", (type(self), type(other)))
+        stat_dict = {}
+        for stat in self.get_growable_stats():
+            #for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat - other_stat
+        for stat in self.ZERO_GROWTH_STAT_LIST():
+            stat_dict[stat] = None
+        return self.__class__(multiplier=1, **stat_dict)
+
+    def __eq__(self: Self, other: Self) -> Self:
+        """
+        Returns a Stats object stating which attributes are equal and which are unequal.
+        """
+        if not type(self) == type(other):
+            raise TypeError("Stats must be of the same type: %r != %r" % (type(self), type(other)))
+        #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
+        stat_dict = {}
+        for stat in self.STAT_LIST():
+            #for stat in filter(lambda stat_: stat not in self.ZERO_GROWTH_STAT_LIST(), self.STAT_LIST()):
+            #for stat in self.STAT_LIST():
+            self_stat = getattr(self, stat)
+            other_stat = getattr(other, stat)
+            stat_dict[stat] = self_stat == other_stat
+        return self.__class__(multiplier=1, **stat_dict)
+
+    def __iter__(self) -> Iterator[int]:
+        """
+        Returns iterable of growable stats.
+        """
+        for stat in self.get_growable_stats():
+            yield getattr(self, stat)
+
+    def __repr__(self, with_title: bool = True) -> str:
+        """
+        Returns pretty-printed str-list of stats.
+        """
+        statlist = self.as_list()
+        def get_formatted_statlist(statval: Tuple[str, int]) -> str:
+            """
+            Returns field-stat pair.
+            """
+            format_str = "% 4s: %5.2f"
+            field, value = statval
+            value = value or 0
+            return format_str % (field, value * 0.01)
+        statlist_as_str = "\n".join(get_formatted_statlist(statval) for statval in statlist)
+        if with_title:
+            header = self.__class__.__name__
+            header_border = len(header) * "="
+            statlist_as_str = "\n".join([header, header_border, statlist_as_str])
+        return statlist_as_str
+
+    def __str__(self) -> str:
+        """
+        Returns pretty-printed str-list of stats.
+        """
+        return self.__repr__()
+    */
+}
