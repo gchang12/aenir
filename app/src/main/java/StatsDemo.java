@@ -10,6 +10,7 @@ class StatsDemo {
         hm.put("HP", 0);
         Stats<GenealogyOfTheHolyWar> stats = new Stats<>();
         stats.fill(0);
+        System.out.println(stats.core);
     }
 }
 
@@ -17,7 +18,9 @@ class Stats<G extends Game> /*implements Map*/ {
     EnumMap<G.StatList, Integer> core;
     Stats() {
         EnumMap<G.StatList, Integer> core = new EnumMap<>(G.StatList.class);
-        System.err.println(core);
+        this.core = core;
+        core.put(G.StatList.HP, 0);
+        System.out.println(core);
     };
     Integer get(String key) {
         G.StatList normalizedKey = G.StatList.valueOf(key);
@@ -28,7 +31,10 @@ class Stats<G extends Game> /*implements Map*/ {
         return core.put(normalizedKey, value);
     };
     void fill(Integer value) {
-        System.err.println(this.core);
+        for (G.StatList normalizedKey: core.keySet()) {
+            System.out.println(normalizedKey);
+            this.core.put(normalizedKey, value);
+        };
     };
     void putAll(Map<String, Integer> m) {
         G.StatList normalizedKey;
