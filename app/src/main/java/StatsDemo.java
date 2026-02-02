@@ -7,16 +7,17 @@ import java.util.Map;
 class StatsDemo {
     public static void main(String[] args) {
         HashMap<String, Integer> hm = new HashMap<>();
-        hm.put("HP", 18);
-        Stats<GenealogyOfTheHolyWar> stats = new Stats<>(hm);
+        hm.put("HP", 0);
+        Stats<GenealogyOfTheHolyWar> stats = new Stats<>();
+        stats.fill(0);
     }
 }
 
 class Stats<G extends Game> /*implements Map*/ {
     EnumMap<G.StatList, Integer> core;
-    Stats(Map<String, Integer> kwargs) {
+    Stats() {
         EnumMap<G.StatList, Integer> core = new EnumMap<>(G.StatList.class);
-        // for each kwarg in kwargs
+        System.err.println(core);
     };
     Integer get(String key) {
         G.StatList normalizedKey = G.StatList.valueOf(key);
@@ -25,6 +26,9 @@ class Stats<G extends Game> /*implements Map*/ {
     Integer put(String key, Integer value) {
         G.StatList normalizedKey = G.StatList.valueOf(key);
         return core.put(normalizedKey, value);
+    };
+    void fill(Integer value) {
+        System.err.println(this.core);
     };
     void putAll(Map<String, Integer> m) {
         G.StatList normalizedKey;
@@ -35,14 +39,6 @@ class Stats<G extends Game> /*implements Map*/ {
             core.put(normalizedKey, value);
         };
     };
-        /* for (String key: kwargs.keySet()) { */
-            // load value into `value` if key is present
-            /* System.out.println(key); */
-            /* System.out.println(kwargs.get(key)); */
-            /* G.StatList.valueOf(G.StatList.class, key); */
-            // o.w. raise error.
-        /* } */
-    /* } */
 }
 
 abstract class Game {
