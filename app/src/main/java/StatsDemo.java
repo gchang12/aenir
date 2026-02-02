@@ -8,27 +8,27 @@ class StatsDemo {
     public static void main(String[] args) {
         HashMap<String, Integer> hm = new HashMap<>();
         hm.put("HP", 18);
-        Stats<GenealogyOfTheHolyWar, Integer> stats = new Stats<>(hm);
+        Stats<GenealogyOfTheHolyWar> stats = new Stats<>(hm);
     }
 }
 
-class Stats<G extends Game, V> /*implements Map*/ {
-    EnumMap<G.StatList, V> core;
-    Stats(Map<String, V> kwargs) {
-        EnumMap<G.StatList, V> core = new EnumMap<>(G.StatList.class);
+class Stats<G extends Game> /*implements Map*/ {
+    EnumMap<G.StatList, Integer> core;
+    Stats(Map<String, Integer> kwargs) {
+        EnumMap<G.StatList, Integer> core = new EnumMap<>(G.StatList.class);
         // for each kwarg in kwargs
     };
-    V get(String key) {
+    Integer get(String key) {
         G.StatList normalizedKey = G.StatList.valueOf(key);
         return core.get(normalizedKey);
     };
-    V put(String key, V value) {
+    Integer put(String key, Integer value) {
         G.StatList normalizedKey = G.StatList.valueOf(key);
         return core.put(normalizedKey, value);
     };
-    void putAll(Map<String, V> m) {
+    void putAll(Map<String, Integer> m) {
         G.StatList normalizedKey;
-        V value;
+        Integer value;
         for (String key: m.keySet()) {
             normalizedKey = G.StatList.valueOf(key);
             value = m.get(key);
