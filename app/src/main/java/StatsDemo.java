@@ -1,5 +1,6 @@
 package aenir;
 
+import java.lang.Enum;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,71 +15,61 @@ class StatsDemo {
     }
 }
 
-class Stats<G extends Game> /*implements Map*/ {
-    EnumMap<G.StatList, Integer> core;
+class Stats<K extends Enum> {
+    EnumMap<K, Integer> core;
     Stats() {
-        EnumMap<G.StatList, Integer> core = new EnumMap<>(G.StatList.class);
+        EnumMap<K, Integer> core = new EnumMap<>(K.class);
         this.core = core;
-        core.put(G.StatList.HP, 0);
+        core.put(K.HP, 0);
         System.out.println(core);
     };
     Integer get(String key) {
-        G.StatList normalizedKey = G.StatList.valueOf(key);
+        K normalizedKey = K.valueOf(key);
         return core.get(normalizedKey);
     };
     Integer put(String key, Integer value) {
-        G.StatList normalizedKey = G.StatList.valueOf(key);
+        K normalizedKey = K.valueOf(key);
         return core.put(normalizedKey, value);
     };
     void fill(Integer value) {
-        for (G.StatList normalizedKey: core.keySet()) {
+        for (K normalizedKey: core.keySet()) {
             System.out.println(normalizedKey);
             this.core.put(normalizedKey, value);
         };
     };
     void putAll(Map<String, Integer> m) {
-        G.StatList normalizedKey;
+        K normalizedKey;
         Integer value;
         for (String key: m.keySet()) {
-            normalizedKey = G.StatList.valueOf(key);
+            normalizedKey = K.valueOf(key);
             value = m.get(key);
             core.put(normalizedKey, value);
         };
     };
 }
 
+enum GenealogyOfTheHolyWar {
+    HP,
+    Str,
+    Mag,
+    Skl,
+    Spd,
+    Lck,
+    Def,
+    Res;
+    boolean isGBAGame = false;
+    static String[] ZERO_GROWTH_STAT_LIST = {
+    };
+}
+
+/*
+
 abstract class Game {
     enum StatList {};
     enum ZeroGrowthStatList {};
     boolean isGBAGame;
 }
-
-class GenealogyOfTheHolyWar extends Game {
-    /**
-      Stat list for FE4: Genealogy of the Holy War
-    */
-    enum StatList {
-        HP,
-        Str,
-        Mag,
-        Skl,
-        Spd,
-        Lck,
-        Def,
-        Res;
-    }
-    boolean isGBAGame = false;
-    /**
-      List of stats that have zero growths.
-    */
-    static String[] ZERO_GROWTH_STAT_LIST = {
-    };
-}
-
 class Thracia776 extends Game {
-    /**
-      Stat list for FE5: Thracia 776
-    */
     enum StatList {
         HP,
         Str,
@@ -94,20 +85,13 @@ class Thracia776 extends Game {
         PC;
     }
     boolean isGBAGame = false;
-    /**
-      List of stats that have zero growths.
-    */
     enum ZeroGrowthStatList {
         Lead,
         MS,
         PC;
     }
 }
-
 class SwordOfSeals extends Game {
-    /**
-      Stat list for FE6: Sword of Seals
-    */
     enum StatList {
         HP,
         Pow,
@@ -120,19 +104,12 @@ class SwordOfSeals extends Game {
         Mov;
     }
     boolean isGBAGame = true;
-    /**
-      List of stats that have zero growths.
-    */
     enum ZeroGrowthStatList {
         Con,
         Mov;
     };
 }
-
 class BlazingSword extends Game {
-    /**
-      Stat list for FE7: Blazing Sword
-    */
     enum StatList {
         HP,
         Pow,
@@ -145,20 +122,12 @@ class BlazingSword extends Game {
         Mov;
     }
     boolean isGBAGame = true;
-    /**
-      List of stats that have zero growths.
-    */
     enum ZeroGrowthStatList {
         Con,
         Mov;
     };
 }
-
-
 class TheSacredStones extends Game {
-    /**
-      Stat list for FE8: The Sacred Stones
-    */
     enum StatList {
         HP,
         Pow,
@@ -171,19 +140,12 @@ class TheSacredStones extends Game {
         Mov;
     }
     boolean isGBAGame = true;
-    /**
-      List of stats that have zero growths.
-    */
     enum ZeroGrowthStatList {
         Con,
         Mov;
     };
 }
-
 class PathOfRadiance extends Game {
-    /**
-      Stat list for FE9: Path of Radiance
-    */
     enum StatList {
         HP,
         Str,
@@ -197,9 +159,6 @@ class PathOfRadiance extends Game {
         Con,
         Wt;
     }
-    /**
-      List of stats that have zero growths.
-    */
     boolean isGBAGame = false;
     enum ZeroGrowthStatList {
         Mov,
@@ -207,4 +166,4 @@ class PathOfRadiance extends Game {
         Wt;
     };
 }
-
+*/
