@@ -1304,11 +1304,11 @@ class Morph6(Morph):
                 hm_params = {'hard_mode': valid_hm_values}
                 route_params = {'route': valid_routes}
                 if (route not in valid_routes) and (hard_mode not in valid_hm_values):
+                    hm_params.update(route_params)
                     raise InitError(
                         "Specify `route` and `hard_mode` values.",
                         missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
-                        init_params=route_params,
-                        init_params2=hm_params,
+                        init_params=hm_params,
                     )
                 elif (route not in valid_routes):
                     raise InitError(
@@ -2131,3 +2131,4 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
         raise NotImplementedError("Stat comparison for FE%s has not been implemented." % game_no)
     morph = morph_cls(name, **kwargs)
     return morph
+

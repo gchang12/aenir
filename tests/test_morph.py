@@ -2251,10 +2251,7 @@ class FE6Gonzales(Morph6TestCase):
         expected = InitError.MissingValue.HARD_MODE_AND_ROUTE
         self.assertEqual(actual, expected)
         actual = err.init_params
-        expected = {"route": ("Lalum", "Elphin")}
-        self.assertDictEqual(actual, expected)
-        actual = err.init_params2
-        expected = {"hard_mode": (False, True)}
+        expected = {"route": ("Lalum", "Elphin"), "hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
 
     def test_gonzales__lalum_route(self):
@@ -2288,8 +2285,6 @@ class FE6Gonzales(Morph6TestCase):
         actual = err.init_params
         expected = {"route": ("Lalum", "Elphin")}
         self.assertDictEqual(actual, expected)
-        actual = err.init_params2
-        self.assertIsNone(actual)
 
     def test_gonzales__no_hm(self):
         """
@@ -2304,8 +2299,6 @@ class FE6Gonzales(Morph6TestCase):
         actual = err.init_params
         expected = {"hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
-        actual = err.init_params2
-        self.assertIsNone(actual)
 
 
 class FE6Unpromotables(Morph6TestCase):

@@ -39,14 +39,13 @@ class InitError(BaseException):
         FATHER = enum.auto()
         HARD_MODE_AND_ROUTE = enum.auto()
 
-    def __init__(self, msg: str, *, missing_value: Any, init_params: Mapping[str, Any], init_params2: Mapping[str, Any] | None = None):
+    def __init__(self, msg: str, *, missing_value: Any, init_params: Mapping[str, Any]):
         """
         Declares `missing_value` in addition to usual initialization.
         """
         super().__init__(msg)
         self.missing_value = missing_value
         self.init_params = init_params
-        self.init_params2 = init_params2
 
 class LevelUpError(BaseException):
     """
