@@ -1371,13 +1371,19 @@ class FE4Nonpromotables(Morph4TestCase):
     For all FE4 units who cannot be promoted.
     """
 
+    def setUp(self):
+        """
+        Initializes 'nonpromotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_inventory_size(self):
         """
         Asserts that inventory size is seven.
         """
         expected = 7
-        promotables = self._get_promotables(can_promote=False)
-        for name in promotables:
+        for name in self.nonpromotables:
             morph = Morph4(name, father="Lex")
             actual = morph.inventory_size
             self.assertEqual(actual, expected)
@@ -1386,8 +1392,7 @@ class FE4Nonpromotables(Morph4TestCase):
         """
         For units who cannot be promoted.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph4(name, father="Lex")
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
@@ -1396,9 +1401,8 @@ class FE4Nonpromotables(Morph4TestCase):
         """
         For units who cannot be promoted.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph4(name, father="Lex")
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
@@ -1407,9 +1411,8 @@ class FE4Nonpromotables(Morph4TestCase):
         """
         For nonchildren who cannot be promoted.
         """
-        promotables = self._get_promotables(can_promote=False)
         kids = self._get_kid_list()
-        for name in filter(lambda unit: unit not in kids, promotables):
+        for name in filter(lambda unit: unit not in kids, self.nonpromotables):
             logger.debug("Now inspecting: '%s'", name)
             morph = Morph4(name)
             #morph.level_up(20 - morph.current_lv)
@@ -1422,10 +1425,9 @@ class FE4Nonpromotables(Morph4TestCase):
         """
         For children who cannot be promoted.
         """
-        promotables = self._get_promotables(can_promote=False)
         kids = self._get_kid_list()
         fathers = self._get_father_list()
-        for name in filter(lambda unit: unit in kids, promotables):
+        for name in filter(lambda unit: unit in kids, self.nonpromotables):
             for father in fathers:
                 logger.debug("Now inspecting: '%s' with father as '%s'", name, father)
                 morph = Morph4(name, father=father)
@@ -1440,13 +1442,19 @@ class FE4Promotables(Morph4TestCase):
     For all FE4 units who can be promoted.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_inventory_size(self):
         """
         Asserts that inventory size is seven.
         """
         expected = 7
-        promotables = self._get_promotables(can_promote=True)
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph4(name, father="Lex")
             actual = morph.inventory_size
             self.assertEqual(actual, expected)
@@ -1455,9 +1463,8 @@ class FE4Promotables(Morph4TestCase):
         """
         For units who can be promoted.
         """
-        promotables = self._get_promotables(can_promote=True)
         expected = "*Promote at Base*"
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph4(name, father="Lex")
             actual = morph.get_promotion_item()
             self.assertEqual(actual, expected)
@@ -1471,8 +1478,7 @@ class FE4Promotables(Morph4TestCase):
         """
         For units who can be promoted.
         """
-        promotables = self._get_promotables(can_promote=True)
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph4(name, father="Lex")
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -1481,9 +1487,8 @@ class FE4Promotables(Morph4TestCase):
         """
         For nonchildren who can be promoted.
         """
-        promotables = self._get_promotables(can_promote=True)
         kids = self._get_kid_list()
-        for name in filter(lambda unit: unit not in kids, promotables):
+        for name in filter(lambda unit: unit not in kids, self.promotables):
             logger.debug("Now inspecting: '%s'", name)
             morph = Morph4(name)
             morph.level_up(20 - morph.current_lv)
@@ -1496,10 +1501,9 @@ class FE4Promotables(Morph4TestCase):
         """
         For children who can be promoted.
         """
-        promotables = self._get_promotables(can_promote=True)
         kids = self._get_kid_list()
         fathers = self._get_father_list()
-        for name in filter(lambda unit: unit in kids, promotables):
+        for name in filter(lambda unit: unit in kids, self.promotables):
             for father in fathers:
                 logger.debug("Now inspecting: '%s' with father as '%s'", name, father)
                 morph = Morph4(name, father=father)
@@ -1691,12 +1695,18 @@ class FE5Promotables(Morph5TestCase):
     Runs tests on all FE5 units who can promote.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_get_promotion_list__promotables(self):
         """
         Asserts that promotion list is non-empty.
         """
-        promotables = self._get_promotables(can_promote=True)
-        for name in filter(lambda name_: name_ != "Lara", promotables):
+        for name in filter(lambda name_: name_ != "Lara", self.promotables):
             morph = Morph5(name)
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -1705,10 +1715,9 @@ class FE5Promotables(Morph5TestCase):
         """
         Validates output of method for units who can promote.
         """
-        promotables = self._get_promotables(can_promote=True)
         expected = "Knight Proof"
         exceptions = ("Leaf", "Linoan", "Lara")
-        for name in filter(lambda name_: name_ not in exceptions, promotables):
+        for name in filter(lambda name_: name_ not in exceptions, self.promotables):
             morph = Morph5(name)
             actual = morph.get_promotion_item()
             self.assertEqual(actual, expected)
@@ -1723,9 +1732,8 @@ class FE5Promotables(Morph5TestCase):
         """
         Max out all units.
         """
-        promotables = self._get_promotables(can_promote=True)
         logger.debug("%s", promotables)
-        for name in filter(lambda name: name != "Lara", promotables):
+        for name in filter(lambda name: name != "Lara", self.promotables):
             morph = Morph5(name)
             morph.level_up(20 - morph.current_lv)
             morph.promote()
@@ -1738,13 +1746,19 @@ class FE5Unpromotables(Morph5TestCase):
     Runs tests on all FE5 units who cannot promote.
     """
 
+    def setUp(self):
+        """
+        Initializes 'nonpromotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_get_promotion_list__nonpromotables(self):
         """
         Asserts that promotion list is empty.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph5(name)
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
@@ -1753,8 +1767,7 @@ class FE5Unpromotables(Morph5TestCase):
         """
         Validates output of method for units who cannot promote.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph5(name)
             actual = morph.get_promotion_item()
             logger.debug("Promo-item for '%s' is: '%s'", name, actual)
@@ -1765,9 +1778,7 @@ class FE5Unpromotables(Morph5TestCase):
         """
         Max out all units.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        logger.debug("%s", nonpromotables)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph5(name)
             morph.level_up(20 - morph.current_lv)
             with self.assertRaises(LevelUpError):
@@ -2428,13 +2439,19 @@ class FE6Unpromotables(Morph6TestCase):
     Conduct series of tests with unpromotable units of FE6 as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'nonpromotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Asserts that promotion lists for these lot are empty.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name == "Narshen":
                 break
             morph = Morph6(name, hard_mode=True)
@@ -2445,9 +2462,8 @@ class FE6Unpromotables(Morph6TestCase):
         """
         Asserts that promotion lists for these lot are null.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         #expected = None
-        for name in filter(lambda name_: " (HM)" not in name_, nonpromotables):
+        for name in filter(lambda name_: " (HM)" not in name_, self.nonpromotables):
             if name == "Narshen":
                 break
             try:
@@ -2461,8 +2477,7 @@ class FE6Unpromotables(Morph6TestCase):
         """
         Simulates maxing.
         """
-        nonpromotables = self._get_promotables(False)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name == "Narshen":
                 break
             hard_mode = " (HM)" in name
@@ -2485,13 +2500,19 @@ class FE6Promotables(Morph6TestCase):
     Conduct series of tests with promotable units of FE6 as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Asserts promotion lists are non-empty.
         """
-        promotables = self._get_promotables(can_promote=True)
         #expected = []
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph6(name, hard_mode=True, number_of_declines=0, route="Lalum")
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -2500,7 +2521,6 @@ class FE6Promotables(Morph6TestCase):
         """
         Checks that the promotion item for each promotable is as expected.
         """
-        promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
             'Roy': "*Chapter 22 - Start*",
             #'Marcus':
@@ -2576,7 +2596,7 @@ class FE6Promotables(Morph6TestCase):
             #'Zephiel':
             #'Guinevere':
         }
-        for name in filter(lambda name_: " (HM)" not in name_, promotables):
+        for name in filter(lambda name_: " (HM)" not in name_, self.promotables):
             try:
                 morph = Morph6(name)
             except InitError:
@@ -2599,8 +2619,7 @@ class FE6Promotables(Morph6TestCase):
         """
         Maxing.
         """
-        promotables = self._get_promotables(True)
-        for name in promotables:
+        for name in self.promotables:
             hard_mode = " (HM)" in name
             name = name.replace(" (HM)", "")
             logger.debug("Morph6(%r, hard_mode=%r)", name, hard_mode)
@@ -3218,13 +3237,19 @@ class FE7Unpromotables(Morph7TestCase):
     Conduct series of tests with FE7 unpromotable units as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Asserts that promo-list is empty.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph7(name, lyn_mode=False, hard_mode=True)
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
@@ -3233,9 +3258,7 @@ class FE7Unpromotables(Morph7TestCase):
         """
         Asserts that promo-item is null.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name in self.lyndis_league:
                 morph = Morph7(name, lyn_mode=False)
             else:
@@ -3250,8 +3273,7 @@ class FE7Unpromotables(Morph7TestCase):
         """
         Maxing.
         """
-        nonpromotables = self._get_promotables(False)
-        for name in filter(lambda name: name not in self.lyndis_league, nonpromotables):
+        for name in filter(lambda name: name not in self.lyndis_league, self.nonpromotables):
             hard_mode = " (HM)" in name
             name = name.replace(" (HM)", "")
             logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
@@ -3275,13 +3297,18 @@ class FE7Promotables(Morph7TestCase):
     Conduct series of tests with FE7 promotable units as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Assert that list is non-empty.
         """
-        promotables = self._get_promotables(can_promote=True)
-        #expected = []
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph7(name, lyn_mode=True, hard_mode=True)
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -3290,8 +3317,7 @@ class FE7Promotables(Morph7TestCase):
         """
         Maxing.
         """
-        promotables = self._get_promotables(True)
-        for name in filter(lambda name: name not in self.lyndis_league, promotables):
+        for name in filter(lambda name: name not in self.lyndis_league, self.promotables):
             hard_mode = " (HM)" in name
             name = name.replace(" (HM)", "")
             logger.debug("Morph7(%r, hard_mode=%r)", name, hard_mode)
@@ -3311,7 +3337,6 @@ class FE7Promotables(Morph7TestCase):
         """
         Check that each character is assigned the right promo-item.
         """
-        promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
             'Lyn': "Heaven Seal",
             'Sain': "Knight Crest",
@@ -3364,7 +3389,7 @@ class FE7Promotables(Morph7TestCase):
             #'Renault':
             #'Athos':
         }
-        for name in filter(lambda name_: " (HM)" not in name_, promotables):
+        for name in filter(lambda name_: " (HM)" not in name_, self.promotables):
             if name in self.lyndis_league:
                 morph = Morph7(name, lyn_mode=True)
             else:
@@ -3800,13 +3825,19 @@ class FE8Unpromotables(Morph8TestCase):
     Conduct series of tests with FE8 unpromotable units as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Assert that promo-list is empty.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph8(name)
             actual = morph.get_promotion_list()
             self.assertListEqual(actual, expected)
@@ -3815,9 +3846,7 @@ class FE8Unpromotables(Morph8TestCase):
         """
         Assert that promo-item is null.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             morph = Morph8(name)
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
@@ -3826,8 +3855,7 @@ class FE8Unpromotables(Morph8TestCase):
         """
         Maxing.
         """
-        nonpromotables = self._get_promotables(False)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             logger.debug("Morph8(%r)", name)
             morph = Morph8(name)
             with self.assertRaises(PromotionError) as exc_ctx:
@@ -3849,13 +3877,18 @@ class FE8Promotables(Morph8TestCase):
     Conduct series of tests with FE8 promotable units as subjects.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_get_promotion_list(self):
         """
         Assert promo-list non-empty.
         """
-        promotables = self._get_promotables(can_promote=True)
-        #expected = []
-        for name in filter(lambda name_: name_ not in self.trainees, promotables):
+        for name in filter(lambda name_: name_ not in self.trainees, self.promotables):
             morph = Morph8(name)
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -3864,7 +3897,6 @@ class FE8Promotables(Morph8TestCase):
         """
         Assert that for each unit, the promo-item is correct.
         """
-        promotables = self._get_promotables(can_promote=True)
         promoitem_dict = {
             'Eirika': "Lunar Brace",
             #'Seth',
@@ -3912,7 +3944,7 @@ class FE8Promotables(Morph8TestCase):
         }
         #trainees = ("Ross", "Amelia", "Ewan")
         #for name in filter(lambda name_: name_ not in trainees, promotables):
-        for name in filter(lambda name_: name_ in promoitem_dict, promotables):
+        for name in filter(lambda name_: name_ in promoitem_dict, self.promotables):
             morph = Morph8(name)
             #logger.debug("Getting promo-item for: '%s'", name)
             actual = morph.get_promotion_item()
@@ -3933,8 +3965,7 @@ class FE8Promotables(Morph8TestCase):
         """
         Maxing.
         """
-        promotables = self._get_promotables(True)
-        for name in filter(lambda name: name not in self.trainees, promotables):
+        for name in filter(lambda name: name not in self.trainees, self.promotables):
             logger.debug("Morph8(%r)", name)
             morph = Morph8(name)
             morph.level_up(20 - morph.current_lv)
@@ -4475,13 +4506,19 @@ class FE9Promotables(Morph9TestCase):
     Conduct series of tests with FE9 promotables as subject.
     """
 
+    def setUp(self):
+        """
+        Initializes 'promotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
     def test_get_promotion_item(self):
         """
         Validate promo-item for each unit.
         """
-        promotables = self._get_promotables(can_promote=True)
         expected = "Master Seal"
-        for name in filter(lambda name_: name_ not in ("Volke", "Ike"), promotables):
+        for name in filter(lambda name_: name_ not in ("Volke", "Ike"), self.promotables):
             morph = Morph9(name)
             actual = morph.get_promotion_item()
             logger.debug("Promo-item for '%s' is: '%s'", name, actual)
@@ -4497,8 +4534,7 @@ class FE9Promotables(Morph9TestCase):
         """
         Maxing.
         """
-        promotables = self._get_promotables(True)
-        for name in promotables:
+        for name in self.promotables:
             logger.debug("Morph9(%r)", name)
             morph = Morph9(name)
             morph.level_up(20 - morph.current_lv)
@@ -4516,9 +4552,7 @@ class FE9Promotables(Morph9TestCase):
         """
         Assert promo-list is non-empty.
         """
-        promotables = self._get_promotables(can_promote=True)
-        #expected = []
-        for name in promotables:
+        for name in self.promotables:
             morph = Morph9(name)
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
@@ -4528,13 +4562,19 @@ class FE9Unpromotables(Morph9TestCase):
     Conduct series of tests with FE9 unpromotables as subject.
     """
 
+    def setUp(self):
+        """
+        Initializes 'nonpromotables'.
+        """
+        self.nonpromotables = self._get_promotables(can_promote=False)
+        super().setUp()
+
     def test_get_promotion_list__nonpromotables(self):
         """
         Assert promo-list is empty.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
         expected = []
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name == "Sephiran":
                 break
             morph = Morph9(name)
@@ -4545,9 +4585,7 @@ class FE9Unpromotables(Morph9TestCase):
         """
         Validate promo-item for each unit.
         """
-        nonpromotables = self._get_promotables(can_promote=False)
-        #expected = None
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name == "Sephiran":
                 break
             morph = Morph9(name)
@@ -4558,22 +4596,7 @@ class FE9Unpromotables(Morph9TestCase):
         """
         Maxing.
         """
-        promotables = self._get_promotables(True)
-        for name in promotables:
-            logger.debug("Morph9(%r)", name)
-            morph = Morph9(name)
-            morph.level_up(20 - morph.current_lv)
-            morph.promote()
-            morph.level_up(19)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
-            with self.assertRaises(PromotionError) as err_ctx:
-                morph.promote()
-            expected = err_ctx.exception.reason
-            actual = PromotionError.Reason.NO_PROMOTIONS
-            self.assertEqual(actual, expected)
-        nonpromotables = self._get_promotables(False)
-        for name in nonpromotables:
+        for name in self.nonpromotables:
             if name == "Sephiran":
                 break
             logger.debug("Morph9(%r)", name)
@@ -4591,6 +4614,37 @@ class FE9Unpromotables(Morph9TestCase):
             expected = err_ctx.exception.reason
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
+
+class FE9Promotables(Morph9TestCase):
+    """
+    Conduct series of tests with FE9 promotables as subject.
+    """
+
+    def setUp(self):
+        """
+        Initializes 'nonpromotables'.
+        """
+        self.promotables = self._get_promotables(can_promote=True)
+        super().setUp()
+
+    def test_promotables(self):
+        """
+        Maxing.
+        """
+        for name in self.promotables:
+            logger.debug("Morph9(%r)", name)
+            morph = Morph9(name)
+            morph.level_up(20 - morph.current_lv)
+            morph.promote()
+            morph.level_up(19)
+            with self.assertRaises(LevelUpError):
+                morph.level_up(1)
+            with self.assertRaises(PromotionError) as err_ctx:
+                morph.promote()
+            expected = err_ctx.exception.reason
+            actual = PromotionError.Reason.NO_PROMOTIONS
+            self.assertEqual(actual, expected)
+        nonpromotables = self._get_promotables(False)
 
 class FE9Knight(Morph9TestCase):
     """
