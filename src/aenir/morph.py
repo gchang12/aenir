@@ -775,7 +775,7 @@ class Morph4(Morph):
             # begin query
             path_to_db = self.path_to("cleaned_stats.db")
             table = "characters__base_stats1"
-            fields = Stats.STAT_LIST() + ("Class", "Lv", "Name", "Father")
+            fields = Stats.STAT_LIST() + ("Class", "Lv")
             filters = {"Name": name, "Father": father_}
             logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
                 path_to_db,

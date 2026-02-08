@@ -1596,6 +1596,13 @@ class FE4ChildUnit(Morph4TestCase):
         self.morph = Morph4("Lakche", father="Lex")
         super().setUp()
 
+    def test_init__no_warning(self):
+        """
+        Asserts that no warning is logged upon successful initialization.
+        """
+        with self.assertNoLogs(logger, logging.WARNING):
+            Morph4("Lakche", father="Lex")
+
     def test_set_min_promo_level(self):
         """
         Tests that this method is being implemented.
