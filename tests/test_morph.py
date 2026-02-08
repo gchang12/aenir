@@ -1293,6 +1293,18 @@ class FE4Deirdre(Morph4TestCase):
         self.morph = Morph4("Diadora")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
     def test_get_promotion_item__deirdre(self):
         """
         Asserts that Deirdre cannot promote.
@@ -1314,6 +1326,18 @@ class FE4UnpromotedUnit(Morph4TestCase):
         """
         self.morph = Morph4("Lex")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
 
     def test_get_promotion_item(self):
         """
@@ -1497,6 +1521,19 @@ class FE4PromotedUnit(Morph4TestCase):
         self.morph = Morph4("Sigurd")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_get_promotion_item(self):
         """
         Demonstrates `get_promotion_item` for promoted unit.
@@ -1554,6 +1591,19 @@ class FE4ChildUnit(Morph4TestCase):
         """
         self.morph = Morph4("Lakche", father="Lex")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_level_up(self):
         """
@@ -1735,6 +1785,19 @@ class FE5Leif(Morph5TestCase):
         self.morph = Morph5("Leaf")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_use_stat_booster__maxed_stat(self):
         """
         Trying to use a stat booster when the stat it boosts is maxed.
@@ -1806,6 +1869,19 @@ class FE5Linoan(Morph5TestCase):
         self.morph = Morph5("Linoan")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_get_promotion_item(self):
         """
         Inspects method output for Morph with exceptional promotion conditions.
@@ -1842,6 +1918,19 @@ class FE5Lara(Morph5TestCase):
         """
         self.morph = Morph5("Lara")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_long_path(self):
         """
@@ -1948,13 +2037,33 @@ class FE5PromotedUnit(Morph5TestCase):
     Tests centered around a unit who cannot be promoted in FE5.
     """
 
+    def setUp(self):
+        """
+        Sets up Morph object.
+        """
+        morph = Morph5("Evayle")
+        self.morph = morph
+
     def test_get_promotion_item__promoted(self):
         """
         Asserts that promo-item for a promoted unit is None.
         """
-        morph = Morph5("Evayle")
+        morph = self.morph
         actual = morph.get_promotion_item()
         self.assertIsNone(actual)
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
 class FE5Eda(Morph5TestCase):
     """
@@ -1967,6 +2076,19 @@ class FE5Eda(Morph5TestCase):
         """
         self.morph = Morph5("Eda")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_apply_scroll_bonuses__negatives_are_zeroed_out(self):
         """
@@ -2567,6 +2689,19 @@ class FE6Roy(Morph6TestCase):
         self.morph = Morph6("Roy")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_no_hardmode_version(self):
         """
         Demo of initializing a non-HM unit with `hard_mode` specified.
@@ -2649,6 +2784,19 @@ class FE6Hugh(Morph6TestCase):
         """
         self.morph = self._create_control_hugh()
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     @staticmethod
     def _create_control_hugh():
@@ -2852,6 +3000,19 @@ class FE7Hector(Morph7TestCase):
         self.morph = Morph7("Hector")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_promote__early(self):
         """
         Emphasize special promotion.
@@ -2874,6 +3035,19 @@ class FE7Eliwood(Morph7TestCase):
         """
         self.morph = Morph7("Eliwood")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_eliwood(self):
         """
@@ -2988,6 +3162,19 @@ class FE7Nino(Morph7TestCase):
         """
         self.morph = Morph7("Nino")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
 
     def test_level_up(self):
@@ -4001,6 +4188,19 @@ class FE8Eirika(Morph8TestCase):
         self.morph = Morph8("Eirika")
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
+
     def test_promote__early(self):
         """
         Asserts that Eirika can promote early.
@@ -4056,6 +4256,19 @@ class FE8Ephraim(Morph8TestCase):
         """
         self.morph = Morph8("Ephraim")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_inventory_size(self):
         """
@@ -4120,9 +4333,21 @@ class FE9Ike(Morph9TestCase):
         """
         Initializes morph instance.
         """
-        name = "Ike"
-        self.morph = Morph9(name)
+        self.morph = Morph9("Ike")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_inventory_size(self):
         """
@@ -4209,9 +4434,21 @@ class FE9Volke(Morph9TestCase):
         """
         Initializes morph instance.
         """
-        name = "Volke"
-        self.morph = Morph9(name)
+        self.morph = Morph9("Volke")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
 
     def test_promote(self):
         """
@@ -4368,6 +4605,18 @@ class FE9Knight(Morph9TestCase):
         self.morph = Morph9(name)
         super().setUp()
 
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
+
     def test_inventory_size(self):
         """
         Validate inventory size.
@@ -4456,9 +4705,20 @@ class FE9BandEquipper(Morph9TestCase):
         """
         Initializes morph instance.
         """
-        name = "Jill"
-        self.morph = Morph9(name)
+        self.morph = Morph9("Jill")
         super().setUp()
+
+    def test_set_min_promo_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_min_promo_level()
+
+    def test_set_max_level(self):
+        """
+        Tests that this method is being implemented.
+        """
+        self.morph._set_max_level()
 
     def test_equip_band(self):
         """

@@ -893,17 +893,7 @@ class Morph4(Morph):
         # - max_level = 30
         # - promote: error
         """
-        raise NotImplementedError("This wasn't supposed to be called.")
-
-    def get_promotion_item(self) -> str | None:
-        """
-        Returns name of item used to promote, if applicable.
-        """
-        if self.max_level == 30:
-            promotion_item = None
-        else:
-            promotion_item = "*Promote at Base*"
-        return promotion_item
+        pass
 
     def _set_max_level(self) -> None:
         """
@@ -915,7 +905,17 @@ class Morph4(Morph):
         # - max_level = 30
         # - promote: error
         """
-        raise NotImplementedError("This wasn't supposed to be called.")
+        pass
+
+    def get_promotion_item(self) -> str | None:
+        """
+        Returns name of item used to promote, if applicable.
+        """
+        if self.max_level == 30:
+            promotion_item = None
+        else:
+            promotion_item = "*Promote at Base*"
+        return promotion_item
 
     def promote(self) -> None:
         """
