@@ -237,6 +237,22 @@ class GenealogyStats(AbstractStats):
         """
         return ()
 
+    @staticmethod
+    def ABSOLUTE_MAXES() -> Iterable[str]:
+        """
+        Returns list of absolute maxes.
+        """
+        return (
+            80, #"HP",
+            30, #"Str",
+            30, #"Mag",
+            30, #"Skl",
+            30, #"Spd",
+            30, #"Lck",
+            30, #"Def",
+            30, #"Res",
+        )
+
 class ThraciaStats(AbstractStats):
     """
     Declares stats used for FE5: Thracia 776.
@@ -274,6 +290,26 @@ class ThraciaStats(AbstractStats):
         )
 
 
+    @staticmethod
+    def ABSOLUTE_MAXES() -> Iterable[str]:
+        """
+        Returns list of absolute maxes.
+        """
+        return (
+            80, #"HP",
+            20, #"Str",
+            20, #"Mag",
+            20, #"Skl",
+            20, #"Spd",
+            20, #"Lck",
+            20, #"Def",
+            20, #"Con",
+            20, #"Mov",
+            10, #"Lead",
+            5, #"MS",
+            5, #"PC",
+        )
+
 class GBAStats(AbstractStats):
     """
     Declares stats used for FE6, FE7, and FE8.
@@ -306,6 +342,22 @@ class GBAStats(AbstractStats):
             "Mov",
         )
 
+    @staticmethod
+    def ABSOLUTE_MAXES() -> Iterable[str]:
+        """
+        Returns list of absolute maxes.
+        """
+        return (
+            80, #"HP",
+            30, #"Pow",
+            30, #"Skl",
+            30, #"Spd",
+            30, #"Lck",
+            30, #"Def",
+            30, #"Res",
+            25, #"Con",
+            15, #"Mov",
+        )
 
 class RadiantStats(AbstractStats):
     """
@@ -341,5 +393,24 @@ class RadiantStats(AbstractStats):
             "Mov",
             "Con",
             "Wt",
+        )
+
+    @staticmethod
+    def ABSOLUTE_MAXES() -> Iterable[str]:
+        """
+        Returns list of absolute maxes.
+        """
+        return (
+            80, #"HP",
+            40, #"Str",
+            40, #"Mag",
+            40, #"Skl",
+            40, #"Spd",
+            40, #"Lck",
+            40, #"Def",
+            40, #"Res",
+            99, #"Mov",
+            99, #"Con",
+            99, #"Wt",
         )
 
