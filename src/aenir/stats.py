@@ -209,32 +209,6 @@ class AbstractStats(abc.ABC):
         for stat in self.get_growable_stats():
             yield getattr(self, stat)
 
-    def __repr__(self, with_title: bool = True) -> str:
-        """
-        Returns pretty-printed str-list of stats.
-        """
-        statlist = self.as_list()
-        def get_formatted_statlist(statval: Tuple[str, int]) -> str:
-            """
-            Returns field-stat pair.
-            """
-            format_str = "% 4s: %5.2f"
-            field, value = statval
-            value = value or 0
-            return format_str % (field, value * 0.01)
-        statlist_as_str = "\n".join(get_formatted_statlist(statval) for statval in statlist)
-        if with_title:
-            header = self.__class__.__name__
-            header_border = len(header) * "="
-            statlist_as_str = "\n".join([header, header_border, statlist_as_str])
-        return statlist_as_str
-
-    def __str__(self) -> str:
-        """
-        Returns pretty-printed str-list of stats.
-        """
-        return self.__repr__()
-
 class GenealogyStats(AbstractStats):
     """
     Declares stats used for FE4: Genealogy of the Holy War.

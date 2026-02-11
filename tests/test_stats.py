@@ -108,39 +108,6 @@ class IntStatsTest(unittest.TestCase):
         }
         logger.critical("%s", self.id())
 
-    def test_repr(self):
-        """
-        Prints repr of stats to log-report.
-        """
-        stats = self.FunctionalStats(**self.statdict1)
-        logger.debug("\n%r", stats)
-
-    def test_repr1(self):
-        """
-        Validates repr of stats.
-        """
-        init_kwargs = {
-            "a": 18,
-            "b": 7,
-            "c": 5,
-            "d": 9,
-            "e": 2,
-            "f": 5,
-            "g": 1,
-        }
-        stats = self.FunctionalStats(**init_kwargs)
-        expected = '''FunctionalStats
-===============
-   a: 18.00
-   b:  7.00
-   c:  5.00
-   d:  9.00
-   e:  2.00
-   f:  5.00
-   g:  1.00'''
-        actual = stats.__repr__()
-        self.assertEqual(actual, expected)
-
     def test_sum(self):
         """
         Tests sum method.
@@ -416,15 +383,6 @@ class IntStatsTest(unittest.TestCase):
         #with self.assertLogs(logger, logging.CRITICAL) as log_ctx:
         with self.assertLogs(logger, logging.WARNING) as log_ctx:
             stats_obj = self.FunctionalStats(**stat_dict)
-
-    def test_str(self):
-        """
-        Prints str-dunder of class to log-report.
-        """
-        kwargs = self.statdict1
-        stats = self.FunctionalStats(**kwargs)
-        actual = stats.__str__()
-        logger.debug("actual: %s", actual)
 
     def test_add__type_error(self):
         """
