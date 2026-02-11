@@ -458,125 +458,6 @@ class Morph(BaseMorph):
         """
         return copy.deepcopy(self)
 
-    def _tare(self) -> None:
-        """
-        Zeroes out the attributes common to all Morph subclasses.
-        """
-        self._name = None
-        #self.game = None
-        #self.current_cls = None
-        #self.current_lv = None
-        #self.current_stats = None
-        #self.growth_rates = None
-        #self.current_clstype = None
-        #self.max_stats = None
-        #self.max_level = None
-        #self.min_promo_level = None
-        #self.promo_cls = None
-        #self.possible_promotions = None
-        self._meta.clear()
-        #self.stat_boosters.clear()
-        self.history.clear()
-
-    def __gt__(self, other: Self) -> Self:
-        """
-        Returns a Morph containing a list of stat differences.
-        """
-        # self - other
-        # This should throw an error if the things don't match
-        diff = self.current_stats - other.current_stats
-        kishuna = self.copy()
-        kishuna._tare()
-        kishuna.current_stats = diff
-        return kishuna
-
-    def __iter__(self) -> Iterator[int]:
-        """
-        Iterates over dynamic stats in self.Stats.
-        """
-        return self.current_stats.__iter__()
-
-    def _as_string(self, *, header_data: List[Tuple[str, str]] | None = None, miscellany: None | List = None, show_stat_boosters: bool = True) -> str:
-        """
-        Returns pertinent data about Morph as string.
-        """
-        # header: game, name, init-params
-        header = [
-            ("Game", "FE%d" % self.game.value + "-" + self.game.formal_name),
-            ("Unit", self.name),
-        ]
-        if header_data is not None:
-            header.extend(header_data)
-        header.append(
-            ("Class", ("Lv%02d" % self.current_lv) + "-" + self.current_cls),
-        )
-        # class-lv history: current, previous, etc.
-        #history = [ (self.current_lv, self.current_cls), ]
-        history = []
-        history.extend([(lv, cls) for lv, cls in self.history])
-        # misc:
-        #miscellany_ = []
-        #self._meta = None
-        #self.stat_boosters = None
-        # stats:
-        def datapair_to_string(keyval: Tuple[str, str] | None) -> str:
-            """
-            For printing header data.
-            """
-            format_str = "% 6s: %s"
-            return format_str % keyval
-        data_as_str = [
-            "",
-            "Profile\n=======",
-            *map(datapair_to_string, header),
-        ]
-        data_as_str.extend(
-            [
-                " ",
-                "Stats\n=====",
-                self.current_stats.__repr__(with_title=False),
-            ]
-        )
-        if history:
-            data_as_str.append(" \nHistory\n=======")
-            data_as_str.append(
-                "\n".join(
-                    [
-                        #*map(lambda lvcls: "Lv%02d-%s" % lvcls, history),
-                        "Lv Class\n-- -----",
-                        *map(lambda lvcls: "%02d %s" % lvcls, history),
-                    ]
-                ),
-            )
-        #if miscellany or self._meta["Stat Boosters"]:
-        if miscellany or show_stat_boosters:
-            if show_stat_boosters and self._meta["Stat Boosters"]:
-                statboost_history = ["%s@Lv%02d-%s" % (item, lv, cls) for lv, cls, item in self._meta["Stat Boosters"]]
-                # TODO: This can apparently be None
-                if miscellany is not None:
-                    miscellany.append(
-                        ("Stat Boosters", ", ".join(formatted_entry for formatted_entry in statboost_history)),
-                    )
-            if miscellany is not None:
-                data_as_str.append(" \nMiscellany\n==========")
-                data_as_str.extend(list(map(datapair_to_string, miscellany)))
-        data_as_str.append("")
-        return indent("\n".join(data_as_str), " " * 4)
-
-    def __repr__(self) -> str:
-        """
-        Returns pertinent data about Morph as string.
-        """
-        return self.__str__()
-
-    def __str__(self) -> str:
-        """
-        Returns pertinent data about Morph as string. Effectively a decorator for `as_string`.
-        """
-        if self.name is None:
-            return "\n" + indent(self.current_stats.__repr__(with_title=True), " " * 4) + "\n"
-        return self._as_string()
-
     def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
@@ -927,17 +808,6 @@ class Morph4(Morph):
         self.max_level = 30
         self.min_promo_level = 20
 
-    def as_string(self) -> str:
-        """
-        Appends 'Sire' field to str-version of Morph as needed.
-        """
-        header_data = []
-        if self.father is not None:
-            header_data.append(
-                ("Sire", self.father),
-            )
-        return super()._as_string(header_data=header_data, show_stat_boosters=False)
-
 class Morph5(Morph):
     """
     Thracia 776
@@ -1175,17 +1045,6 @@ class Morph5(Morph):
         self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
-    def as_string(self) -> str:
-        """
-        Appends `Scrolls` field to str-representation as necessary.
-        """
-        miscellany = []
-        if self.equipped_scrolls:
-            miscellany.append(
-                ("Scrolls", ", ".join(self.equipped_scrolls)),
-            )
-        return super()._as_string(miscellany=miscellany)
-
 class Morph6(Morph):
     """
     Sword of Seals
@@ -1397,23 +1256,6 @@ class Morph6(Morph):
         }
         super()._use_stat_booster(item_name, item_bonus_dict)
 
-    def as_string(self) -> str:
-        """
-        Appends extra attributes to str-representation of Morph.
-        """
-        _meta = self._meta
-        miscellany = []
-        if _meta["Number of Declines"] is not None:
-            miscellany.append(
-                ("Number of Declines", _meta["Number of Declines"]),
-            )
-        header_data = []
-        if _meta["Hard Mode"] is not None:
-            header_data.append(
-                ("HM", _meta["Hard Mode"]),
-            )
-        return super()._as_string(header_data=header_data, miscellany=miscellany)
-
 class Morph7(Morph):
     """
     Blazing Sword
@@ -1610,38 +1452,6 @@ class Morph7(Morph):
         }
         super()._use_stat_booster(item_name, item_bonus_dict)
 
-    def as_string(self) -> str:
-        """
-        Appends LM and HM fields to str-representation, plus Afa's Drops field.
-        """
-        # header
-        header_data = []
-        header_fields = (
-            "Lyn Mode",
-            "Hard Mode",
-        )
-        _meta = self._meta
-        def get_initials(name: str) -> str:
-            """
-            Returns the first letter of each word in `name`.
-            """
-            initials = []
-            for word in name.split(' '):
-                initials.append(word[0])
-            return "".join(initials)
-        for field in filter(lambda field_: _meta[field_] is not None, header_fields):
-            header_data.append(
-                (get_initials(field), _meta[field]),
-            )
-        # miscellany
-        miscellany = []
-        _growths_item = self._growths_item
-        if _meta[_growths_item]:
-            miscellany.append(
-                (_growths_item, "Lv%02d-%s" % _meta[_growths_item]),
-            )
-        return super()._as_string(header_data=header_data, miscellany=miscellany)
-
 
 class Morph8(Morph):
     """
@@ -1787,19 +1597,6 @@ class Morph8(Morph):
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
         self.growth_rates += growths_increment
         self._meta[_growths_item] = (self.current_lv, self.current_cls)
-
-    def as_string(self) -> str:
-        """
-        Appends growths item field to str-representation of Morph.
-        """
-        _meta = self._meta
-        miscellany = []
-        _growths_item = self._growths_item
-        if _meta[_growths_item]:
-            miscellany.append(
-                (_growths_item, _meta[_growths_item]),
-            )
-        return super()._as_string(miscellany=miscellany)
 
 class Morph9(Morph):
     """
@@ -2101,18 +1898,6 @@ class Morph9(Morph):
         self.equipped_bands.pop(band_name)
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
-
-    def as_string(self) -> str:
-        """
-        Appends equipped bands to str-representation of Morph.
-        """
-        _meta = self._meta
-        miscellany = []
-        if self.equipped_bands:
-            miscellany.append(
-                ("Bands", ", ".join(self.equipped_bands)),
-            )
-        return super()._as_string(miscellany=miscellany)
 
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """

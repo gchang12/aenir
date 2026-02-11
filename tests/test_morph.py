@@ -540,48 +540,6 @@ class Morph6Class2(unittest.TestCase):
         }
         self.kishuna = self.Morph(**self.init_kwargs)
 
-    def test_as_string(self):
-        """
-        Prints str-representation to log-report.
-        """
-        morph = self.kishuna
-        morph._use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
-        miscellany = [("Hard Mode", "True")]
-        actual = morph._as_string(miscellany=miscellany, show_stat_boosters=True)
-        logger.debug("as_string -> %s", actual)
-
-    def test_as_string2(self):
-        """
-        Prints str-representation to log-report when miscellany=None
-        """
-        morph = self.kishuna
-        morph._use_stat_booster("Angelic Robe", {"Angelic Robe": ("HP", 7)})
-        miscellany = None
-        actual = morph._as_string(miscellany=miscellany, show_stat_boosters=True)
-        logger.debug("as_string -> %s", actual)
-
-    def test_iter(self):
-        """
-        Asserts that iter returns list of growable stats and their values.
-        """
-        kwargs = self.init_kwargs
-        multiplier = 100
-        morph = self.kishuna
-        _expected = [
-            ("HP", 22),
-            ("Pow", 7),
-            ("Skl", 12),
-            ("Spd", 13),
-            ("Lck", 2),
-            ("Def", 5),
-            ("Res", 0),
-        ]
-        actual = []
-        for statval in morph:
-            actual.append(statval)
-        expected = [numval * multiplier for (_, numval) in _expected]
-        self.assertListEqual(actual, expected)
-
     def test_CHARACTER_LIST(self):
         """
         Validates list of all valid characters.
@@ -2845,15 +2803,6 @@ class FE6Hugh(Morph6TestCase):
         control_morph.current_stats = control_morph.Stats(**stat_dict)
         return control_morph
 
-    def test_as_string(self):
-        """
-        Prints repr to log.
-        """
-        hugh = self.morph
-        actual = hugh.as_string()
-        self.assertIsInstance(actual, str)
-        logger.debug("as_string -> %s", actual)
-
     def test_hugh__INVALID_number_of_declines(self):
         """
         Try initializing Morph of Hugh with invalid decline count.
@@ -4204,16 +4153,6 @@ class FE8Ewan(Morph8TestCase):
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
 
-    def test_as_string(self):
-        """
-        Demo repr of FE8 unit Ewan.
-        """
-        morph = Morph8("Ewan")
-        morph.use_metiss_tome()
-        actual = morph.as_string()
-        self.assertIsInstance(actual, str)
-        logger.debug("as_string -> %s", actual)
-
 class FE8Eirika(Morph8TestCase):
     """
     Conduct series of tests with FE8!Eirika as subject.
@@ -4843,7 +4782,6 @@ class FE9BandEquipper(Morph9TestCase):
         jill.level_up(10)
         jill2 = Morph9("Jill")
         jill2.level_up(10)
-        logger.debug("%r", jill > jill2)
 
     def test_equip_band__exceed_inventory_space(self):
         """
@@ -5032,17 +4970,6 @@ class ReprTestCases(unittest.TestCase):
         rutger.promote()
         logger.debug("\n\n%s\n", rutger)
 
-    def test_as_string__gba_growths_item(self):
-        """
-        Shows REPR for Afa's Drops character from FE8.
-        """
-        heath = get_morph(7, "Heath", hard_mode=True)
-        heath.use_afas_drops()
-        heath.level_up(20 - heath.current_lv)
-        heath.promote()
-        heath.use_stat_booster("Speedwings")
-        logger.debug("\n\n%s\n", heath.as_string())
-
     def test_genealogy_kid(self):
         """
         Shows REPR for promoted Genealogy kid.
@@ -5080,35 +5007,3 @@ class ReprTestCases(unittest.TestCase):
         #morph.level_up(20 - morph.current_lv)
         morph.promote()
         logger.debug("\n\n%s\n", morph)
-
-class GtTestCases(unittest.TestCase):
-    """
-    Shows REPR of gt of various Morphs.
-    """
-
-    def test_gt__christmas_cavaliers(self):
-        """
-        Shows REPR for unit comparison of XMas Cavaliers.
-        """
-        morph1 = Morph6("Allen")
-        morph2 = Morph6("Lance")
-        actual = (morph1 > morph2).__str__()
-        logger.debug("\n\n%s\n", actual)
-
-    def test_gt__hm_and_nonhm(self):
-        """
-        Shows REPR for comparison of a unit across difficulties.
-        """
-        morph1 = Morph6("Rutger", hard_mode=True)
-        morph2 = Morph6("Marcus")
-        actual = (morph1 > morph2).__str__()
-        logger.debug("\n\n%s\n", actual)
-
-    def test_gt__genealogykid_and_adult(self):
-        """
-        Shows REPR for comparison of two units with differing attributes.
-        """
-        morph1 = Morph4("Lakche", father="Lex")
-        morph2 = Morph4("Sigurd")
-        actual = (morph1 > morph2).__str__()
-        logger.debug("\n\n%s\n", actual)
