@@ -1,0 +1,13 @@
+## The following requirements were added by pip freeze:
+-e git+https://github.com/gchang12/aenir.git@1ebe08f5d7468402da59ce9e2789ced5c8b4e36e#egg=aenir
+cachetools==7.0.1
+chardet==5.2.0
+colorama==0.4.6
+distlib==0.4.0
+filelock==3.20.3
+packaging==26.0
+platformdirs==4.5.1
+pluggy==1.6.0
+pyproject-api==1.10.0
+tox==4.34.1
+virtualenv==20.36.1
