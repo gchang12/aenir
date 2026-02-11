@@ -2963,6 +2963,29 @@ class FE7Ninian(Morph7TestCase):
         with self.assertRaises(UnitNotFoundError):
             Morph7("Ninian", lyn_mode=True)
 
+class FE7Ninian(Morph7TestCase):
+    """
+    Conduct series of initialization tests with FE7!Nils as subject.
+    """
+
+    def test_nils__lyn_mode(self):
+        """
+        Attempting to initialize LM!Nils results in no error.
+        """
+        morph = Morph7("Nils", lyn_mode=True)
+        actual = morph.name
+        expected = "Nils"
+        self.assertEqual(actual, expected)
+
+    def test_nils__no_lyn_mode(self):
+        """
+        Attempting to initialize LM!Nils results in no error.
+        """
+        morph = Morph7("Nils", lyn_mode=False)
+        actual = morph.name
+        expected = "Nils"
+        self.assertEqual(actual, expected)
+
 class FE7Hector(Morph7TestCase):
     """
     Conduct series of tests with FE7!Hector as subject.

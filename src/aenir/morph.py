@@ -1182,7 +1182,7 @@ class Morph6(Morph):
                         init_params=hm_params,
                     )
             else:
-                if hard_mode:
+                if hard_mode is True:
                     name += " (HM)"
         else:
             if route is not None:
@@ -1195,10 +1195,10 @@ class Morph6(Morph):
                         missing_value=InitError.MissingValue.HARD_MODE,
                         init_params=init_params,
                     )
-                if hard_mode:
+                if hard_mode is True:
                     name += " (HM)"
             else:
-                if hard_mode:
+                if hard_mode is True:
                     logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
@@ -1376,12 +1376,8 @@ class Morph7(Morph):
                 True: 0,
                 False: 1,
             }[lyn_mode]
-            if not lyn_mode and name == "Nils":
-                # test this.
-                logger.warning("`lyn_mode` is False. Treating Morph as 'Ninian'.")
-                name = "Ninian"
         else:
-            if lyn_mode:
+            if lyn_mode is True:
                 logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
                 if name == "Ninian":
                     raise UnitNotFoundError(
@@ -1399,15 +1395,15 @@ class Morph7(Morph):
                     missing_value=InitError.MissingValue.HARD_MODE,
                     init_params={"hard_mode": (False, True)},
                 )
-            if hard_mode:
+            if hard_mode is True:
                 name += " (HM)"
         else:
-            if hard_mode:
+            if hard_mode is True:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
             hard_mode = None
         # initialize as usual
         super().__init__(name, which_bases=which_bases, which_growths=0)
-        if not lyn_mode and name == "Wallace":
+        if lyn_mode is False and name == "Wallace":
             # directs lookup-function to max stats for the General class
             current_clstype = "classes__promotion_gains"
         else:
