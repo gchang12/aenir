@@ -394,7 +394,7 @@ class IntStatsTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             stats1 + stats2
 
-    def test_sub__type_error(self):
+    def test_gt__type_error(self):
         """
         Asserts raising of type error if subtraction of two Stats object is attempted.
         """

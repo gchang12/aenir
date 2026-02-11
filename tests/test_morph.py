@@ -2652,7 +2652,7 @@ class FE6Rutger(Morph6TestCase):
         """
         rutger = Morph6("Rutger", hard_mode=False)
         rutger_hm = Morph6("Rutger", hard_mode=True)
-        diff = (rutger.current_stats - rutger_hm.current_stats).as_dict()
+        diff = (rutger.current_stats > rutger_hm.current_stats).as_dict()
         for stat, val in diff.items():
             if stat in ("Mov", "Con"):
                 logger.debug("%s is None.", stat)
@@ -3180,7 +3180,7 @@ class FE7Nino(Morph7TestCase):
         nino = self.morph
         nino.use_afas_drops()
         nino2 = Morph7("Nino")
-        diff = (nino.growth_rates - nino2.growth_rates).as_dict()
+        diff = (nino.growth_rates > nino2.growth_rates).as_dict()
         self.assertSetEqual(set(diff.values()), {5, None})
         with self.assertRaises(GrowthsItemError) as err_ctx:
             nino.use_afas_drops()
@@ -3422,7 +3422,7 @@ class FE7HardModeUnit(Morph7TestCase):
         self.assertIsNone(raven._meta["Hard Mode"])
         raven2 = Morph7("Raven", hard_mode=True)
         self.assertIs(raven2._meta["Hard Mode"], True)
-        diff = (raven.current_stats - raven2.current_stats).as_dict()
+        diff = (raven.current_stats > raven2.current_stats).as_dict()
         self.assertSetEqual(set(diff.values()), {0, None})
 
     def test_hardmode_version_exists(self):
@@ -3443,7 +3443,7 @@ class FE7HardModeUnit(Morph7TestCase):
         """
         raven = Morph7("Raven", hard_mode=False)
         raven_hm = Morph7("Raven", hard_mode=True)
-        diff = (raven.current_stats - raven_hm.current_stats).as_dict()
+        diff = (raven.current_stats > raven_hm.current_stats).as_dict()
         for stat, val in diff.items():
             if stat == "Lck":
                 logger.debug("Stat is 'Lck'. Expecting zero-diff.")
@@ -3509,7 +3509,7 @@ class FE7LyndisLeague(Morph7TestCase):
         self.assertIs(lyn._meta["Lyn Mode"], True)
         lyn2 = Morph7("Lyn", lyn_mode=False)
         self.assertIs(lyn2._meta["Lyn Mode"], False)
-        diff = (lyn.current_stats - lyn2.current_stats).as_dict()
+        diff = (lyn.current_stats > lyn2.current_stats).as_dict()
         self.assertNotEqual(set(diff.values()), {0})
 
     def test_lyndis_league(self):
@@ -3537,7 +3537,7 @@ class FE7LyndisLeague(Morph7TestCase):
             self.assertIs(morph._meta["Lyn Mode"], True)
             morph2 = Morph7(name, lyn_mode=False)
             self.assertIs(morph2._meta["Lyn Mode"], False)
-            diff = (morph.current_stats - morph2.current_stats).as_dict()
+            diff = (morph.current_stats > morph2.current_stats).as_dict()
             if name in ("Dorcas", "Serra", "Erk", "Matthew", "Nils", "Lucius"):
                 logger.debug("'%s' does not differ stat-wise between tutorial and main campaign.", name)
                 continue
@@ -4145,7 +4145,7 @@ class FE8Ewan(Morph8TestCase):
         ewan = Morph8("Ewan")
         ewan.use_metiss_tome()
         ewan2 = Morph8("Ewan")
-        diff = (ewan.growth_rates - ewan2.growth_rates)
+        diff = (ewan.growth_rates > ewan2.growth_rates)
         self.assertSetEqual(set(diff), {5})
         with self.assertRaises(GrowthsItemError) as err_ctx:
             ewan.use_metiss_tome()
@@ -4688,7 +4688,7 @@ class FE9Knight(Morph9TestCase):
         self.assertEqual(actual, expected)
         # compare growths
         new_growths = kieran.growth_rates
-        comparison = new_growths - og_growths
+        comparison = new_growths > og_growths
         actual = comparison.Spd
         expected = 30
         self.assertEqual(actual, expected)

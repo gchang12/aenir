@@ -169,7 +169,7 @@ class AbstractStats(abc.ABC):
             stat_dict[stat] = self_stat + other_stat
         return self.__class__(multiplier=1, **stat_dict)
 
-    def __sub__(self, other: Self) -> Self:
+    def __gt__(self, other: Self) -> Self:
         """
         Obtains difference of growable stats of two Stats objects and returns the result in a new Stats object.
         Error is thrown if the Stats objects are not of the same type.
