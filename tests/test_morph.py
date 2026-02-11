@@ -190,18 +190,6 @@ class GamedMorph(unittest.TestCase):
         )
         self.assertEqual(actual.fetchall(), expected.fetchall())
 
-    @unittest.skip("No `inventory_size` attribute yet.")
-    def test_inventory_size_is_zero(self):
-        """
-        Asserts inventory size is zero for games without scrolls or bands.
-        """
-        actual = self.Morph.GAME().value
-        expected = 7 # ie, Blazing Sword
-        self.assertEqual(actual, expected)
-        actual = self.kishuna.inventory_size
-        expected = 0
-        self.assertEqual(actual, expected)
-
     def test_query_db__fields_not_iterable(self):
         """
         Query db with non-iterable field.
@@ -1692,20 +1680,6 @@ class FE5Promotables(Morph5TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
-    @unittest.skip("Time-consuming.")
-    def test_promotables(self):
-        """
-        Max out all units.
-        """
-        logger.debug("%s", promotables)
-        for name in filter(lambda name: name != "Lara", self.promotables):
-            morph = Morph5(name)
-            morph.level_up(20 - morph.current_lv)
-            morph.promote()
-            morph.level_up(19)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
-
 class FE5Unpromotables(Morph5TestCase):
     """
     Runs tests on all FE5 units who cannot promote.
@@ -1737,17 +1711,6 @@ class FE5Unpromotables(Morph5TestCase):
             actual = morph.get_promotion_item()
             logger.debug("Promo-item for '%s' is: '%s'", name, actual)
             self.assertIsNone(actual)
-
-    @unittest.skip("Time-consuming.")
-    def test_nonpromotables(self):
-        """
-        Max out all units.
-        """
-        for name in self.nonpromotables:
-            morph = Morph5(name)
-            morph.level_up(20 - morph.current_lv)
-            with self.assertRaises(LevelUpError):
-                morph.level_up(1)
 
 class FE5Leif(Morph5TestCase):
     """
