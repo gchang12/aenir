@@ -74,7 +74,6 @@ class BaseMorph(abc.ABC):
         """
         root = importlib.resources.files("aenir")
         path = "/".join((str(root), "static", cls.GAME().url_name, file))
-        logger.debug("path: %s", path)
         return path
 
     @staticmethod
@@ -97,8 +96,6 @@ class BaseMorph(abc.ABC):
             )
             query += " WHERE " + conditions
         query += ";"
-        logger.debug("Query: '%s'", query)
-        logger.debug("File: '%s'", path_to_db)
         with sqlite3.connect(path_to_db) as cnxn:
             cnxn.row_factory = sqlite3.Row
         return cnxn.execute(query)
@@ -122,15 +119,7 @@ class BaseMorph(abc.ABC):
         # unpack arguments
         home_table, value_to_lookup = home_data
         target_table, field_to_scan = target_data
-        logger.debug(
-            "Checking if '%s' from %s[index] has an equivalent in %s[%s].",
-            value_to_lookup, home_table, target_table, field_to_scan,
-        )
         table_name = f"{home_table}-JOIN-{target_table}"
-        logger.debug(
-            "Checking if '%s' exists in the dict in '%s'",
-            value_to_lookup, table_name,
-        )
         path_to_db = self.path_to("cleaned_stats.db")
         with sqlite3.connect(path_to_db) as cnxn:
             #cnxn.row_factory = sqlite3.Row
@@ -138,10 +127,6 @@ class BaseMorph(abc.ABC):
             aliased_value = resultset.fetchone()
             if aliased_value is not None:
                 (aliased_value,) = aliased_value
-        logger.debug(
-            "'%s' from %s[index] exists as %r in %s[%s]",
-            value_to_lookup, home_table, aliased_value, target_table, field_to_scan,
-        )
         if aliased_value is None:
             query_kwargs = None
         else:
@@ -149,13 +134,6 @@ class BaseMorph(abc.ABC):
             filters = {field_to_scan: aliased_value}
             path_to_db = self.path_to("cleaned_stats.db")
             fields = self.Stats.STAT_LIST()
-            logger.debug(
-                "BaseMorph.lookup(self, %r, %r, %r, %r)",
-                path_to_db,
-                table,
-                fields,
-                filters,
-            )
             query_kwargs = {
                 "path_to_db": path_to_db,
                 "table": table,
@@ -658,12 +636,6 @@ class Morph4(Morph):
             table = "characters__base_stats1"
             fields = Stats.STAT_LIST() + ("Class", "Lv")
             filters = {"Name": name, "Father": father_}
-            logger.debug("Morph4.query_db('%s', '%s', %r, %r)",
-                path_to_db,
-                table,
-                fields,
-                filters,
-            )
             self.Stats = Stats
             stat_dict = dict(
                 self.query_db(
