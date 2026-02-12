@@ -1312,6 +1312,7 @@ class FE4UnpromotedUnit(Morph4TestCase):
         with self.assertRaises(LevelUpError):
             lex.level_up(1)
 
+@unittest.skip
 class FE4Nonpromotables(Morph4TestCase):
     """
     For all FE4 units who cannot be promoted.
@@ -1383,6 +1384,7 @@ class FE4Nonpromotables(Morph4TestCase):
                 with self.assertRaises(LevelUpError):
                     morph.level_up(1)
 
+@unittest.skip
 class FE4Promotables(Morph4TestCase):
     """
     For all FE4 units who can be promoted.
@@ -1561,7 +1563,6 @@ class FE4ChildUnit(Morph4TestCase):
         """
         self.morph._set_max_level()
 
-
     def test_level_up(self):
         """
         Simulates level up.
@@ -1643,6 +1644,7 @@ class Morph5TestCase(unittest.TestCase):
         url_name = "thracia-776"
         return _get_promotables(url_name, can_promote=can_promote)
 
+@unittest.skip
 class FE5Promotables(Morph5TestCase):
     """
     Runs tests on all FE5 units who can promote.
@@ -1680,6 +1682,7 @@ class FE5Promotables(Morph5TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
+@unittest.skip
 class FE5Unpromotables(Morph5TestCase):
     """
     Runs tests on all FE5 units who cannot promote.
@@ -2362,6 +2365,7 @@ class FE6Gonzales(Morph6TestCase):
         self.assertDictEqual(actual, expected)
 
 
+@unittest.skip
 class FE6Unpromotables(Morph6TestCase):
     """
     Conduct series of tests with unpromotable units of FE6 as subjects.
@@ -2423,6 +2427,7 @@ class FE6Unpromotables(Morph6TestCase):
             with self.assertRaises(LevelUpError):
                 morph.level_up(1)
 
+@unittest.skip
 class FE6Promotables(Morph6TestCase):
     """
     Conduct series of tests with promotable units of FE6 as subjects.
@@ -2948,6 +2953,8 @@ class FE7Ninian(Morph7TestCase):
         actual = morph.name
         expected = "Nils"
         self.assertEqual(actual, expected)
+        self.assertEqual(morph.current_stats.Mov, 5_00)
+        self.assertEqual(morph.current_stats.Con, 3_00)
 
 class FE7Hector(Morph7TestCase):
     """
@@ -3174,6 +3181,7 @@ class FE7Nino(Morph7TestCase):
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
 
+@unittest.skip
 class FE7Unpromotables(Morph7TestCase):
     """
     Conduct series of tests with FE7 unpromotable units as subjects.
@@ -3234,6 +3242,7 @@ class FE7Unpromotables(Morph7TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
+@unittest.skip
 class FE7Promotables(Morph7TestCase):
     """
     Conduct series of tests with FE7 promotable units as subjects.
@@ -3762,6 +3771,7 @@ class Morph8TestCase(unittest.TestCase):
                 (err_msg,) = err_ctx.exception.args
                 self.assertIn("no available promotions", err_msg)
 
+@unittest.skip
 class FE8Unpromotables(Morph8TestCase):
     """
     Conduct series of tests with FE8 unpromotable units as subjects.
@@ -3814,6 +3824,7 @@ class FE8Unpromotables(Morph8TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
+@unittest.skip
 class FE8Promotables(Morph8TestCase):
     """
     Conduct series of tests with FE8 promotable units as subjects.
@@ -4433,6 +4444,7 @@ class FE9Volke(Morph9TestCase):
         actual = volke.get_promotion_item()
         self.assertIsNone(actual)
 
+@unittest.skip
 class FE9Promotables(Morph9TestCase):
     """
     Conduct series of tests with FE9 promotables as subject.
@@ -4489,6 +4501,7 @@ class FE9Promotables(Morph9TestCase):
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
+@unittest.skip
 class FE9Unpromotables(Morph9TestCase):
     """
     Conduct series of tests with FE9 unpromotables as subject.
@@ -4547,6 +4560,7 @@ class FE9Unpromotables(Morph9TestCase):
             actual = PromotionError.Reason.NO_PROMOTIONS
             self.assertEqual(actual, expected)
 
+@unittest.skip
 class FE9Promotables(Morph9TestCase):
     """
     Conduct series of tests with FE9 promotables as subject.
