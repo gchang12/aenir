@@ -834,6 +834,26 @@ class Morph5(Morph):
         """
         return 7
 
+    @staticmethod
+    def CRUSADERS() -> Iterable[str]:
+        """
+        Returns an alphabetized list of Crusaders.
+        """
+        return (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+
     def get_promotion_item(self) -> str | None:
         """
         Returns name of item used to promote, if applicable.
@@ -942,7 +962,7 @@ class Morph5(Morph):
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls: dict[str, self.Stats] = {}
-        #self.is_mounted = None
+        self.scroll_list = self.SCROLL_LIST()
 
     def _set_min_promo_level(self) -> None:
         """
@@ -994,52 +1014,61 @@ class Morph5(Morph):
             self.equipped_scrolls.pop(scroll_name)
             self._apply_scroll_bonuses()
         else:
+            scroll_list = {scroll: (scroll in self.equipped_scrolls) for scroll in self.scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
-                # TODO: Change this to list of equipped scrolls.
-                absent_scroll=scroll_name,
+                valid_scrolls=scroll_list,
+                invalid_scroll=scroll_name,
             )
+
+    @classmethod
+    def SCROLL_LIST(cls):
+        """
+        Returns a list of valid scrolls.
+        """
+        # get scroll list
+        path_to_db = cls.path_to("cleaned_stats.db")
+        table = "scroll_bonuses"
+        stat_list = list(cls.STATS().STAT_LIST())
+        resultset = cls.query_db(
+            path_to_db,
+            table,
+            fields=["Name"] + stat_list,
+            filters={},
+        ).fetchall()
+        scroll_list = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
+        return scroll_list
 
     def equip_scroll(self, scroll_name: str) -> None:
         """
         Appends `scroll_name` to list of equipped scrolls and updates
         `growth_rates` accordingly. Throws error if scroll DNE or is already on.
         """
+        # get scroll list
+        scroll_list = self.scroll_list
+        if scroll_name not in scroll_list:
+            # raise error
+            raise ScrollError(
+                f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
+                reason=ScrollError.Reason.NOT_FOUND,
+                valid_scrolls=self.CRUSADERS(),
+            )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
+            scroll_list = {scroll: (scroll not in self.equipped_scrolls) for scroll in self.scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
-                # TODO: List valid scrolls
-                equipped_scroll=scroll_name,
+                valid_scrolls=scroll_list,
+                invalid_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
             raise ScrollError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
             )
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "scroll_bonuses"
-        stat_dict = self.query_db(
-            path_to_db,
-            table,
-            fields=self.Stats.STAT_LIST(),
-            filters={"Name": scroll_name},
-        ).fetchone()
-        if stat_dict is None:
-            resultset = self.query_db(
-                path_to_db,
-                table,
-                fields=["Name"],
-                filters={},
-            ).fetchall()
-            scroll_list = [result["Name"] for result in resultset]
-            raise ScrollError(
-                f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
-                reason=ScrollError.Reason.NOT_FOUND,
-                valid_scrolls=scroll_list,
-            )
+        stat_dict = scroll_list[scroll_name]
         self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
@@ -1773,6 +1802,7 @@ class Morph9(Morph):
         Simulates equipping of growth band specified by `band_name`.
         Throws error if band is already equipped or DNE.
         """
+        # TODO: Attach list of valid bands to each error as applicable.
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if band_name in self.equipped_bands:
             raise BandError(

@@ -117,15 +117,14 @@ class ScrollError(BaseException):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Iterable[str] | None = None, equipped_scroll: str | None = None, absent_scroll: str | None = None):
+    def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Mapping[str, bool] | Iterable[str] | None = None, invalid_scroll: str | None = None):
         """
         Declares list of `valid_scrolls`, `equipped_scroll` and `absent_scroll`.
         """
         super().__init__(msg)
-        self.valid_scrolls = valid_scrolls
-        self.equipped_scroll = equipped_scroll
-        self.absent_scroll = absent_scroll
         self.reason = reason
+        self.valid_scrolls = valid_scrolls
+        self.invalid_scroll = invalid_scroll
 
 class GrowthsItemError(BaseException):
     """

@@ -2141,9 +2141,25 @@ class FE5Eda(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.absent_scroll
+        actual = err.invalid_scroll
         expected = ""
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        expected = {
+            "Odo": False,
+            "Baldo": False,
+            "Hezul": False,
+            "Dain": False,
+            "Noba": False,
+            "Neir": False,
+            "Ulir": False,
+            "Tordo": False,
+            "Fala": False,
+            "Sety": False,
+            "Blaggi": False,
+            "Heim": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll(self):
         """
@@ -2158,16 +2174,32 @@ class FE5Eda(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.equipped_scroll
+        actual = err.invalid_scroll
         expected = scroll_to_equip
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        expected = {
+            "Odo": True,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": True,
+            "Fala": True,
+            "Sety": True,
+            "Blaggi": True,
+            "Heim": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll2(self):
         """
         Trying to equip a scroll that is already equipped.
         """
         eda = self.morph
-        scroll_name = self.scrolls[0]
+        scroll_name = "Odo"
         og_growths = eda.growth_rates.copy()
         eda.equip_scroll(scroll_name)
         self.assertIn(scroll_name, eda.equipped_scrolls)
@@ -2181,6 +2213,22 @@ class FE5Eda(Morph5TestCase):
         actual = err_ctx.exception.reason
         expected = ScrollError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
+        actual = err_ctx.exception.valid_scrolls
+        expected = {
+            "Odo": False,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": True,
+            "Fala": True,
+            "Sety": True,
+            "Blaggi": True,
+            "Heim": True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll__invalid_scroll(self):
         """
@@ -2195,7 +2243,7 @@ class FE5Eda(Morph5TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
         logger.debug("valid_scrolls: %s", actual)
-        expected = [
+        expected = (
             'Baldo',
             'Blaggi',
             'Dain',
@@ -2208,8 +2256,8 @@ class FE5Eda(Morph5TestCase):
             'Sety',
             'Tordo',
             'Ulir',
-        ]
-        self.assertListEqual(actual, expected)
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_equip_scroll__invalid_scroll2(self):
         """
@@ -2231,6 +2279,23 @@ class FE5Eda(Morph5TestCase):
         actual = all(og_growths == new_growths)
         expected = True
         self.assertIs(actual, expected)
+        actual = err_ctx.exception.valid_scrolls
+        logger.debug("valid_scrolls: %s", actual)
+        expected = (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_equip_scroll__exceed_inventory_space(self):
         """
@@ -2247,9 +2312,12 @@ class FE5Eda(Morph5TestCase):
         scroll_name = self.scrolls[-1]
         with self.assertRaises(ScrollError) as err_ctx:
             eda.equip_scroll(scroll_name)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = ScrollError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        self.assertIsNone(actual)
 
     def test_level_up__hezul_scroll(self):
         """
