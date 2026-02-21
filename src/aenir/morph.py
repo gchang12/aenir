@@ -1617,7 +1617,7 @@ class Morph9(Morph):
     @staticmethod
     def CHARACTER_LIST() -> Iterable[str]:
         """
-        Declares the list of all valid FE8 characters.
+        Declares the list of all valid FE9 characters.
         """
         return (
             'Ike',
@@ -1670,14 +1670,12 @@ class Morph9(Morph):
             #'Leanne',
         )
 
-    def __init__(self, name: str):
+    @staticmethod
+    def KNIGHT_LIST() -> Iterable[str]:
         """
-        Provides usual initialization plus extra attributes for band equipment and Knight Ward.
+        Declares the list of all FE9 knights.
         """
-        super().__init__(name, which_bases=0, which_growths=0)
-        # conditionally determine if unit can equip it
-        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
-        knights = (
+        return (
             #'Ike',
             'Titania',
             'Oscar',
@@ -1727,6 +1725,15 @@ class Morph9(Morph):
             #'Sephiran',
             #'Leanne',
         )
+
+    def __init__(self, name: str):
+        """
+        Provides usual initialization plus extra attributes for band equipment and Knight Ward.
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
+        knights = self.KNIGHT_LIST()
+        # conditionally determine if unit can equip it
+        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
         if name in knights:
             knight_ward_is_equipped = False
         else:

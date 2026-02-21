@@ -81,19 +81,7 @@ class PromotionError(BaseException):
         self.promotion_list = promotion_list
         self.min_promo_level = min_promo_level
 
-class _ItemException(BaseException, abc.ABC):
-    """
-    To be subclassed; should never be instantiated directly.
-    """
-
-    def __init__(self, msg: str, reason: Any):
-        """
-        Declares `reason` in addition to usual initialization.
-        """
-        super().__init__(msg)
-        self.reason = reason
-
-class StatBoosterError(_ItemException):
+class StatBoosterError(BaseException):
     """
     To be raised if an error occurred while using a stat booster.
     """
@@ -109,11 +97,12 @@ class StatBoosterError(_ItemException):
         """
         Declares name and value of `max_stat` plus list of valid stat-boosters.
         """
-        super().__init__(msg, reason)
+        super().__init__(msg)
+        self.reason = reason
         self.max_stat = max_stat
         self.valid_stat_boosters = valid_stat_boosters
 
-class ScrollError(_ItemException):
+class ScrollError(BaseException):
     """
     To be raised if an error occurred while equipping an FE5 scroll.
     """
@@ -131,12 +120,13 @@ class ScrollError(_ItemException):
         """
         Declares list of `valid_scrolls`, `equipped_scroll` and `absent_scroll`.
         """
-        super().__init__(msg, reason)
+        super().__init__(msg)
         self.valid_scrolls = valid_scrolls
         self.equipped_scroll = equipped_scroll
         self.absent_scroll = absent_scroll
+        self.reason = reason
 
-class GrowthsItemError(_ItemException):
+class GrowthsItemError(BaseException):
     """
     To be raised if an error occurred while using either Afa's Drops or Metis' Tome.
     """
@@ -151,9 +141,10 @@ class GrowthsItemError(_ItemException):
         """
         No new attributes declared.
         """
-        super().__init__(msg, reason)
+        super().__init__(msg)
+        self.reason = reason
 
-class BandError(_ItemException):
+class BandError(BaseException):
     """
     To be raised if an error occurred while equipping an FE9 band.
     """
@@ -171,12 +162,13 @@ class BandError(_ItemException):
         """
         Declares list of `valid_bands`, `equipped_band` and `absent_band`.
         """
-        super().__init__(msg, reason)
+        super().__init__(msg)
+        self.reason = reason
         self.valid_bands = valid_bands
         self.equipped_band = equipped_band
         self.absent_band = absent_band
 
-class KnightWardError(_ItemException):
+class KnightWardError(BaseException):
     """
     To be raised if an error occurred while equipping the Knight Ward in FE9.
     """
@@ -189,4 +181,11 @@ class KnightWardError(_ItemException):
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
+
+    def __init__(self, msg: str, reason: Reason):
+        """
+        Initialize 'reason' attribute.
+        """
+        super().__init__(msg)
+        self.reason = reason
 
