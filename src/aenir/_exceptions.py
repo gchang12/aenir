@@ -158,15 +158,14 @@ class BandError(BaseException):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, valid_bands: Iterable[str] | None = None, equipped_band: str | None = None, absent_band: str | None = None):
+    def __init__(self, msg: str, reason: Reason, *, valid_bands: Mapping[str, bool] | Iterable[str] | None = None, invalid_band: str | None = None):
         """
         Declares list of `valid_bands`, `equipped_band` and `absent_band`.
         """
         super().__init__(msg)
         self.reason = reason
         self.valid_bands = valid_bands
-        self.equipped_band = equipped_band
-        self.absent_band = absent_band
+        self.invalid_band = invalid_band
 
 class KnightWardError(BaseException):
     """
@@ -182,10 +181,11 @@ class KnightWardError(BaseException):
         NOT_EQUIPPED = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason):
+    def __init__(self, msg: str, reason: Reason, *, knights: Iterable[str] | None = None):
         """
         Initialize 'reason' attribute.
         """
         super().__init__(msg)
         self.reason = reason
+        self.knights = knights
 

@@ -1025,7 +1025,7 @@ class Morph5(Morph):
     @classmethod
     def SCROLL_DICT(cls):
         """
-        Returns a list of valid scrolls.
+        Returns a list of valid scrolls and their corresponding bonuses.
         """
         # get scroll list
         path_to_db = cls.path_to("cleaned_stats.db")
@@ -1056,11 +1056,11 @@ class Morph5(Morph):
             )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
-            scroll_list = {scroll: (scroll not in self.equipped_scrolls) for scroll in self.scroll_dict}
+            valid_scrolls = {scroll: (scroll not in self.equipped_scrolls) for scroll in scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
-                valid_scrolls=scroll_list,
+                valid_scrolls=valid_scrolls,
                 invalid_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
@@ -1778,6 +1778,7 @@ class Morph9(Morph):
         self.knight_ward_is_equipped = knight_ward_is_equipped 
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
+        self.band_dict = self.BAND_DICT()
 
     def _set_min_promo_level(self) -> None:
         """
@@ -1797,45 +1798,49 @@ class Morph9(Morph):
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
 
+    @classmethod
+    def BAND_DICT(cls):
+        """
+        Returns a list of valid scrolls.
+        """
+        path_to_db = cls.path_to("cleaned_stats.db")
+        table = "band_growths"
+        stat_list = list(cls.STATS().STAT_LIST())
+        resultset = cls.query_db(
+            path_to_db,
+            table,
+            fields=["Name"] + stat_list,
+            filters={},
+        ).fetchall()
+        band_dict = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
+        return band_dict
+
     def equip_band(self, band_name: str) -> None:
         """
         Simulates equipping of growth band specified by `band_name`.
         Throws error if band is already equipped or DNE.
         """
-        # TODO: Attach list of valid bands to each error as applicable.
-        # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
+        band_list = self.band_dict
+        if band_name not in band_list:
+            raise BandError(
+                f"'{band_name}' is not a valid band. List of valid bands: {band_list}.",
+                reason=BandError.Reason.NOT_FOUND,
+                valid_bands=tuple(band_list),
+            )
         if band_name in self.equipped_bands:
+            valid_bands = {band: (band not in self.equipped_bands) for band in band_list}
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
-                equipped_band=band_name,
+                valid_bands=valid_bands,
+                invalid_band=band_name,
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise BandError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
             )
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "band_growths"
-        stat_dict = self.query_db(
-            path_to_db,
-            table,
-            fields=self.Stats.STAT_LIST(),
-            filters={"Name": band_name},
-        ).fetchone()
-        if stat_dict is None:
-            resultset = self.query_db(
-                path_to_db,
-                table,
-                fields=["Name"],
-                filters={},
-            ).fetchall()
-            band_list = [result["Name"] for result in resultset]
-            raise BandError(
-                f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
-                reason=BandError.Reason.NOT_FOUND,
-                valid_bands=band_list,
-            )
+        stat_dict = band_list[band_name]
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
 
@@ -1847,11 +1852,12 @@ class Morph9(Morph):
             self.equipped_bands.pop(band_name)
             self._apply_band_bonuses()
         else:
+            valid_bands = {band: (band in self.equipped_bands) for band in self.band_dict}
             raise BandError(
                 f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
-                # TODO: Attach list of valid bands
-                absent_band=band_name,
+                valid_bands=valid_bands,
+                invalid_band=band_name,
             )
 
     def equip_knight_ward(self) -> None:
@@ -1863,6 +1869,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
+                knights=self.KNIGHT_LIST(),
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise KnightWardError(
@@ -1880,14 +1887,6 @@ class Morph9(Morph):
         band_name = "Knight Ward"
         stat_dict = self.Stats.get_stat_dict(0)
         stat_dict['Spd'] = 30
-        #path_to_db = self.path_to("cleaned_stats.db")
-        #table = "band_growths"
-        #stat_dict = self.query_db(
-            #path_to_db,
-            #table,
-            #fields=self.Stats.STAT_LIST(),
-            #filters={"Name": band_name},
-        #).fetchone()
         # set to list of bands
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
@@ -1901,8 +1900,8 @@ class Morph9(Morph):
         if self.knight_ward_is_equipped is None:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
-                # TODO: List knights
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
+                knights=self.KNIGHT_LIST(),
             )
         if self.knight_ward_is_equipped is False:
             raise KnightWardError(

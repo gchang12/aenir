@@ -1752,6 +1752,191 @@ class FE5Promotables(Morph5TestCase):
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
 
+class FE9MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_KNIGHT_LIST(self):
+        """
+        Checks value of KNIGHT_LIST static method.
+        """
+        actual = Morph9.KNIGHT_LIST()
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
+
+
+class FE7MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_LYNDIS_LEAGUE(self):
+        """
+        Checks value of LYNDIS_LEAGUE static method.
+        """
+        actual = Morph7.LYNDIS_LEAGUE()
+        expected = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+
+    def test_BAND_DICT(self):
+        """
+        Checks the value of the static CRUSADERS method.
+        """
+        actual = Morph9.BAND_DICT()
+        for crusader, bonus in actual.items():
+            logger.debug("(actual) %s: %r", crusader, bonus)
+        generic_bonus = {
+            "HP": 0,
+            "Str": 0,
+            "Mag": 0,
+            "Skl": 0,
+            "Spd": 0,
+            "Lck": 0,
+            "Def": 0,
+            "Con": 0,
+            "Mov": 0,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        specific_bonuses = {
+            'Baldo': {"HP": 5, "Str": 5, "Skl": 5, "Spd": 5, "Lck": 5, "Def": 5},
+            'Blaggi': {"Str": -10, "Mag": 10, "Lck": 30},
+            'Dain': {"Str": 5, "Spd": -10, "Def": 30, "Mov": 5},
+            'Fala': {"Str": 5, "Mag": 5, "Skl": 10, "Spd": 10},
+            'Heim': {"Mag": 30, "Lck": 10, "Def": -10},
+            'Hezul': {"HP": 30, "Str": 10, "Lck": -10},
+            'Neir': {"HP": 10, "Str": 10, "Skl": -10, "Def": 10, "Con": 10},
+            'Noba': {"Str": 30, "Mag": -10, "Spd": 10, "Lck": -5, "Def": 5},
+            'Odo': {"Skl": 30},
+            'Sety': {"HP": -10, "Mag": 10, "Spd": 30},
+            'Tordo': {"HP": 5, "Str": 5, "Mag": 5, "Skl": 10, "Lck": 5},
+            'Ulir': {"Skl": 10, "Spd": 10, "Lck": 10},
+        }
+        expected = {crusader: generic_bonus.copy() for crusader in specific_bonuses}
+        for crusader, bonus in specific_bonuses.items():
+            expected[crusader].update(bonus)
+            logger.debug("%s: %s", crusader, bonus)
+        for crusader, bonus in expected.items():
+            logger.debug("(expected) %s: %r", crusader, bonus)
+        self.assertDictEqual(actual, expected)
+
+class FE5MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_CRUSADERS(self):
+        """
+        Checks the value of the static CRUSADERS method.
+        """
+        actual = Morph5.CRUSADERS()
+        expected = (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+        self.assertTupleEqual(actual, expected)
+
+    def test_SCROLL_DICT(self):
+        """
+        Checks the value of the static CRUSADERS method.
+        """
+        actual = Morph5.SCROLL_DICT()
+        for crusader, bonus in actual.items():
+            logger.debug("(actual) %s: %r", crusader, bonus)
+        generic_bonus = {
+            "HP": 0,
+            "Str": 0,
+            "Mag": 0,
+            "Skl": 0,
+            "Spd": 0,
+            "Lck": 0,
+            "Def": 0,
+            "Con": 0,
+            "Mov": 0,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        specific_bonuses = {
+            'Baldo': {"HP": 5, "Str": 5, "Skl": 5, "Spd": 5, "Lck": 5, "Def": 5},
+            'Blaggi': {"Str": -10, "Mag": 10, "Lck": 30},
+            'Dain': {"Str": 5, "Spd": -10, "Def": 30, "Mov": 5},
+            'Fala': {"Str": 5, "Mag": 5, "Skl": 10, "Spd": 10},
+            'Heim': {"Mag": 30, "Lck": 10, "Def": -10},
+            'Hezul': {"HP": 30, "Str": 10, "Lck": -10},
+            'Neir': {"HP": 10, "Str": 10, "Skl": -10, "Def": 10, "Con": 10},
+            'Noba': {"Str": 30, "Mag": -10, "Spd": 10, "Lck": -5, "Def": 5},
+            'Odo': {"Skl": 30},
+            'Sety': {"HP": -10, "Mag": 10, "Spd": 30},
+            'Tordo': {"HP": 5, "Str": 5, "Mag": 5, "Skl": 10, "Lck": 5},
+            'Ulir': {"Skl": 10, "Spd": 10, "Lck": 10},
+        }
+        expected = {crusader: generic_bonus.copy() for crusader in specific_bonuses}
+        for crusader, bonus in specific_bonuses.items():
+            expected[crusader].update(bonus)
+            logger.debug("%s: %s", crusader, bonus)
+        for crusader, bonus in expected.items():
+            logger.debug("(expected) %s: %r", crusader, bonus)
+        self.assertDictEqual(actual, expected)
+
 @unittest.skip
 class FE5Unpromotables(Morph5TestCase):
     """
@@ -4539,9 +4724,25 @@ class FE9Ike(Morph9TestCase):
         ike = self.morph
         with self.assertRaises(KnightWardError) as err_ctx:
             ike.equip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NOT_A_KNIGHT
         self.assertEqual(actual, expected)
+        actual = err.knights
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_unequip_knight_ward__not_a_knight(self):
         """
@@ -4550,9 +4751,25 @@ class FE9Ike(Morph9TestCase):
         ike = self.morph
         with self.assertRaises(KnightWardError) as err_ctx:
             ike.unequip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NOT_A_KNIGHT
         self.assertEqual(actual, expected)
+        actual = err.knights
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
 
 class FE9Volke(Morph9TestCase):
     """
@@ -4880,7 +5097,7 @@ class FE9BandEquipper(Morph9TestCase):
         Test equipping of band.
         """
         jill = self.morph
-        band_name = self.bands[0]
+        band_name = "Sword Band"
         og_growths = jill.growth_rates.copy()
         jill.equip_band(band_name)
         self.assertIn(band_name, jill.equipped_bands)
@@ -4891,29 +5108,75 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertIs(actual, expected)
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(band_name)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": False,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": True,
+            "Priest Band": True,
+            "Thief Band": True,
+        }
+        self.assertDictEqual(actual, expected)
+
+    def test_unequip_band__valid_bands(self):
+        """
+        Checks the 'valid_bands' attribute obtained from unequipping an invalid band.
+        """
+        jill = self.morph
+        bands = ("Sword Band", "Soldier Band", "Fighter Band")
+        for band in bands:
+            jill.equip_band(band)
+        with self.assertRaises(BandError) as err_ctx:
+            jill.unequip_band("")
+        err = err_ctx.exception
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": False,
+            "Knight Band": False,
+            "Paladin Band": False,
+            "Pegasus Band": False,
+            "Wyvern Band": False,
+            "Mage Band": False,
+            "Priest Band": False,
+            "Thief Band": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_level_up__with_band(self):
         """
         Test level-up with band on.
         """
+        # setup
         jill = self.morph
         bands = self.bands
         for i in range(3):
             band = bands[i]
             jill.equip_band(band)
         jill.unequip_band(band)
+        # unequip unequipped band
         with self.assertRaises(BandError) as err_ctx:
             jill.unequip_band("")
         err = err_ctx.exception
         actual = err.reason
         expected = BandError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.absent_band
+        actual = err.invalid_band
         expected = ""
         self.assertEqual(actual, expected)
+        # equip already-equipped band.
         first_band = bands[0]
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(first_band)
@@ -4921,9 +5184,10 @@ class FE9BandEquipper(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.equipped_band
+        actual = err.invalid_band
         expected = first_band
         self.assertEqual(actual, expected)
+        # equip nonexistent band
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band("")
         err = err_ctx.exception
@@ -4932,8 +5196,8 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_bands
         logger.debug("valid_bands: %s", actual)
-        expected = ['Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band']
-        self.assertListEqual(actual, expected)
+        expected = ('Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band')
+        self.assertTupleEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph9("Jill")
         jill2.level_up(10)
@@ -4956,11 +5220,14 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertNotIn(last_band, jill.equipped_bands)
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(last_band)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.NO_INVENTORY_SPACE
         logger.debug("Actual: %s (%s)", actual, type(actual))
         logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        self.assertIsNone(actual)
 
     def test_equip_band__band_dne(self):
         """
@@ -4971,8 +5238,9 @@ class FE9BandEquipper(Morph9TestCase):
         og_growths = jill.growth_rates.copy()
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(band_name)
+        err = err_ctx.exception
         # check error
-        actual = err_ctx.exception.reason
+        actual = err.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
@@ -4982,6 +5250,21 @@ class FE9BandEquipper(Morph9TestCase):
         actual = all(og_growths == new_growths)
         expected = True
         self.assertIs(actual, expected)
+        actual = err.valid_bands
+        expected = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            "Mage Band",
+            "Priest Band",
+            "Thief Band",
+        )
+        self.assertTupleEqual(actual, expected)
 
 class GetMorph(unittest.TestCase):
     """
