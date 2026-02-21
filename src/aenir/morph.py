@@ -962,7 +962,7 @@ class Morph5(Morph):
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls: dict[str, self.Stats] = {}
-        self.scroll_list = self.SCROLL_LIST()
+        self.scroll_dict = self.SCROLL_DICT()
 
     def _set_min_promo_level(self) -> None:
         """
@@ -1014,7 +1014,7 @@ class Morph5(Morph):
             self.equipped_scrolls.pop(scroll_name)
             self._apply_scroll_bonuses()
         else:
-            scroll_list = {scroll: (scroll in self.equipped_scrolls) for scroll in self.scroll_list}
+            scroll_list = {scroll: (scroll in self.equipped_scrolls) for scroll in self.scroll_dict}
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
@@ -1023,7 +1023,7 @@ class Morph5(Morph):
             )
 
     @classmethod
-    def SCROLL_LIST(cls):
+    def SCROLL_DICT(cls):
         """
         Returns a list of valid scrolls.
         """
@@ -1037,8 +1037,8 @@ class Morph5(Morph):
             fields=["Name"] + stat_list,
             filters={},
         ).fetchall()
-        scroll_list = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
-        return scroll_list
+        scroll_dict = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
+        return scroll_dict
 
     def equip_scroll(self, scroll_name: str) -> None:
         """
@@ -1046,7 +1046,7 @@ class Morph5(Morph):
         `growth_rates` accordingly. Throws error if scroll DNE or is already on.
         """
         # get scroll list
-        scroll_list = self.scroll_list
+        scroll_list = self.scroll_dict
         if scroll_name not in scroll_list:
             # raise error
             raise ScrollError(
@@ -1056,7 +1056,7 @@ class Morph5(Morph):
             )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
-            scroll_list = {scroll: (scroll not in self.equipped_scrolls) for scroll in self.scroll_list}
+            scroll_list = {scroll: (scroll not in self.equipped_scrolls) for scroll in self.scroll_dict}
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
