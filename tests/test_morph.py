@@ -632,13 +632,85 @@ class Morph6Class2(unittest.TestCase):
         """
         Asserts throwing of UnitDNE error if you try to look for a nonexistent unit.
         """
-        with self.assertRaises(UnitNotFoundError) as assert_ctx:
+        with self.assertRaises(UnitNotFoundError) as err_ctx:
             marth = self.Morph("Marth", which_bases=0, which_growths=0)
-        (err_msg,) = assert_ctx.exception.args
-        self.assertIn("%r" % (tuple(self.Morph.CHARACTER_LIST()),), err_msg)
-        #actual = assert_ctx.exception.unit_type
-        #expected = UnitNotFoundError.UnitType.NORMAL
-        #self.assertEqual(actual, expected)
+        actual = err_ctx.exception.unit_list
+        expected = (
+            "Roy",
+            "Marcus",
+            "Allen",
+            "Lance",
+            "Wolt",
+            "Bors",
+            "Merlinus",
+            "Ellen",
+            "Dieck",
+            "Wade",
+            "Lott",
+            "Thany",
+            "Chad",
+            "Lugh",
+            "Clarine",
+            "Rutger",
+            "Rutger (HM)",
+            "Saul",
+            "Dorothy",
+            "Sue",
+            "Zealot",
+            "Treck",
+            "Noah",
+            "Astohl",
+            "Lilina",
+            "Wendy",
+            "Barth",
+            "Oujay",
+            "Fir",
+            "Fir (HM)",
+            "Shin",
+            "Shin (HM)",
+            "Gonzales",
+            "Gonzales (HM)",
+            "Geese",
+            "Klein",
+            "Klein (HM)",
+            "Tate",
+            "Tate (HM)",
+            "Lalum",
+            "Echidna",
+            "Elphin",
+            "Bartre",
+            "Ray",
+            "Cath",
+            "Cath (HM)",
+            "Miredy",
+            "Miredy (HM)",
+            "Percival",
+            "Percival (HM)",
+            "Cecilia",
+            "Sofiya",
+            "Igrene",
+            "Garret",
+            "Garret (HM)",
+            "Fa",
+            "Hugh",
+            "Zeis",
+            "Zeis (HM)",
+            "Douglas",
+            "Niime",
+            "Dayan",
+            "Juno",
+            "Yodel",
+            "Karel",
+            "Narshen",
+            "Gale",
+            "Hector",
+            "Brunya",
+            "Eliwood",
+            "Murdoch",
+            "Zephiel",
+            "Guinevere",
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_init__bad_bases_index(self):
         """
@@ -2926,8 +2998,25 @@ class FE7Ninian(Morph7TestCase):
         """
         Attempting to initialize LM!Ninian results in an error.
         """
-        with self.assertRaises(UnitNotFoundError):
+        with self.assertRaises(UnitNotFoundError) as err_ctx:
             Morph7("Ninian", lyn_mode=True)
+        actual = tuple(err_ctx.exception.unit_list)
+        expected = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+        self.assertTupleEqual(actual, expected)
 
 class FE7Ninian(Morph7TestCase):
     """
@@ -4852,9 +4941,6 @@ class GetMorph(unittest.TestCase):
         """
         with self.assertRaises(UnitNotFoundError) as err_ctx:
             get_morph(6, "Marth")
-        #actual = err_ctx.exception.unit_type
-        #expected = UnitNotFoundError.UnitType.NORMAL
-        #self.assertEqual(actual, expected)
 
     def test_invalid_game(self):
         """

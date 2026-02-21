@@ -17,11 +17,12 @@ class UnitNotFoundError(BaseException):
     To be raised if the unit name has not been recognized.
     """
 
-    def __init__(self, msg: str):
+    def __init__(self, msg: str, unit_list: Iterable[str]):
         """
         Declares `unit_type` in addition to usual initialization.
         """
         super().__init__(msg)
+        self.unit_list = unit_list
 
 class InitError(BaseException):
     """

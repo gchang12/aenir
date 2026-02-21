@@ -211,7 +211,7 @@ class Morph(BaseMorph):
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
-                #unit_type=UnitNotFoundError.UnitType.NORMAL,
+                unit_list=character_list,
             )
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
@@ -1330,6 +1330,27 @@ class Morph7(Morph):
             'Athos',
         )
 
+    @staticmethod
+    def LYNDIS_LEAGUE() -> Iterable[str]:
+        """
+        Returns list of Lyndis League.
+        """
+        return (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+
     def _set_min_promo_level(self) -> None:
         """
         Sets minimum promo-level of main lords to 1; sets minimum promo-level of other units to usual.
@@ -1351,22 +1372,8 @@ class Morph7(Morph):
         Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
         Support for growths item present.
         """
-        lyndis_league = (
-            "Lyn",
-            "Sain",
-            "Kent",
-            "Florina",
-            "Wil",
-            "Dorcas",
-            "Serra",
-            "Erk",
-            "Rath",
-            "Matthew",
-            "Nils",
-            "Lucius",
-            "Wallace",
-        )
         # check if unit is available in lyn-mode
+        lyndis_league = self.LYNDIS_LEAGUE()
         if name in lyndis_league:
             if lyn_mode is None:
                 raise InitError(
@@ -1384,7 +1391,7 @@ class Morph7(Morph):
                 if name == "Ninian":
                     raise UnitNotFoundError(
                         "Ninian is not in the Lyndis League.",
-                        #unit_type=UnitNotFoundError.UnitType.NORMAL,
+                        unit_list=lyndis_league,
                     )
                 #name = "Nils"
             which_bases = 1
