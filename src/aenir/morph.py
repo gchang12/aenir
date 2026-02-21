@@ -1207,7 +1207,6 @@ class Morph6(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
         if self._name == "Gonzales":
-            # TODO: Raise Exception if None.
             self.current_lv = {
                 "Lalum": 5,
                 "Elphin": 11,
