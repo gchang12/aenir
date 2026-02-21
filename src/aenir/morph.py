@@ -967,6 +967,7 @@ class Morph5(Morph):
         """
         Simulates usage of stat-booster.
         """
+        # TODO: Implement this s.t. program needn't initialize this over again.
         item_bonus_dict = {
             "Luck Ring": ("Lck", 3),
             "Life Ring": ("HP", 7),
@@ -1001,6 +1002,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
+                # TODO: Change this to list of equipped scrolls.
                 absent_scroll=scroll_name,
             )
 
@@ -1014,6 +1016,7 @@ class Morph5(Morph):
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
+                # TODO: List valid scrolls
                 equipped_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
@@ -1203,7 +1206,7 @@ class Morph6(Morph):
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
-        if "Gonzales" == self._name:
+        if self._name == "Gonzales":
             # TODO: Raise Exception if None.
             self.current_lv = {
                 "Lalum": 5,
@@ -1833,6 +1836,7 @@ class Morph9(Morph):
             raise BandError(
                 f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
+                # TODO: Attach list of valid bands
                 absent_band=band_name,
             )
 
@@ -1883,6 +1887,7 @@ class Morph9(Morph):
         if self.knight_ward_is_equipped is None:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
+                # TODO: List knights
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
             )
         if self.knight_ward_is_equipped is False:
