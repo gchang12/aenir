@@ -1784,6 +1784,47 @@ class FE9MorphClass(Morph5TestCase):
         )
         self.assertTupleEqual(actual, expected)
 
+    def test_BAND_DICT(self):
+        """
+        Checks the value of the static BAND_DICT method.
+        """
+        actual = Morph9.BAND_DICT()
+        for band_name, bonus in actual.items():
+            logger.debug("(actual) %s: %r", band_name, bonus)
+        generic_bonus = {
+            "HP": 0,
+            "Str": 0,
+            "Mag": 0,
+            "Skl": 0,
+            "Spd": 0,
+            "Lck": 0,
+            "Def": 0,
+            "Res": 0,
+            "Mov": 0,
+            "Con": 0,
+            "Wt": 0,
+        }
+        specific_bonuses = {
+            'Sword Band': {"Skl": 5, "Lck": 5},
+            'Soldier Band': {"HP": 5, "Def": 5},
+            'Fighter Band': {"HP": 5, "Str": 5},
+            'Archer Band': {"Skl": 5, "Spd": 5},
+            'Knight Band': {"Str": 5, "Def": 5},
+            'Paladin Band': {"HP": 5, "Spd": 5},
+            'Pegasus Band': {"Lck": 5, "Res": 5},
+            'Wyvern Band': {"Str": 5, "Def": 5},
+            'Mage Band': {"Mag": 10},
+            'Priest Band': {"Lck": 5, "Res": 5},
+            'Thief Band': {"Skl": 5, "Spd": 5},
+        }
+        expected = {band_name: generic_bonus.copy() for band_name in specific_bonuses}
+        for band_name, bonus in specific_bonuses.items():
+            expected[band_name].update(bonus)
+            logger.debug("%s: %s", band_name, bonus)
+        for band_name, bonus in expected.items():
+            logger.debug("(expected) %s: %r", band_name, bonus)
+        self.assertDictEqual(actual, expected)
+
 
 class FE7MorphClass(Morph5TestCase):
     """
@@ -1817,49 +1858,6 @@ class FE7MorphClass(Morph5TestCase):
             "Lucius",
             "Wallace",
         )
-
-    def test_BAND_DICT(self):
-        """
-        Checks the value of the static CRUSADERS method.
-        """
-        actual = Morph9.BAND_DICT()
-        for crusader, bonus in actual.items():
-            logger.debug("(actual) %s: %r", crusader, bonus)
-        generic_bonus = {
-            "HP": 0,
-            "Str": 0,
-            "Mag": 0,
-            "Skl": 0,
-            "Spd": 0,
-            "Lck": 0,
-            "Def": 0,
-            "Con": 0,
-            "Mov": 0,
-            "Lead": 0,
-            "MS": 0,
-            "PC": 0,
-        }
-        specific_bonuses = {
-            'Baldo': {"HP": 5, "Str": 5, "Skl": 5, "Spd": 5, "Lck": 5, "Def": 5},
-            'Blaggi': {"Str": -10, "Mag": 10, "Lck": 30},
-            'Dain': {"Str": 5, "Spd": -10, "Def": 30, "Mov": 5},
-            'Fala': {"Str": 5, "Mag": 5, "Skl": 10, "Spd": 10},
-            'Heim': {"Mag": 30, "Lck": 10, "Def": -10},
-            'Hezul': {"HP": 30, "Str": 10, "Lck": -10},
-            'Neir': {"HP": 10, "Str": 10, "Skl": -10, "Def": 10, "Con": 10},
-            'Noba': {"Str": 30, "Mag": -10, "Spd": 10, "Lck": -5, "Def": 5},
-            'Odo': {"Skl": 30},
-            'Sety': {"HP": -10, "Mag": 10, "Spd": 30},
-            'Tordo': {"HP": 5, "Str": 5, "Mag": 5, "Skl": 10, "Lck": 5},
-            'Ulir': {"Skl": 10, "Spd": 10, "Lck": 10},
-        }
-        expected = {crusader: generic_bonus.copy() for crusader in specific_bonuses}
-        for crusader, bonus in specific_bonuses.items():
-            expected[crusader].update(bonus)
-            logger.debug("%s: %s", crusader, bonus)
-        for crusader, bonus in expected.items():
-            logger.debug("(expected) %s: %r", crusader, bonus)
-        self.assertDictEqual(actual, expected)
 
 class FE5MorphClass(Morph5TestCase):
     """
@@ -1896,7 +1894,7 @@ class FE5MorphClass(Morph5TestCase):
 
     def test_SCROLL_DICT(self):
         """
-        Checks the value of the static CRUSADERS method.
+        Checks the value of the static SCROLL_DICT method.
         """
         actual = Morph5.SCROLL_DICT()
         for crusader, bonus in actual.items():
