@@ -632,13 +632,85 @@ class Morph6Class2(unittest.TestCase):
         """
         Asserts throwing of UnitDNE error if you try to look for a nonexistent unit.
         """
-        with self.assertRaises(UnitNotFoundError) as assert_ctx:
+        with self.assertRaises(UnitNotFoundError) as err_ctx:
             marth = self.Morph("Marth", which_bases=0, which_growths=0)
-        (err_msg,) = assert_ctx.exception.args
-        self.assertIn("%r" % (tuple(self.Morph.CHARACTER_LIST()),), err_msg)
-        #actual = assert_ctx.exception.unit_type
-        #expected = UnitNotFoundError.UnitType.NORMAL
-        #self.assertEqual(actual, expected)
+        actual = err_ctx.exception.unit_list
+        expected = (
+            "Roy",
+            "Marcus",
+            "Allen",
+            "Lance",
+            "Wolt",
+            "Bors",
+            "Merlinus",
+            "Ellen",
+            "Dieck",
+            "Wade",
+            "Lott",
+            "Thany",
+            "Chad",
+            "Lugh",
+            "Clarine",
+            "Rutger",
+            "Rutger (HM)",
+            "Saul",
+            "Dorothy",
+            "Sue",
+            "Zealot",
+            "Treck",
+            "Noah",
+            "Astohl",
+            "Lilina",
+            "Wendy",
+            "Barth",
+            "Oujay",
+            "Fir",
+            "Fir (HM)",
+            "Shin",
+            "Shin (HM)",
+            "Gonzales",
+            "Gonzales (HM)",
+            "Geese",
+            "Klein",
+            "Klein (HM)",
+            "Tate",
+            "Tate (HM)",
+            "Lalum",
+            "Echidna",
+            "Elphin",
+            "Bartre",
+            "Ray",
+            "Cath",
+            "Cath (HM)",
+            "Miredy",
+            "Miredy (HM)",
+            "Percival",
+            "Percival (HM)",
+            "Cecilia",
+            "Sofiya",
+            "Igrene",
+            "Garret",
+            "Garret (HM)",
+            "Fa",
+            "Hugh",
+            "Zeis",
+            "Zeis (HM)",
+            "Douglas",
+            "Niime",
+            "Dayan",
+            "Juno",
+            "Yodel",
+            "Karel",
+            "Narshen",
+            "Gale",
+            "Hector",
+            "Brunya",
+            "Eliwood",
+            "Murdoch",
+            "Zephiel",
+            "Guinevere",
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_init__bad_bases_index(self):
         """
@@ -1038,7 +1110,7 @@ class FE6RoyProtoMorph(unittest.TestCase):
         Demonstrates use of stat boosters.
         """
         roy = self.morph
-        item_bonus_dict = {
+        roy.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -1050,11 +1122,10 @@ class FE6RoyProtoMorph(unittest.TestCase):
             "Body Ring": ("Con", 3),
         }
         expected = roy.current_stats.as_dict()
-        for stat, bonus in item_bonus_dict.values():
+        for stat, bonus in roy.stat_boosters.values():
             expected[stat] += bonus * 100
-        roy.stat_boosters = item_bonus_dict
-        for item in item_bonus_dict:
-            roy._use_stat_booster(item, item_bonus_dict)
+        for item in roy.stat_boosters:
+            roy.use_stat_booster(item)
         actual = roy.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -1063,7 +1134,8 @@ class FE6RoyProtoMorph(unittest.TestCase):
         Demonstrates unsuccessful use of stat boosters.
         """
         roy = self.morph
-        item_bonus_dict = {
+        item = ""
+        roy.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -1074,16 +1146,14 @@ class FE6RoyProtoMorph(unittest.TestCase):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        item = ""
-        roy.stat_boosters = item_bonus_dict
         with self.assertRaises(StatBoosterError) as err_ctx:
-            roy._use_stat_booster(item, item_bonus_dict)
+            roy.use_stat_booster(item)
         err = err_ctx.exception
         actual = err.reason
         expected = StatBoosterError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         actual = err.valid_stat_boosters
-        expected = item_bonus_dict
+        expected = roy.stat_boosters
         self.assertEqual(actual, expected)
 
 
@@ -1526,11 +1596,11 @@ class FE4PromotedUnit(Morph4TestCase):
         Test inability to use stat booster.
         """
         sigurd = self.morph
-        with self.assertRaises(StatBoosterError) as err_ctx:
-            sigurd._use_stat_booster(None, None)
-        actual = err_ctx.exception.reason
-        expected = StatBoosterError.Reason.NO_IMPLEMENTATION
-        self.assertEqual(actual, expected)
+        with self.assertRaises(NotImplementedError) as err_ctx:
+            sigurd.use_stat_booster(None)
+        #actual = err_ctx.exception.reason
+        #expected = StatBoosterError.Reason.NO_IMPLEMENTATION
+        #self.assertEqual(actual, expected)
 
 class FE4ChildUnit(Morph4TestCase):
     """
@@ -1681,6 +1751,189 @@ class FE5Promotables(Morph5TestCase):
             morph.promote()
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
+
+class FE9MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_KNIGHT_LIST(self):
+        """
+        Checks value of KNIGHT_LIST static method.
+        """
+        actual = Morph9.KNIGHT_LIST()
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
+
+    def test_BAND_DICT(self):
+        """
+        Checks the value of the static BAND_DICT method.
+        """
+        actual = Morph9.BAND_DICT()
+        for band_name, bonus in actual.items():
+            logger.debug("(actual) %s: %r", band_name, bonus)
+        generic_bonus = {
+            "HP": 0,
+            "Str": 0,
+            "Mag": 0,
+            "Skl": 0,
+            "Spd": 0,
+            "Lck": 0,
+            "Def": 0,
+            "Res": 0,
+            "Mov": 0,
+            "Con": 0,
+            "Wt": 0,
+        }
+        specific_bonuses = {
+            'Sword Band': {"Skl": 5, "Lck": 5},
+            'Soldier Band': {"HP": 5, "Def": 5},
+            'Fighter Band': {"HP": 5, "Str": 5},
+            'Archer Band': {"Skl": 5, "Spd": 5},
+            'Knight Band': {"Str": 5, "Def": 5},
+            'Paladin Band': {"HP": 5, "Spd": 5},
+            'Pegasus Band': {"Lck": 5, "Res": 5},
+            'Wyvern Band': {"Str": 5, "Def": 5},
+            'Mage Band': {"Mag": 10},
+            'Priest Band': {"Lck": 5, "Res": 5},
+            'Thief Band': {"Skl": 5, "Spd": 5},
+        }
+        expected = {band_name: generic_bonus.copy() for band_name in specific_bonuses}
+        for band_name, bonus in specific_bonuses.items():
+            expected[band_name].update(bonus)
+            logger.debug("%s: %s", band_name, bonus)
+        for band_name, bonus in expected.items():
+            logger.debug("(expected) %s: %r", band_name, bonus)
+        self.assertDictEqual(actual, expected)
+
+
+class FE7MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_LYNDIS_LEAGUE(self):
+        """
+        Checks value of LYNDIS_LEAGUE static method.
+        """
+        actual = Morph7.LYNDIS_LEAGUE()
+        expected = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+
+class FE5MorphClass(Morph5TestCase):
+    """
+    Investigates class and static methods.
+    """
+
+    def setUp(self):
+        """
+        Logs ID of current test.
+        """
+        logger.debug("%s", self.id())
+        super().setUp()
+
+    def test_CRUSADERS(self):
+        """
+        Checks the value of the static CRUSADERS method.
+        """
+        actual = Morph5.CRUSADERS()
+        expected = (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+        self.assertTupleEqual(actual, expected)
+
+    def test_SCROLL_DICT(self):
+        """
+        Checks the value of the static SCROLL_DICT method.
+        """
+        actual = Morph5.SCROLL_DICT()
+        for crusader, bonus in actual.items():
+            logger.debug("(actual) %s: %r", crusader, bonus)
+        generic_bonus = {
+            "HP": 0,
+            "Str": 0,
+            "Mag": 0,
+            "Skl": 0,
+            "Spd": 0,
+            "Lck": 0,
+            "Def": 0,
+            "Con": 0,
+            "Mov": 0,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        specific_bonuses = {
+            'Baldo': {"HP": 5, "Str": 5, "Skl": 5, "Spd": 5, "Lck": 5, "Def": 5},
+            'Blaggi': {"Str": -10, "Mag": 10, "Lck": 30},
+            'Dain': {"Str": 5, "Spd": -10, "Def": 30, "Mov": 5},
+            'Fala': {"Str": 5, "Mag": 5, "Skl": 10, "Spd": 10},
+            'Heim': {"Mag": 30, "Lck": 10, "Def": -10},
+            'Hezul': {"HP": 30, "Str": 10, "Lck": -10},
+            'Neir': {"HP": 10, "Str": 10, "Skl": -10, "Def": 10, "Con": 10},
+            'Noba': {"Str": 30, "Mag": -10, "Spd": 10, "Lck": -5, "Def": 5},
+            'Odo': {"Skl": 30},
+            'Sety': {"HP": -10, "Mag": 10, "Spd": 30},
+            'Tordo': {"HP": 5, "Str": 5, "Mag": 5, "Skl": 10, "Lck": 5},
+            'Ulir': {"Skl": 10, "Spd": 10, "Lck": 10},
+        }
+        expected = {crusader: generic_bonus.copy() for crusader in specific_bonuses}
+        for crusader, bonus in specific_bonuses.items():
+            expected[crusader].update(bonus)
+            logger.debug("%s: %s", crusader, bonus)
+        for crusader, bonus in expected.items():
+            logger.debug("(expected) %s: %r", crusader, bonus)
+        self.assertDictEqual(actual, expected)
 
 @unittest.skip
 class FE5Unpromotables(Morph5TestCase):
@@ -2071,9 +2324,25 @@ class FE5Eda(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.absent_scroll
+        actual = err.invalid_scroll
         expected = ""
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        expected = {
+            "Odo": False,
+            "Baldo": False,
+            "Hezul": False,
+            "Dain": False,
+            "Noba": False,
+            "Neir": False,
+            "Ulir": False,
+            "Tordo": False,
+            "Fala": False,
+            "Sety": False,
+            "Blaggi": False,
+            "Heim": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll(self):
         """
@@ -2088,16 +2357,32 @@ class FE5Eda(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.equipped_scroll
+        actual = err.invalid_scroll
         expected = scroll_to_equip
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        expected = {
+            "Odo": True,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": True,
+            "Fala": True,
+            "Sety": True,
+            "Blaggi": True,
+            "Heim": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll2(self):
         """
         Trying to equip a scroll that is already equipped.
         """
         eda = self.morph
-        scroll_name = self.scrolls[0]
+        scroll_name = "Odo"
         og_growths = eda.growth_rates.copy()
         eda.equip_scroll(scroll_name)
         self.assertIn(scroll_name, eda.equipped_scrolls)
@@ -2111,6 +2396,22 @@ class FE5Eda(Morph5TestCase):
         actual = err_ctx.exception.reason
         expected = ScrollError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
+        actual = err_ctx.exception.valid_scrolls
+        expected = {
+            "Odo": False,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": True,
+            "Fala": True,
+            "Sety": True,
+            "Blaggi": True,
+            "Heim": True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll__invalid_scroll(self):
         """
@@ -2125,7 +2426,7 @@ class FE5Eda(Morph5TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
         logger.debug("valid_scrolls: %s", actual)
-        expected = [
+        expected = (
             'Baldo',
             'Blaggi',
             'Dain',
@@ -2138,8 +2439,8 @@ class FE5Eda(Morph5TestCase):
             'Sety',
             'Tordo',
             'Ulir',
-        ]
-        self.assertListEqual(actual, expected)
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_equip_scroll__invalid_scroll2(self):
         """
@@ -2161,6 +2462,23 @@ class FE5Eda(Morph5TestCase):
         actual = all(og_growths == new_growths)
         expected = True
         self.assertIs(actual, expected)
+        actual = err_ctx.exception.valid_scrolls
+        logger.debug("valid_scrolls: %s", actual)
+        expected = (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_equip_scroll__exceed_inventory_space(self):
         """
@@ -2177,9 +2495,12 @@ class FE5Eda(Morph5TestCase):
         scroll_name = self.scrolls[-1]
         with self.assertRaises(ScrollError) as err_ctx:
             eda.equip_scroll(scroll_name)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = ScrollError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        self.assertIsNone(actual)
 
     def test_level_up__hezul_scroll(self):
         """
@@ -2705,7 +3026,8 @@ class FE6Roy(Morph6TestCase):
         """
         Use a bunch of stat boosters.
         """
-        item_bonus_dict = {
+        morph = Morph6("Roy")
+        morph.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -2716,8 +3038,7 @@ class FE6Roy(Morph6TestCase):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        morph = Morph6("Roy")
-        for item, statbonus in item_bonus_dict.items():
+        for item, statbonus in morph.stat_boosters.items():
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus
@@ -2928,8 +3249,25 @@ class FE7Ninian(Morph7TestCase):
         """
         Attempting to initialize LM!Ninian results in an error.
         """
-        with self.assertRaises(UnitNotFoundError):
+        with self.assertRaises(UnitNotFoundError) as err_ctx:
             Morph7("Ninian", lyn_mode=True)
+        actual = tuple(err_ctx.exception.unit_list)
+        expected = (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+        self.assertTupleEqual(actual, expected)
 
 class FE7Ninian(Morph7TestCase):
     """
@@ -4384,9 +4722,25 @@ class FE9Ike(Morph9TestCase):
         ike = self.morph
         with self.assertRaises(KnightWardError) as err_ctx:
             ike.equip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NOT_A_KNIGHT
         self.assertEqual(actual, expected)
+        actual = err.knights
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
 
     def test_unequip_knight_ward__not_a_knight(self):
         """
@@ -4395,9 +4749,25 @@ class FE9Ike(Morph9TestCase):
         ike = self.morph
         with self.assertRaises(KnightWardError) as err_ctx:
             ike.unequip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NOT_A_KNIGHT
         self.assertEqual(actual, expected)
+        actual = err.knights
+        expected = (
+            'Titania',
+            'Oscar',
+            'Gatrie',
+            'Kieran',
+            'Brom',
+            'Nephenee',
+            'Astrid',
+            'Makalov',
+            'Devdan',
+            'Tauroneo',
+            'Geoffrey',
+        )
+        self.assertTupleEqual(actual, expected)
 
 class FE9Volke(Morph9TestCase):
     """
@@ -4725,7 +5095,7 @@ class FE9BandEquipper(Morph9TestCase):
         Test equipping of band.
         """
         jill = self.morph
-        band_name = self.bands[0]
+        band_name = "Sword Band"
         og_growths = jill.growth_rates.copy()
         jill.equip_band(band_name)
         self.assertIn(band_name, jill.equipped_bands)
@@ -4736,29 +5106,75 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertIs(actual, expected)
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(band_name)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": False,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": True,
+            "Priest Band": True,
+            "Thief Band": True,
+        }
+        self.assertDictEqual(actual, expected)
+
+    def test_unequip_band__valid_bands(self):
+        """
+        Checks the 'valid_bands' attribute obtained from unequipping an invalid band.
+        """
+        jill = self.morph
+        bands = ("Sword Band", "Soldier Band", "Fighter Band")
+        for band in bands:
+            jill.equip_band(band)
+        with self.assertRaises(BandError) as err_ctx:
+            jill.unequip_band("")
+        err = err_ctx.exception
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": False,
+            "Knight Band": False,
+            "Paladin Band": False,
+            "Pegasus Band": False,
+            "Wyvern Band": False,
+            "Mage Band": False,
+            "Priest Band": False,
+            "Thief Band": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_level_up__with_band(self):
         """
         Test level-up with band on.
         """
+        # setup
         jill = self.morph
         bands = self.bands
         for i in range(3):
             band = bands[i]
             jill.equip_band(band)
         jill.unequip_band(band)
+        # unequip unequipped band
         with self.assertRaises(BandError) as err_ctx:
             jill.unequip_band("")
         err = err_ctx.exception
         actual = err.reason
         expected = BandError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.absent_band
+        actual = err.invalid_band
         expected = ""
         self.assertEqual(actual, expected)
+        # equip already-equipped band.
         first_band = bands[0]
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(first_band)
@@ -4766,9 +5182,10 @@ class FE9BandEquipper(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
-        actual = err.equipped_band
+        actual = err.invalid_band
         expected = first_band
         self.assertEqual(actual, expected)
+        # equip nonexistent band
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band("")
         err = err_ctx.exception
@@ -4777,8 +5194,8 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_bands
         logger.debug("valid_bands: %s", actual)
-        expected = ['Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band']
-        self.assertListEqual(actual, expected)
+        expected = ('Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band')
+        self.assertTupleEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph9("Jill")
         jill2.level_up(10)
@@ -4801,11 +5218,14 @@ class FE9BandEquipper(Morph9TestCase):
         self.assertNotIn(last_band, jill.equipped_bands)
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(last_band)
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = BandError.Reason.NO_INVENTORY_SPACE
         logger.debug("Actual: %s (%s)", actual, type(actual))
         logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        self.assertIsNone(actual)
 
     def test_equip_band__band_dne(self):
         """
@@ -4816,8 +5236,9 @@ class FE9BandEquipper(Morph9TestCase):
         og_growths = jill.growth_rates.copy()
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(band_name)
+        err = err_ctx.exception
         # check error
-        actual = err_ctx.exception.reason
+        actual = err.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
@@ -4827,6 +5248,21 @@ class FE9BandEquipper(Morph9TestCase):
         actual = all(og_growths == new_growths)
         expected = True
         self.assertIs(actual, expected)
+        actual = err.valid_bands
+        expected = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            "Mage Band",
+            "Priest Band",
+            "Thief Band",
+        )
+        self.assertTupleEqual(actual, expected)
 
 class GetMorph(unittest.TestCase):
     """
@@ -4854,9 +5290,6 @@ class GetMorph(unittest.TestCase):
         """
         with self.assertRaises(UnitNotFoundError) as err_ctx:
             get_morph(6, "Marth")
-        #actual = err_ctx.exception.unit_type
-        #expected = UnitNotFoundError.UnitType.NORMAL
-        #self.assertEqual(actual, expected)
 
     def test_invalid_game(self):
         """

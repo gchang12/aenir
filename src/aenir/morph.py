@@ -148,6 +148,7 @@ class Morph(BaseMorph):
     """
     game_no: int = 0
     character_list_filter = lambda name: True
+    stat_boosters = None
 
     @classmethod
     def get_true_character_list(cls) -> Iterable[str]:
@@ -188,7 +189,7 @@ class Morph(BaseMorph):
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
-                #unit_type=UnitNotFoundError.UnitType.NORMAL,
+                unit_list=character_list,
             )
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
@@ -400,16 +401,11 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def _use_stat_booster(self, item_name: str, item_bonus_dict: dict) -> None:
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Boosts stats in accordance with item specified; appends record to `_meta`.
         """
-        #item_bonus_dict = self.stat_boosters
-        if item_bonus_dict is None:
-            raise StatBoosterError(
-                f"Stat boosters are not implemented for FE{self.game.value}.",
-                reason=StatBoosterError.Reason.NO_IMPLEMENTATION,
-            )
+        item_bonus_dict = self.stat_boosters
         increment = self.Stats(**self.Stats.get_stat_dict(0))
         if item_name not in item_bonus_dict:
             raise StatBoosterError(
@@ -715,6 +711,12 @@ class Morph4(Morph):
         self.history = []
         #self._meta.pop("Stat Boosters")
 
+    def use_stat_booster(self, item_name: str) -> None:
+        """
+        Raises NotImplementedError because FE4 lacks stat boosters.
+        """
+        raise NotImplementedError("FE4 has no stat boosters.")
+
     @property
     def game(self) -> FireEmblemGame:
         """
@@ -785,6 +787,17 @@ class Morph5(Morph):
     Thracia 776
     """
     game_no = 5
+    stat_boosters = {
+        "Luck Ring": ("Lck", 3),
+        "Life Ring": ("HP", 7),
+        "Speed Ring": ("Spd", 3),
+        "Magic Ring": ("Mag", 2),
+        "Power Ring": ("Str", 3),
+        "Body Ring": ("Con", 3),
+        "Shield Ring": ("Def", 2),
+        "Skill Ring": ("Skl", 3),
+        "Leg Ring": ("Mov", 2),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -792,6 +805,26 @@ class Morph5(Morph):
         Declares the number of Crusader Scrolls one can equip.
         """
         return 7
+
+    @staticmethod
+    def CRUSADERS() -> Iterable[str]:
+        """
+        Returns an alphabetized list of Crusaders.
+        """
+        return (
+            'Baldo',
+            'Blaggi',
+            'Dain',
+            'Fala',
+            'Heim',
+            'Hezul',
+            'Neir',
+            'Noba',
+            'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
 
     def get_promotion_item(self) -> str | None:
         """
@@ -901,7 +934,7 @@ class Morph5(Morph):
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
         self.equipped_scrolls: dict[str, self.Stats] = {}
-        #self.is_mounted = None
+        self.scroll_dict = self.SCROLL_DICT()
 
     def _set_min_promo_level(self) -> None:
         """
@@ -935,23 +968,6 @@ class Morph5(Morph):
         self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Luck Ring": ("Lck", 3),
-            "Life Ring": ("HP", 7),
-            "Speed Ring": ("Spd", 3),
-            "Magic Ring": ("Mag", 2),
-            "Power Ring": ("Str", 3),
-            "Body Ring": ("Con", 3),
-            "Shield Ring": ("Def", 2),
-            "Skill Ring": ("Skl", 3),
-            "Leg Ring": ("Mov", 2),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
     def _apply_scroll_bonuses(self) -> None:
         """
         Updates `growth_rates` in accordance with currently equipped scrolls.
@@ -970,50 +986,61 @@ class Morph5(Morph):
             self.equipped_scrolls.pop(scroll_name)
             self._apply_scroll_bonuses()
         else:
+            scroll_list = {scroll: (scroll in self.equipped_scrolls) for scroll in self.scroll_dict}
             raise ScrollError(
                 f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
-                absent_scroll=scroll_name,
+                valid_scrolls=scroll_list,
+                invalid_scroll=scroll_name,
             )
+
+    @classmethod
+    def SCROLL_DICT(cls):
+        """
+        Returns a list of valid scrolls and their corresponding bonuses.
+        """
+        # get scroll list
+        path_to_db = cls.path_to("cleaned_stats.db")
+        table = "scroll_bonuses"
+        stat_list = list(cls.STATS().STAT_LIST())
+        resultset = cls.query_db(
+            path_to_db,
+            table,
+            fields=["Name"] + stat_list,
+            filters={},
+        ).fetchall()
+        scroll_dict = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
+        return scroll_dict
 
     def equip_scroll(self, scroll_name: str) -> None:
         """
         Appends `scroll_name` to list of equipped scrolls and updates
         `growth_rates` accordingly. Throws error if scroll DNE or is already on.
         """
+        # get scroll list
+        scroll_list = self.scroll_dict
+        if scroll_name not in scroll_list:
+            # raise error
+            raise ScrollError(
+                f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
+                reason=ScrollError.Reason.NOT_FOUND,
+                valid_scrolls=self.CRUSADERS(),
+            )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
+            valid_scrolls = {scroll: (scroll not in self.equipped_scrolls) for scroll in scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
-                equipped_scroll=scroll_name,
+                valid_scrolls=valid_scrolls,
+                invalid_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
             raise ScrollError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
             )
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "scroll_bonuses"
-        stat_dict = self.query_db(
-            path_to_db,
-            table,
-            fields=self.Stats.STAT_LIST(),
-            filters={"Name": scroll_name},
-        ).fetchone()
-        if stat_dict is None:
-            resultset = self.query_db(
-                path_to_db,
-                table,
-                fields=["Name"],
-                filters={},
-            ).fetchall()
-            scroll_list = [result["Name"] for result in resultset]
-            raise ScrollError(
-                f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
-                reason=ScrollError.Reason.NOT_FOUND,
-                valid_scrolls=scroll_list,
-            )
+        stat_dict = scroll_list[scroll_name]
         self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
@@ -1023,6 +1050,17 @@ class Morph6(Morph):
     """
     game_no = 6
     character_list_filter = lambda name: " (HM)" not in name
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1175,8 +1213,7 @@ class Morph6(Morph):
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name.replace(" (HM)", "")
-        if "Gonzales" == self._name:
-            # TODO: Raise Exception if None.
+        if self._name == "Gonzales":
             self.current_lv = {
                 "Lalum": 5,
                 "Elphin": 11,
@@ -1211,29 +1248,23 @@ class Morph6(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
 class Morph7(Morph):
     """
     Blazing Sword
     """
     game_no = 7
     character_list_filter = lambda name: " (HM)" not in name
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1300,6 +1331,27 @@ class Morph7(Morph):
             'Athos',
         )
 
+    @staticmethod
+    def LYNDIS_LEAGUE() -> Iterable[str]:
+        """
+        Returns list of Lyndis League.
+        """
+        return (
+            "Lyn",
+            "Sain",
+            "Kent",
+            "Florina",
+            "Wil",
+            "Dorcas",
+            "Serra",
+            "Erk",
+            "Rath",
+            "Matthew",
+            "Nils",
+            "Lucius",
+            "Wallace",
+        )
+
     def _set_min_promo_level(self) -> None:
         """
         Sets minimum promo-level of main lords to 1; sets minimum promo-level of other units to usual.
@@ -1321,22 +1373,8 @@ class Morph7(Morph):
         Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
         Support for growths item present.
         """
-        lyndis_league = (
-            "Lyn",
-            "Sain",
-            "Kent",
-            "Florina",
-            "Wil",
-            "Dorcas",
-            "Serra",
-            "Erk",
-            "Rath",
-            "Matthew",
-            "Nils",
-            "Lucius",
-            "Wallace",
-        )
         # check if unit is available in lyn-mode
+        lyndis_league = self.LYNDIS_LEAGUE()
         if name in lyndis_league:
             if lyn_mode is None:
                 raise InitError(
@@ -1354,7 +1392,7 @@ class Morph7(Morph):
                 if name == "Ninian":
                     raise UnitNotFoundError(
                         "Ninian is not in the Lyndis League.",
-                        #unit_type=UnitNotFoundError.UnitType.NORMAL,
+                        unit_list=lyndis_league,
                     )
                 #name = "Nils"
             which_bases = 1
@@ -1403,29 +1441,23 @@ class Morph7(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
 
 class Morph8(Morph):
     """
     The Sacred Stones
     """
     game_no = 8
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1535,23 +1567,6 @@ class Morph8(Morph):
         super().promote()
         self.max_level = None
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
     def use_metiss_tome(self) -> None:
         """
         Increases growths by 5
@@ -1571,6 +1586,18 @@ class Morph9(Morph):
     Path of Radiance
     """
     game_no = 9
+    stat_boosters = {
+        "Seraph Robe": ("HP", 7),
+        "Energy Drop": ("Str", 2),
+        "Spirit Dust": ("Mag", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwing": ("Spd", 2),
+        "Ashera Icon": ("Lck", 2),
+        "Dracoshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1598,7 +1625,7 @@ class Morph9(Morph):
     @staticmethod
     def CHARACTER_LIST() -> Iterable[str]:
         """
-        Declares the list of all valid FE8 characters.
+        Declares the list of all valid FE9 characters.
         """
         return (
             'Ike',
@@ -1651,14 +1678,12 @@ class Morph9(Morph):
             #'Leanne',
         )
 
-    def __init__(self, name: str):
+    @staticmethod
+    def KNIGHT_LIST() -> Iterable[str]:
         """
-        Provides usual initialization plus extra attributes for band equipment and Knight Ward.
+        Declares the list of all FE9 knights.
         """
-        super().__init__(name, which_bases=0, which_growths=0)
-        # conditionally determine if unit can equip it
-        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
-        knights = (
+        return (
             #'Ike',
             'Titania',
             'Oscar',
@@ -1708,6 +1733,15 @@ class Morph9(Morph):
             #'Sephiran',
             #'Leanne',
         )
+
+    def __init__(self, name: str):
+        """
+        Provides usual initialization plus extra attributes for band equipment and Knight Ward.
+        """
+        super().__init__(name, which_bases=0, which_growths=0)
+        knights = self.KNIGHT_LIST()
+        # conditionally determine if unit can equip it
+        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
         if name in knights:
             knight_ward_is_equipped = False
         else:
@@ -1716,6 +1750,7 @@ class Morph9(Morph):
         self.knight_ward_is_equipped = knight_ward_is_equipped 
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
+        self.band_dict = self.BAND_DICT()
 
     def _set_min_promo_level(self) -> None:
         """
@@ -1727,24 +1762,6 @@ class Morph9(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Seraph Robe": ("HP", 7),
-            "Energy Drop": ("Str", 2),
-            "Spirit Dust": ("Mag", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwing": ("Spd", 2),
-            "Ashera Icon": ("Lck", 2),
-            "Dracoshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
     def _apply_band_bonuses(self) -> None:
         """
         Updates growth rates in accordance with currently equipped bands.
@@ -1753,44 +1770,49 @@ class Morph9(Morph):
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
 
+    @classmethod
+    def BAND_DICT(cls):
+        """
+        Returns a list of valid scrolls.
+        """
+        path_to_db = cls.path_to("cleaned_stats.db")
+        table = "band_growths"
+        stat_list = list(cls.STATS().STAT_LIST())
+        resultset = cls.query_db(
+            path_to_db,
+            table,
+            fields=["Name"] + stat_list,
+            filters={},
+        ).fetchall()
+        band_dict = {result["Name"]: {stat: result[stat] for stat in stat_list} for result in resultset}
+        return band_dict
+
     def equip_band(self, band_name: str) -> None:
         """
         Simulates equipping of growth band specified by `band_name`.
         Throws error if band is already equipped or DNE.
         """
-        # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
+        band_list = self.band_dict
+        if band_name not in band_list:
+            raise BandError(
+                f"'{band_name}' is not a valid band. List of valid bands: {band_list}.",
+                reason=BandError.Reason.NOT_FOUND,
+                valid_bands=tuple(band_list),
+            )
         if band_name in self.equipped_bands:
+            valid_bands = {band: (band not in self.equipped_bands) for band in band_list}
             raise BandError(
                 f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
-                equipped_band=band_name,
+                valid_bands=valid_bands,
+                invalid_band=band_name,
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise BandError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
             )
-        path_to_db = self.path_to("cleaned_stats.db")
-        table = "band_growths"
-        stat_dict = self.query_db(
-            path_to_db,
-            table,
-            fields=self.Stats.STAT_LIST(),
-            filters={"Name": band_name},
-        ).fetchone()
-        if stat_dict is None:
-            resultset = self.query_db(
-                path_to_db,
-                table,
-                fields=["Name"],
-                filters={},
-            ).fetchall()
-            band_list = [result["Name"] for result in resultset]
-            raise BandError(
-                f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
-                reason=BandError.Reason.NOT_FOUND,
-                valid_bands=band_list,
-            )
+        stat_dict = band_list[band_name]
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
 
@@ -1802,10 +1824,12 @@ class Morph9(Morph):
             self.equipped_bands.pop(band_name)
             self._apply_band_bonuses()
         else:
+            valid_bands = {band: (band in self.equipped_bands) for band in self.band_dict}
             raise BandError(
                 f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
-                absent_band=band_name,
+                valid_bands=valid_bands,
+                invalid_band=band_name,
             )
 
     def equip_knight_ward(self) -> None:
@@ -1817,6 +1841,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
+                knights=self.KNIGHT_LIST(),
             )
         if len(self.equipped_bands) == self.inventory_size:
             raise KnightWardError(
@@ -1834,14 +1859,6 @@ class Morph9(Morph):
         band_name = "Knight Ward"
         stat_dict = self.Stats.get_stat_dict(0)
         stat_dict['Spd'] = 30
-        #path_to_db = self.path_to("cleaned_stats.db")
-        #table = "band_growths"
-        #stat_dict = self.query_db(
-            #path_to_db,
-            #table,
-            #fields=self.Stats.STAT_LIST(),
-            #filters={"Name": band_name},
-        #).fetchone()
         # set to list of bands
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
@@ -1856,6 +1873,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
+                knights=self.KNIGHT_LIST(),
             )
         if self.knight_ward_is_equipped is False:
             raise KnightWardError(
