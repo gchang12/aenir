@@ -1038,7 +1038,7 @@ class FE6RoyProtoMorph(unittest.TestCase):
         Demonstrates use of stat boosters.
         """
         roy = self.morph
-        item_bonus_dict = {
+        roy.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -1050,11 +1050,10 @@ class FE6RoyProtoMorph(unittest.TestCase):
             "Body Ring": ("Con", 3),
         }
         expected = roy.current_stats.as_dict()
-        for stat, bonus in item_bonus_dict.values():
+        for stat, bonus in roy.stat_boosters.values():
             expected[stat] += bonus * 100
-        roy.stat_boosters = item_bonus_dict
-        for item in item_bonus_dict:
-            roy._use_stat_booster(item, item_bonus_dict)
+        for item in roy.stat_boosters:
+            roy.use_stat_booster(item)
         actual = roy.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
@@ -1063,7 +1062,8 @@ class FE6RoyProtoMorph(unittest.TestCase):
         Demonstrates unsuccessful use of stat boosters.
         """
         roy = self.morph
-        item_bonus_dict = {
+        item = ""
+        roy.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -1074,16 +1074,14 @@ class FE6RoyProtoMorph(unittest.TestCase):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        item = ""
-        roy.stat_boosters = item_bonus_dict
         with self.assertRaises(StatBoosterError) as err_ctx:
-            roy._use_stat_booster(item, item_bonus_dict)
+            roy.use_stat_booster(item)
         err = err_ctx.exception
         actual = err.reason
         expected = StatBoosterError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         actual = err.valid_stat_boosters
-        expected = item_bonus_dict
+        expected = roy.stat_boosters
         self.assertEqual(actual, expected)
 
 
@@ -1526,11 +1524,11 @@ class FE4PromotedUnit(Morph4TestCase):
         Test inability to use stat booster.
         """
         sigurd = self.morph
-        with self.assertRaises(StatBoosterError) as err_ctx:
-            sigurd._use_stat_booster(None, None)
-        actual = err_ctx.exception.reason
-        expected = StatBoosterError.Reason.NO_IMPLEMENTATION
-        self.assertEqual(actual, expected)
+        with self.assertRaises(NotImplementedError) as err_ctx:
+            sigurd.use_stat_booster(None)
+        #actual = err_ctx.exception.reason
+        #expected = StatBoosterError.Reason.NO_IMPLEMENTATION
+        #self.assertEqual(actual, expected)
 
 class FE4ChildUnit(Morph4TestCase):
     """
@@ -2705,7 +2703,8 @@ class FE6Roy(Morph6TestCase):
         """
         Use a bunch of stat boosters.
         """
-        item_bonus_dict = {
+        morph = Morph6("Roy")
+        morph.stat_boosters = {
             "Angelic Robe": ("HP", 7),
             "Energy Ring": ("Pow", 2),
             "Secret Book": ("Skl", 2),
@@ -2716,8 +2715,7 @@ class FE6Roy(Morph6TestCase):
             "Boots": ("Mov", 2),
             "Body Ring": ("Con", 3),
         }
-        morph = Morph6("Roy")
-        for item, statbonus in item_bonus_dict.items():
+        for item, statbonus in morph.stat_boosters.items():
             original_stats = morph.current_stats.copy()
             morph.use_stat_booster(item)
             stat, bonus = statbonus

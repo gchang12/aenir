@@ -102,7 +102,6 @@ class StatBoosterError(_ItemException):
         """
         Declares all reasons why a unit wouldn't be able to use a stat-booster.
         """
-        NO_IMPLEMENTATION = enum.auto()
         NOT_FOUND = enum.auto()
         STAT_IS_MAXED = enum.auto()
 

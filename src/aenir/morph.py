@@ -170,6 +170,7 @@ class Morph(BaseMorph):
     """
     game_no: int = 0
     character_list_filter = lambda name: True
+    stat_boosters = None
 
     @classmethod
     def get_true_character_list(cls) -> Iterable[str]:
@@ -422,16 +423,11 @@ class Morph(BaseMorph):
         #self.max_level = None
         self.possible_promotions = None
 
-    def _use_stat_booster(self, item_name: str, item_bonus_dict: dict) -> None:
+    def use_stat_booster(self, item_name: str) -> None:
         """
         Boosts stats in accordance with item specified; appends record to `_meta`.
         """
-        #item_bonus_dict = self.stat_boosters
-        if item_bonus_dict is None:
-            raise StatBoosterError(
-                f"Stat boosters are not implemented for FE{self.game.value}.",
-                reason=StatBoosterError.Reason.NO_IMPLEMENTATION,
-            )
+        item_bonus_dict = self.stat_boosters
         increment = self.Stats(**self.Stats.get_stat_dict(0))
         if item_name not in item_bonus_dict:
             raise StatBoosterError(
@@ -743,6 +739,12 @@ class Morph4(Morph):
         self.history = []
         #self._meta.pop("Stat Boosters")
 
+    def use_stat_booster(self, item_name: str) -> None:
+        """
+        Raises NotImplementedError because FE4 lacks stat boosters.
+        """
+        raise NotImplementedError("FE4 has no stat boosters.")
+
     @property
     def game(self) -> FireEmblemGame:
         """
@@ -813,6 +815,17 @@ class Morph5(Morph):
     Thracia 776
     """
     game_no = 5
+    stat_boosters = {
+        "Luck Ring": ("Lck", 3),
+        "Life Ring": ("HP", 7),
+        "Speed Ring": ("Spd", 3),
+        "Magic Ring": ("Mag", 2),
+        "Power Ring": ("Str", 3),
+        "Body Ring": ("Con", 3),
+        "Shield Ring": ("Def", 2),
+        "Skill Ring": ("Skl", 3),
+        "Leg Ring": ("Mov", 2),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -963,24 +976,6 @@ class Morph5(Morph):
         self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        # TODO: Implement this s.t. program needn't initialize this over again.
-        item_bonus_dict = {
-            "Luck Ring": ("Lck", 3),
-            "Life Ring": ("HP", 7),
-            "Speed Ring": ("Spd", 3),
-            "Magic Ring": ("Mag", 2),
-            "Power Ring": ("Str", 3),
-            "Body Ring": ("Con", 3),
-            "Shield Ring": ("Def", 2),
-            "Skill Ring": ("Skl", 3),
-            "Leg Ring": ("Mov", 2),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
     def _apply_scroll_bonuses(self) -> None:
         """
         Updates `growth_rates` in accordance with currently equipped scrolls.
@@ -1054,6 +1049,17 @@ class Morph6(Morph):
     """
     game_no = 6
     character_list_filter = lambda name: " (HM)" not in name
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1241,29 +1247,23 @@ class Morph6(Morph):
             min_promo_level = 10
         self.min_promo_level = min_promo_level
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
 class Morph7(Morph):
     """
     Blazing Sword
     """
     game_no = 7
     character_list_filter = lambda name: " (HM)" not in name
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1433,29 +1433,23 @@ class Morph7(Morph):
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
 
 class Morph8(Morph):
     """
     The Sacred Stones
     """
     game_no = 8
+    stat_boosters = {
+        "Angelic Robe": ("HP", 7),
+        "Energy Ring": ("Pow", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwings": ("Spd", 2),
+        "Goddess Icon": ("Lck", 2),
+        "Dragonshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1565,23 +1559,6 @@ class Morph8(Morph):
         super().promote()
         self.max_level = None
 
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Angelic Robe": ("HP", 7),
-            "Energy Ring": ("Pow", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwings": ("Spd", 2),
-            "Goddess Icon": ("Lck", 2),
-            "Dragonshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
-
     def use_metiss_tome(self) -> None:
         """
         Increases growths by 5
@@ -1601,6 +1578,18 @@ class Morph9(Morph):
     Path of Radiance
     """
     game_no = 9
+    stat_boosters = {
+        "Seraph Robe": ("HP", 7),
+        "Energy Drop": ("Str", 2),
+        "Spirit Dust": ("Mag", 2),
+        "Secret Book": ("Skl", 2),
+        "Speedwing": ("Spd", 2),
+        "Ashera Icon": ("Lck", 2),
+        "Dracoshield": ("Def", 2),
+        "Talisman": ("Res", 2),
+        "Boots": ("Mov", 2),
+        "Body Ring": ("Con", 3),
+    }
 
     @property
     def inventory_size(self) -> int:
@@ -1756,24 +1745,6 @@ class Morph9(Morph):
         else:
             min_promo_level = 10
         self.min_promo_level = min_promo_level
-
-    def use_stat_booster(self, item_name: str) -> None:
-        """
-        Simulates usage of stat-booster.
-        """
-        item_bonus_dict = {
-            "Seraph Robe": ("HP", 7),
-            "Energy Drop": ("Str", 2),
-            "Spirit Dust": ("Mag", 2),
-            "Secret Book": ("Skl", 2),
-            "Speedwing": ("Spd", 2),
-            "Ashera Icon": ("Lck", 2),
-            "Dracoshield": ("Def", 2),
-            "Talisman": ("Res", 2),
-            "Boots": ("Mov", 2),
-            "Body Ring": ("Con", 3),
-        }
-        super()._use_stat_booster(item_name, item_bonus_dict)
 
     def _apply_band_bonuses(self) -> None:
         """
