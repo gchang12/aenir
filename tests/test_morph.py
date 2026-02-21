@@ -49,7 +49,6 @@ from aenir._logging import (
 configure_logging()
 time_logger.critical("")
 
-
 def _get_promotables(url_name, can_promote):
     """
     Gets database-bound list of units who can be promoted.
@@ -3269,7 +3268,7 @@ class FE7Ninian(Morph7TestCase):
         )
         self.assertTupleEqual(actual, expected)
 
-class FE7Ninian(Morph7TestCase):
+class FE7Nils(Morph7TestCase):
     """
     Conduct series of initialization tests with FE7!Nils as subject.
     """
@@ -3305,6 +3304,19 @@ class FE7Hector(Morph7TestCase):
         """
         self.morph = Morph7("Hector")
         super().setUp()
+
+    def test_get_growths_augment(self):
+        """
+        Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
+        """
+        self.morph.use_afas_drops()
+        statdict = self.morph.Stats.get_stat_dict(5)
+        expected_stats = self.morph.Stats(multiplier=1, **statdict)
+        expected_stats.Mov = 0
+        expected_stats.Con = 0
+        expected = expected_stats.as_dict()
+        actual = self.morph.get_growths_augment().as_dict()
+        self.assertDictEqual(actual, expected)
 
     def test_set_min_promo_level(self):
         """
@@ -4556,6 +4568,19 @@ class FE8Eirika(Morph8TestCase):
         actual = eirika.inventory_size
         expected = 0
         self.assertEqual(actual, expected)
+
+    def test_get_growths_augment(self):
+        """
+        Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
+        """
+        self.morph.use_metiss_tome()
+        statdict = self.morph.Stats.get_stat_dict(5)
+        expected_stats = self.morph.Stats(multiplier=1, **statdict)
+        expected_stats.Mov = 0
+        expected_stats.Con = 0
+        expected = expected_stats.as_dict()
+        actual = self.morph.get_growths_augment().as_dict()
+        self.assertDictEqual(actual, expected)
 
 class FE8Ephraim(Morph8TestCase):
     """

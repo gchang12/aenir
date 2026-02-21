@@ -283,6 +283,12 @@ class Morph(BaseMorph):
         """
         return self._name
 
+    def get_growths_augment(self):
+        """
+        Returns the difference between the current growth rates and the original.
+        """
+        return self.growth_rates + self._og_growth_rates * -1
+
     def _set_max_level(self) -> None:
         """
         Sets the maximum level for a unit; for most FE units, this is 20.
@@ -1454,6 +1460,7 @@ class Morph7(Morph):
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
+        self._og_growth_rates = None
 
     def use_afas_drops(self) -> None:
         """
@@ -1465,7 +1472,12 @@ class Morph7(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
+        # save copy of original stats.
+        self._og_growth_rates = self.growth_rates.copy()
+        # increment
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
+        growths_increment.Mov = 0
+        growths_increment.Con = 0
         self.growth_rates += growths_increment
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
@@ -1575,6 +1587,7 @@ class Morph8(Morph):
         # set instance attributes
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
+        self._og_growth_rates = None
 
     def _set_max_level(self) -> None:
         """
@@ -1605,9 +1618,14 @@ class Morph8(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
+        # save copy of original stats.
+        self._og_growth_rates = self.growth_rates.copy()
+        # increment
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
+        growths_increment.Mov = 0
+        growths_increment.Con = 0
         self.growth_rates += growths_increment
-        self._meta[_growths_item] = (self.current_lv, self.current_cls)
+        self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
 class Morph9(Morph):
     """
