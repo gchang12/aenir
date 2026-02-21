@@ -1,5 +1,5 @@
 ## The following requirements were added by pip freeze:
--e git+https://github.com/gchang12/aenir.git@430aa9e77a5ab168633a9589c5d8a561f2722446#egg=aenir
+-e git+https://github.com/gchang12/aenir.git@e32928e8b423ed4e770228cb960ea7b8e7d486c1#egg=aenir
 cachetools==7.0.1
 certifi==2026.1.4
 cffi==2.0.0
@@ -18,11 +18,15 @@ jaraco.context==6.1.0
 jaraco.functools==4.4.0
 jeepney==0.9.0
 keyring==25.7.0
+librt==0.8.1
 markdown-it-py==4.0.0
 mdurl==0.1.2
 more-itertools==10.8.0
+mypy==1.19.1
+mypy_extensions==1.1.0
 nh3==0.3.2
 packaging==26.0
+pathspec==1.0.4
 platformdirs==4.5.1
 pluggy==1.6.0
 pycparser==3.0
@@ -37,5 +41,6 @@ rich==14.3.2
 SecretStorage==3.5.0
 tox==4.34.1
 twine==6.2.0
+typing_extensions==4.15.0
 urllib3==2.6.3
 virtualenv==20.36.1
