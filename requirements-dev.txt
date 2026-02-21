@@ -1,5 +1,5 @@
 ## The following requirements were added by pip freeze:
--e git+https://github.com/gchang12/aenir.git@e32928e8b423ed4e770228cb960ea7b8e7d486c1#egg=aenir
+-e git+https://github.com/gchang12/aenir.git@99cf7463e47e5592c7b292cc36463b5c5750b5a4#egg=aenir
 cachetools==7.0.1
 certifi==2026.1.4
 cffi==2.0.0
