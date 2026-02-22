@@ -266,6 +266,7 @@ class Morph(BaseMorph):
         self.max_level: int | None = None
         self.min_promo_level: int | None = None
         self.promo_cls: str | None = None
+        # TODO: Deprecate this!
         self.possible_promotions: Tuple[str] | None = None
         #self.stat_boosters = None
 
