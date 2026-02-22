@@ -2343,6 +2343,33 @@ class FE5Eda(Morph5TestCase):
         }
         self.assertDictEqual(actual, expected)
 
+    def test_equip_scroll__has_been_augmented(self):
+        """
+        Tests value of growth_rates.has_been_augmented.
+        """
+        eda = self.morph
+        actual = eda.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        scroll_to_equip = "Heim"
+        eda.equip_scroll(scroll_to_equip)
+        actual = eda.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
+
+    def test_unequip_scroll__has_been_augmented(self):
+        """
+        Tests value of growth_rates.has_been_augmented.
+        """
+        eda = self.morph
+        actual = eda.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        scroll_to_equip = "Heim"
+        eda.equip_scroll(scroll_to_equip)
+        eda.unequip_scroll(scroll_to_equip)
+        actual = eda.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
     def test_equip_scroll(self):
         """
         Trying to equip a scroll that is already equipped.
@@ -3309,6 +3336,8 @@ class FE7Hector(Morph7TestCase):
         """
         Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
         """
+        actual = self.morph.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
         self.morph.use_afas_drops()
         statdict = self.morph.Stats.get_stat_dict(5)
         expected_stats = self.morph.Stats(multiplier=1, **statdict)
@@ -3317,6 +3346,9 @@ class FE7Hector(Morph7TestCase):
         expected = expected_stats.as_dict()
         actual = self.morph.get_growths_augment().as_dict()
         self.assertDictEqual(actual, expected)
+        actual = self.morph.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
     def test_set_min_promo_level(self):
         """
@@ -4573,6 +4605,8 @@ class FE8Eirika(Morph8TestCase):
         """
         Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
         """
+        actual = self.morph.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
         self.morph.use_metiss_tome()
         statdict = self.morph.Stats.get_stat_dict(5)
         expected_stats = self.morph.Stats(multiplier=1, **statdict)
@@ -4581,6 +4615,9 @@ class FE8Eirika(Morph8TestCase):
         expected = expected_stats.as_dict()
         actual = self.morph.get_growths_augment().as_dict()
         self.assertDictEqual(actual, expected)
+        actual = self.morph.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
 class FE8Ephraim(Morph8TestCase):
     """
@@ -5021,6 +5058,31 @@ class FE9Knight(Morph9TestCase):
         expected = 8
         self.assertEqual(actual, expected)
 
+    def test_unequip_knight_ward__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        kieran = self.morph
+        actual = kieran.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        kieran.equip_knight_ward()
+        kieran.unequip_knight_ward() # do it.
+        actual = kieran.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_equip_knight_ward__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        kieran = self.morph
+        actual = kieran.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        kieran.equip_knight_ward() # do it.
+        actual = kieran.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
+
     def test_equip_knight_ward__no_space(self):
         """
         Try to equip Knight Ward without any free space.
@@ -5288,6 +5350,35 @@ class FE9BandEquipper(Morph9TestCase):
             "Thief Band",
         )
         self.assertTupleEqual(actual, expected)
+
+    def test_unequip_band__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        jill = self.morph
+        actual = jill.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        band_to_equip = "Sword Band"
+        jill.equip_band(band_to_equip)
+        jill.unequip_band(band_to_equip)
+        actual = jill.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_equip_band__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        jill = self.morph
+        actual = jill.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        band_to_equip = "Sword Band"
+        # do the thing
+        jill.equip_band(band_to_equip)
+        # end
+        actual = jill.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
 class GetMorph(unittest.TestCase):
     """

@@ -1010,6 +1010,7 @@ class Morph5(Morph):
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
         self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
+        self.growth_rates.has_been_augmented = bool(self.equipped_scrolls)
 
     def unequip_scroll(self, scroll_name: str) -> None:
         """
@@ -1479,6 +1480,7 @@ class Morph7(Morph):
         growths_increment.Mov = 0
         growths_increment.Con = 0
         self.growth_rates += growths_increment
+        self.growth_rates.has_been_augmented = True
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
 
@@ -1625,6 +1627,7 @@ class Morph8(Morph):
         growths_increment.Mov = 0
         growths_increment.Con = 0
         self.growth_rates += growths_increment
+        self.growth_rates.has_been_augmented = True
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
 class Morph9(Morph):
@@ -1815,6 +1818,7 @@ class Morph9(Morph):
         self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
+        self.growth_rates.has_been_augmented = bool(self.equipped_bands)
 
     @classmethod
     def BAND_DICT(cls):

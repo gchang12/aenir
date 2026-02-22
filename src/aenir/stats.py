@@ -20,6 +20,7 @@ class AbstractStats(abc.ABC):
     """
     Defines methods for comparison, setting, and incrementation of numerical stats.
     """
+    has_been_augmented: bool | None = None
 
     @staticmethod
     @abc.abstractmethod
