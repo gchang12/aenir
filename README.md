@@ -23,6 +23,10 @@ With this module, you can:
 - Compare one unit to another.
 - And much more!
 
+# Advice
+
+Just use [Triangle Attack](https://fe6.triangleattack.com/average_stats).
+
 ## Installation
 
 To start, install `aenir`.
@@ -53,9 +57,9 @@ print(roy)
 As you can see, these stats suck. Let's fix that; let's level him up to level twenty.
 
 ```python
-num_levels = 20 - roy.current_lv
+num_levels = roy.max_level - roy.current_lv
 roy.level_up(num_levels)
-print(roy)
+print(roy.current_stats.as_dict())
 ```
 
 That's better. But it's still not enough. Let's promote him.
@@ -69,7 +73,7 @@ For the fun of it, let's max him out.
 ```python
 num_levels = 19 # because he starts out at level one again.
 roy.level_up(num_levels)
-print(roy)
+print(roy.current_stats.as_dict())
 ```
  
 Note that when initializing certain characters, like Rutger, extra initialization parameters will be needed. 
@@ -83,8 +87,8 @@ lyn = get_morph(7, "Lyn", lyn_mode=True)
 Compare characters by using the greater-than operator.
 
 ```python
-roy > lyn
-print(sum(roy > lyn))
+stat_diff = roy.current_stats > lyn.current_stats
+print(stat_diff.as_dict())
 ```
 
 ## Limitations
