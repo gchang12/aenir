@@ -3977,8 +3977,8 @@ class Morph8TestCase(unittest.TestCase):
         # compile list of promotions: tier 1
         try:
             _morph.promote()
-        except PromotionError:
-            possible_promotions = _morph.possible_promotions
+        except PromotionError as err:
+            possible_promotions = err.promotion_list
         promo_dict = {}
         # compile list of promotions: tier 2
         for promo_cls in possible_promotions:
@@ -3989,8 +3989,8 @@ class Morph8TestCase(unittest.TestCase):
             morph.current_lv = 10
             try:
                 morph.promote()
-            except PromotionError:
-                promo_dict[promo_cls] = morph.possible_promotions
+            except PromotionError as err:
+                promo_dict[promo_cls] = err.promotion_list
         # the actual test
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
@@ -4026,9 +4026,10 @@ class Morph8TestCase(unittest.TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -4040,7 +4041,8 @@ class Morph8TestCase(unittest.TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         expected1 = "*Reach Level 10*"
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
@@ -4101,9 +4103,10 @@ class Morph8TestCase(unittest.TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -4115,7 +4118,8 @@ class Morph8TestCase(unittest.TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
                 morph = Morph8(name)
@@ -4290,8 +4294,8 @@ class FE8Promotables(Morph8TestCase):
             morph.level_up(20 - morph.current_lv)
             try:
                 morph.promote()
-            except PromotionError:
-                morph.promo_cls = morph.possible_promotions[0]
+            except PromotionError as err:
+                morph.promo_cls = err.promotion_list[0]
                 morph.promote()
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
@@ -4314,8 +4318,8 @@ class FE8Promotables(Morph8TestCase):
                 expected = err_ctx.exception.reason
                 actual = PromotionError.Reason.NO_PROMOTIONS
                 self.assertEqual(actual, expected)
-            except PromotionError:
-                for promo_cls in morph.possible_promotions:
+            except PromotionError as err:
+                for promo_cls in err.promotion_list:
                     morph = Morph8(name)
                     morph.level_up(20 - morph.current_lv)
                     morph.promo_cls = promo_cls
@@ -4361,9 +4365,10 @@ class FE8Ross(Morph8TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -4375,7 +4380,8 @@ class FE8Ross(Morph8TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         expected1 = "*Reach Level 10*"
         for promo_cls, promoclasses2 in promo_dict.items():
             if promo_cls == "Pirate":

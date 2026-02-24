@@ -266,8 +266,6 @@ class Morph(BaseMorph):
         self.max_level: int | None = None
         self.min_promo_level: int | None = None
         self.promo_cls: str | None = None
-        # TODO: Deprecate this!
-        self.possible_promotions: Tuple[str] | None = None
         #self.stat_boosters = None
 
     @property
@@ -359,6 +357,7 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         return [result["Promotion"] for result in resultset]
 
+    # TODO: Append promo_cls name as parameter.
     def promote(self) -> None:
         """
         Changes unit class and boosts stats among other parameters, given the right conditions are met.
@@ -393,7 +392,6 @@ class Morph(BaseMorph):
             )
             if not new_resultset:
                 valid_promotions = tuple(result["Promotion"] for result in resultset)
-                self.possible_promotions = valid_promotions
                 raise PromotionError(
                     f"{self.promo_cls} is an invalid promotion. Valid promotions: {valid_promotions}",
                     reason=PromotionError.Reason.INVALID_PROMOTION,
@@ -428,7 +426,6 @@ class Morph(BaseMorph):
         self.promo_cls = None
         #self.min_promo_level = None
         #self.max_level = None
-        self.possible_promotions = None
 
     def use_stat_booster(self, item_name: str) -> None:
         """
@@ -1030,6 +1027,7 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
 
+    # TODO: Implement without querying database.
     @classmethod
     def SCROLL_DICT(cls):
         """
@@ -1821,6 +1819,7 @@ class Morph9(Morph):
             self.growth_rates += bonus
         self.growth_rates.has_been_augmented = bool(self.equipped_bands)
 
+    # TODO: Implement without querying database.
     @classmethod
     def BAND_DICT(cls):
         """
