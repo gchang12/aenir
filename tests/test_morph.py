@@ -49,7 +49,6 @@ from aenir._logging import (
 configure_logging()
 time_logger.critical("")
 
-
 def _get_promotables(url_name, can_promote):
     """
     Gets database-bound list of units who can be promoted.
@@ -2344,6 +2343,33 @@ class FE5Eda(Morph5TestCase):
         }
         self.assertDictEqual(actual, expected)
 
+    def test_equip_scroll__has_been_augmented(self):
+        """
+        Tests value of growth_rates.has_been_augmented.
+        """
+        eda = self.morph
+        actual = eda.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        scroll_to_equip = "Heim"
+        eda.equip_scroll(scroll_to_equip)
+        actual = eda.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
+
+    def test_unequip_scroll__has_been_augmented(self):
+        """
+        Tests value of growth_rates.has_been_augmented.
+        """
+        eda = self.morph
+        actual = eda.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        scroll_to_equip = "Heim"
+        eda.equip_scroll(scroll_to_equip)
+        eda.unequip_scroll(scroll_to_equip)
+        actual = eda.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
     def test_equip_scroll(self):
         """
         Trying to equip a scroll that is already equipped.
@@ -3269,7 +3295,7 @@ class FE7Ninian(Morph7TestCase):
         )
         self.assertTupleEqual(actual, expected)
 
-class FE7Ninian(Morph7TestCase):
+class FE7Nils(Morph7TestCase):
     """
     Conduct series of initialization tests with FE7!Nils as subject.
     """
@@ -3305,6 +3331,24 @@ class FE7Hector(Morph7TestCase):
         """
         self.morph = Morph7("Hector")
         super().setUp()
+
+    def test_get_growths_augment(self):
+        """
+        Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
+        """
+        actual = self.morph.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        self.morph.use_afas_drops()
+        statdict = self.morph.Stats.get_stat_dict(5)
+        expected_stats = self.morph.Stats(multiplier=1, **statdict)
+        expected_stats.Mov = 0
+        expected_stats.Con = 0
+        expected = expected_stats.as_dict()
+        actual = self.morph.get_growths_augment().as_dict()
+        self.assertDictEqual(actual, expected)
+        actual = self.morph.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
     def test_set_min_promo_level(self):
         """
@@ -3933,8 +3977,8 @@ class Morph8TestCase(unittest.TestCase):
         # compile list of promotions: tier 1
         try:
             _morph.promote()
-        except PromotionError:
-            possible_promotions = _morph.possible_promotions
+        except PromotionError as err:
+            possible_promotions = err.promotion_list
         promo_dict = {}
         # compile list of promotions: tier 2
         for promo_cls in possible_promotions:
@@ -3945,8 +3989,8 @@ class Morph8TestCase(unittest.TestCase):
             morph.current_lv = 10
             try:
                 morph.promote()
-            except PromotionError:
-                promo_dict[promo_cls] = morph.possible_promotions
+            except PromotionError as err:
+                promo_dict[promo_cls] = err.promotion_list
         # the actual test
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
@@ -3982,9 +4026,10 @@ class Morph8TestCase(unittest.TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -3996,7 +4041,8 @@ class Morph8TestCase(unittest.TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         expected1 = "*Reach Level 10*"
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
@@ -4057,9 +4103,10 @@ class Morph8TestCase(unittest.TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -4071,7 +4118,8 @@ class Morph8TestCase(unittest.TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         for promo_cls, promoclasses2 in promo_dict.items():
             for promo_cls2 in promoclasses2:
                 morph = Morph8(name)
@@ -4246,8 +4294,8 @@ class FE8Promotables(Morph8TestCase):
             morph.level_up(20 - morph.current_lv)
             try:
                 morph.promote()
-            except PromotionError:
-                morph.promo_cls = morph.possible_promotions[0]
+            except PromotionError as err:
+                morph.promo_cls = err.promotion_list[0]
                 morph.promote()
             actual = morph.get_promotion_item()
             self.assertIsNone(actual)
@@ -4270,8 +4318,8 @@ class FE8Promotables(Morph8TestCase):
                 expected = err_ctx.exception.reason
                 actual = PromotionError.Reason.NO_PROMOTIONS
                 self.assertEqual(actual, expected)
-            except PromotionError:
-                for promo_cls in morph.possible_promotions:
+            except PromotionError as err:
+                for promo_cls in err.promotion_list:
                     morph = Morph8(name)
                     morph.level_up(20 - morph.current_lv)
                     morph.promo_cls = promo_cls
@@ -4317,9 +4365,10 @@ class FE8Ross(Morph8TestCase):
             actual = error.reason
             expected = PromotionError.Reason.INVALID_PROMOTION
             self.assertEqual(actual, expected)
+            promotion_list = error.promotion_list
         promo_dict = {}
         # compile list of promotions
-        for promo_cls in _morph.possible_promotions:
+        for promo_cls in promotion_list:
             morph = Morph8(name)
             morph.current_lv = 10
             morph.promo_cls = promo_cls
@@ -4331,7 +4380,8 @@ class FE8Ross(Morph8TestCase):
                 actual = error.reason
                 expected = PromotionError.Reason.INVALID_PROMOTION
                 self.assertEqual(actual, expected)
-            promo_dict[promo_cls] = morph.possible_promotions
+                promotion_list2 = error.promotion_list
+            promo_dict[promo_cls] = promotion_list2
         expected1 = "*Reach Level 10*"
         for promo_cls, promoclasses2 in promo_dict.items():
             if promo_cls == "Pirate":
@@ -4556,6 +4606,24 @@ class FE8Eirika(Morph8TestCase):
         actual = eirika.inventory_size
         expected = 0
         self.assertEqual(actual, expected)
+
+    def test_get_growths_augment(self):
+        """
+        Tests 'get_growths_augment'; implicitly tests for existence of '_og_growth_rates'.
+        """
+        actual = self.morph.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        self.morph.use_metiss_tome()
+        statdict = self.morph.Stats.get_stat_dict(5)
+        expected_stats = self.morph.Stats(multiplier=1, **statdict)
+        expected_stats.Mov = 0
+        expected_stats.Con = 0
+        expected = expected_stats.as_dict()
+        actual = self.morph.get_growths_augment().as_dict()
+        self.assertDictEqual(actual, expected)
+        actual = self.morph.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
 class FE8Ephraim(Morph8TestCase):
     """
@@ -4996,6 +5064,31 @@ class FE9Knight(Morph9TestCase):
         expected = 8
         self.assertEqual(actual, expected)
 
+    def test_unequip_knight_ward__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        kieran = self.morph
+        actual = kieran.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        kieran.equip_knight_ward()
+        kieran.unequip_knight_ward() # do it.
+        actual = kieran.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_equip_knight_ward__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        kieran = self.morph
+        actual = kieran.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        kieran.equip_knight_ward() # do it.
+        actual = kieran.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
+
     def test_equip_knight_ward__no_space(self):
         """
         Try to equip Knight Ward without any free space.
@@ -5263,6 +5356,35 @@ class FE9BandEquipper(Morph9TestCase):
             "Thief Band",
         )
         self.assertTupleEqual(actual, expected)
+
+    def test_unequip_band__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        jill = self.morph
+        actual = jill.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        band_to_equip = "Sword Band"
+        jill.equip_band(band_to_equip)
+        jill.unequip_band(band_to_equip)
+        actual = jill.growth_rates.has_been_augmented
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_equip_band__has_been_augmented(self):
+        """
+        Tests value of 'growth_rates.has_been_augmented'.
+        """
+        jill = self.morph
+        actual = jill.growth_rates.has_been_augmented
+        self.assertIsNone(actual)
+        band_to_equip = "Sword Band"
+        # do the thing
+        jill.equip_band(band_to_equip)
+        # end
+        actual = jill.growth_rates.has_been_augmented
+        expected = True
+        self.assertIs(actual, expected)
 
 class GetMorph(unittest.TestCase):
     """

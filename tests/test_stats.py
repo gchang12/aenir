@@ -21,6 +21,31 @@ from aenir._logging import (
 configure_logging()
 time_logger.critical("")
 
+class ArbitraryStatsTest(unittest.TestCase):
+    """
+    Tests class methods.
+    """
+
+    def setUp(self):
+        """
+        Logs test ID.
+        """
+        logger.debug("%s", self.id())
+
+        class ArbitraryStats(AbstractStats):
+            """
+            An implemented Stats subclass.
+            """
+
+        self.Stats  = ArbitraryStats
+
+    def test_has_been_augmented(self):
+        """
+        Tests for existence of 'has_been_augmented' attribute.
+        """
+        actual = self.Stats.has_been_augmented
+        self.assertIsNone(actual)
+
 class IntStatsTest(unittest.TestCase):
     """
     Demo of methods of a functional int-based subclass of AbstractStats.

@@ -244,7 +244,6 @@ class Morph(BaseMorph):
         self.max_level: int | None = None
         self.min_promo_level: int | None = None
         self.promo_cls: str | None = None
-        self.possible_promotions: Tuple[str] | None = None
         #self.stat_boosters = None
 
     @property
@@ -260,6 +259,12 @@ class Morph(BaseMorph):
         The name of the unit.
         """
         return self._name
+
+    def get_growths_augment(self):
+        """
+        Returns the difference between the current growth rates and the original.
+        """
+        return self.growth_rates + self._og_growth_rates * -1
 
     def _set_max_level(self) -> None:
         """
@@ -330,6 +335,7 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         return [result["Promotion"] for result in resultset]
 
+    # TODO: Append promo_cls name as parameter.
     def promote(self) -> None:
         """
         Changes unit class and boosts stats among other parameters, given the right conditions are met.
@@ -364,7 +370,6 @@ class Morph(BaseMorph):
             )
             if not new_resultset:
                 valid_promotions = tuple(result["Promotion"] for result in resultset)
-                self.possible_promotions = valid_promotions
                 raise PromotionError(
                     f"{self.promo_cls} is an invalid promotion. Valid promotions: {valid_promotions}",
                     reason=PromotionError.Reason.INVALID_PROMOTION,
@@ -399,7 +404,6 @@ class Morph(BaseMorph):
         self.promo_cls = None
         #self.min_promo_level = None
         #self.max_level = None
-        self.possible_promotions = None
 
     def use_stat_booster(self, item_name: str) -> None:
         """
@@ -976,6 +980,7 @@ class Morph5(Morph):
         for bonus in self.equipped_scrolls.values():
             self.growth_rates += bonus
         self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
+        self.growth_rates.has_been_augmented = bool(self.equipped_scrolls)
 
     def unequip_scroll(self, scroll_name: str) -> None:
         """
@@ -994,6 +999,7 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
 
+    # TODO: Implement without querying database.
     @classmethod
     def SCROLL_DICT(cls):
         """
@@ -1426,6 +1432,7 @@ class Morph7(Morph):
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
+        self._og_growth_rates = None
 
     def use_afas_drops(self) -> None:
         """
@@ -1437,8 +1444,14 @@ class Morph7(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
+        # save copy of original stats.
+        self._og_growth_rates = self.growth_rates.copy()
+        # increment
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
+        growths_increment.Mov = 0
+        growths_increment.Con = 0
         self.growth_rates += growths_increment
+        self.growth_rates.has_been_augmented = True
         self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
 
@@ -1547,6 +1560,7 @@ class Morph8(Morph):
         # set instance attributes
         self._growths_item = _growths_item
         self._meta[_growths_item] = None
+        self._og_growth_rates = None
 
     def _set_max_level(self) -> None:
         """
@@ -1577,9 +1591,15 @@ class Morph8(Morph):
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
             )
+        # save copy of original stats.
+        self._og_growth_rates = self.growth_rates.copy()
+        # increment
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
+        growths_increment.Mov = 0
+        growths_increment.Con = 0
         self.growth_rates += growths_increment
-        self._meta[_growths_item] = (self.current_lv, self.current_cls)
+        self.growth_rates.has_been_augmented = True
+        self._meta[self._growths_item] = (self.current_lv, self.current_cls)
 
 class Morph9(Morph):
     """
@@ -1769,7 +1789,9 @@ class Morph9(Morph):
         self.growth_rates = self._og_growth_rates.copy()
         for bonus in self.equipped_bands.values():
             self.growth_rates += bonus
+        self.growth_rates.has_been_augmented = bool(self.equipped_bands)
 
+    # TODO: Implement without querying database.
     @classmethod
     def BAND_DICT(cls):
         """
