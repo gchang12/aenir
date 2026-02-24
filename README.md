@@ -106,6 +106,7 @@ Currently, this calculator works only for characters from:
 # COMING SOON!
 
 Combat simulation
+Link Arena
 
 <!-- pyscaffold-notes -->
 
