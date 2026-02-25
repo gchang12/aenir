@@ -673,14 +673,14 @@ class AbsoluteMaxesTests(unittest.TestCase):
         Tests the method for the GenealogyStats class.
         """
         expected = {
-            "HP": 80,
-            "Str": 30,
-            "Mag": 30,
-            "Skl": 30,
-            "Spd": 30,
-            "Lck": 30,
-            "Def": 30,
-            "Res": 30,
+            "HP": 80_00,
+            "Str": 30_00,
+            "Mag": 30_00,
+            "Skl": 30_00,
+            "Spd": 30_00,
+            "Lck": 30_00,
+            "Def": 30_00,
+            "Res": 30_00,
         }
         actual = dict(zip(GenealogyStats.STAT_LIST(), GenealogyStats.ABSOLUTE_MAXES()))
         self.assertDictEqual(actual, expected)
@@ -690,18 +690,18 @@ class AbsoluteMaxesTests(unittest.TestCase):
         Tests the method for the ThraciaStats class.
         """
         expected = {
-            "HP": 80,
-            "Str": 20,
-            "Mag": 20,
-            "Skl": 20,
-            "Spd": 20,
-            "Lck": 20,
-            "Def": 20,
-            "Con": 20,
-            "Mov": 20,
-            "Lead": 10,
-            "MS": 5,
-            "PC": 5,
+            "HP": 80_00,
+            "Str": 20_00,
+            "Mag": 20_00,
+            "Skl": 20_00,
+            "Spd": 20_00,
+            "Lck": 20_00,
+            "Def": 20_00,
+            "Con": 20_00,
+            "Mov": 20_00,
+            "Lead": 10_00,
+            "MS": 5_00,
+            "PC": 5_00,
         }
         actual = dict(zip(ThraciaStats.STAT_LIST(), ThraciaStats.ABSOLUTE_MAXES()))
         self.assertDictEqual(actual, expected)
@@ -711,15 +711,15 @@ class AbsoluteMaxesTests(unittest.TestCase):
         Tests the method for the GBAStats class.
         """
         expected = {
-            "HP": 80,
-            "Pow": 30,
-            "Skl": 30,
-            "Spd": 30,
-            "Lck": 30,
-            "Def": 30,
-            "Res": 30,
-            "Con": 25,
-            "Mov": 15,
+            "HP": 80_00,
+            "Pow": 30_00,
+            "Skl": 30_00,
+            "Spd": 30_00,
+            "Lck": 30_00,
+            "Def": 30_00,
+            "Res": 30_00,
+            "Con": 25_00,
+            "Mov": 15_00,
         }
         actual = dict(zip(GBAStats.STAT_LIST(), GBAStats.ABSOLUTE_MAXES()))
         self.assertDictEqual(actual, expected)
@@ -729,17 +729,17 @@ class AbsoluteMaxesTests(unittest.TestCase):
         Tests the method for the RadiantStats class.
         """
         expected = {
-            "HP": 80,
-            "Str": 40,
-            "Mag": 40,
-            "Skl": 40,
-            "Spd": 40,
-            "Lck": 40,
-            "Def": 40,
-            "Res": 40,
-            "Mov": 99,
-            "Con": 99,
-            "Wt": 99,
+            "HP": 80_00,
+            "Str": 40_00,
+            "Mag": 40_00,
+            "Skl": 40_00,
+            "Spd": 40_00,
+            "Lck": 40_00,
+            "Def": 40_00,
+            "Res": 40_00,
+            "Mov": 99_00,
+            "Con": 99_00,
+            "Wt": 99_00,
         }
         actual = dict(zip(RadiantStats.STAT_LIST(), RadiantStats.ABSOLUTE_MAXES()))
         self.assertDictEqual(actual, expected)

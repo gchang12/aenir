@@ -244,14 +244,14 @@ class GenealogyStats(AbstractStats):
         Returns list of absolute maxes.
         """
         return (
-            80, #"HP",
-            30, #"Str",
-            30, #"Mag",
-            30, #"Skl",
-            30, #"Spd",
-            30, #"Lck",
-            30, #"Def",
-            30, #"Res",
+            80_00, #"HP",
+            30_00, #"Str",
+            30_00, #"Mag",
+            30_00, #"Skl",
+            30_00, #"Spd",
+            30_00, #"Lck",
+            30_00, #"Def",
+            30_00, #"Res",
         )
 
 class ThraciaStats(AbstractStats):
@@ -297,18 +297,18 @@ class ThraciaStats(AbstractStats):
         Returns list of absolute maxes.
         """
         return (
-            80, #"HP",
-            20, #"Str",
-            20, #"Mag",
-            20, #"Skl",
-            20, #"Spd",
-            20, #"Lck",
-            20, #"Def",
-            20, #"Con",
-            20, #"Mov",
-            10, #"Lead",
-            5, #"MS",
-            5, #"PC",
+            80_00, #"HP",
+            20_00, #"Str",
+            20_00, #"Mag",
+            20_00, #"Skl",
+            20_00, #"Spd",
+            20_00, #"Lck",
+            20_00, #"Def",
+            20_00, #"Con",
+            20_00, #"Mov",
+            10_00, #"Lead",
+            5_00, #"MS",
+            5_00, #"PC",
         )
 
 class GBAStats(AbstractStats):
@@ -349,15 +349,15 @@ class GBAStats(AbstractStats):
         Returns list of absolute maxes.
         """
         return (
-            80, #"HP",
-            30, #"Pow",
-            30, #"Skl",
-            30, #"Spd",
-            30, #"Lck",
-            30, #"Def",
-            30, #"Res",
-            25, #"Con",
-            15, #"Mov",
+            80_00, #"HP",
+            30_00, #"Pow",
+            30_00, #"Skl",
+            30_00, #"Spd",
+            30_00, #"Lck",
+            30_00, #"Def",
+            30_00, #"Res",
+            25_00, #"Con",
+            15_00, #"Mov",
         )
 
 class RadiantStats(AbstractStats):
@@ -402,16 +402,16 @@ class RadiantStats(AbstractStats):
         Returns list of absolute maxes.
         """
         return (
-            80, #"HP",
-            40, #"Str",
-            40, #"Mag",
-            40, #"Skl",
-            40, #"Spd",
-            40, #"Lck",
-            40, #"Def",
-            40, #"Res",
-            99, #"Mov",
-            99, #"Con",
-            99, #"Wt",
+            80_00, #"HP",
+            40_00, #"Str",
+            40_00, #"Mag",
+            40_00, #"Skl",
+            40_00, #"Spd",
+            40_00, #"Lck",
+            40_00, #"Def",
+            40_00, #"Res",
+            99_00, #"Mov",
+            99_00, #"Con",
+            99_00, #"Wt",
         )
 
