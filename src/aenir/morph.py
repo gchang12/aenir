@@ -360,9 +360,9 @@ class Morph(BaseMorph):
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
-        if promo_cls is not None:
-            self.promo_cls = promo_cls
         if len(resultset) > 1:
+            if promo_cls is not None:
+                self.promo_cls = promo_cls
             new_resultset = list(
                 filter(
                     lambda result: result['Promotion'] == self.promo_cls,
@@ -782,9 +782,7 @@ class Morph4(Morph):
         Promotes unit and resets max level and current level to original.
         """
         current_lv = self.current_lv
-        if promo_cls is not None:
-            self.promo_cls = promo_cls
-        super().promote()
+        super().promote(promo_cls=promo_cls)
         self.current_lv = current_lv
         self.max_level = 30
         self.min_promo_level = 20
@@ -971,9 +969,7 @@ class Morph5(Morph):
                 f"{self.name} has no available promotions.",
                 reason=PromotionError.Reason.NO_PROMOTIONS,
             )
-        if promo_cls is not None:
-            self.promo_cls = promo_cls
-        super().promote()
+        super().promote(promo_cls=promo_cls)
         self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
 
@@ -1584,9 +1580,7 @@ class Morph8(Morph):
         """
         Promotes, then sets max_level to None so that it may be recalculated.
         """
-        if promo_cls is not None:
-            self.promo_cls = promo_cls
-        super().promote()
+        super().promote(promo_cls=promo_cls)
         self.max_level = None
 
     def use_metiss_tome(self) -> None:
