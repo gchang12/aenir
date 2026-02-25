@@ -1443,6 +1443,7 @@ class Morph7(Morph):
             raise GrowthsItemError(
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
+                consumption_date=self._meta[_growths_item],
             )
         # save copy of original stats.
         self._og_growth_rates = self.growth_rates.copy()
@@ -1590,6 +1591,7 @@ class Morph8(Morph):
             raise GrowthsItemError(
                 f"{self.name} already used {_growths_item}.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
+                consumption_date=self._meta[_growths_item],
             )
         # save copy of original stats.
         self._og_growth_rates = self.growth_rates.copy()

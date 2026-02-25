@@ -3559,9 +3559,13 @@ class FE7Nino(Morph7TestCase):
         self.assertSetEqual(set(diff.values()), {5, None})
         with self.assertRaises(GrowthsItemError) as err_ctx:
             nino.use_afas_drops()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
+        actual = err.consumption_date
+        expected = (5, "Mage")
+        self.assertTupleEqual(actual, expected)
 
 @unittest.skip
 class FE7Unpromotables(Morph7TestCase):
@@ -4534,9 +4538,13 @@ class FE8Ewan(Morph8TestCase):
         self.assertSetEqual(set(diff), {5})
         with self.assertRaises(GrowthsItemError) as err_ctx:
             ewan.use_metiss_tome()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = GrowthsItemError.Reason.ALREADY_CONSUMED
         self.assertEqual(actual, expected)
+        actual = err.consumption_date
+        expected = (1, "Pupil")
+        self.assertTupleEqual(actual, expected)
 
 class FE8Eirika(Morph8TestCase):
     """

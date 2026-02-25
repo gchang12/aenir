@@ -137,12 +137,13 @@ class GrowthsItemError(BaseException):
         """
         ALREADY_CONSUMED = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason):
+    def __init__(self, msg: str, reason: Reason, consumption_date):
         """
         No new attributes declared.
         """
         super().__init__(msg)
         self.reason = reason
+        self.consumption_date = consumption_date
 
 class BandError(BaseException):
     """
