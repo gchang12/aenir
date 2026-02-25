@@ -909,6 +909,14 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         rutger = self.morph
         with self.assertRaises(LevelUpError) as err_ctx:
             rutger.level_up(20)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = LevelUpError.Reason.EXCEEDS_MAX
+        self.assertEqual(actual, expected)
+        actual = err.level_range
+        expected = (5, 20)
+        self.assertTupleEqual(actual, expected)
+        logger.debug("Now checking that Rutger hasn't levelled up.")
         actual = rutger.current_lv
         expected = 4
         self.assertEqual(actual, expected)
@@ -2987,6 +2995,20 @@ class FE6Roy(Morph6TestCase):
         """
         self.morph = Morph6("Roy")
         super().setUp()
+
+    def test_level_up__num_levels_eq_0(self):
+        """
+        Checks what happens when a non-positive number is passed in as an argument.
+        """
+        with self.assertRaises(LevelUpError) as err_ctx:
+            self.morph.level_up(0)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = LevelUpError.Reason.NOT_POSITIVE
+        self.assertEqual(actual, expected)
+        actual = err.level_range
+        expected = (2, 20)
+        self.assertTupleEqual(actual, expected)
 
     def test_set_min_promo_level(self):
         """

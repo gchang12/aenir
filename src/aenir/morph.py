@@ -296,11 +296,18 @@ class Morph(BaseMorph):
         # get max level
         if self.max_level is None:
             self._set_max_level()
+        if num_levels <= 0:
+            raise LevelUpError(
+                f"Level-up increment must be positive. Increment was: {num_levels}",
+                reason=LevelUpError.Reason.NOT_POSITIVE,
+                level_range=(self.current_lv + 1, self.max_level),
+            )
         # stop if user is going to overlevel
         if num_levels + self.current_lv > self.max_level:
             raise LevelUpError(
                 f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
-                max_level=self.max_level,
+                reason=LevelUpError.Reason.EXCEEDS_MAX,
+                level_range=(self.current_lv + 1, self.max_level),
             )
         # ! increase stats
         self.current_stats += self.growth_rates * num_levels

@@ -53,12 +53,20 @@ class LevelUpError(BaseException):
     To be raised if an error occurred while levelling up a unit (e.g. level too high).
     """
 
-    def __init__(self, msg: str, *, max_level: int | None):
+    class Reason(enum.Enum):
+        """
+        Declares all reasons why a unit wouldn't be able to level-up.
+        """
+        NOT_POSITIVE = enum.auto()
+        EXCEEDS_MAX = enum.auto()
+
+    def __init__(self, msg: str, *, reason: Reason, level_range):
         """
         Declares `max_level`.
         """
         super().__init__(msg)
-        self.max_level = max_level
+        self.reason = reason
+        self.level_range = level_range
 
 class PromotionError(BaseException):
     """
