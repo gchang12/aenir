@@ -4356,6 +4356,13 @@ class FE8Ross(Morph8TestCase):
         name = "Ross"
         self._test_scrub(name)
 
+    def test_promote__with_promo_cls_arg(self):
+        """
+        """
+        morph = Morph8("Ross")
+        morph.level_up(9)
+        morph.promote(promo_cls="Pirate")
+
     def test_get_promotion_item__ross(self):
         """
         Tests return-value of 'get-promo-item' throughout Ross' growth.

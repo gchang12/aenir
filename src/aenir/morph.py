@@ -335,8 +335,7 @@ class Morph(BaseMorph):
         resultset = self.query_db(**query_kwargs).fetchall()
         return [result["Promotion"] for result in resultset]
 
-    # TODO: Append promo_cls name as parameter.
-    def promote(self) -> None:
+    def promote(self, *, promo_cls=None) -> None:
         """
         Changes unit class and boosts stats among other parameters, given the right conditions are met.
         """
@@ -361,6 +360,8 @@ class Morph(BaseMorph):
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
+        if promo_cls is not None:
+            self.promo_cls = promo_cls
         if len(resultset) > 1:
             new_resultset = list(
                 filter(
@@ -776,11 +777,13 @@ class Morph4(Morph):
             promotion_item = "*Promote at Base*"
         return promotion_item
 
-    def promote(self) -> None:
+    def promote(self, *, promo_cls=None) -> None:
         """
         Promotes unit and resets max level and current level to original.
         """
         current_lv = self.current_lv
+        if promo_cls is not None:
+            self.promo_cls = promo_cls
         super().promote()
         self.current_lv = current_lv
         self.max_level = 30
@@ -953,7 +956,7 @@ class Morph5(Morph):
             min_promo_level = 1
         self.min_promo_level = min_promo_level
 
-    def promote(self) -> None:
+    def promote(self, *, promo_cls=None) -> None:
         """
         Provides logic for promotion of Lara and other thieves in addition to usual units.
         """
@@ -968,6 +971,8 @@ class Morph5(Morph):
                 f"{self.name} has no available promotions.",
                 reason=PromotionError.Reason.NO_PROMOTIONS,
             )
+        if promo_cls is not None:
+            self.promo_cls = promo_cls
         super().promote()
         self.current_stats.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.min_promo_level = None
@@ -1575,10 +1580,12 @@ class Morph8(Morph):
         else:
             self.max_level = 20
 
-    def promote(self) -> None:
+    def promote(self, *, promo_cls=None) -> None:
         """
         Promotes, then sets max_level to None so that it may be recalculated.
         """
+        if promo_cls is not None:
+            self.promo_cls = promo_cls
         super().promote()
         self.max_level = None
 
