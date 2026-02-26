@@ -1035,10 +1035,11 @@ class Morph5(Morph):
         scroll_list = self.scroll_dict
         if scroll_name not in scroll_list:
             # raise error
+            valid_scrolls = {scroll: (scroll not in self.equipped_scrolls) for scroll in scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
                 reason=ScrollError.Reason.NOT_FOUND,
-                valid_scrolls=self.CRUSADERS(),
+                valid_scrolls=valid_scrolls,
             )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
         if scroll_name in self.equipped_scrolls:
@@ -1826,10 +1827,11 @@ class Morph9(Morph):
         """
         band_list = self.band_dict
         if band_name not in band_list:
+            valid_bands = {band: (band not in self.equipped_bands) for band in band_list}
             raise BandError(
                 f"'{band_name}' is not a valid band. List of valid bands: {band_list}.",
                 reason=BandError.Reason.NOT_FOUND,
-                valid_bands=tuple(band_list),
+                valid_bands=valid_bands,
             )
         if band_name in self.equipped_bands:
             valid_bands = {band: (band not in self.equipped_bands) for band in band_list}

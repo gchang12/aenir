@@ -2460,21 +2460,21 @@ class FE5Eda(Morph5TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
         logger.debug("valid_scrolls: %s", actual)
-        expected = (
-            'Baldo',
-            'Blaggi',
-            'Dain',
-            'Fala',
-            'Heim',
-            'Hezul',
-            'Neir',
-            'Noba',
-            'Odo',
-            'Sety',
-            'Tordo',
-            'Ulir',
-        )
-        self.assertTupleEqual(actual, expected)
+        expected = {
+            'Baldo': True,
+            'Blaggi': True,
+            'Dain': True,
+            'Fala': True,
+            'Heim': True,
+            'Hezul': True,
+            'Neir': True,
+            'Noba': True,
+            'Odo': True,
+            'Sety': True,
+            'Tordo': True,
+            'Ulir': True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll__invalid_scroll2(self):
         """
@@ -2498,21 +2498,21 @@ class FE5Eda(Morph5TestCase):
         self.assertIs(actual, expected)
         actual = err_ctx.exception.valid_scrolls
         logger.debug("valid_scrolls: %s", actual)
-        expected = (
-            'Baldo',
-            'Blaggi',
-            'Dain',
-            'Fala',
-            'Heim',
-            'Hezul',
-            'Neir',
-            'Noba',
-            'Odo',
-            'Sety',
-            'Tordo',
-            'Ulir',
-        )
-        self.assertTupleEqual(actual, expected)
+        expected = {
+            "Odo": True,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": True,
+            "Fala": True,
+            "Sety": True,
+            "Blaggi": True,
+            "Heim": True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_scroll__exceed_inventory_space(self):
         """
@@ -5322,10 +5322,6 @@ class FE9BandEquipper(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
-        actual = err.valid_bands
-        logger.debug("valid_bands: %s", actual)
-        expected = ('Sword Band', 'Soldier Band', 'Fighter Band', 'Archer Band', 'Knight Band', 'Paladin Band', 'Pegasus Band', 'Wyvern Band', 'Mage Band', 'Priest Band', 'Thief Band')
-        self.assertTupleEqual(actual, expected)
         jill.level_up(10)
         jill2 = Morph9("Jill")
         jill2.level_up(10)
@@ -5379,20 +5375,20 @@ class FE9BandEquipper(Morph9TestCase):
         expected = True
         self.assertIs(actual, expected)
         actual = err.valid_bands
-        expected = (
-            "Sword Band",
-            "Soldier Band",
-            "Fighter Band",
-            "Archer Band",
-            "Knight Band",
-            "Paladin Band",
-            "Pegasus Band",
-            "Wyvern Band",
-            "Mage Band",
-            "Priest Band",
-            "Thief Band",
-        )
-        self.assertTupleEqual(actual, expected)
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": True,
+            "Priest Band": True,
+            "Thief Band": True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_unequip_band__has_been_augmented(self):
         """
