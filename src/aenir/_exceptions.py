@@ -190,11 +190,12 @@ class KnightWardError(BaseException):
         NOT_EQUIPPED = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, knights: Iterable[str] | None = None):
+    def __init__(self, msg: str, reason: Reason, *, knights: Iterable[str] | None = None, valid_bands = None):
         """
         Initialize 'reason' attribute.
         """
         super().__init__(msg)
         self.reason = reason
         self.knights = knights
+        self.valid_bands = valid_bands
 

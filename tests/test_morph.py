@@ -2534,7 +2534,21 @@ class FE5Eda(Morph5TestCase):
         expected = ScrollError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
-        self.assertIsNone(actual)
+        expected = {
+            "Odo": True,
+            "Baldo": True,
+            "Hezul": True,
+            "Dain": True,
+            "Noba": True,
+            "Neir": True,
+            "Ulir": True,
+            "Tordo": False,
+            "Fala": False,
+            "Sety": False,
+            "Blaggi": False,
+            "Heim": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_level_up__hezul_scroll(self):
         """
@@ -5132,14 +5146,42 @@ class FE9Knight(Morph9TestCase):
         """
         kieran = Morph9("Kieran")
         inventory_size = kieran.inventory_size
-        kieran.equipped_bands.update({i: None for i in range(inventory_size)})
+        scrolls = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        for scroll in scrolls:
+            kieran.equipped_bands[scroll] = None
         with self.assertRaises(KnightWardError) as err_ctx:
             kieran.equip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NO_INVENTORY_SPACE
-        logger.debug("Actual: %s (%s)", actual, type(actual))
-        logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": False,
+            "Priest Band": False,
+            "Thief Band": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_unequip_knight_ward(self):
         """
@@ -5351,7 +5393,20 @@ class FE9BandEquipper(Morph9TestCase):
         logger.debug("Expected: %s (%s)", expected, type(expected))
         self.assertEqual(actual, expected)
         actual = err.valid_bands
-        self.assertIsNone(actual)
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": False,
+            "Priest Band": False,
+            "Thief Band": False,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_equip_band__band_dne(self):
         """

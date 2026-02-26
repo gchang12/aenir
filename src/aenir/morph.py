@@ -1051,9 +1051,11 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
         if len(self.equipped_scrolls) >= self.inventory_size:
+            valid_scrolls = {scroll: (scroll in self.equipped_scrolls) for scroll in scroll_list}
             raise ScrollError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
+                valid_scrolls=valid_scrolls,
             )
         stat_dict = scroll_list[scroll_name]
         self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
@@ -1802,7 +1804,6 @@ class Morph9(Morph):
             self.growth_rates += bonus
         self.growth_rates.has_been_augmented = bool(self.equipped_bands)
 
-    # TODO: Implement without querying database.
     @classmethod
     def BAND_DICT(cls):
         """
@@ -1841,10 +1842,12 @@ class Morph9(Morph):
                 valid_bands=valid_bands,
                 invalid_band=band_name,
             )
-        if len(self.equipped_bands) == self.inventory_size:
+        if len(self.equipped_bands) >= self.inventory_size:
+            valid_bands = {band: (band in self.equipped_bands) for band in band_list}
             raise BandError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
+                valid_bands=valid_bands,
             )
         stat_dict = band_list[band_name]
         self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
@@ -1877,15 +1880,19 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
                 knights=self.KNIGHT_LIST(),
             )
-        if len(self.equipped_bands) == self.inventory_size:
+        if len(self.equipped_bands) >= self.inventory_size:
+            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"Your inventory is full at: {self.inventory_size} items. Knight Band has not equipped.",
                 reason=KnightWardError.Reason.NO_INVENTORY_SPACE,
+                valid_bands=valid_bands,
             )
         if self.knight_ward_is_equipped is True:
+            #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} already has the Knight Ward equipped.",
                 reason=KnightWardError.Reason.ALREADY_EQUIPPED,
+                #valid_bands=valid_bands,
             )
         # update stats
         self.growth_rates = self._og_growth_rates.copy()
@@ -1910,9 +1917,11 @@ class Morph9(Morph):
                 knights=self.KNIGHT_LIST(),
             )
         if self.knight_ward_is_equipped is False:
+            #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
                 reason=KnightWardError.Reason.NOT_EQUIPPED,
+                #valid_bands=valid_bands,
             )
         band_name = "Knight Ward"
         self.equipped_bands.pop(band_name)
