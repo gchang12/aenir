@@ -423,7 +423,7 @@ class Morph(BaseMorph):
             raise StatBoosterError(
                 f"'{item_name}' is not a valid stat booster. Valid stat boosters: {list(item_bonus_dict.keys())}",
                 reason=StatBoosterError.Reason.NOT_FOUND,
-                valid_stat_boosters=item_bonus_dict,
+                valid_stat_boosters=tuple(item_bonus_dict),
             )
         stat, bonus = item_bonus_dict[item_name]
         current_max = getattr(self.max_stats, stat)

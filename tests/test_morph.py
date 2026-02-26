@@ -1160,7 +1160,7 @@ class FE6RoyProtoMorph(unittest.TestCase):
         expected = StatBoosterError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         actual = err.valid_stat_boosters
-        expected = roy.stat_boosters
+        expected = tuple(roy.stat_boosters)
         self.assertEqual(actual, expected)
 
 
