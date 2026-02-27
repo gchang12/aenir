@@ -307,6 +307,7 @@ class Morph(BaseMorph):
             raise LevelUpError(
                 f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
                 reason=LevelUpError.Reason.EXCEEDS_MAX,
+                # TODO: change to `self.max_level`
                 level_range=(self.current_lv + 1, self.max_level),
             )
         # ! increase stats
@@ -800,14 +801,14 @@ class Morph5(Morph):
     """
     game_no = 5
     stat_boosters = {
-        "Luck Ring": ("Lck", 3),
         "Life Ring": ("HP", 7),
-        "Speed Ring": ("Spd", 3),
-        "Magic Ring": ("Mag", 2),
         "Power Ring": ("Str", 3),
-        "Body Ring": ("Con", 3),
-        "Shield Ring": ("Def", 2),
+        "Magic Ring": ("Mag", 2),
         "Skill Ring": ("Skl", 3),
+        "Speed Ring": ("Spd", 3),
+        "Luck Ring": ("Lck", 3),
+        "Shield Ring": ("Def", 2),
+        "Body Ring": ("Con", 3),
         "Leg Ring": ("Mov", 2),
     }
 
@@ -1917,6 +1918,7 @@ class Morph9(Morph):
                 knights=self.KNIGHT_LIST(),
             )
         if self.knight_ward_is_equipped is False:
+            # TODO: Uncomment this.
             #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
