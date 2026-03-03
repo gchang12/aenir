@@ -12,7 +12,12 @@ from typing import (
     Tuple,
 )
 
-class UnitNotFoundError(BaseException):
+class AenirError(BaseException):
+    """
+    This indicates that something in this program didn't function as expected or intended.
+    """
+
+class UnitNotFoundError(AenirError):
     """
     To be raised if the unit name has not been recognized.
     """
@@ -24,7 +29,7 @@ class UnitNotFoundError(BaseException):
         super().__init__(msg)
         self.unit_list = unit_list
 
-class InitError(BaseException):
+class InitError(AenirError):
     """
     To be raised if there was an error in initializing the virtualization of a given unit.
     """
@@ -48,7 +53,7 @@ class InitError(BaseException):
         self.missing_value = missing_value
         self.init_params = init_params
 
-class LevelUpError(BaseException):
+class LevelUpError(AenirError):
     """
     To be raised if an error occurred while levelling up a unit (e.g. level too high).
     """
@@ -68,7 +73,7 @@ class LevelUpError(BaseException):
         self.reason = reason
         self.level_range = level_range
 
-class PromotionError(BaseException):
+class PromotionError(AenirError):
     """
     To be raised if an error occurred while promoting a unit.
     """
@@ -90,7 +95,7 @@ class PromotionError(BaseException):
         self.promotion_list = promotion_list
         self.min_promo_level = min_promo_level
 
-class StatBoosterError(BaseException):
+class StatBoosterError(AenirError):
     """
     To be raised if an error occurred while using a stat booster.
     """
@@ -111,7 +116,7 @@ class StatBoosterError(BaseException):
         self.max_stat = max_stat
         self.valid_stat_boosters = valid_stat_boosters
 
-class ScrollError(BaseException):
+class ScrollError(AenirError):
     """
     To be raised if an error occurred while equipping an FE5 scroll.
     """
@@ -134,7 +139,7 @@ class ScrollError(BaseException):
         self.valid_scrolls = valid_scrolls
         self.invalid_scroll = invalid_scroll
 
-class GrowthsItemError(BaseException):
+class GrowthsItemError(AenirError):
     """
     To be raised if an error occurred while using either Afa's Drops or Metis' Tome.
     """
@@ -153,7 +158,7 @@ class GrowthsItemError(BaseException):
         self.reason = reason
         self.consumption_date = consumption_date
 
-class BandError(BaseException):
+class BandError(AenirError):
     """
     To be raised if an error occurred while equipping an FE9 band.
     """
@@ -176,7 +181,7 @@ class BandError(BaseException):
         self.valid_bands = valid_bands
         self.invalid_band = invalid_band
 
-class KnightWardError(BaseException):
+class KnightWardError(AenirError):
     """
     To be raised if an error occurred while equipping the Knight Ward in FE9.
     """
