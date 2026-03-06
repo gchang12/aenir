@@ -2138,6 +2138,40 @@ class FE5Leif(Morph5TestCase):
         expected = tuple(scrolls)
         self.assertTupleEqual(actual, expected)
 
+    def test_set_scrolls__check_stats(self):
+        """
+        """
+        scrolls = (
+            'Baldo',
+            #'Blaggi',
+            'Dain',
+            #'Fala',
+            #'Heim',
+            #'Hezul',
+            #'Neir',
+            #'Noba',
+            'Odo',
+            'Sety',
+            #'Tordo',
+            'Ulir',
+        )
+        leif = self.morph
+        #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
+        leif.set_scrolls(scrolls)
+        #MOCK_modify_growths.assert_called_once_with()
+        actual = tuple(leif.equipped_scrolls)
+        expected = tuple(scrolls)
+        self.assertTupleEqual(actual, expected)
+        og_growths = leif._og_growth_rates.as_dict()
+        new_growths = leif.growth_rates.as_dict()
+        comparison = {}
+        for stat in leif.Stats.STAT_LIST():
+            og_stat = og_growths[stat]
+            new_stat = new_growths[stat]
+            comparison[stat] = new_stat > og_stat
+        logger.debug("comparison: %r", comparison)
+        self.assertSetEqual(set(comparison.values()), {True, False})
+
 class FE5Linoan(Morph5TestCase):
     """
     Tests centered around FE5!Linoan.
@@ -5042,6 +5076,35 @@ class FE9Ike(Morph9TestCase):
         actual = tuple(ike.equipped_bands)
         expected = tuple(bands)
         self.assertTupleEqual(actual, expected)
+
+    def test_set_scrolls__check_stats(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+        )
+        ike = self.morph
+        #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
+        ike.set_bands(bands)
+        #MOCK_modify_growths.assert_called_once_with()
+        actual = tuple(ike.equipped_bands)
+        expected = tuple(bands)
+        self.assertTupleEqual(actual, expected)
+        og_growths = ike._og_growth_rates.as_dict()
+        new_growths = ike.growth_rates.as_dict()
+        comparison = {}
+        for stat in ike.Stats.STAT_LIST():
+            og_stat = og_growths[stat]
+            new_stat = new_growths[stat]
+            comparison[stat] = new_stat > og_stat
+        logger.debug("comparison: %r", comparison)
+        self.assertSetEqual(set(comparison.values()), {True, False})
 
 class FE9Volke(Morph9TestCase):
     """
