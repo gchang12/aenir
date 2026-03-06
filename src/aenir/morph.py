@@ -307,8 +307,7 @@ class Morph(BaseMorph):
             raise LevelUpError(
                 f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
                 reason=LevelUpError.Reason.EXCEEDS_MAX,
-                # TODO: change to `self.max_level`
-                level_range=(self.current_lv + 1, self.max_level),
+                level_range=self.max_level,
             )
         # ! increase stats
         self.current_stats += self.growth_rates * num_levels
@@ -991,6 +990,25 @@ class Morph5(Morph):
         self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
         self.growth_rates.has_been_augmented = bool(self.equipped_scrolls)
 
+    def set_scrolls(self, scrolls):
+        """
+        Enables user to equip scrolls en masse.
+        """
+        # validate scroll-set size.
+        if len(scrolls) >= self.inventory_size:
+            raise ScrollError(
+                "No inventory space!",
+                reason=ScrollError.Reason.NO_INVENTORY_SPACE,
+            )
+        # validate scrolls to equip
+        if not set(scrolls).issubset(set(self.scroll_dict)):
+            raise ScrollError(
+                "A scroll in the selection was not found.",
+                reason=ScrollError.Reason.NOT_FOUND,
+            )
+        self.equipped_scrolls = {scroll_name: self.Stats(**self.scroll_dict[scroll_name]) for scroll_name in scrolls}
+        self._apply_scroll_bonuses()
+
     def unequip_scroll(self, scroll_name: str) -> None:
         """
         Removes `scroll_name` from list of equipped scrolls and updates
@@ -1008,7 +1026,6 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
 
-    # TODO: Implement without querying database.
     @classmethod
     def SCROLL_DICT(cls):
         """
@@ -1918,17 +1935,35 @@ class Morph9(Morph):
                 knights=self.KNIGHT_LIST(),
             )
         if self.knight_ward_is_equipped is False:
-            # TODO: Uncomment this.
-            #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
+            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
                 reason=KnightWardError.Reason.NOT_EQUIPPED,
-                #valid_bands=valid_bands,
+                valid_bands=valid_bands,
             )
         band_name = "Knight Ward"
         self.equipped_bands.pop(band_name)
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
+
+    def set_bands(self, bands):
+        """
+        Enables user to equip bands en masse.
+        """
+        # validate band-set size.
+        if len(bands) > self.inventory_size:
+            raise BandError(
+                "No inventory space!",
+                reason=BandError.Reason.NO_INVENTORY_SPACE,
+            )
+        # validate bands to equip
+        if not set(bands).issubset(set(self.band_dict)):
+            raise BandError(
+                "A band in the selection was not found.",
+                reason=BandError.Reason.NOT_FOUND,
+            )
+        self.equipped_bands = {band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands}
+        self._apply_band_bonuses()
 
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """

@@ -914,8 +914,8 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         expected = LevelUpError.Reason.EXCEEDS_MAX
         self.assertEqual(actual, expected)
         actual = err.level_range
-        expected = (5, 20)
-        self.assertTupleEqual(actual, expected)
+        expected = 20
+        self.assertEqual(actual, expected)
         logger.debug("Now checking that Rutger hasn't levelled up.")
         actual = rutger.current_lv
         expected = 4
@@ -2058,6 +2058,85 @@ class FE5Leif(Morph5TestCase):
         #with self.assertRaises(ValueError):
         actual = leif.get_promotion_item()
         self.assertIsNone(actual)
+
+    def test_set_scrolls__no_inventory_space(self):
+        """
+        """
+        scrolls = (
+            'Baldo',
+            #'Blaggi',
+            'Dain',
+            #'Fala',
+            #'Heim',
+            'Hezul',
+            #'Neir',
+            'Noba',
+            #'Odo',
+            'Sety',
+            'Tordo',
+            'Ulir',
+        )
+        actual = len(scrolls)
+        expected = 7
+        self.assertGreaterEqual(actual, expected)
+        leif = self.morph
+        with self.assertRaises(ScrollError) as err_ctx:
+            leif.set_scrolls(scrolls)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = ScrollError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+
+    def test_set_scrolls__invalid_scroll_set(self):
+        """
+        """
+        scrolls = (
+            'Baldo',
+            #'Blaggi',
+            'Dain',
+            #'Fala',
+            #'Heim',
+            #'Hezul',
+            #'Neir',
+            #'Noba',
+            #'Odo',
+            #'Sety',
+            #'Tordo',
+            'Ulir',
+            "",
+        )
+        leif = self.morph
+        with self.assertRaises(ScrollError) as err_ctx:
+            leif.set_scrolls(scrolls)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = ScrollError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+
+    def test_set_scrolls(self):
+        """
+        """
+        scrolls = (
+            'Baldo',
+            #'Blaggi',
+            'Dain',
+            #'Fala',
+            #'Heim',
+            #'Hezul',
+            #'Neir',
+            #'Noba',
+            'Odo',
+            'Sety',
+            #'Tordo',
+            'Ulir',
+        )
+        leif = self.morph
+        with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
+            leif.set_scrolls(scrolls)
+        MOCK_modify_growths.assert_called_once_with()
+        actual = tuple(leif.equipped_scrolls)
+        expected = tuple(scrolls)
+        self.assertTupleEqual(actual, expected)
 
 class FE5Linoan(Morph5TestCase):
     """
@@ -4888,6 +4967,82 @@ class FE9Ike(Morph9TestCase):
         )
         self.assertTupleEqual(actual, expected)
 
+    def test_set_bands__no_inventory_space(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            "Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        actual = len(bands)
+        expected = 8
+        self.assertGreater(actual, expected)
+        ike = self.morph
+        with self.assertRaises(BandError) as err_ctx:
+            ike.set_bands(bands)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = BandError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+
+    def test_set_bands__invalid_scroll_set(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "",
+            #"Knight Band",
+            #"Paladin Band",
+            #"Pegasus Band",
+            #"Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        ike = self.morph
+        with self.assertRaises(BandError) as err_ctx:
+            ike.set_bands(bands)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = BandError.Reason.NOT_FOUND
+        self.assertEqual(actual, expected)
+
+    def test_set_bands(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            #"Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        ike = self.morph
+        with patch("aenir.morph.Morph9._apply_band_bonuses") as MOCK_modify_growths:
+            ike.set_bands(bands)
+        MOCK_modify_growths.assert_called_once_with()
+        actual = tuple(ike.equipped_bands)
+        expected = tuple(bands)
+        self.assertTupleEqual(actual, expected)
+
 class FE9Volke(Morph9TestCase):
     """
     Conduct series of tests with FE9!Volke as subject.
@@ -5212,9 +5367,13 @@ class FE9Knight(Morph9TestCase):
         # attempt to unequip Knight Ward.
         with self.assertRaises(KnightWardError) as err_ctx:
             kieran.unequip_knight_ward()
-        actual = err_ctx.exception.reason
+        err = err_ctx.exception
+        actual = err.reason
         expected = KnightWardError.Reason.NOT_EQUIPPED
         self.assertEqual(actual, expected)
+        expected = {band_name: False for band_name in kieran.band_dict}
+        actual = err.valid_bands
+        self.assertDictEqual(actual, expected)
         # save growths
         og_growths = kieran.growth_rates.copy()
         # equip knight ward
