@@ -307,7 +307,7 @@ class Morph(BaseMorph):
             raise LevelUpError(
                 f"Cannot level up from level {self.current_lv} to {self.current_lv + num_levels}. Max level: self.max_level.",
                 reason=LevelUpError.Reason.EXCEEDS_MAX,
-                level_range=self.max_level,
+                level_range=(None, self.max_level),
             )
         # ! increase stats
         self.current_stats += self.growth_rates * num_levels

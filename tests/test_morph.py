@@ -914,7 +914,7 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         expected = LevelUpError.Reason.EXCEEDS_MAX
         self.assertEqual(actual, expected)
         actual = err.level_range
-        expected = 20
+        expected = (None, 20)
         self.assertEqual(actual, expected)
         logger.debug("Now checking that Rutger hasn't levelled up.")
         actual = rutger.current_lv
