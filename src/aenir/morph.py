@@ -1097,6 +1097,257 @@ class Morph6(Morph):
         "Body Ring": ("Con", 3),
     }
 
+    def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, route: str | None = None):
+        """
+        New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
+        """
+        #self.name = name.replace(" (HM)", "")
+        if name == "Gonzales":
+            valid_routes = ("Lalum", "Elphin")
+            valid_hm_values = (False, True)
+            if (route not in valid_routes) or (hard_mode not in valid_hm_values):
+                hm_params = {'hard_mode': valid_hm_values}
+                route_params = {'route': valid_routes}
+                if (route not in valid_routes) and (hard_mode not in valid_hm_values):
+                    hm_params.update(route_params)
+                    raise InitError(
+                        "Specify `route` and `hard_mode` values.",
+                        missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
+                        init_params=hm_params,
+                    )
+                elif (route not in valid_routes):
+                    raise InitError(
+                        "Specify `route` value.",
+                        missing_value=InitError.MissingValue.ROUTE,
+                        init_params=route_params,
+                    )
+                elif (hard_mode not in valid_hm_values):
+                    raise InitError(
+                        "Specify `hard_mode` value.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=hm_params,
+                    )
+            else:
+                if hard_mode is True:
+                    name += " (HM)"
+        else:
+            if route is not None:
+                logger.warning("`route` value of %s will have no effect.", route)
+            if name + " (HM)" in self.CHARACTER_LIST():
+                if hard_mode is None:
+                    init_params = {'hard_mode': (False, True)}
+                    raise InitError(
+                        f"Specify a `hard_mode` boolean value for {name}.",
+                        missing_value=InitError.MissingValue.HARD_MODE,
+                        init_params=init_params,
+                    )
+                if hard_mode is True:
+                    name += " (HM)"
+            else:
+                if hard_mode is True:
+                    logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
+                hard_mode = None
+        super().__init__(name, which_bases=0, which_growths=0)
+        self._name = name.replace(" (HM)", "")
+        if self._name == "Gonzales":
+            self.current_lv = {
+                "Lalum": 5,
+                "Elphin": 11,
+            }[route]
+        # Hugh exception
+        if number_of_declines is not None and self.name != "Hugh":
+            logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
+            number_of_declines = None
+        elif self.name == "Hugh":
+            if number_of_declines not in range(4):
+                raise InitError(
+                    "Specify the number of times Hugh has been declined. Valid values: (0, 1, 2, 3)",
+                    missing_value=InitError.MissingValue.NUMBER_OF_DECLINES,
+                    init_params={"number_of_declines": (0, 1, 2, 3)},
+                )
+            stat_dict = self.Stats.get_stat_dict(-1 * number_of_declines)
+            stat_dict["Mov"] = 0
+            stat_dict["Con"] = 0
+            decrement = self.Stats(**stat_dict)
+            self.current_stats += decrement
+        # set instance attributes
+        self._meta["Hard Mode"] = hard_mode
+        self._meta["Number of Declines"] = number_of_declines
+        if hard_mode is True:
+            self._apply_hard_mode_bonus()
+
+    # TODO: Check.
+    @staticmethod
+    def _get_hard_mode_stats():
+        """
+        """
+        return {
+            ("Rutger", None): {
+                "HP": 25_50,
+                "Pow": 8_75,
+                "Skl": 14_00,
+                "Spd": 15_00,
+                "Lck": 3_50,
+                "Def": 5_75,
+                "Res": 85,
+            },
+            ("Fir", None): {
+                "HP": 24_60,
+                "Pow": 8_80,
+                "Skl": 12_20,
+                "Spd": 13_20,
+                "Lck": 5_40,
+                "Def": 4_20,
+                "Res": 2_36,
+            },
+            ("Shin", None): {
+                "HP": 29_20,
+                "Pow": 9_40,
+                "Skl": 11_20,
+                "Spd": 13_60,
+                "Lck": 8_40,
+                "Def": 7_96,
+                "Res": 1_20,
+            },
+            ("Gonzales", None): {
+                "HP": 42_56,
+                "Pow": 16_00,
+                "Skl": 7_40,
+                "Spd": 10_60,
+                "Lck": 6_20,
+                "Def": 6_80,
+                "Res": 80,
+            },
+            # NOTE: Klein has two sets of HM bonuses
+            ("Klein", "10B"): {
+                # 10B
+                "HP": 32_20,
+                "Pow": 15_40,
+                "Skl": 15_40,
+                "Spd": 12_60,
+                "Lck": 12_40,
+                "Def": 9_20,
+                "Res": 7_20,
+            },
+            ("Klein", "11A"): {
+                # 11A
+                "HP": 32_85,
+                "Pow": 15_70,
+                "Skl": 15_70,
+                "Spd": 12_80,
+                "Lck": 12_70,
+                "Def": 9_35,
+                "Res": 7_35,
+            },
+            # NOTE: Tate has two sets of HM bonuses
+            ("Tate", "10B"): {
+                # 10B
+                "HP": 27_20,
+                "Pow": 8_80,
+                "Skl": 11_20,
+                "Spd": 14_20,
+                "Lck": 5_80,
+                "Def": 7_96,
+                "Res": 8_00,
+            },
+            ("Tate", "11A"): {
+                # 11A
+                "HP": 27_85,
+                "Pow": 9_15,
+                "Skl": 11_60,
+                "Spd": 14_60,
+                "Lck": 6_15,
+                "Def": 8_08,
+                "Res": 8_25,
+            },
+            # NOTE: Cath has four sets of HM bonuses
+            ("Cath", "Ch12"): {
+                # 12
+                "HP": 20_05,
+                "Pow": 3_45,
+                "Skl": 11_05,
+                "Spd": 14_60,
+                "Lck": 11_60,
+                "Def": 2_45,
+                "Res": 2_80,
+            },
+            ("Cath", "Ch16"): {
+                # 16
+                "HP": 20_95,
+                "Pow": 3_55,
+                "Skl": 11_95,
+                "Spd": 15_40,
+                "Lck": 12_40,
+                "Def": 2_55,
+                "Res": 3_20,
+            },
+            ("Cath", "Ch20"): {
+                # 20
+                "HP": 21_85,
+                "Pow": 3_65,
+                "Skl": 12_85,
+                "Spd": 16_20,
+                "Lck": 13_20,
+                "Def": 2_65,
+                "Res": 3_60,
+            },
+            ("Cath", "Ch22"): {
+                # 22
+                "HP": 22_30,
+                "Pow": 3_70,
+                "Skl": 13_30,
+                "Spd": 16_60,
+                "Lck": 13_60,
+                "Def": 2_70,
+                "Res": 3_80,
+            },
+            ("Miredy", None): {
+                "HP": 38_00,
+                "Pow": 16_50,
+                "Skl": 14_50,
+                "Spd": 13_00,
+                "Lck": 7_50,
+                "Def": 15_50,
+                "Res": 4_00,
+            },
+            # NOTE: Chapter 15
+            ("Percival", None): {
+                "HP": 50_70,
+                "Pow": 19_75,
+                "Skl": 16_30,
+                "Spd": 19_98,
+                "Lck": 14_75,
+                "Def": 15_32,
+                "Res": 12_87,
+            },
+            ("Garret", None): {
+                "HP": 55_38,
+                "Pow": 20_85,
+                "Skl": 15_75,
+                "Spd": 11_32,
+                "Lck": 13_65,
+                "Def": 10_10,
+                "Res": 5_10,
+            },
+            ("Zeis", None): {
+                "HP": 36_80,
+                "Pow": 18_95,
+                "Skl": 12_85,
+                "Spd": 11_30,
+                "Lck": 8_75,
+                "Def": 14_75,
+                "Res": 3_10,
+            },
+        }
+
+    # TODO: Check.
+    def _apply_hard_mode_bonus(self):
+        """
+        """
+        statdicts = self._get_hard_mode_stats()
+        stat_dict = statdicts[(self.name, self.chapter)]
+        self.current_stats = self.Stats(**stat_dict, multiplier=1)
+
     @property
     def inventory_size(self) -> int:
         """
@@ -1196,83 +1447,6 @@ class Morph6(Morph):
             #'Guinevere',
         )
 
-    def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, route: str | None = None):
-        """
-        New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
-        """
-        #self.name = name.replace(" (HM)", "")
-        if name == "Gonzales":
-            valid_routes = ("Lalum", "Elphin")
-            valid_hm_values = (False, True)
-            if (route not in valid_routes) or (hard_mode not in valid_hm_values):
-                hm_params = {'hard_mode': valid_hm_values}
-                route_params = {'route': valid_routes}
-                if (route not in valid_routes) and (hard_mode not in valid_hm_values):
-                    hm_params.update(route_params)
-                    raise InitError(
-                        "Specify `route` and `hard_mode` values.",
-                        missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
-                        init_params=hm_params,
-                    )
-                elif (route not in valid_routes):
-                    raise InitError(
-                        "Specify `route` value.",
-                        missing_value=InitError.MissingValue.ROUTE,
-                        init_params=route_params,
-                    )
-                elif (hard_mode not in valid_hm_values):
-                    raise InitError(
-                        "Specify `hard_mode` value.",
-                        missing_value=InitError.MissingValue.HARD_MODE,
-                        init_params=hm_params,
-                    )
-            else:
-                if hard_mode is True:
-                    name += " (HM)"
-        else:
-            if route is not None:
-                logger.warning("`route` value of %s will have no effect.", route)
-            if name + " (HM)" in self.CHARACTER_LIST():
-                if hard_mode is None:
-                    init_params = {'hard_mode': (False, True)}
-                    raise InitError(
-                        f"Specify a `hard_mode` boolean value for {name}.",
-                        missing_value=InitError.MissingValue.HARD_MODE,
-                        init_params=init_params,
-                    )
-                if hard_mode is True:
-                    name += " (HM)"
-            else:
-                if hard_mode is True:
-                    logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
-                hard_mode = None
-        super().__init__(name, which_bases=0, which_growths=0)
-        self._name = name.replace(" (HM)", "")
-        if self._name == "Gonzales":
-            self.current_lv = {
-                "Lalum": 5,
-                "Elphin": 11,
-            }[route]
-        # Hugh exception
-        if number_of_declines is not None and self.name != "Hugh":
-            logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
-            number_of_declines = None
-        elif self.name == "Hugh":
-            if number_of_declines not in range(4):
-                raise InitError(
-                    "Specify the number of times Hugh has been declined. Valid values: (0, 1, 2, 3)",
-                    missing_value=InitError.MissingValue.NUMBER_OF_DECLINES,
-                    init_params={"number_of_declines": (0, 1, 2, 3)},
-                )
-            stat_dict = self.Stats.get_stat_dict(-1 * number_of_declines)
-            stat_dict["Mov"] = 0
-            stat_dict["Con"] = 0
-            decrement = self.Stats(**stat_dict)
-            self.current_stats += decrement
-        # set instance attributes
-        self._meta["Hard Mode"] = hard_mode
-        self._meta["Number of Declines"] = number_of_declines
-
     def _set_min_promo_level(self) -> None:
         """
         Declares that Roy can promote at any level.
@@ -1301,12 +1475,156 @@ class Morph7(Morph):
         "Body Ring": ("Con", 3),
     }
 
+    def __init__(self, name: str, *, lyn_mode: bool | None = None, hard_mode: bool | None = None):
+        """
+        Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
+        Support for growths item present.
+        """
+        # check if unit is available in lyn-mode
+        lyndis_league = self.LYNDIS_LEAGUE()
+        if name in lyndis_league:
+            if lyn_mode is None:
+                raise InitError(
+                    f"Please specify a `lyn_mode` boolean value for {name}.",
+                    missing_value=InitError.MissingValue.LYN_MODE,
+                    init_params={"lyn_mode": (False, True)},
+                )
+            which_bases = {
+                True: 0,
+                False: 1,
+            }[lyn_mode]
+        else:
+            if lyn_mode is True:
+                logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
+                if name == "Ninian":
+                    raise UnitNotFoundError(
+                        "Ninian is not in the Lyndis League.",
+                        unit_list=lyndis_league,
+                    )
+                #name = "Nils"
+            which_bases = 1
+            lyn_mode = None
+        # check if unit can be recruited on hard-mode
+        if name + " (HM)" in self.CHARACTER_LIST():
+            if hard_mode is None:
+                raise InitError(
+                    f"Please specify a `hard_mode` boolean value for {name}.",
+                    missing_value=InitError.MissingValue.HARD_MODE,
+                    init_params={"hard_mode": (False, True)},
+                )
+            if hard_mode is True:
+                name += " (HM)"
+        else:
+            if hard_mode is True:
+                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
+            hard_mode = None
+        # initialize as usual
+        super().__init__(name, which_bases=which_bases, which_growths=0)
+        if lyn_mode is False and name == "Wallace":
+            # directs lookup-function to max stats for the General class
+            current_clstype = "classes__promotion_gains"
+        else:
+            current_clstype = self.current_clstype
+        _growths_item = "Afa's Drops"
+        # set instance attributes
+        self.current_clstype = current_clstype
+        self._name = name.replace(" (HM)", "")
+        self._meta["Lyn Mode"] = lyn_mode
+        self._meta["Hard Mode"] = hard_mode
+        self._growths_item = _growths_item
+        self._meta[_growths_item] = None
+        self._og_growth_rates = None
+        if hard_mode is True:
+            self._apply_hard_mode_bonus()
+
     @property
     def inventory_size(self) -> int:
         """
         The number of growths-enhancing items one can carry.
         """
         return 0
+
+    # TODO: Check.
+    @staticmethod
+    def _get_hard_mode_bonus():
+        """
+        """
+        return {
+            "Guy": {
+                "HP": 70,
+                "Pow": 35,
+                "Skl": 40,
+                "Spd": 40,
+                "Lck": 30,
+                "Def": 15,
+                "Res": 20,
+            },
+            "Raven": {
+                "HP": 80,
+                "Pow": 40,
+                "Skl": 40,
+                "Spd": 32,
+                "Lck": 30,
+                "Def": 18,
+                "Res": 20,
+            },
+            "Legault": {
+                "HP": 50,
+                "Pow": 5,
+                "Skl": 45,
+                "Spd": 40,
+                "Lck": 40,
+                "Def": 5,
+                "Res": 20,
+            },
+            "Heath": {
+                "HP": 80,
+                "Pow": 45,
+                "Skl": 35,
+                "Spd": 30,
+                "Lck": 25,
+                "Def": 25,
+                "Res": 15,
+            },
+            "Geitz": {
+                "HP": 80,
+                "Pow": 45,
+                "Skl": 25,
+                "Spd": 20,
+                "Lck": 15,
+                "Def": 16,
+                "Res": 17,
+            },
+            "Harken": {
+                "HP": 75,
+                "Pow": 30,
+                "Skl": 30,
+                "Spd": 20,
+                "Lck": 25,
+                "Def": 20,
+                "Res": 20,
+            },
+            "Vaida": {
+                "HP": 75,
+                "Pow": 40,
+                "Skl": 30,
+                "Spd": 20,
+                "Lck": 20,
+                "Def": 20,
+                "Res": 17,
+            },
+        }
+
+    # TODO: Check.
+    def _apply_hard_mode_bonus(self):
+        """
+        """
+        hard_mode_bonus = self._get_hard_mode_bonus()[self.name]
+        stat_dict = self.current_stats.as_dict()
+        num_levels = 5
+        for stat, value in hard_mode_bonus.items():
+            stat_dict[stat] += value * num_levels
+        self.current_stats = self.Stats(**stat_dict, multiplier=1)
 
     @staticmethod
     def CHARACTER_LIST() -> Iterable[str]:
@@ -1402,66 +1720,6 @@ class Morph7(Morph):
         else:
             min_promo_level = 10
         self.min_promo_level = min_promo_level
-
-    def __init__(self, name: str, *, lyn_mode: bool | None = None, hard_mode: bool | None = None):
-        """
-        Validates that character is in Lyn Mode or Hard Mode, then throws error if appropriate parameter is not specified.
-        Support for growths item present.
-        """
-        # check if unit is available in lyn-mode
-        lyndis_league = self.LYNDIS_LEAGUE()
-        if name in lyndis_league:
-            if lyn_mode is None:
-                raise InitError(
-                    f"Please specify a `lyn_mode` boolean value for {name}.",
-                    missing_value=InitError.MissingValue.LYN_MODE,
-                    init_params={"lyn_mode": (False, True)},
-                )
-            which_bases = {
-                True: 0,
-                False: 1,
-            }[lyn_mode]
-        else:
-            if lyn_mode is True:
-                logger.warning("'lyn_mode' = True when '%s' not in Lyn Mode. Ignoring.", name)
-                if name == "Ninian":
-                    raise UnitNotFoundError(
-                        "Ninian is not in the Lyndis League.",
-                        unit_list=lyndis_league,
-                    )
-                #name = "Nils"
-            which_bases = 1
-            lyn_mode = None
-        # check if unit can be recruited on hard-mode
-        if name + " (HM)" in self.CHARACTER_LIST():
-            if hard_mode is None:
-                raise InitError(
-                    f"Please specify a `hard_mode` boolean value for {name}.",
-                    missing_value=InitError.MissingValue.HARD_MODE,
-                    init_params={"hard_mode": (False, True)},
-                )
-            if hard_mode is True:
-                name += " (HM)"
-        else:
-            if hard_mode is True:
-                logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
-            hard_mode = None
-        # initialize as usual
-        super().__init__(name, which_bases=which_bases, which_growths=0)
-        if lyn_mode is False and name == "Wallace":
-            # directs lookup-function to max stats for the General class
-            current_clstype = "classes__promotion_gains"
-        else:
-            current_clstype = self.current_clstype
-        _growths_item = "Afa's Drops"
-        # set instance attributes
-        self.current_clstype = current_clstype
-        self._name = name.replace(" (HM)", "")
-        self._meta["Lyn Mode"] = lyn_mode
-        self._meta["Hard Mode"] = hard_mode
-        self._growths_item = _growths_item
-        self._meta[_growths_item] = None
-        self._og_growth_rates = None
 
     def use_afas_drops(self) -> None:
         """
