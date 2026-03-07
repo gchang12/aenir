@@ -1341,7 +1341,6 @@ class Morph6(Morph):
             },
         }
 
-    # TODO: Check.
     def _apply_hard_mode_bonus(self):
         """
         """
@@ -1647,7 +1646,6 @@ class Morph7(Morph):
             },
         }
 
-    # TODO: Check.
     def _apply_hard_mode_bonus(self):
         """
         """

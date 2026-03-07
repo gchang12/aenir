@@ -5902,3 +5902,46 @@ class FE6CathHM(unittest.TestCase):
         }
         actual = err.init_params
         self.assertDictEqual(actual, expected)
+
+class FE6TateHM(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.morph = get_morph(6, "Tate", hard_mode=False)
+
+    def test_apply_hard_mode_bonus(self):
+        """
+        """
+        morph = self.morph
+        expected = {
+            "HP": 22_00,
+            "Pow": 6_00,
+            "Skl": 8_00,
+            "Spd": 11_00,
+            "Lck": 3_00,
+            "Def": 7_00,
+            "Res": 6_00,
+            "Con": 5_00,
+            "Mov": 7_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        morph.chapter = "11A"
+        morph._apply_hard_mode_bonus()
+        expected = {
+            "HP": 27_85,
+            "Pow": 9_15,
+            "Skl": 11_60,
+            "Spd": 14_60,
+            "Lck": 6_15,
+            "Def": 8_08,
+            "Res": 8_25,
+            "Con": 5_00,
+            "Mov": 7_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
