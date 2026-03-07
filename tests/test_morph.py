@@ -3132,6 +3132,12 @@ class FE6Rutger(Morph6TestCase):
                 logger.debug("Difference in %s: %.2f", stat, val)
                 self.assertLess(val, 0)
 
+    def test_apply_hard_mode_bonus(self):
+        """
+        """
+        rutger = Morph6("Rutger", hard_mode=False)
+        rutger._apply_hard_mode_bonus()
+
 class FE6Roy(Morph6TestCase):
     """
     Conduct series of tests with FE6!Roy as subject.
@@ -5792,3 +5798,107 @@ class GetMorph(unittest.TestCase):
             with self.assertRaises(NotImplementedError):
                 get_morph(game, lord)
 
+class FE7HarkenHM(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.morph = get_morph(7, "Harken", hard_mode=False)
+
+    def test_apply_hard_mode_bonus(self):
+        """
+        """
+        morph = self.morph
+        expected = {
+            "HP": 38_00,
+            "Pow": 21_00,
+            "Skl": 20_00,
+            "Spd": 17_00,
+            "Lck": 12_00,
+            "Def": 15_00,
+            "Res": 10_00,
+            "Con": 11_00,
+            "Mov": 6_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        morph._apply_hard_mode_bonus()
+        expected = {
+            "HP": 41_75,
+            "Pow": 22_50,
+            "Skl": 21_50,
+            "Spd": 18_00,
+            "Lck": 13_25,
+            "Def": 16_00,
+            "Res": 11_00,
+            "Con": 11_00,
+            "Mov": 6_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+class FE6CathHM(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.morph = get_morph(6, "Cath", hard_mode=False)
+
+    def test_apply_hard_mode_bonus(self):
+        """
+        """
+        morph = self.morph
+        expected = {
+            "HP": 16_00,
+            "Pow": 3_00,
+            "Skl": 7_00,
+            "Spd": 11_00,
+            "Lck": 8_00,
+            "Def": 2_00,
+            "Res": 1_00,
+            "Con": 5_00,
+            "Mov": 6_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        morph.chapter = "12"
+        morph._apply_hard_mode_bonus()
+        expected = {
+            "HP": 20_05,
+            "Pow": 3_45,
+            "Skl": 11_05,
+            "Spd": 14_60,
+            "Lck": 11_60,
+            "Def": 2_45,
+            "Res": 2_80,
+            "Con": 5_00,
+            "Mov": 6_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+    def test_apply_hard_mode_bonus__failure(self):
+        """
+        """
+        morph = self.morph
+        with self.assertRaises(InitError) as err_ctx:
+            morph._apply_hard_mode_bonus()
+        err = err_ctx.exception
+        # assertions
+        expected = err.MissingValue.CHAPTER
+        actual = err.missing_value
+        self.assertEqual(actual, expected)
+        expected = {
+            "chapter": (
+                "12",
+                "16",
+                "20",
+                "22",
+            )
+        }
+        actual = err.init_params
+        self.assertDictEqual(actual, expected)

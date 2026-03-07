@@ -1262,7 +1262,7 @@ class Morph6(Morph):
                 "Res": 8_25,
             },
             # NOTE: Cath has four sets of HM bonuses
-            ("Cath", "Ch12"): {
+            ("Cath", "12"): {
                 # 12
                 "HP": 20_05,
                 "Pow": 3_45,
@@ -1272,7 +1272,7 @@ class Morph6(Morph):
                 "Def": 2_45,
                 "Res": 2_80,
             },
-            ("Cath", "Ch16"): {
+            ("Cath", "16"): {
                 # 16
                 "HP": 20_95,
                 "Pow": 3_55,
@@ -1282,7 +1282,7 @@ class Morph6(Morph):
                 "Def": 2_55,
                 "Res": 3_20,
             },
-            ("Cath", "Ch20"): {
+            ("Cath", "20"): {
                 # 20
                 "HP": 21_85,
                 "Pow": 3_65,
@@ -1292,7 +1292,7 @@ class Morph6(Morph):
                 "Def": 2_65,
                 "Res": 3_60,
             },
-            ("Cath", "Ch22"): {
+            ("Cath", "22"): {
                 # 22
                 "HP": 22_30,
                 "Pow": 3_70,
@@ -1359,7 +1359,6 @@ class Morph6(Morph):
                 f"Please select a chapter for {name}.",
                 missing_value=InitError.MissingValue.CHAPTER,
                 init_params={"chapter": tuple(chapter_list)},
-
             )
         stat_dict = self.current_stats.as_dict()
         stat_dict.update(stat_bonus)
@@ -1383,7 +1382,6 @@ class Morph6(Morph):
             promotion_item = super().get_promotion_item()
         return promotion_item
 
-    # TODO: Check.
     @staticmethod
     def HARD_MODE_UNIT_LIST() -> Iterable[str]:
         """
@@ -1720,7 +1718,6 @@ class Morph7(Morph):
             'Athos',
         )
 
-    # TODO: Check.
     @staticmethod
     def HARD_MODE_UNIT_LIST() -> Iterable[str]:
         """
