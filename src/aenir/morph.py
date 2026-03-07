@@ -1101,7 +1101,6 @@ class Morph6(Morph):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
-        #self.name = name.replace(" (HM)", "")
         if name == "Gonzales":
             valid_chapters = ("10A", "10B")
             valid_hm_values = (False, True)
@@ -1127,13 +1126,10 @@ class Morph6(Morph):
                         missing_value=InitError.MissingValue.HARD_MODE,
                         init_params=hm_params,
                     )
-            else:
-                if hard_mode is True:
-                    name += " (HM)"
         else:
             if chapter is not None:
                 logger.warning("`chapter` value of %s will have no effect.", chapter)
-            if name + " (HM)" in self.CHARACTER_LIST():
+            if name in self.HARD_MODE_UNIT_LIST():
                 if hard_mode is None:
                     init_params = {'hard_mode': (False, True)}
                     raise InitError(
@@ -1141,14 +1137,12 @@ class Morph6(Morph):
                         missing_value=InitError.MissingValue.HARD_MODE,
                         init_params=init_params,
                     )
-                if hard_mode is True:
-                    name += " (HM)"
             else:
                 if hard_mode is True:
                     logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
-        self._name = name.replace(" (HM)", "")
+        self._name = name
         if self._name == "Gonzales":
             self.current_lv = {
                 "10A": 5,
@@ -1378,6 +1372,25 @@ class Morph6(Morph):
         return promotion_item
 
     @staticmethod
+    def HARD_MODE_UNIT_LIST() -> Iterable[str]:
+        """
+        Declares the list of all FE6 characters with hard-mode bonuses.
+        """
+        return (
+            'Rutger',
+            'Fir',
+            'Shin',
+            'Gonzales',
+            'Klein',
+            'Tate',
+            'Cath',
+            'Miredy',
+            'Percival',
+            'Garret',
+            'Zeis',
+        )
+
+    @staticmethod
     def CHARACTER_LIST() -> Iterable[str]:
         """
         Declares the list of all valid FE6 characters.
@@ -1516,15 +1529,13 @@ class Morph7(Morph):
             which_bases = 1
             lyn_mode = None
         # check if unit can be recruited on hard-mode
-        if name + " (HM)" in self.CHARACTER_LIST():
+        if name in self.HARD_MODE_UNIT_LIST():
             if hard_mode is None:
                 raise InitError(
                     f"Please specify a `hard_mode` boolean value for {name}.",
                     missing_value=InitError.MissingValue.HARD_MODE,
                     init_params={"hard_mode": (False, True)},
                 )
-            if hard_mode is True:
-                name += " (HM)"
         else:
             if hard_mode is True:
                 logger.warning("'%s' cannot be recruited as an enemy on hard mode.")
@@ -1539,7 +1550,7 @@ class Morph7(Morph):
         _growths_item = "Afa's Drops"
         # set instance attributes
         self.current_clstype = current_clstype
-        self._name = name.replace(" (HM)", "")
+        self._name = name
         self._meta["Lyn Mode"] = lyn_mode
         self._meta["Hard Mode"] = hard_mode
         self._growths_item = _growths_item
@@ -1693,6 +1704,20 @@ class Morph7(Morph):
             'Karla',
             'Renault',
             'Athos',
+        )
+
+    @staticmethod
+    def HARD_MODE_UNIT_LIST() -> Iterable[str]:
+        """
+        Declares the list of all FE7 characters with hard-mode bonuses.
+        """
+        return (
+            'Guy',
+            'Raven',
+            'Legault',
+            'Geitz',
+            'Harken',
+            'Vaida',
         )
 
     @staticmethod
