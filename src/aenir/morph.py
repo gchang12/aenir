@@ -228,8 +228,6 @@ class Morph(BaseMorph):
         max_stats = self.Stats(**stat_dict2)
         # (miscellany)
         _meta: dict[str, Any] = {"Stat Boosters": []}
-        if name.replace(" (HM)", "") + " (HM)" in character_list:
-            _meta['Hard Mode'] = " (HM)" in name
         # initialize all attributes here.
         self._game = game
         self._name: str | None = name
@@ -1171,7 +1169,6 @@ class Morph6(Morph):
         if hard_mode is True:
             self._apply_hard_mode_bonus()
 
-    # TODO: Check.
     @staticmethod
     def _get_hard_mode_stats():
         """
@@ -1353,7 +1350,7 @@ class Morph6(Morph):
         chapter = self.chapter
         try:
             stat_bonus = statdicts[(name, chapter)]
-        except KeyError as err:
+        except KeyError:
             chapter_list = map(
                 lambda name_chapter: name_chapter[1],
                 filter(lambda name_chapter: name_chapter[0] == name, statdicts.keys()),
@@ -1582,7 +1579,6 @@ class Morph7(Morph):
         """
         return 0
 
-    # TODO: Check.
     @staticmethod
     def _get_hard_mode_bonus():
         """
@@ -1657,7 +1653,6 @@ class Morph7(Morph):
     def _apply_hard_mode_bonus(self):
         """
         """
-        # TODO: Return error.
         hard_mode_bonuses = self._get_hard_mode_bonus()
         hard_mode_bonus = hard_mode_bonuses[self.name]
         stat_dict = self.current_stats.as_dict()
@@ -1706,6 +1701,7 @@ class Morph7(Morph):
             'Ninian',
             'Isadora',
             'Heath',
+            'Heath (HM)',
             'Hawkeye',
             'Geitz',
             'Geitz (HM)',
@@ -1734,6 +1730,7 @@ class Morph7(Morph):
             'Guy',
             'Raven',
             'Legault',
+            'Heath',
             'Geitz',
             'Harken',
             'Vaida',

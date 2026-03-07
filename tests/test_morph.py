@@ -873,7 +873,7 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         )
         actual = rutger._meta
         expected = {
-            "Hard Mode": False,
+            #"Hard Mode": False,
             "Stat Boosters": [],
         }
         self.assertDictEqual(
@@ -2786,6 +2786,25 @@ class FE6Gonzales(Morph6TestCase):
     Conduct series of tests with FE6!Gonzales as subject.
     """
 
+    def test_HARD_MODE_UNIT_LIST(self):
+        """
+        """
+        expected = (
+            'Rutger',
+            'Fir',
+            'Shin',
+            'Gonzales',
+            'Klein',
+            'Tate',
+            'Cath',
+            'Miredy',
+            'Percival',
+            'Garret',
+            'Zeis',
+        )
+        actual = Morph6.HARD_MODE_UNIT_LIST()
+        self.assertTupleEqual(actual, expected)
+
     def test_gonzales__no_route_or_hm(self):
         """
         What happens when one tries to initialize a Morph with neither route nor mode.
@@ -3421,6 +3440,21 @@ class FE7Ninian(Morph7TestCase):
     """
     Conduct series of tests with FE7!Ninian as subject.
     """
+
+    def test_HARD_MODE_UNIT_LIST(self):
+        """
+        """
+        expected = (
+            'Guy',
+            'Raven',
+            'Legault',
+            'Heath',
+            'Geitz',
+            'Harken',
+            'Vaida',
+        )
+        actual = Morph7.HARD_MODE_UNIT_LIST()
+        self.assertTupleEqual(actual, expected)
 
     def test_ninian__lyn_mode(self):
         """
