@@ -1111,7 +1111,7 @@ class Morph6(Morph):
                     hm_params.update(chapter_params)
                     raise InitError(
                         "Specify `chapter` and `hard_mode` values.",
-                        missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
+                        missing_value=InitError.MissingValue.HARD_MODE_AND_CHAPTER,
                         init_params=hm_params,
                     )
                 elif (chapter not in valid_chapters):
@@ -1139,7 +1139,7 @@ class Morph6(Morph):
                     )
             else:
                 if hard_mode is True:
-                    logger.warning("'%s' cannot be recruited as an enemy on hard mode.", name)
+                    logger.warning("'%s' cannot be recruited as an enemy on hard mode. Setting `hard_mode` to None.", name)
                 hard_mode = None
         super().__init__(name, which_bases=0, which_growths=0)
         self._name = name
@@ -1349,8 +1349,23 @@ class Morph6(Morph):
         """
         """
         statdicts = self._get_hard_mode_stats()
+        name = self.name
+        chapter = self.chapter
+        try:
+            stat_bonus = statdicts[(name, chapter)]
+        except KeyError as err:
+            chapter_list = map(
+                lambda name_chapter: name_chapter[1],
+                filter(lambda name_chapter: name_chapter[0] == name, statdicts.keys()),
+            )
+            raise InitError(
+                f"Please select a chapter for {name}.",
+                missing_value=InitError.MissingValue.CHAPTER,
+                init_params={"chapter": tuple(chapter_list)},
+
+            )
         stat_dict = self.current_stats.as_dict()
-        stat_dict.update(statdicts[(self.name, self.chapter)])
+        stat_dict.update(stat_bonus)
         self.current_stats = self.Stats(**stat_dict, multiplier=1)
 
     @property
@@ -1371,6 +1386,7 @@ class Morph6(Morph):
             promotion_item = super().get_promotion_item()
         return promotion_item
 
+    # TODO: Check.
     @staticmethod
     def HARD_MODE_UNIT_LIST() -> Iterable[str]:
         """
@@ -1641,7 +1657,9 @@ class Morph7(Morph):
     def _apply_hard_mode_bonus(self):
         """
         """
-        hard_mode_bonus = self._get_hard_mode_bonus()[self.name]
+        # TODO: Return error.
+        hard_mode_bonuses = self._get_hard_mode_bonus()
+        hard_mode_bonus = hard_mode_bonuses[self.name]
         stat_dict = self.current_stats.as_dict()
         num_levels = 5
         for stat, value in hard_mode_bonus.items():
@@ -1706,6 +1724,7 @@ class Morph7(Morph):
             'Athos',
         )
 
+    # TODO: Check.
     @staticmethod
     def HARD_MODE_UNIT_LIST() -> Iterable[str]:
         """
@@ -2084,10 +2103,9 @@ class Morph9(Morph):
         Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        knights = self.KNIGHT_LIST()
         # conditionally determine if unit can equip it
         # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
-        if name in knights:
+        if name in self.KNIGHT_LIST():
             knight_ward_is_equipped = False
         else:
             knight_ward_is_equipped = None

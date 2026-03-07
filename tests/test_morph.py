@@ -2794,7 +2794,7 @@ class FE6Gonzales(Morph6TestCase):
             Morph6("Gonzales", hard_mode=None, chapter=None)
         err = err_ctx.exception
         actual = err.missing_value
-        expected = InitError.MissingValue.HARD_MODE_AND_ROUTE
+        expected = InitError.MissingValue.HARD_MODE_AND_CHAPTER
         self.assertEqual(actual, expected)
         actual = err.init_params
         expected = {"chapter": ("10A", "10B"), "hard_mode": (False, True)}

@@ -43,7 +43,8 @@ class InitError(AenirError):
         NUMBER_OF_DECLINES = enum.auto()
         ROUTE = enum.auto()
         FATHER = enum.auto()
-        HARD_MODE_AND_ROUTE = enum.auto()
+        CHAPTER = enum.auto()
+        HARD_MODE_AND_CHAPTER = enum.auto()
 
     def __init__(self, msg: str, *, missing_value: Any, init_params: Mapping[str, Any]):
         """
