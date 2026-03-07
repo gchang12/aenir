@@ -1097,29 +1097,29 @@ class Morph6(Morph):
         "Body Ring": ("Con", 3),
     }
 
-    def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, route: str | None = None):
+    def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, chapter: str | None = None):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
         #self.name = name.replace(" (HM)", "")
         if name == "Gonzales":
-            valid_routes = ("Lalum", "Elphin")
+            valid_chapters = ("10A", "10B")
             valid_hm_values = (False, True)
-            if (route not in valid_routes) or (hard_mode not in valid_hm_values):
+            if (chapter not in valid_chapters) or (hard_mode not in valid_hm_values):
                 hm_params = {'hard_mode': valid_hm_values}
-                route_params = {'route': valid_routes}
-                if (route not in valid_routes) and (hard_mode not in valid_hm_values):
-                    hm_params.update(route_params)
+                chapter_params = {'chapter': valid_chapters}
+                if (chapter not in valid_chapters) and (hard_mode not in valid_hm_values):
+                    hm_params.update(chapter_params)
                     raise InitError(
-                        "Specify `route` and `hard_mode` values.",
+                        "Specify `chapter` and `hard_mode` values.",
                         missing_value=InitError.MissingValue.HARD_MODE_AND_ROUTE,
                         init_params=hm_params,
                     )
-                elif (route not in valid_routes):
+                elif (chapter not in valid_chapters):
                     raise InitError(
-                        "Specify `route` value.",
+                        "Specify `chapter` value.",
                         missing_value=InitError.MissingValue.ROUTE,
-                        init_params=route_params,
+                        init_params=chapter_params,
                     )
                 elif (hard_mode not in valid_hm_values):
                     raise InitError(
@@ -1131,8 +1131,8 @@ class Morph6(Morph):
                 if hard_mode is True:
                     name += " (HM)"
         else:
-            if route is not None:
-                logger.warning("`route` value of %s will have no effect.", route)
+            if chapter is not None:
+                logger.warning("`chapter` value of %s will have no effect.", chapter)
             if name + " (HM)" in self.CHARACTER_LIST():
                 if hard_mode is None:
                     init_params = {'hard_mode': (False, True)}
@@ -1151,9 +1151,9 @@ class Morph6(Morph):
         self._name = name.replace(" (HM)", "")
         if self._name == "Gonzales":
             self.current_lv = {
-                "Lalum": 5,
-                "Elphin": 11,
-            }[route]
+                "10A": 5,
+                "10B": 11,
+            }[chapter]
         # Hugh exception
         if number_of_declines is not None and self.name != "Hugh":
             logger.warning("`number_of_declines=%s`, and unit is not Hugh. Ignoring.", number_of_declines)
@@ -1173,6 +1173,7 @@ class Morph6(Morph):
         # set instance attributes
         self._meta["Hard Mode"] = hard_mode
         self._meta["Number of Declines"] = number_of_declines
+        self.chapter = chapter
         if hard_mode is True:
             self._apply_hard_mode_bonus()
 
@@ -1209,7 +1210,16 @@ class Morph6(Morph):
                 "Def": 7_96,
                 "Res": 1_20,
             },
-            ("Gonzales", None): {
+            ("Gonzales", "10A"): {
+                "HP": 42_56,
+                "Pow": 16_00,
+                "Skl": 7_40,
+                "Spd": 10_60,
+                "Lck": 6_20,
+                "Def": 6_80,
+                "Res": 80,
+            },
+            ("Gonzales", "10B"): {
                 "HP": 42_56,
                 "Pow": 16_00,
                 "Skl": 7_40,
@@ -1345,7 +1355,8 @@ class Morph6(Morph):
         """
         """
         statdicts = self._get_hard_mode_stats()
-        stat_dict = statdicts[(self.name, self.chapter)]
+        stat_dict = self.current_stats.as_dict()
+        stat_dict.update(statdicts[(self.name, self.chapter)])
         self.current_stats = self.Stats(**stat_dict, multiplier=1)
 
     @property

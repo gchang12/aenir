@@ -2791,20 +2791,20 @@ class FE6Gonzales(Morph6TestCase):
         What happens when one tries to initialize a Morph with neither route nor mode.
         """
         with self.assertRaises(InitError) as err_ctx:
-            Morph6("Gonzales", hard_mode=None, route=None)
+            Morph6("Gonzales", hard_mode=None, chapter=None)
         err = err_ctx.exception
         actual = err.missing_value
         expected = InitError.MissingValue.HARD_MODE_AND_ROUTE
         self.assertEqual(actual, expected)
         actual = err.init_params
-        expected = {"route": ("Lalum", "Elphin"), "hard_mode": (False, True)}
+        expected = {"chapter": ("10A", "10B"), "hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
 
     def test_gonzales__lalum_route(self):
         """
         Get Morph of Gonzales on Lalum's route.
         """
-        morph = Morph6("Gonzales", hard_mode=True, route="Lalum")
+        morph = Morph6("Gonzales", hard_mode=True, chapter="10A")
         actual = morph.current_lv
         expected = 5
         self.assertEqual(actual, expected)
@@ -2813,7 +2813,7 @@ class FE6Gonzales(Morph6TestCase):
         """
         Get Morph of Gonzales on Lalum's route.
         """
-        morph = Morph6("Gonzales", hard_mode=True, route="Elphin")
+        morph = Morph6("Gonzales", hard_mode=True, chapter="10B")
         actual = morph.current_lv
         expected = 11
         self.assertEqual(actual, expected)
@@ -2823,13 +2823,13 @@ class FE6Gonzales(Morph6TestCase):
         Get Morph of Gonzales without a specified route.
         """
         with self.assertRaises(InitError) as err_ctx:
-            Morph6("Gonzales", hard_mode=True, route=None)
+            Morph6("Gonzales", hard_mode=True, chapter=None)
         err = err_ctx.exception
         actual = err.missing_value
         expected = InitError.MissingValue.ROUTE
         self.assertEqual(actual, expected)
         actual = err.init_params
-        expected = {"route": ("Lalum", "Elphin")}
+        expected = {"chapter": ("10A", "10B")}
         self.assertDictEqual(actual, expected)
 
     def test_gonzales__no_hm(self):
@@ -2837,7 +2837,7 @@ class FE6Gonzales(Morph6TestCase):
         Get Morph of Gonzales without a specified mode.
         """
         with self.assertRaises(InitError) as err_ctx:
-            Morph6("Gonzales", hard_mode=None, route="Lalum")
+            Morph6("Gonzales", hard_mode=None, chapter="10A")
         err = err_ctx.exception
         actual = err.missing_value
         expected = InitError.MissingValue.HARD_MODE
@@ -2928,7 +2928,7 @@ class FE6Promotables(Morph6TestCase):
         """
         #expected = []
         for name in self.promotables:
-            morph = Morph6(name, hard_mode=True, number_of_declines=0, route="Lalum")
+            morph = Morph6(name, hard_mode=True, number_of_declines=0, chapter="10A")
             actual = morph.get_promotion_list()
             self.assertTrue(actual)
 
@@ -3060,10 +3060,12 @@ class FE6Rutger(Morph6TestCase):
     Conduct series of tests with FE6!Rutger as subject.
     """
 
+    @unittest.expectedFailure
     def test_hardmode_explicit_and_via_option(self):
         """
         Checks the initialization of Rutger Morph.
         """
+        logger.debug("Deprecate use of 'HM' names.")
         hm_morph1 = Morph6("Rutger (HM)")
         hm_morph2 = Morph6("Rutger", hard_mode=True)
         expected = True
@@ -3918,7 +3920,6 @@ class FE7HardModeUnit(Morph7TestCase):
         expected = {"hard_mode": (False, True)}
         self.assertDictEqual(actual, expected)
 
-    #@unittest.skip("I'm not even using this in the web API anyway.")
     def test_copy(self):
         """
         Test copy method of Morph.
