@@ -5898,7 +5898,8 @@ class FE6CathHM(unittest.TestCase):
                 "16",
                 "20",
                 "22",
-            )
+            ),
+            "hard_mode": (False, True),
         }
         actual = err.init_params
         self.assertDictEqual(actual, expected)
@@ -5943,5 +5944,21 @@ class FE6TateHM(unittest.TestCase):
             "Mov": 7_00,
         }
         actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+    def test_apply_hard_mode_bonus__fail(self):
+        """
+        """
+        with self.assertRaises(InitError) as err_ctx:
+            get_morph(6, "Tate", hard_mode=True, chapter=None)
+        err = err_ctx.exception
+        actual = InitError.MissingValue.CHAPTER
+        expected = err.missing_value
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {
+            "chapter": ("10B", "11A"),
+            "hard_mode": (False, True),
+        }
         self.assertDictEqual(actual, expected)
 

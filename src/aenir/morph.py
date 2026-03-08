@@ -1357,7 +1357,7 @@ class Morph6(Morph):
             raise InitError(
                 f"Please select a chapter for {name}.",
                 missing_value=InitError.MissingValue.CHAPTER,
-                init_params={"chapter": tuple(chapter_list)},
+                init_params={"chapter": tuple(chapter_list), "hard_mode": (False, True)},
             )
         stat_dict = self.current_stats.as_dict()
         stat_dict.update(stat_bonus)
