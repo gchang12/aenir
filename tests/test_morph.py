@@ -6013,3 +6013,28 @@ class FE6PercivalHM(unittest.TestCase):
         }
         self.assertDictEqual(actual, expected)
 
+class FE6FirHM(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.kwargs = {'game_no': 6, "name": "Fir", "hard_mode": None}
+
+    def test_apply_hard_mode_bonus__fail(self):
+        """
+        """
+        with self.assertRaises(InitError) as err_ctx:
+            get_morph(**self.kwargs)
+        err = err_ctx.exception
+        actual = InitError.MissingValue.HARD_MODE
+        expected = err.missing_value
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {
+            #"chapter": ("13", "15"),
+            "hard_mode": (False, True),
+        }
+        self.assertDictEqual(actual, expected)
+
