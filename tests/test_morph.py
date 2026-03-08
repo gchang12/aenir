@@ -5986,3 +5986,30 @@ class FE6TateHM(unittest.TestCase):
         hard_mode = False
         #with self.assertRaises(InitError) as err_ctx:
         get_morph(6, "Tate", hard_mode=hard_mode, chapter=None)
+
+class FE6PercivalHM(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.morph = get_morph(6, "Percival", hard_mode=False)
+
+    def test_apply_hard_mode_bonus__fail(self):
+        """
+        """
+        morph = self.morph
+        with self.assertRaises(InitError) as err_ctx:
+            morph._apply_hard_mode_bonus()
+        err = err_ctx.exception
+        actual = InitError.MissingValue.CHAPTER
+        expected = err.missing_value
+        self.assertEqual(actual, expected)
+        actual = err.init_params
+        expected = {
+            "chapter": ("13", "15"),
+            "hard_mode": (False, True),
+        }
+        self.assertDictEqual(actual, expected)
+

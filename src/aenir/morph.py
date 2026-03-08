@@ -1323,8 +1323,16 @@ class Morph6(Morph):
                 "Def": 15_50,
                 "Res": 4_00,
             },
-            # NOTE: Chapter 15
-            ("Percival", None): {
+            ("Percival", "13"): {
+                "HP": 43_00,
+                "Pow": 17_00,
+                "Skl": 13_00,
+                "Spd": 18_00,
+                "Lck": 12_00,
+                "Def": 14_00,
+                "Res": 11_00,
+            },
+            ("Percival", "15"): {
                 "HP": 50_70,
                 "Pow": 19_75,
                 "Skl": 16_30,
