@@ -1099,6 +1099,7 @@ class Morph6(Morph):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
+        self.chapter = chapter
         if name == "Gonzales":
             valid_chapters = ("10A", "10B")
             valid_hm_values = (False, True)
@@ -1129,7 +1130,19 @@ class Morph6(Morph):
                 logger.warning("`chapter` value of %s will have no effect.", chapter)
             if name in self.HARD_MODE_UNIT_LIST():
                 if hard_mode is None:
+                    hard_mode_stats = self._get_hard_mode_stats()
+                    chapters = tuple(
+                        map(
+                            lambda name_chapter: name_chapter[1],
+                            filter(
+                                lambda name_chapter: name_chapter[0] == name and name_chapter[1] is not None,
+                                hard_mode_stats.keys(),
+                            ),
+                        )
+                    )
                     init_params = {'hard_mode': (False, True)}
+                    if chapters:
+                        init_params.update({"chapter": chapters})
                     raise InitError(
                         f"Specify a `hard_mode` boolean value for {name}.",
                         missing_value=InitError.MissingValue.HARD_MODE,
@@ -1165,7 +1178,6 @@ class Morph6(Morph):
         # set instance attributes
         self._meta["Hard Mode"] = hard_mode
         self._meta["Number of Declines"] = number_of_declines
-        self.chapter = chapter
         if hard_mode is True:
             self._apply_hard_mode_bonus()
 
