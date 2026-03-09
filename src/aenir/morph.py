@@ -1126,8 +1126,8 @@ class Morph6(Morph):
                         init_params=hm_params,
                     )
         else:
-            if chapter is not None:
-                logger.warning("`chapter` value of %s will have no effect.", chapter)
+            #if chapter is not None:
+                #logger.warning("`chapter` value of %s will have no effect.", chapter)
             if name in self.HARD_MODE_UNIT_LIST():
                 if hard_mode is None:
                     init_params = {'hard_mode': (False, True)}
