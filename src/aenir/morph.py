@@ -2287,6 +2287,30 @@ class Morph9(Morph):
         self.equipped_bands = {band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands}
         self._apply_band_bonuses()
 
+    # TODO: Implement at one point or another.
+    def equip_demi_band(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement at one point or another.
+    def unequip_demi_band(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement at one point or another.
+    def transform(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement at one point or another.
+    def revert(self):
+        """
+        """
+        raise NotImplementedError
+
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """
     Ergonomic means whereby one may access all Morph classes.
