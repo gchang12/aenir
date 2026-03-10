@@ -997,12 +997,15 @@ class Morph5(Morph):
             raise ScrollError(
                 "No inventory space!",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
+                equipped_scrolls=tuple(self.equipped_scrolls),
             )
         # validate scrolls to equip
         if not set(scrolls).issubset(set(self.scroll_dict)):
+            valid_scrolls = {scroll_name: (scroll_name not in self.equipped_scrolls) for scroll_name in self.scroll_dict}
             raise ScrollError(
                 "A scroll in the selection was not found.",
                 reason=ScrollError.Reason.NOT_FOUND,
+                valid_scrolls=valid_scrolls,
             )
         self.equipped_scrolls = {scroll_name: self.Stats(**self.scroll_dict[scroll_name]) for scroll_name in scrolls}
         self._apply_scroll_bonuses()
@@ -2209,6 +2212,15 @@ class Morph9(Morph):
                 invalid_band=band_name,
             )
 
+    def _stage_knight_ward_bonus(self):
+        """
+        """
+        band_name = "Knight Ward"
+        stat_dict = self.Stats.get_stat_dict(0)
+        stat_dict['Spd'] = 30
+        # set to list of bands
+        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
+
     def equip_knight_ward(self) -> None:
         """
         Simulates equipping of Knight Ward.
@@ -2234,14 +2246,8 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.ALREADY_EQUIPPED,
                 #valid_bands=valid_bands,
             )
-        # update stats
-        self.growth_rates = self._og_growth_rates.copy()
         # look up knight band
-        band_name = "Knight Ward"
-        stat_dict = self.Stats.get_stat_dict(0)
-        stat_dict['Spd'] = 30
-        # set to list of bands
-        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
+        self._stage_knight_ward_bonus()
         self._apply_band_bonuses()
         # set the thing
         self.knight_ward_is_equipped = True
@@ -2268,23 +2274,68 @@ class Morph9(Morph):
         self._apply_band_bonuses()
         self.knight_ward_is_equipped = False
 
+    def set_knight_ward(self, equip: bool):
+        """
+        Idempotent version of 'equip/unequip_knight_ward' methods.
+        """
+        # (is_equipped): set_knight_ward(True) -> pass
+        # (not is_equipped): set_knight_ward(True) -> equip (is_equipped)
+        # (is_equipped): set_knight_ward(False) -> unequip (not is_equipped)
+        # (not is_equipped): set_knight_ward(False) -> pass
+        if self.knight_ward_is_equipped is None:
+            raise KnightWardError(
+                f"{self.name} is not a knight; cannot unequip Knight Ward.",
+                reason=KnightWardError.Reason.NOT_A_KNIGHT,
+                knights=self.KNIGHT_LIST(),
+            )
+        elif equip is True and self.knight_ward_is_equipped is False:
+            try:
+                self.equip_knight_ward()
+            except KnightWardError as err:
+                raise err
+        elif equip is False and self.knight_ward_is_equipped is True:
+            try:
+                self.unequip_knight_ward()
+            except KnightWardError as err:
+                raise err
+
     def set_bands(self, bands):
         """
         Enables user to equip bands en masse.
         """
-        # validate band-set size.
+        # validate band-set size to make
+        # scenario 1: bands.length > inventory size => deny
+        # scenario 2: (bands.length = inventory size) and (knight_ward_is_equipped) => deny
+        # scenario 3: (bands.length = inventory size) and (not knight_ward_is_equipped) => allow
         if len(bands) > self.inventory_size:
             raise BandError(
                 "No inventory space!",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
+                equipped_bands=tuple(self.equipped_bands),
             )
         # validate bands to equip
         if not set(bands).issubset(set(self.band_dict)):
+            valid_bands = {band_name: (band_name not in self.equipped_bands) for band_name in self.band_dict}
             raise BandError(
                 "A band in the selection was not found.",
                 reason=BandError.Reason.NOT_FOUND,
+                valid_bands=valid_bands,
             )
-        self.equipped_bands = {band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands}
+        # simulate equipping
+        old_bands = self.equipped_bands.copy()
+        self.equipped_bands.clear()
+        if self.knight_ward_is_equipped is True:
+            if len(bands) <= self.inventory_size - 1:
+            # This will only apply any existing Knight Ward bonus
+                self._stage_knight_ward_bonus()
+            else:
+                self.equipped_bands = old_bands
+                raise BandError(
+                    "No inventory space!",
+                    reason=BandError.Reason.NO_INVENTORY_SPACE,
+                    equipped_bands=tuple(old_bands),
+                )
+        self.equipped_bands.update({band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
     # TODO: Implement at one point or another.

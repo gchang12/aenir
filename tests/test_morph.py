@@ -2086,6 +2086,9 @@ class FE5Leif(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
+        actual = err.equipped_scrolls
+        expected = ()
+        self.assertTupleEqual(actual, expected)
 
     def test_set_scrolls__invalid_scroll_set(self):
         """
@@ -2112,6 +2115,22 @@ class FE5Leif(Morph5TestCase):
         actual = err.reason
         expected = ScrollError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
+        actual = err.valid_scrolls
+        expected = {
+            'Baldo': True,
+            'Blaggi': True,
+            'Dain': True,
+            'Fala': True,
+            'Heim': True,
+            'Hezul': True,
+            'Neir': True,
+            'Noba': True,
+            'Odo': True,
+            'Sety': True,
+            'Tordo': True,
+            'Ulir': True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_set_scrolls(self):
         """
@@ -5073,6 +5092,9 @@ class FE9Ike(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
+        actual = err.equipped_bands
+        expected = ()
+        self.assertTupleEqual(actual, expected)
 
     def test_set_bands__invalid_scroll_set(self):
         """
@@ -5098,6 +5120,21 @@ class FE9Ike(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
+        actual = err.valid_bands
+        expected = {
+            "Sword Band": True,
+            "Soldier Band": True,
+            "Fighter Band": True,
+            "Archer Band": True,
+            "Knight Band": True,
+            "Paladin Band": True,
+            "Pegasus Band": True,
+            "Wyvern Band": True,
+            "Mage Band": True,
+            "Priest Band": True,
+            "Thief Band": True,
+        }
+        self.assertDictEqual(actual, expected)
 
     def test_set_bands(self):
         """
@@ -5123,7 +5160,7 @@ class FE9Ike(Morph9TestCase):
         expected = tuple(bands)
         self.assertTupleEqual(actual, expected)
 
-    def test_set_scrolls__check_stats(self):
+    def test_set_bands__check_stats(self):
         """
         """
         bands = (
@@ -5378,6 +5415,172 @@ class FE9Knight(Morph9TestCase):
         actual = kieran.inventory_size
         expected = 8
         self.assertEqual(actual, expected)
+
+    def test_set_knight_ward__and__set_bands(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            #"Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        morph = self.morph
+        morph.set_bands(bands)
+        actual = set(morph.equipped_bands)
+        expected = set(bands)
+        self.assertSetEqual(actual, expected)
+        morph.set_knight_ward(True)
+        actual = set(morph.equipped_bands)
+        expected = set(bands).union(["Knight Ward"])
+        self.assertSetEqual(actual, expected)
+        morph.set_knight_ward(False)
+        actual = set(morph.equipped_bands)
+        expected = set(bands)
+        self.assertSetEqual(actual, expected)
+
+    def test_set_knight_ward__idempotency(self):
+        """
+        """
+        morph = self.morph
+        morph.set_knight_ward(True)
+        actual = tuple(morph.equipped_bands)
+        expected = ("Knight Ward",)
+        self.assertTupleEqual(actual, expected)
+        morph.set_knight_ward(True)
+        actual = morph.knight_ward_is_equipped
+        expected = True
+        self.assertIs(actual, expected)
+        morph.set_knight_ward(True)
+        actual = morph.knight_ward_is_equipped
+        expected = True
+        self.assertIs(actual, expected)
+        morph.set_knight_ward(True)
+        actual = morph.knight_ward_is_equipped
+        expected = True
+        self.assertIs(actual, expected)
+
+    def test_set_knight_ward__idempotency2(self):
+        """
+        """
+        morph = self.morph
+        morph.set_knight_ward(False)
+        actual = tuple(morph.equipped_bands)
+        expected = ()
+        self.assertTupleEqual(actual, expected)
+        morph.set_knight_ward(False)
+        actual = morph.knight_ward_is_equipped
+        expected = False
+        self.assertIs(actual, expected)
+        morph.set_knight_ward(False)
+        actual = morph.knight_ward_is_equipped
+        expected = False
+        self.assertIs(actual, expected)
+        morph.set_knight_ward(False)
+        actual = morph.knight_ward_is_equipped
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_set_bands__knight_ward_is_equipped_and_inventory_is_full(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        morph = self.morph
+        morph.equip_knight_ward()
+        with self.assertRaises(BandError) as err_ctx:
+            morph.set_bands(bands)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = BandError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+        self.assertIn("Knight Ward", morph.equipped_bands)
+
+    def test_set_bands__knight_ward_is_equipped_and_inventory_is_not_full(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            #"Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        morph = self.morph
+        morph.equip_knight_ward()
+        morph.set_bands(bands)
+        self.assertSetEqual(set(bands).union(set(["Knight Ward"])), set(morph.equipped_bands))
+
+    def test_set_knight_ward__bands_are_set(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            #"Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        morph = self.morph
+        morph.set_bands(bands)
+        morph.set_knight_ward(True)
+        self.assertSetEqual(set(bands).union(set(["Knight Ward"])), set(morph.equipped_bands))
+
+    def test_set_knight_ward__too_many_bands(self):
+        """
+        """
+        bands = (
+            "Sword Band",
+            "Soldier Band",
+            "Fighter Band",
+            "Archer Band",
+            "Knight Band",
+            "Paladin Band",
+            "Pegasus Band",
+            "Wyvern Band",
+            #"Mage Band",
+            #"Priest Band",
+            #"Thief Band",
+        )
+        morph = self.morph
+        morph.set_bands(bands)
+        with self.assertRaises(KnightWardError) as err_ctx:
+            morph.set_knight_ward(True)
+        err = err_ctx.exception
+        actual = err.reason
+        expected = KnightWardError.Reason.NO_INVENTORY_SPACE
+        self.assertEqual(actual, expected)
+        self.assertSetEqual(set(bands), set(morph.equipped_bands))
 
     def test_unequip_knight_ward__has_been_augmented(self):
         """

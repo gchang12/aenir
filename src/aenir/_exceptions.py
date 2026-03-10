@@ -131,7 +131,7 @@ class ScrollError(AenirError):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Mapping[str, bool] | Iterable[str] | None = None, invalid_scroll: str | None = None):
+    def __init__(self, msg: str, reason: Reason, *, valid_scrolls: Mapping[str, bool] | Iterable[str] | None = None, invalid_scroll: str | None = None, equipped_scrolls: Iterable[str] | None = None):
         """
         Declares list of `valid_scrolls`, `equipped_scroll` and `absent_scroll`.
         """
@@ -139,6 +139,7 @@ class ScrollError(AenirError):
         self.reason = reason
         self.valid_scrolls = valid_scrolls
         self.invalid_scroll = invalid_scroll
+        self.equipped_scrolls = equipped_scrolls
 
 class GrowthsItemError(AenirError):
     """
@@ -173,7 +174,7 @@ class BandError(AenirError):
         NOT_FOUND = enum.auto()
         NO_INVENTORY_SPACE = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, valid_bands: Mapping[str, bool] | Iterable[str] | None = None, invalid_band: str | None = None):
+    def __init__(self, msg: str, reason: Reason, *, valid_bands: Mapping[str, bool] | Iterable[str] | None = None, invalid_band: str | None = None, equipped_bands: Iterable[str] | None = None):
         """
         Declares list of `valid_bands`, `equipped_band` and `absent_band`.
         """
@@ -181,6 +182,7 @@ class BandError(AenirError):
         self.reason = reason
         self.valid_bands = valid_bands
         self.invalid_band = invalid_band
+        self.equipped_bands = equipped_bands
 
 class KnightWardError(AenirError):
     """
