@@ -5096,7 +5096,7 @@ class FE9Ike(Morph9TestCase):
         expected = ()
         self.assertTupleEqual(actual, expected)
 
-    def test_set_bands__invalid_scroll_set(self):
+    def test_set_bands__invalid_band_set(self):
         """
         """
         bands = (
@@ -5133,6 +5133,7 @@ class FE9Ike(Morph9TestCase):
             "Mage Band": True,
             "Priest Band": True,
             "Thief Band": True,
+            "Knight Ward": False,
         }
         self.assertDictEqual(actual, expected)
 
@@ -5488,6 +5489,7 @@ class FE9Knight(Morph9TestCase):
         expected = False
         self.assertIs(actual, expected)
 
+    #@unittest.expectedFailure
     def test_set_bands__knight_ward_is_equipped_and_inventory_is_full(self):
         """
         """
@@ -5500,6 +5502,7 @@ class FE9Knight(Morph9TestCase):
             "Paladin Band",
             "Pegasus Band",
             "Wyvern Band",
+            "Knight Ward",
             #"Mage Band",
             #"Priest Band",
             #"Thief Band",
@@ -5514,6 +5517,7 @@ class FE9Knight(Morph9TestCase):
         self.assertEqual(actual, expected)
         self.assertIn("Knight Ward", morph.equipped_bands)
 
+    #@unittest.expectedFailure
     def test_set_bands__knight_ward_is_equipped_and_inventory_is_not_full(self):
         """
         """
@@ -5525,6 +5529,8 @@ class FE9Knight(Morph9TestCase):
             "Knight Band",
             "Paladin Band",
             "Pegasus Band",
+            #
+            "Knight Ward",
             #"Wyvern Band",
             #"Mage Band",
             #"Priest Band",

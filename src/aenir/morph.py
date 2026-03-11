@@ -2307,6 +2307,7 @@ class Morph9(Morph):
         # scenario 1: bands.length > inventory size => deny
         # scenario 2: (bands.length = inventory size) and (knight_ward_is_equipped) => deny
         # scenario 3: (bands.length = inventory size) and (not knight_ward_is_equipped) => allow
+        bands = list(bands)
         if len(bands) > self.inventory_size:
             raise BandError(
                 "No inventory space!",
@@ -2314,27 +2315,21 @@ class Morph9(Morph):
                 equipped_bands=tuple(self.equipped_bands),
             )
         # validate bands to equip
-        if not set(bands).issubset(set(self.band_dict)):
+        if not set(bands).issubset(set(self.band_dict).union(["Knight Ward"])):
             valid_bands = {band_name: (band_name not in self.equipped_bands) for band_name in self.band_dict}
+            valid_bands['Knight Ward'] = (False if self.knight_ward_is_equipped is None else not self.knight_ward_is_equipped)
             raise BandError(
                 "A band in the selection was not found.",
                 reason=BandError.Reason.NOT_FOUND,
                 valid_bands=valid_bands,
             )
         # simulate equipping
-        old_bands = self.equipped_bands.copy()
         self.equipped_bands.clear()
-        if self.knight_ward_is_equipped is True:
-            if len(bands) <= self.inventory_size - 1:
-            # This will only apply any existing Knight Ward bonus
-                self._stage_knight_ward_bonus()
-            else:
-                self.equipped_bands = old_bands
-                raise BandError(
-                    "No inventory space!",
-                    reason=BandError.Reason.NO_INVENTORY_SPACE,
-                    equipped_bands=tuple(old_bands),
-                )
+        try:
+            bands.pop(bands.index("Knight Ward"))
+            self._stage_knight_ward_bonus()
+        except ValueError as err:
+            pass
         self.equipped_bands.update({band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
