@@ -1027,6 +1027,7 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
 
+    # TODO: Off by 100.
     @classmethod
     def SCROLL_DICT(cls):
         """
@@ -2375,3 +2376,14 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     morph = morph_cls(name, **kwargs)
     return morph
 
+
+# TODO: Make sure that confirm-button remains disabled when trying and failing to boost stats via item.
+# TODO: Build front-end first next time
+# TODO: Make bare stat components.
+# TODO: Introduce typing.
+# TODO: Make backend return values that are more consistent.
+# TODO: Fix backend tests.
+# TODO: Write interfaces to boost growths
+# TODO: Allow users to register.
+# TODO: Fix naming of values.
+# TODO: Print cumulative difference.
