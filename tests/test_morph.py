@@ -2191,6 +2191,78 @@ class FE5Leif(Morph5TestCase):
         logger.debug("comparison: %r", comparison)
         self.assertSetEqual(set(comparison.values()), {True, False})
 
+    def test_set_scrolls__check_stats2(self):
+        """
+        """
+        scrolls = (
+            #'Baldo',
+            #'Blaggi',
+            #'Dain',
+            #'Fala',
+            #'Heim',
+            #'Hezul',
+            #'Neir',
+            #'Noba',
+            'Odo',
+            #'Sety',
+            #'Tordo',
+            #'Ulir',
+        )
+        # +30 Skl
+        leif = self.morph
+        #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
+        #leif.set_scrolls(scrolls)
+        #MOCK_modify_growths.assert_called_once_with()
+        expected = {
+            "HP": 70,
+            "Str": 35,
+            "Mag": 10,
+            "Skl": 35,
+            "Spd": 40,
+            "Lck": 40,
+            "Def": 25,
+            "Con": 15,
+            "Mov": 3,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        actual = leif.growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
+        leif.set_scrolls(scrolls)
+        expected = {
+            "HP": 70,
+            "Str": 35,
+            "Mag": 10,
+            "Skl": 35,
+            "Spd": 40,
+            "Lck": 40,
+            "Def": 25,
+            "Con": 15,
+            "Mov": 3,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        actual = leif._og_growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
+        expected = {
+            "HP": 70,
+            "Str": 35,
+            "Mag": 10,
+            "Skl": 65,
+            "Spd": 40,
+            "Lck": 40,
+            "Def": 25,
+            "Con": 15,
+            "Mov": 3,
+            "Lead": 0,
+            "MS": 0,
+            "PC": 0,
+        }
+        actual = leif.growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
+
 class FE5Linoan(Morph5TestCase):
     """
     Tests centered around FE5!Linoan.
@@ -5950,6 +6022,63 @@ class FE9BandEquipper(Morph9TestCase):
         actual = jill.growth_rates.has_been_augmented
         expected = True
         self.assertIs(actual, expected)
+
+    def test_set_bands__check_stats2(self):
+        """
+        """
+        self.maxDiff = None
+        bands = (
+            #'Baldo',
+            #'Blaggi',
+            #'Dain',
+            #'Fala',
+            #'Heim',
+            #'Hezul',
+            #'Neir',
+            #'Noba',
+            'Mage Band',
+            #'Sety',
+            #'Tordo',
+            #'Ulir',
+        )
+        # +30 Skl
+        jill = self.morph
+        #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
+        #leif.set_scrolls(scrolls)
+        #MOCK_modify_growths.assert_called_once_with()
+        expected = {
+            "HP": 60,
+            "Str": 40,
+            "Mag": 30,
+            "Skl": 45,
+            "Spd": 45,
+            "Lck": 25,
+            "Def": 35,
+            "Res": 30,
+            "Mov": 0,
+            "Wt": 0,
+            "Con": 0,
+        }
+        actual = jill.growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
+        jill.set_bands(bands)
+        actual = jill._og_growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
+        expected = {
+            "HP": 60,
+            "Str": 40,
+            "Mag": 40,
+            "Skl": 45,
+            "Spd": 45,
+            "Lck": 25,
+            "Def": 35,
+            "Res": 30,
+            "Mov": 0,
+            "Wt": 0,
+            "Con": 0,
+        }
+        actual = jill.growth_rates.as_dict()
+        self.assertDictEqual(actual, expected)
 
 class GetMorph(unittest.TestCase):
     """

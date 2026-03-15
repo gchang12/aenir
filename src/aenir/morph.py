@@ -1007,7 +1007,7 @@ class Morph5(Morph):
                 reason=ScrollError.Reason.NOT_FOUND,
                 valid_scrolls=valid_scrolls,
             )
-        self.equipped_scrolls = {scroll_name: self.Stats(**self.scroll_dict[scroll_name]) for scroll_name in scrolls}
+        self.equipped_scrolls = {scroll_name: self.Stats(multiplier=1, **self.scroll_dict[scroll_name]) for scroll_name in scrolls}
         self._apply_scroll_bonuses()
 
     def unequip_scroll(self, scroll_name: str) -> None:
@@ -1027,7 +1027,6 @@ class Morph5(Morph):
                 invalid_scroll=scroll_name,
             )
 
-    # TODO: Off by 100.
     @classmethod
     def SCROLL_DICT(cls):
         """
@@ -2331,7 +2330,7 @@ class Morph9(Morph):
             self._stage_knight_ward_bonus()
         except ValueError as err:
             pass
-        self.equipped_bands.update({band_name: self.Stats(**self.band_dict[band_name]) for band_name in bands})
+        self.equipped_bands.update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
     # TODO: Implement at one point or another.
@@ -2377,13 +2376,15 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     return morph
 
 
+# Web Interface
 # TODO: Make sure that confirm-button remains disabled when trying and failing to boost stats via item.
 # TODO: Build front-end first next time
 # TODO: Make bare stat components.
-# TODO: Introduce typing.
+# TODO: Introduce typing to frontend.
 # TODO: Make backend return values that are more consistent.
 # TODO: Fix backend tests.
 # TODO: Write interfaces to boost growths
 # TODO: Allow users to register.
 # TODO: Fix naming of values.
 # TODO: Print cumulative difference.
+# TODO: Insert footer containing all meta info.
