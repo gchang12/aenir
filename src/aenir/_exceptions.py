@@ -184,6 +184,49 @@ class BandError(AenirError):
         self.invalid_band = invalid_band
         self.equipped_bands = equipped_bands
 
+class TransformationError(AenirError):
+    """
+    To be raised if an error occurred while trying to transform or revert an FE9 unit.
+    """
+
+    class Reason(enum.Enum):
+        """
+        Declares all reasons why a unit wouldn't be able to transform or revert.
+        """
+        NOT_A_LAGUZ = enum.auto()
+        ALREADY_TRANFORMED = enum.auto()
+        NOT_TRANSFORMED = enum.auto()
+        DEMI_BAND_IS_EQUIPPED = enum.auto()
+
+    def __init__(self, msg: str, reason: Reason, *, laguz: Iterable[str] | None = None):
+        """
+        Initialize 'reason' attribute.
+        """
+        super().__init__(msg)
+        self.reason = reason
+        self.laguz = laguz
+
+class DemiBandError(AenirError):
+    """
+    To be raised if an error occurred while trying to equip the Demi Band in FE9.
+    """
+
+    class Reason(enum.Enum):
+        """
+        Declares all reasons why a unit wouldn't be able to equip the Demi Band.
+        """
+        NOT_A_LAGUZ = enum.auto()
+        ALREADY_EQUIPPED = enum.auto()
+        NOT_EQUIPPED = enum.auto()
+
+    def __init__(self, msg: str, reason: Reason, *, laguz: Iterable[str] | None = None):
+        """
+        Initialize 'reason' attribute.
+        """
+        super().__init__(msg)
+        self.reason = reason
+        self.laguz = laguz
+
 class KnightWardError(AenirError):
     """
     To be raised if an error occurred while equipping the Knight Ward in FE9.

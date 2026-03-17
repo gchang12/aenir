@@ -2056,6 +2056,61 @@ class Morph9(Morph):
         )
 
     @staticmethod
+    def LAGUZ_LIST():
+        """
+        """
+        return (
+            #'Ike',
+            #'Titania',
+            #'Oscar',
+            #'Boyd',
+            #'Rhys',
+            #'Shinon',
+            #'Gatrie',
+            #'Soren',
+            #'Mia',
+            #'Ilyana',
+            #'Marcia',
+            #'Mist',
+            #'Rolf',
+            'Lethe',
+            'Mordecai',
+            #'Volke',
+            #'Kieran',
+            #'Brom',
+            #'Nephenee',
+            #'Zihark',
+            #'Jill',
+            #'Sothe',
+            #'Astrid',
+            #'Makalov',
+            #'Stefan',
+            'Muarim',
+            #'Tormod',
+            #'Devdan',
+            #'Tanith',
+            'Reyson',
+            'Janaff',
+            'Ulki',
+            #'Calill',
+            #'Tauroneo',
+            'Ranulf',
+            #'Haar',
+            #'Lucia',
+            #'Bastian',
+            #'Geoffrey',
+            #'Largo',
+            #'Elincia',
+            'Ena',
+            'Nasir',
+            'Tibarn',
+            'Naesala',
+            'Giffca',
+            #'Sephiran',
+            #'Leanne',
+        )
+
+    @staticmethod
     def KNIGHT_LIST() -> Iterable[str]:
         """
         Declares the list of all FE9 knights.
@@ -2122,8 +2177,14 @@ class Morph9(Morph):
             knight_ward_is_equipped = False
         else:
             knight_ward_is_equipped = None
+        # conditionally determine if a unit is a laguz.
+        if name in self.LAGUZ_LIST():
+            is_transformed = False
+        else:
+            is_transformed = None
         # set instance attributes
         self.knight_ward_is_equipped = knight_ward_is_equipped 
+        self.is_transformed = is_transformed 
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
@@ -2334,18 +2395,6 @@ class Morph9(Morph):
         self._apply_band_bonuses()
 
     # TODO: Implement at one point or another.
-    def equip_demi_band(self):
-        """
-        """
-        raise NotImplementedError
-
-    # TODO: Implement at one point or another.
-    def unequip_demi_band(self):
-        """
-        """
-        raise NotImplementedError
-
-    # TODO: Implement at one point or another.
     def transform(self):
         """
         """
@@ -2353,6 +2402,19 @@ class Morph9(Morph):
 
     # TODO: Implement at one point or another.
     def revert(self):
+        """
+        """
+        raise NotImplementedError
+
+
+    # TODO: Implement at one point or another.
+    def equip_demi_band(self):
+        """
+        """
+        raise NotImplementedError
+
+    # TODO: Implement at one point or another.
+    def unequip_demi_band(self):
         """
         """
         raise NotImplementedError
@@ -2388,3 +2450,43 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
 # TODO: Fix naming of values.
 # TODO: Print cumulative difference.
 # TODO: Insert footer containing all meta info.
+
+'''
+https://serenesforest.net/path-of-radiance/classes/transformation/
+Notes: If the Demi Band item is equipped, the stat gains will be halved (decimals are rounded up).
+Before 	                After 	        HP 	Str 	Mag 	Skl 	Spd 	Def 	Res 	Con 	Mov 	Cap
+Beast tribe (Cat M) 	Cat (M) 	0 	+6 	0 	+4 	+3 	+5 	+3 	+15 	+2 	0
+Beast tribe (Cat F) 	Cat (F) 	0 	+6 	0 	+4 	+3 	+5 	+3 	+15 	+2 	0
+Beast tribe (Tiger) 	Tiger 	0 	+7 	0 	+4 	+3 	+3 	+3 	+15 	+2 	0
+Beast tribe (Lion) 	Lion 	0 	+8 	0 	+4 	+4 	+5 	+3 	+15 	+2 	0
+Bird tribe (Hawk) 	Hawk 	0 	+6 	0 	+5 	+3 	+4 	+2 	+10 	+2 	0
+Bird tribe (Tibarn) 	Hawk (Tibarn) 	0 	+7 	+1 	+5 	+3 	+3 	+1 	+8 	+2 	0
+Bird tribe (Raven) 	Raven 	0 	+5 	+1 	+4 	+4 	+3 	+4 	+9 	+2 	0
+Bird tribe (Naesala) 	Raven (Naesala) 	0 	+6 	+2 	+4 	+3 	+3 	+3 	+7 	+2 	0
+Bird tribe (Heron M) 	Heron (M) 	0 	0 	+5 	+3 	+4 	+1 	+5 	+6 	+3 	0
+Bird tribe (Heron F) 	Heron (F) 	0 	0 	+5 	+3 	+4 	+1 	+5 	+6 	+3 	0
+Dragon tribe (Red M) 	Red Dragon (M) 	0 	+10 	0 	+6 	+3 	+4 	+5 	+26 	+1 	0
+Dragon tribe (Red F) 	Red Dragon (F) 	0 	+5 	0 	+4 	+4 	+4 	+5 	+12 	+1 	0
+Dragon tribe (White) 	White Dragon 	0 	+10 	0 	+5 	+3 	+5 	+5 	+24 	+1 	0
+    # Cap is unneeded.
+    @staticmethod
+    def ABSOLUTE_MAXES() -> Iterable[str]:
+        """
+        Returns list of absolute maxes.
+        """
+        return (
+            80_00, #"HP",
+            40_00, #"Str",
+            40_00, #"Mag",
+            40_00, #"Skl",
+            40_00, #"Spd",
+            40_00, #"Lck",
+            40_00, #"Def",
+            40_00, #"Res",
+            99_00, #"Mov",
+            99_00, #"Con",
+            99_00, #"Wt",
+        )
+'''
+
+

@@ -38,6 +38,8 @@ from aenir._exceptions import (
     GrowthsItemError,
     KnightWardError,
     InitError,
+    TransformationError,
+    DemiBandError,
 )
 
 from aenir._logging import (
@@ -6376,3 +6378,188 @@ class FE6FirHM(unittest.TestCase):
         }
         self.assertDictEqual(actual, expected)
 
+class FE9LaguzUnit(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        kwargs = {'game_no': 9, "name": "Lethe"}
+        morph = get_morph(**kwargs)
+        self.morph = morph
+
+    def test_transform__and__revert(self):
+        """
+        """
+        morph = self.morph
+        expected = {
+            "HP": 34_00,
+            "Str": 12_00,
+            "Mag": 4_00,
+            "Skl": 10_00,
+            "Spd": 12_00,
+            "Lck": 15_00,
+            "Def": 9_00,
+            "Res": 7_00,
+            "Mov": 7_00,
+            "Con": 6_00,
+            "Wt": 21_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        # Str+6, Skl+4, Spd+3, Def+5, Res+3, Con+15, Mov+2
+        expected["Str"] += 6_00
+        expected["Skl"] += 4_00
+        expected["Spd"] += 3_00
+        expected["Def"] += 5_00
+        expected["Res"] += 3_00
+        expected["Con"] += 15_00
+        expected["Mov"] += 2_00
+        morph.transform()
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        morph.revert()
+        expected["Str"] -= 6_00
+        expected["Skl"] -= 4_00
+        expected["Spd"] -= 3_00
+        expected["Def"] -= 5_00
+        expected["Res"] -= 3_00
+        expected["Con"] -= 15_00
+        expected["Mov"] -= 2_00
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+    def test_transform__and__revert__with_demi_band(self):
+        """
+        """
+        morph = self.morph
+        morph.equip_demi_band()
+        expected = {
+            "HP": 34_00,
+            "Str": 12_00,
+            "Mag": 4_00,
+            "Skl": 10_00,
+            "Spd": 12_00,
+            "Lck": 15_00,
+            "Def": 9_00,
+            "Res": 7_00,
+            "Mov": 7_00,
+            "Con": 6_00,
+        }
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        # Str+6, Skl+4, Spd+3, Def+5, Res+3, Con+15, Mov+2
+        expected["Str"] += 3_00
+        expected["Skl"] += 2_00
+        expected["Spd"] += 2_00
+        expected["Def"] += 3_00
+        expected["Res"] += 2_00
+        expected["Con"] += 8_00
+        expected["Mov"] += 1_00
+        morph.transform()
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.revert()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.DEMI_BAND_IS_EQUIPPED
+        self.assertEqual(actual, expected)
+        # assure self that stats remain the same.
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+
+    def test_equip_demi_band(self):
+        """
+        """
+        morph = self.morph
+        morph.equip_demi_band()
+        self.assertIn("Demi Band", morph.equipped_bands)
+        actual = morph.is_transformed
+        expected = False
+        self.assertIs(actual, expected)
+
+    def test_equip_demi_band__again(self):
+        """
+        """
+        morph = self.morph
+        morph.equip_demi_band()
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.equip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = DemiBandError.Reason.ALREADY_EQUIPPED
+
+    def test_unequip_demi_band__again(self):
+        """
+        """
+        morph = self.morph
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.unequip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = DemiBandError.Reason.NOT_EQUIPPED
+
+class FE9BeorcUnit(unittest.TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        kwargs = {'game_no': 9, "name": "Titania"}
+        morph = get_morph(**kwargs)
+        self.morph = morph
+
+    def test_transform__not_a_laguz(self):
+        """
+        """
+        # test_revert, test_equip_demi_band, test_unequip_demi_band
+        morph = self.morph
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.transform()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_A_LAGUZ
+        self.assertEqual(actual, expected)
+
+    def test_revert__not_a_laguz(self):
+        """
+        """
+        # test_revert, test_equip_demi_band, test_unequip_demi_band
+        morph = self.morph
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.revert()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_A_LAGUZ
+        self.assertEqual(actual, expected)
+
+    def test_equip_demi_band__not_a_laguz(self):
+        """
+        """
+        # test_revert, test_equip_demi_band, test_unequip_demi_band
+        morph = self.morph
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.equip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_A_LAGUZ
+        self.assertEqual(actual, expected)
+        self.assertNotIn("Demi Band", morph.equipped_bands)
+
+    def test_unequip_demi_band__not_a_laguz(self):
+        """
+        """
+        # test_revert, test_equip_demi_band, test_unequip_demi_band
+        morph = self.morph
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.unequip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_A_LAGUZ
+        self.assertEqual(actual, expected)
+        actual = morph.equipped_bands
+        expected = []
+        self.assertListEqual(actual, expected)
