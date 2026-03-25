@@ -2178,18 +2178,9 @@ class Morph9(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         # conditionally determine if unit can equip it
         # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
-        if name in self.KNIGHT_LIST():
-            knight_ward_is_equipped = False
-        else:
-            knight_ward_is_equipped = None
-        # conditionally determine if a unit is a laguz.
-        if name in self.LAGUZ_LIST():
-            is_transformed = False
-        else:
-            is_transformed = None
+        self.is_knight = name in self.KNIGHT_LIST()
+        self.is_laguz = name in self.LAGUZ_LIST()
         # set instance attributes
-        self.knight_ward_is_equipped = knight_ward_is_equipped 
-        self.is_transformed = is_transformed 
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
@@ -2293,7 +2284,7 @@ class Morph9(Morph):
         Simulates equipping of Knight Ward.
         Throws error if it is already equipped or unit is not a knight.
         """
-        if self.knight_ward_is_equipped is None:
+        if self.is_knight is False:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
@@ -2306,7 +2297,7 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.NO_INVENTORY_SPACE,
                 valid_bands=valid_bands,
             )
-        if self.knight_ward_is_equipped is True:
+        if "Knight Ward" in self.equipped_bands:
             #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} already has the Knight Ward equipped.",
@@ -2317,19 +2308,18 @@ class Morph9(Morph):
         self._stage_knight_ward_bonus()
         self._apply_band_bonuses()
         # set the thing
-        self.knight_ward_is_equipped = True
 
     def unequip_knight_ward(self) -> None:
         """
         Simulates removal of Knight Ward; throws error if band isn't equipped or if unit is not a knight.
         """
-        if self.knight_ward_is_equipped is None:
+        if self.is_knight is False:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
                 knights=self.KNIGHT_LIST(),
             )
-        if self.knight_ward_is_equipped is False:
+        if "Knight Ward" not in self.equipped_bands:
             valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
@@ -2339,7 +2329,6 @@ class Morph9(Morph):
         band_name = "Knight Ward"
         self.equipped_bands.pop(band_name)
         self._apply_band_bonuses()
-        self.knight_ward_is_equipped = False
 
     def set_knight_ward(self, equip: bool):
         """
@@ -2349,18 +2338,19 @@ class Morph9(Morph):
         # (not is_equipped): set_knight_ward(True) -> equip (is_equipped)
         # (is_equipped): set_knight_ward(False) -> unequip (not is_equipped)
         # (not is_equipped): set_knight_ward(False) -> pass
-        if self.knight_ward_is_equipped is None:
+        knight_ward_is_equipped = "Knight Ward" in self.equipped_bands
+        if self.is_knight is False:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
                 knights=self.KNIGHT_LIST(),
             )
-        elif equip is True and self.knight_ward_is_equipped is False:
+        elif equip is True and not knight_ward_is_equipped:
             try:
                 self.equip_knight_ward()
             except KnightWardError as err:
                 raise err
-        elif equip is False and self.knight_ward_is_equipped is True:
+        elif equip is False and knight_ward_is_equipped:
             try:
                 self.unequip_knight_ward()
             except KnightWardError as err:
@@ -2370,10 +2360,6 @@ class Morph9(Morph):
         """
         Enables user to equip bands en masse.
         """
-        # validate band-set size to make
-        # scenario 1: bands.length > inventory size => deny
-        # scenario 2: (bands.length = inventory size) and (knight_ward_is_equipped) => deny
-        # scenario 3: (bands.length = inventory size) and (not knight_ward_is_equipped) => allow
         bands = list(bands)
         if len(bands) > self.inventory_size:
             raise BandError(
@@ -2384,7 +2370,7 @@ class Morph9(Morph):
         # validate bands to equip
         if not set(bands).issubset(set(self.band_dict).union(["Knight Ward"])):
             valid_bands = {band_name: (band_name not in self.equipped_bands) for band_name in self.band_dict}
-            valid_bands['Knight Ward'] = (False if self.knight_ward_is_equipped is None else not self.knight_ward_is_equipped)
+            valid_bands['Knight Ward'] = (None if self.is_knight is False else "Knight Ward" not in self.equipped_bands)
             raise BandError(
                 "A band in the selection was not found.",
                 reason=BandError.Reason.NOT_FOUND,

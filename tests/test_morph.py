@@ -5229,7 +5229,7 @@ class FE9Ike(Morph9TestCase):
             "Mage Band": True,
             "Priest Band": True,
             "Thief Band": True,
-            "Knight Ward": False,
+            "Knight Ward": None,
         }
         self.assertDictEqual(actual, expected)
 
@@ -5556,17 +5556,7 @@ class FE9Knight(Morph9TestCase):
         expected = ("Knight Ward",)
         self.assertTupleEqual(actual, expected)
         morph.set_knight_ward(True)
-        actual = morph.knight_ward_is_equipped
-        expected = True
-        self.assertIs(actual, expected)
         morph.set_knight_ward(True)
-        actual = morph.knight_ward_is_equipped
-        expected = True
-        self.assertIs(actual, expected)
-        morph.set_knight_ward(True)
-        actual = morph.knight_ward_is_equipped
-        expected = True
-        self.assertIs(actual, expected)
 
     def test_set_knight_ward__idempotency2(self):
         """
@@ -5578,20 +5568,11 @@ class FE9Knight(Morph9TestCase):
         expected = ()
         self.assertTupleEqual(actual, expected)
         morph.set_knight_ward(False)
-        actual = morph.knight_ward_is_equipped
-        expected = False
-        self.assertIs(actual, expected)
         morph.set_knight_ward(False)
-        actual = morph.knight_ward_is_equipped
-        expected = False
-        self.assertIs(actual, expected)
         morph.set_knight_ward(False)
-        actual = morph.knight_ward_is_equipped
-        expected = False
-        self.assertIs(actual, expected)
 
     #@unittest.expectedFailure
-    def test_set_bands__knight_ward_is_equipped_and_inventory_is_full(self):
+    def test_set_bands__inventory_is_full(self):
         """
         Tests that the method fails if the knight-ward is equipped.
         """
@@ -5620,7 +5601,7 @@ class FE9Knight(Morph9TestCase):
         self.assertIn("Knight Ward", morph.equipped_bands)
 
     #@unittest.expectedFailure
-    def test_set_bands__knight_ward_is_equipped_and_inventory_is_not_full(self):
+    def test_set_bands__inventory_is_not_full(self):
         """
         Tests interoperability of methods.
         """
@@ -5768,13 +5749,10 @@ class FE9Knight(Morph9TestCase):
         kieran = self.morph
         with self.assertRaises(KnightWardError):
             kieran.unequip_knight_ward()
-        kieran.equipped_bands = {"Knight Ward": None}
-        kieran.knight_ward_is_equipped = True
-        kieran.unequip_knight_ward()
-        actual = kieran.knight_ward_is_equipped
-        self.assertIs(actual, False)
+        #kieran.equipped_bands = {"Knight Ward": None}
+        expected = {}
         actual = kieran.equipped_bands
-        self.assertDictEqual(actual, {})
+        self.assertDictEqual(actual, expected)
         self.assertEqual(kieran.growth_rates, kieran._og_growth_rates)
 
     def test_equip_knight_ward(self):
@@ -5783,10 +5761,6 @@ class FE9Knight(Morph9TestCase):
         """
         # initialize
         kieran = self.morph
-        # assess state
-        actual = kieran.knight_ward_is_equipped
-        expected = False
-        self.assertIs(actual, expected)
         # attempt to unequip Knight Ward.
         with self.assertRaises(KnightWardError) as err_ctx:
             kieran.unequip_knight_ward()
@@ -5804,9 +5778,6 @@ class FE9Knight(Morph9TestCase):
         with self.assertRaises(KnightWardError) as err_ctx:
             kieran.equip_knight_ward()
         # check state
-        actual = kieran.knight_ward_is_equipped
-        expected = True
-        self.assertIs(actual, expected)
         actual = err_ctx.exception.reason
         expected = KnightWardError.Reason.ALREADY_EQUIPPED
         self.assertEqual(actual, expected)
