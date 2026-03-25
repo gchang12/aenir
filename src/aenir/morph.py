@@ -1184,6 +1184,7 @@ class Morph6(Morph):
     @staticmethod
     def _get_hard_mode_stats():
         """
+        Returns a dict-object containing stats to override with hard-mode values.
         """
         return {
             ("Rutger", None): {
@@ -1363,6 +1364,7 @@ class Morph6(Morph):
 
     def _apply_hard_mode_bonus(self):
         """
+        Updates `current_stats` with Hard Mode stats.
         """
         statdicts = self._get_hard_mode_stats()
         name = self.name
@@ -1600,6 +1602,7 @@ class Morph7(Morph):
     @staticmethod
     def _get_hard_mode_bonus():
         """
+        Returns a dict-object containing stats to override with hard-mode values.
         """
         return {
             "Guy": {
@@ -1669,6 +1672,7 @@ class Morph7(Morph):
 
     def _apply_hard_mode_bonus(self):
         """
+        Updates `current_stats` with Hard Mode stats.
         """
         hard_mode_bonuses = self._get_hard_mode_bonus()
         hard_mode_bonus = hard_mode_bonuses[self.name]
@@ -2058,6 +2062,7 @@ class Morph9(Morph):
     @staticmethod
     def LAGUZ_LIST():
         """
+        Returns a list of Laguz units.
         """
         return (
             #'Ike',
@@ -2275,6 +2280,7 @@ class Morph9(Morph):
 
     def _stage_knight_ward_bonus(self):
         """
+        Appends 'Knight Ward' to `equipped_bands`.
         """
         band_name = "Knight Ward"
         stat_dict = self.Stats.get_stat_dict(0)
@@ -2405,7 +2411,6 @@ class Morph9(Morph):
         """
         """
         raise NotImplementedError
-
 
     # TODO: Implement at one point or another.
     def equip_demi_band(self):
