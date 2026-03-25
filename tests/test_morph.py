@@ -3238,6 +3238,14 @@ class FE6Rutger(Morph6TestCase):
         rutger = Morph6("Rutger", hard_mode=False)
         rutger._apply_hard_mode_bonus()
 
+    def test_apply_hard_mode_bonus_is_called(self):
+        """
+        Checks that apply_hard_mode_bonus is called when hard_mode=True
+        """
+        with patch("aenir.morph.Morph6._apply_hard_mode_bonus") as MOCK_commit:
+            get_morph(6, "Rutger", hard_mode=True)
+        MOCK_commit.assert_called_once_with()
+
 class FE6Roy(Morph6TestCase):
     """
     Conduct series of tests with FE6!Roy as subject.
@@ -3411,7 +3419,7 @@ class FE6Hugh(Morph6TestCase):
 
     def test_hugh__number_of_declines0(self):
         """
-        Validate own helper function. (TODO: Consider deleting.)
+        Validate own helper function.
         """
         number_of_declines = 0
         morph = Morph6("Hugh", number_of_declines=number_of_declines)
@@ -4659,7 +4667,9 @@ class FE8Ross(Morph8TestCase):
         morph = Morph8("Ross")
         morph.level_up(9)
         morph.promote(promo_cls="Pirate")
-        # TODO: Assert current_cls value
+        actual = morph.current_cls
+        expected = "Pirate"
+        self.assertEqual(actual, expected)
 
     def test_get_promotion_item__ross(self):
         """
@@ -6204,6 +6214,14 @@ class FE7HarkenHM(unittest.TestCase):
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
 
+    def test_apply_hard_mode_bonus_is_called(self):
+        """
+        Checks that apply_hard_mode_bonus is called when hard_mode=True
+        """
+        with patch("aenir.morph.Morph7._apply_hard_mode_bonus") as MOCK_commit:
+            get_morph(7, "Harken", hard_mode=True)
+        MOCK_commit.assert_called_once_with()
+
 class FE6CathHM(unittest.TestCase):
     """
     FE6 Cath
@@ -6272,6 +6290,14 @@ class FE6CathHM(unittest.TestCase):
         }
         actual = err.init_params
         self.assertDictEqual(actual, expected)
+
+    def test_apply_hard_mode_bonus_is_called(self):
+        """
+        Checks that apply_hard_mode_bonus is called when hard_mode=True
+        """
+        with patch("aenir.morph.Morph6._apply_hard_mode_bonus") as MOCK_commit:
+            get_morph(6, "Cath", hard_mode=True, chapter="20")
+        MOCK_commit.assert_called_once_with()
 
 class FE6TateHM(unittest.TestCase):
     """
@@ -6362,6 +6388,14 @@ class FE6TateHM(unittest.TestCase):
         #with self.assertRaises(InitError) as err_ctx:
         get_morph(6, "Tate", hard_mode=hard_mode, chapter=None)
 
+    def test_apply_hard_mode_bonus_is_called(self):
+        """
+        Checks that apply_hard_mode_bonus is called when hard_mode=True
+        """
+        with patch("aenir.morph.Morph6._apply_hard_mode_bonus") as MOCK_commit:
+            get_morph(6, "Tate", hard_mode=True, chapter="10B")
+        MOCK_commit.assert_called_once_with()
+
 class FE6PercivalHM(unittest.TestCase):
     """
     FE6 Percival.
@@ -6390,6 +6424,14 @@ class FE6PercivalHM(unittest.TestCase):
             "hard_mode": (False, True),
         }
         self.assertDictEqual(actual, expected)
+
+    def test_apply_hard_mode_bonus_is_called(self):
+        """
+        Checks that apply_hard_mode_bonus is called when hard_mode=True
+        """
+        with patch("aenir.morph.Morph6._apply_hard_mode_bonus") as MOCK_commit:
+            get_morph(6, "Percival", hard_mode=True, chapter="13")
+        MOCK_commit.assert_called_once_with()
 
 class FE6FirHM(unittest.TestCase):
     """
