@@ -1,4 +1,4 @@
-Class,HP,Str,Mag,Skl,Spd,Def,Res
+Class,HP,Str,Mag,Skl,Spd,Lck,Def,Res
 Cat (F),70,32,20,38,39,40,32,30
 Tiger,75,37,20,37,37,40,35,27
 Heron (M),60,10,25,20,30,40,16,40
