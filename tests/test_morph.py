@@ -6432,7 +6432,6 @@ class FE6FirHM(unittest.TestCase):
         }
         self.assertDictEqual(actual, expected)
 
-'''
 class FE9LaguzUnit(unittest.TestCase):
     """
     """
@@ -6474,6 +6473,9 @@ class FE9LaguzUnit(unittest.TestCase):
         morph.transform()
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
+        actual = morph.current_cls
+        expected = "Cat (F)"
+        self.assertEqual(actual, expected)
         morph.revert()
         expected["Str"] -= 6_00
         expected["Skl"] -= 4_00
@@ -6484,12 +6486,13 @@ class FE9LaguzUnit(unittest.TestCase):
         expected["Mov"] -= 2_00
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
+        expected = "Beast tribe (Cat)"
+        self.assertEqual(actual, expected)
 
     def test_transform__and__revert__with_demi_band(self):
         """
         """
         morph = self.morph
-        morph.equip_demi_band()
         expected = {
             "HP": 34_00,
             "Str": 12_00,
@@ -6505,6 +6508,7 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
         # Str+6, Skl+4, Spd+3, Def+5, Res+3, Con+15, Mov+2
+        # Transform
         expected["Str"] += 3_00
         expected["Skl"] += 2_00
         expected["Spd"] += 2_00
@@ -6512,9 +6516,28 @@ class FE9LaguzUnit(unittest.TestCase):
         expected["Res"] += 2_00
         expected["Con"] += 8_00
         expected["Mov"] += 1_00
-        morph.transform()
+        morph.equip_demi_band()
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
+        actual = morph.current_cls
+        expected = "Cat (F)"
+        self.assertEqual(actual, expected)
+        # Revert
+        expected["Str"] -= 3_00
+        expected["Skl"] -= 2_00
+        expected["Spd"] -= 2_00
+        expected["Def"] -= 3_00
+        expected["Res"] -= 2_00
+        expected["Con"] -= 8_00
+        expected["Mov"] -= 1_00
+        morph.unequip_demi_band()
+        actual = morph.current_stats.as_dict()
+        self.assertDictEqual(actual, expected)
+        actual = morph.current_cls
+        expected = "Beast tribe (Cat)"
+        self.assertEqual(actual, expected)
+
+        '''
         with self.assertRaises(TransformationError) as err_ctx:
             morph.revert()
         err = err_ctx.exception
@@ -6524,22 +6547,17 @@ class FE9LaguzUnit(unittest.TestCase):
         # assure self that stats remain the same.
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
-
-    def test_equip_demi_band(self):
-        """
-        """
-        morph = self.morph
-        morph.equip_demi_band()
-        self.assertIn("Demi Band", morph.equipped_bands)
-        actual = morph.is_transformed
-        expected = False
-        self.assertIs(actual, expected)
+        '''
 
     def test_equip_demi_band__again(self):
         """
         """
         morph = self.morph
         morph.equip_demi_band()
+        self.assertIn("Demi Band", morph.equipped_bands)
+        actual = morph.is_transformed
+        expected = True
+        self.assertIs(actual, expected)
         with self.assertRaises(DemiBandError) as err_ctx:
             morph.equip_demi_band()
         err = err_ctx.exception
@@ -6596,7 +6614,7 @@ class FE9BeorcUnit(unittest.TestCase):
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
-        with self.assertRaises(DemiBandError) as err_ctx:
+        with self.assertRaises(TransformationError) as err_ctx:
             morph.equip_demi_band()
         err = err_ctx.exception
         actual = err.reason
@@ -6609,13 +6627,10 @@ class FE9BeorcUnit(unittest.TestCase):
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
-        with self.assertRaises(DemiBandError) as err_ctx:
+        with self.assertRaises(TransformationError) as err_ctx:
             morph.unequip_demi_band()
         err = err_ctx.exception
         actual = err.reason
         expected = TransformationError.Reason.NOT_A_LAGUZ
         self.assertEqual(actual, expected)
-        actual = morph.equipped_bands
-        expected = []
-        self.assertListEqual(actual, expected)
-'''
+        self.assertNotIn("Demi Band", morph.equipped_bands)
