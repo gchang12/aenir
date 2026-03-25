@@ -36,6 +36,8 @@ from aenir._exceptions import (
     GrowthsItemError,
     KnightWardError,
     InitError,
+    TransformationError,
+    DemiBandError,
 )
 from aenir._logging import logger
 
@@ -2403,11 +2405,49 @@ class Morph9(Morph):
         self.equipped_bands.update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
-    # TODO: Implement at one point or another.
+    # TODO: Optimize
     def transform(self):
         """
         """
-        raise NotImplementedError
+        # check to see if operation is valid
+        if self.is_laguz is False:
+            raise TransformationError(
+                reason=TransformationError.Reason.NOT_A_LAGUZ,
+            )
+        if self.is_transformed is True:
+            raise TransformationError(
+                reason=TransformationError.Reason.ALREADY_TRANSFORMED,
+            )
+        # execute operation
+        path_to_db = self.path_to("cleaned_stats.db")
+        stat_list = list(self.Stats.STAT_LIST())
+        statdict0 = self.Stats.get_stat_dict(0)
+        # get bonus
+        table = "transformation_bonus"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=["Class"] + stat_list,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        bonus = dict(resultset)
+        # get maxes
+        table = "transformation_maxes"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=["Class"] + stat_list,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        maxes = dict(resultset)
+        max_statdict = statdict0.copy()
+        max_statdict.update(maxes)
+        # update attributes
+        self.max_stats = self.Stats(multiplier=100, **max_statdict)
+        bonus_statdict = statdict0.copy()
+        bonus_statdict.update(bonus)
+        self.current_stats += self.Stats(multiplier=100, **bonus_statdict)
+        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
 
     # TODO: Implement at one point or another.
     def revert(self):

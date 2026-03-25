@@ -6592,6 +6592,29 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = err.reason
         expected = DemiBandError.Reason.ALREADY_EQUIPPED
 
+    def test_transform_again(self):
+        """
+        Tests to see what happens if someone tries to transform again.
+        """
+        morph = self.morph
+        morph.transform()
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.transform()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.ALREADY_TRANSFORMED
+
+    def test_revert_again(self):
+        """
+        Tests to see what happens if someone tries to revert again.
+        """
+        morph = self.morph
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.revert()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_TRANSFORMED
+
 class FE9BeorcUnit(unittest.TestCase):
     """
     FE9 Titania
