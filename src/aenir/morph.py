@@ -2387,21 +2387,33 @@ class Morph9(Morph):
                 equipped_bands=tuple(self.equipped_bands),
             )
         # validate bands to equip
-        if not set(bands).issubset(set(self.band_dict).union(["Knight Ward"])):
-            valid_bands = {band_name: (band_name not in self.equipped_bands) for band_name in self.band_dict}
-            valid_bands['Knight Ward'] = (None if self.is_knight is False else "Knight Ward" not in self.equipped_bands)
+        if not set(bands).issubset(set(self.band_dict).union(["Knight Ward", "Demi Band"])):
+            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
+            valid_bands['Knight Ward'] = (None if self.is_knight is False else "Knight Ward" in self.equipped_bands)
+            valid_bands['Demi Band'] = (None if self.is_laguz is False else "Demi Band" in self.equipped_bands)
             raise BandError(
                 "A band in the selection was not found.",
                 reason=BandError.Reason.NOT_FOUND,
                 valid_bands=valid_bands,
             )
         # simulate equipping
-        self.equipped_bands.clear()
+        equipped_bands = self.equipped_bands.copy()
         try:
             bands.pop(bands.index("Knight Ward"))
-            self._stage_knight_ward_bonus()
-        except ValueError as err:
+            self.equip_knight_ward()
+        except ValueError:
             pass
+        except KnightWardError as err:
+            self.equipped_bands = equipped_bands
+            raise err
+        try:
+            bands.pop(bands.index("Demi Band"))
+            self.equip_demi_band()
+        except ValueError:
+            pass
+        except DemiBandError as err:
+            self.equipped_bands = equipped_bands
+            raise err
         self.equipped_bands.update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
