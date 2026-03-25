@@ -1,0 +1,13 @@
+Name,Class,HP,Str,Mag,Skl,Spd,Def,Res,Con,Mov,Wt
+Lethe,Cat (F),0,6,0,4,3,5,3,15,2,0
+Mordecai,Tiger,0,7,0,4,3,3,3,15,2,0
+Muarim,Tiger,0,7,0,4,3,3,3,15,2,0
+Reyson,Heron (M),0,0,5,3,4,1,5,6,3,0
+Janaff,Hawk,0,6,0,5,3,4,2,10,2,0
+Ulki,Hawk,0,6,0,5,3,4,2,10,2,0
+Ranulf,Cat (M),0,6,0,4,3,5,3,15,2,0
+Ena,Red Dragon (F),0,5,0,4,4,4,5,12,1,0
+Nasir,White Dragon,0,10,0,5,3,5,5,24,1,0
+Tibarn,Hawk (Tibarn),0,7,1,5,3,3,1,8,2,0
+Naesala,Raven (Naesala),0,6,2,4,3,3,3,7,2,0
+Giffca,Lion,0,8,0,4,4,5,3,15,2,0
