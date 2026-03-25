@@ -2176,14 +2176,31 @@ class Morph9(Morph):
         Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        # conditionally determine if unit can equip it
-        # Knights, Generals, horseback Knights, Paladins, Soldiers and Halberdiers only
         self.is_knight = name in self.KNIGHT_LIST()
-        self.is_laguz = name in self.LAGUZ_LIST()
-        # set instance attributes
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
+        self.is_laguz = name in self.LAGUZ_LIST()
+        # for laguz units.
+        if self.is_laguz is True:
+            self.is_transformed = False
+            self.cls_to_transform_to = {
+                "Lethe": "Cat (F)",
+                "Mordecai": "Tiger",
+                "Muarim": "Tiger",
+                "Reyson": "Heron (M)",
+                "Janaff": "Hawk",
+                "Ulki": "Hawk",
+                "Ranulf": "Cat (M)",
+                "Ena": "Red Dragon (F)",
+                "Nasir": "White Dragon",
+                "Tibarn": "Hawk (Tibarn)",
+                "Naesala": "Raven (Naesala)",
+                "Giffca": "Lion",
+            }[self._name]
+        else:
+            self.is_transformed = None
+            self.cls_to_transform_to = None
 
     def _set_min_promo_level(self) -> None:
         """
