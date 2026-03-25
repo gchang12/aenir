@@ -6434,10 +6434,12 @@ class FE6FirHM(unittest.TestCase):
 
 class FE9LaguzUnit(unittest.TestCase):
     """
+    FE9 Lethe
     """
 
     def setUp(self):
         """
+        Initializes morph.
         """
         kwargs = {'game_no': 9, "name": "Lethe"}
         morph = get_morph(**kwargs)
@@ -6445,6 +6447,7 @@ class FE9LaguzUnit(unittest.TestCase):
 
     def test_transform__and__revert(self):
         """
+        Checks stats post- and pre-transformation
         """
         morph = self.morph
         expected = {
@@ -6491,6 +6494,7 @@ class FE9LaguzUnit(unittest.TestCase):
 
     def test_transform__and__revert__with_demi_band(self):
         """
+        Checks stats post- and pre-transformation
         """
         morph = self.morph
         expected = {
@@ -6537,20 +6541,9 @@ class FE9LaguzUnit(unittest.TestCase):
         expected = "Beast tribe (Cat)"
         self.assertEqual(actual, expected)
 
-        '''
-        with self.assertRaises(TransformationError) as err_ctx:
-            morph.revert()
-        err = err_ctx.exception
-        actual = err.reason
-        expected = TransformationError.Reason.DEMI_BAND_IS_EQUIPPED
-        self.assertEqual(actual, expected)
-        # assure self that stats remain the same.
-        actual = morph.current_stats.as_dict()
-        self.assertDictEqual(actual, expected)
-        '''
-
     def test_equip_demi_band__again(self):
         """
+        Checks non-numeric stat attributes.
         """
         morph = self.morph
         morph.equip_demi_band()
@@ -6566,6 +6559,7 @@ class FE9LaguzUnit(unittest.TestCase):
 
     def test_unequip_demi_band__again(self):
         """
+        Asserts that an error's been thrown.
         """
         morph = self.morph
         with self.assertRaises(DemiBandError) as err_ctx:
@@ -6574,12 +6568,38 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = err.reason
         expected = DemiBandError.Reason.NOT_EQUIPPED
 
+    def test_transform__then__unequip_demi_band(self):
+        """
+        Checks that demi-band cannot be unequipped by a transformed unit.
+        """
+        morph = self.morph
+        morph.transform()
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.unequip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = DemiBandError.Reason.NOT_EQUIPPED
+
+    def test_equip_demi_band__then__revert(self):
+        """
+        Checks that 'revert' method fails on units transformed via demi-band.
+        """
+        morph = self.morph
+        morph.equip_demi_band()
+        with self.assertRaises(DemiBandError) as err_ctx:
+            morph.revert()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = DemiBandError.Reason.ALREADY_EQUIPPED
+
 class FE9BeorcUnit(unittest.TestCase):
     """
+    FE9 Titania
     """
 
     def setUp(self):
         """
+        Tests that an error is thrown because the unit isn't a laguz.
         """
         kwargs = {'game_no': 9, "name": "Titania"}
         morph = get_morph(**kwargs)
@@ -6587,6 +6607,7 @@ class FE9BeorcUnit(unittest.TestCase):
 
     def test_transform__not_a_laguz(self):
         """
+        Tests that an error is thrown because the unit isn't a laguz.
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
@@ -6599,6 +6620,7 @@ class FE9BeorcUnit(unittest.TestCase):
 
     def test_revert__not_a_laguz(self):
         """
+        Tests that an error is thrown because the unit isn't a laguz.
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
@@ -6611,6 +6633,7 @@ class FE9BeorcUnit(unittest.TestCase):
 
     def test_equip_demi_band__not_a_laguz(self):
         """
+        Tests that an error is thrown because the unit isn't a laguz.
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
@@ -6624,6 +6647,7 @@ class FE9BeorcUnit(unittest.TestCase):
 
     def test_unequip_demi_band__not_a_laguz(self):
         """
+        Tests that an error is thrown because the unit isn't a laguz.
         """
         # test_revert, test_equip_demi_band, test_unequip_demi_band
         morph = self.morph
@@ -6634,3 +6658,4 @@ class FE9BeorcUnit(unittest.TestCase):
         expected = TransformationError.Reason.NOT_A_LAGUZ
         self.assertEqual(actual, expected)
         self.assertNotIn("Demi Band", morph.equipped_bands)
+

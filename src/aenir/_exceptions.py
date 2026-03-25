@@ -196,17 +196,15 @@ class TransformationError(AenirError):
         NOT_A_LAGUZ = enum.auto()
         ALREADY_TRANFORMED = enum.auto()
         NOT_TRANSFORMED = enum.auto()
-        DEMI_BAND_IS_EQUIPPED = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, laguz: Iterable[str] | None = None):
+    def __init__(self, msg: str, reason: Reason):
         """
         Initialize 'reason' attribute.
         """
         super().__init__(msg)
         self.reason = reason
-        self.laguz = laguz
 
-class DemiBandError(AenirError):
+class DemiBandError(TransformationError):
     """
     To be raised if an error occurred while trying to equip the Demi Band in FE9.
     """
@@ -215,17 +213,15 @@ class DemiBandError(AenirError):
         """
         Declares all reasons why a unit wouldn't be able to equip the Demi Band.
         """
-        NOT_A_LAGUZ = enum.auto()
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
 
-    def __init__(self, msg: str, reason: Reason, *, laguz: Iterable[str] | None = None):
+    def __init__(self, msg: str, reason: Reason):
         """
         Initialize 'reason' attribute.
         """
         super().__init__(msg)
         self.reason = reason
-        self.laguz = laguz
 
 class KnightWardError(AenirError):
     """
