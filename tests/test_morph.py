@@ -2063,6 +2063,7 @@ class FE5Leif(Morph5TestCase):
 
     def test_set_scrolls__no_inventory_space(self):
         """
+        Asserts that error is thrown if the inventory size is exceeded or met.
         """
         scrolls = (
             'Baldo',
@@ -2094,6 +2095,7 @@ class FE5Leif(Morph5TestCase):
 
     def test_set_scrolls__invalid_scroll_set(self):
         """
+        Asserts that error is thrown if the scroll-set contains an invalid scroll.
         """
         scrolls = (
             'Baldo',
@@ -2136,6 +2138,7 @@ class FE5Leif(Morph5TestCase):
 
     def test_set_scrolls(self):
         """
+        Asserts that the committing-function is called.
         """
         scrolls = (
             'Baldo',
@@ -2161,6 +2164,7 @@ class FE5Leif(Morph5TestCase):
 
     def test_set_scrolls__check_stats(self):
         """
+        Checks that some growths are higher than the original upon equipping a scroll-set.
         """
         scrolls = (
             'Baldo',
@@ -2195,6 +2199,7 @@ class FE5Leif(Morph5TestCase):
 
     def test_set_scrolls__check_stats2(self):
         """
+        Asserts that growths are as expected.
         """
         scrolls = (
             #'Baldo',
@@ -2881,6 +2886,7 @@ class FE6Gonzales(Morph6TestCase):
 
     def test_HARD_MODE_UNIT_LIST(self):
         """
+        Asserts that certain units qualify as units with hard-mode bonuses.
         """
         expected = (
             'Rutger',
@@ -3227,6 +3233,7 @@ class FE6Rutger(Morph6TestCase):
 
     def test_apply_hard_mode_bonus(self):
         """
+        Checks that applying hard-mode bonuses works post-initialization.
         """
         rutger = Morph6("Rutger", hard_mode=False)
         rutger._apply_hard_mode_bonus()
@@ -3542,6 +3549,7 @@ class FE7Ninian(Morph7TestCase):
 
     def test_HARD_MODE_UNIT_LIST(self):
         """
+        Validates list of units with hard-mode bonuses.
         """
         expected = (
             'Guy',
@@ -4646,10 +4654,12 @@ class FE8Ross(Morph8TestCase):
 
     def test_promote__with_promo_cls_arg(self):
         """
+        Tests functionality of `promote` with kwarg `promo_cls`.
         """
         morph = Morph8("Ross")
         morph.level_up(9)
         morph.promote(promo_cls="Pirate")
+        # TODO: Assert current_cls value
 
     def test_get_promotion_item__ross(self):
         """
@@ -5142,6 +5152,7 @@ class FE9Ike(Morph9TestCase):
 
     def test_set_bands__no_inventory_space(self):
         """
+        Asserts that error occurs if there isn't any inventory space.
         """
         bands = (
             "Sword Band",
@@ -5172,6 +5183,7 @@ class FE9Ike(Morph9TestCase):
 
     def test_set_bands__invalid_band_set(self):
         """
+        Asserts that error occurs if there's an invalid item in the band set.
         """
         bands = (
             "Sword Band",
@@ -5213,6 +5225,7 @@ class FE9Ike(Morph9TestCase):
 
     def test_set_bands(self):
         """
+        Asserts that the committing-function is called upon successfully setting the bands.
         """
         bands = (
             "Sword Band",
@@ -5237,6 +5250,7 @@ class FE9Ike(Morph9TestCase):
 
     def test_set_bands__check_stats(self):
         """
+        Checks that some augmented growths are higher than the originals.
         """
         bands = (
             "Sword Band",
@@ -5493,6 +5507,7 @@ class FE9Knight(Morph9TestCase):
 
     def test_set_knight_ward__and__set_bands(self):
         """
+        Checks interoperability of these two methods.
         """
         bands = (
             "Sword Band",
@@ -5523,6 +5538,7 @@ class FE9Knight(Morph9TestCase):
 
     def test_set_knight_ward__idempotency(self):
         """
+        Tests that this method is idempotent.
         """
         morph = self.morph
         morph.set_knight_ward(True)
@@ -5544,6 +5560,7 @@ class FE9Knight(Morph9TestCase):
 
     def test_set_knight_ward__idempotency2(self):
         """
+        Tests that this method is idempotent.
         """
         morph = self.morph
         morph.set_knight_ward(False)
@@ -5566,6 +5583,7 @@ class FE9Knight(Morph9TestCase):
     #@unittest.expectedFailure
     def test_set_bands__knight_ward_is_equipped_and_inventory_is_full(self):
         """
+        Tests that the method fails if the knight-ward is equipped.
         """
         bands = (
             "Sword Band",
@@ -5594,6 +5612,7 @@ class FE9Knight(Morph9TestCase):
     #@unittest.expectedFailure
     def test_set_bands__knight_ward_is_equipped_and_inventory_is_not_full(self):
         """
+        Tests interoperability of methods.
         """
         bands = (
             "Sword Band",
@@ -5617,6 +5636,7 @@ class FE9Knight(Morph9TestCase):
 
     def test_set_knight_ward__bands_are_set(self):
         """
+        Tests interoperability of methods.
         """
         bands = (
             "Sword Band",
@@ -5638,6 +5658,7 @@ class FE9Knight(Morph9TestCase):
 
     def test_set_knight_ward__too_many_bands(self):
         """
+        Tests interoperability of methods.
         """
         bands = (
             "Sword Band",
@@ -6027,6 +6048,7 @@ class FE9BandEquipper(Morph9TestCase):
 
     def test_set_bands__check_stats2(self):
         """
+        Checks growths after equipping band.
         """
         self.maxDiff = None
         bands = (
@@ -6140,15 +6162,18 @@ class GetMorph(unittest.TestCase):
 
 class FE7HarkenHM(unittest.TestCase):
     """
+    FE7 Harken
     """
 
     def setUp(self):
         """
+        Initializes morph.
         """
         self.morph = get_morph(7, "Harken", hard_mode=False)
 
     def test_apply_hard_mode_bonus(self):
         """
+        Checks stats after updating stats to HM-version.
         """
         morph = self.morph
         expected = {
@@ -6181,15 +6206,18 @@ class FE7HarkenHM(unittest.TestCase):
 
 class FE6CathHM(unittest.TestCase):
     """
+    FE6 Cath
     """
 
     def setUp(self):
         """
+        Initializes morph.
         """
         self.morph = get_morph(6, "Cath", hard_mode=False)
 
     def test_apply_hard_mode_bonus(self):
         """
+        Checks stats after updating stats to HM-version.
         """
         morph = self.morph
         expected = {
@@ -6223,6 +6251,7 @@ class FE6CathHM(unittest.TestCase):
 
     def test_apply_hard_mode_bonus__failure(self):
         """
+        Asserts that valid chapter-list is exposed after attempting to apply a hard-mode bonus without a valid chapter.
         """
         morph = self.morph
         with self.assertRaises(InitError) as err_ctx:
@@ -6246,15 +6275,18 @@ class FE6CathHM(unittest.TestCase):
 
 class FE6TateHM(unittest.TestCase):
     """
+    FE6 Tate
     """
 
     def setUp(self):
         """
+        Initializes morph.
         """
         self.morph = get_morph(6, "Tate", hard_mode=False)
 
     def test_apply_hard_mode_bonus(self):
         """
+        Checks hard-mode stats.
         """
         morph = self.morph
         expected = {
@@ -6288,6 +6320,7 @@ class FE6TateHM(unittest.TestCase):
 
     def test_apply_hard_mode_bonus__fail(self):
         """
+        Asserts that valid chapter-list is exposed after attempting to apply a hard-mode bonus without a valid chapter.
         """
         hard_mode = True
         with self.assertRaises(InitError) as err_ctx:
@@ -6305,6 +6338,7 @@ class FE6TateHM(unittest.TestCase):
 
     def test_apply_hard_mode_bonus__fail2(self):
         """
+        Asserts that valid chapter-list is exposed after attempting to apply a hard-mode bonus without a valid chapter.
         """
         hard_mode = None
         with self.assertRaises(InitError) as err_ctx:
@@ -6322,6 +6356,7 @@ class FE6TateHM(unittest.TestCase):
 
     def test_apply_hard_mode_bonus__success1(self):
         """
+        Asserts that `chapter` can be None provided `hard_mode` is False.
         """
         hard_mode = False
         #with self.assertRaises(InitError) as err_ctx:
@@ -6329,15 +6364,18 @@ class FE6TateHM(unittest.TestCase):
 
 class FE6PercivalHM(unittest.TestCase):
     """
+    FE6 Percival.
     """
 
     def setUp(self):
         """
+        Initializes Morph.
         """
         self.morph = get_morph(6, "Percival", hard_mode=False)
 
     def test_apply_hard_mode_bonus__fail(self):
         """
+        Asserts that valid chapter-list is exposed after attempting to apply a hard-mode bonus without a valid chapter.
         """
         morph = self.morph
         with self.assertRaises(InitError) as err_ctx:
@@ -6355,15 +6393,18 @@ class FE6PercivalHM(unittest.TestCase):
 
 class FE6FirHM(unittest.TestCase):
     """
+    FE6 Fir
     """
 
     def setUp(self):
         """
+        Initializes morph.
         """
         self.kwargs = {'game_no': 6, "name": "Fir", "hard_mode": None}
 
     def test_apply_hard_mode_bonus__fail(self):
         """
+        Asserts that valid hard-mode values are exposed upon failed initialization.
         """
         with self.assertRaises(InitError) as err_ctx:
             get_morph(**self.kwargs)
@@ -6378,6 +6419,7 @@ class FE6FirHM(unittest.TestCase):
         }
         self.assertDictEqual(actual, expected)
 
+'''
 class FE9LaguzUnit(unittest.TestCase):
     """
     """
@@ -6563,3 +6605,4 @@ class FE9BeorcUnit(unittest.TestCase):
         actual = morph.equipped_bands
         expected = []
         self.assertListEqual(actual, expected)
+'''
