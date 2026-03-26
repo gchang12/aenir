@@ -194,7 +194,7 @@ class TransformationError(AenirError):
         Declares all reasons why a unit wouldn't be able to transform or revert.
         """
         NOT_A_LAGUZ = enum.auto()
-        ALREADY_TRANFORMED = enum.auto()
+        ALREADY_TRANSFORMED = enum.auto()
         NOT_TRANSFORMED = enum.auto()
 
     def __init__(self, msg: str, reason: Reason):

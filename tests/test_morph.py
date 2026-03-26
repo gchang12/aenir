@@ -5218,18 +5218,19 @@ class FE9Ike(Morph9TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_bands
         expected = {
-            "Sword Band": True,
-            "Soldier Band": True,
-            "Fighter Band": True,
-            "Archer Band": True,
-            "Knight Band": True,
-            "Paladin Band": True,
-            "Pegasus Band": True,
-            "Wyvern Band": True,
-            "Mage Band": True,
-            "Priest Band": True,
-            "Thief Band": True,
+            "Sword Band": False,
+            "Soldier Band": False,
+            "Fighter Band": False,
+            "Archer Band": False,
+            "Knight Band": False,
+            "Paladin Band": False,
+            "Pegasus Band": False,
+            "Wyvern Band": False,
+            "Mage Band": False,
+            "Priest Band": False,
+            "Thief Band": False,
             "Knight Ward": None,
+            "Demi Band": None,
         }
         self.assertDictEqual(actual, expected)
 
@@ -5614,7 +5615,7 @@ class FE9Knight(Morph9TestCase):
             "Paladin Band",
             "Pegasus Band",
             #
-            "Knight Ward",
+            #"Knight Ward",
             #"Wyvern Band",
             #"Mage Band",
             #"Priest Band",
@@ -5623,7 +5624,7 @@ class FE9Knight(Morph9TestCase):
         morph = self.morph
         morph.equip_knight_ward()
         morph.set_bands(bands)
-        self.assertSetEqual(set(bands).union(set(["Knight Ward"])), set(morph.equipped_bands))
+        self.assertSetEqual(set(bands), set(morph.equipped_bands))
 
     def test_set_knight_ward__bands_are_set(self):
         """
@@ -6508,6 +6509,7 @@ class FE9LaguzUnit(unittest.TestCase):
             "Res": 7_00,
             "Mov": 7_00,
             "Con": 6_00,
+            "Wt": 21_00,
         }
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)

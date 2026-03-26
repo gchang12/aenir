@@ -2398,6 +2398,7 @@ class Morph9(Morph):
             )
         # simulate equipping
         equipped_bands = self.equipped_bands.copy()
+        self.equipped_bands.clear()
         try:
             bands.pop(bands.index("Knight Ward"))
             self.equip_knight_ward()
@@ -2424,31 +2425,54 @@ class Morph9(Morph):
         # check to see if operation is valid
         if self.is_laguz is False:
             raise TransformationError(
+                f"{self.name} is not a laguz and cannot transform.",
                 reason=TransformationError.Reason.NOT_A_LAGUZ,
             )
         if self.is_transformed is True:
             raise TransformationError(
+                f"{self.name} is already transformed.",
                 reason=TransformationError.Reason.ALREADY_TRANSFORMED,
             )
         # execute operation
         path_to_db = self.path_to("cleaned_stats.db")
-        stat_list = list(self.Stats.STAT_LIST())
+        stat_list = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Def",
+            "Res",
+            "Con",
+            "Mov",
+            "Wt",
+        )
         statdict0 = self.Stats.get_stat_dict(0)
         # get bonus
         table = "transformation_bonus"
         resultset = self.query_db(
             path_to_db,
             table,
-            fields=["Class"] + stat_list,
+            fields=stat_list,
             filters={"Class": self.cls_to_transform_to},
         ).fetchone()
         bonus = dict(resultset)
         # get maxes
+        stat_list2 = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+        )
         table = "transformation_maxes"
         resultset = self.query_db(
             path_to_db,
             table,
-            fields=["Class"] + stat_list,
+            fields=stat_list2,
             filters={"Class": self.cls_to_transform_to},
         ).fetchone()
         maxes = dict(resultset)
@@ -2460,6 +2484,7 @@ class Morph9(Morph):
         bonus_statdict.update(bonus)
         self.current_stats += self.Stats(multiplier=100, **bonus_statdict)
         self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
+        self.is_transformed = True
 
     # TODO: Implement at one point or another.
     def revert(self):
