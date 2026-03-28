@@ -1,5 +1,5 @@
 ## The following requirements were added by pip freeze:
--e git+https://github.com/gchang12/aenir.git@99cf7463e47e5592c7b292cc36463b5c5750b5a4#egg=aenir
+-e git+https://github.com/gchang12/aenir.git@49d362208ba61929a443f4e11b0225dbf37d4b44#egg=aenir
 cachetools==7.0.1
 certifi==2026.1.4
 cffi==2.0.0
@@ -12,35 +12,28 @@ docutils==0.22.4
 filelock==3.20.3
 id==1.6.1
 idna==3.11
-iniconfig==2.3.0
 jaraco.classes==3.4.0
 jaraco.context==6.1.0
 jaraco.functools==4.4.0
 jeepney==0.9.0
 keyring==25.7.0
-librt==0.8.1
 markdown-it-py==4.0.0
 mdurl==0.1.2
 more-itertools==10.8.0
-mypy==1.19.1
-mypy_extensions==1.1.0
 nh3==0.3.2
 packaging==26.0
-pathspec==1.0.4
 platformdirs==4.5.1
 pluggy==1.6.0
 pycparser==3.0
 Pygments==2.19.2
 pyproject-api==1.10.0
-pytest==9.0.2
 readme_renderer==44.0
-requests==2.32.5
+requests==2.33.0
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
 rich==14.3.2
 SecretStorage==3.5.0
 tox==4.34.1
 twine==6.2.0
-typing_extensions==4.15.0
 urllib3==2.6.3
 virtualenv==20.36.1
