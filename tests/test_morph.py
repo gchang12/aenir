@@ -6616,6 +6616,32 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = err.reason
         expected = TransformationError.Reason.NOT_TRANSFORMED
 
+    def test_transform__then__equip_demiband(self):
+        """
+        Demonstrates what happens when one transforms, then tries once more via Demi Band.
+        """
+        morph = self.morph
+        morph.transform()
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.equip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.ALREADY_TRANSFORMED
+
+    def test_revert__then__unequip_demi_band(self):
+        """
+        Demonstrates what happens when tries to revert via Demi Band when already reverted.
+        """
+        morph = self.morph
+        #morph.transform()
+        #morph.revert()
+        morph.equipped_bands["Demi Band"] = None
+        with self.assertRaises(TransformationError) as err_ctx:
+            morph.unequip_demi_band()
+        err = err_ctx.exception
+        actual = err.reason
+        expected = TransformationError.Reason.NOT_TRANSFORMED
+
 class FE9AllLaguzUnits(unittest.TestCase):
     """
     All FE9 Laguz Units.
@@ -6629,6 +6655,7 @@ class FE9AllLaguzUnits(unittest.TestCase):
 
     def test_transform__and__revert(self):
         """
+        Tests the transform and revert methods for all laguz units.
         """
         for laguz_name in self.laguz_list:
             morph = get_morph(9, laguz_name)
@@ -6637,6 +6664,7 @@ class FE9AllLaguzUnits(unittest.TestCase):
 
     def test_transform__and__revert__demi_band(self):
         """
+        Tests the transform and revert methods with Demi Band for all laguz units.
         """
         for laguz_name in self.laguz_list:
             morph = get_morph(9, laguz_name)

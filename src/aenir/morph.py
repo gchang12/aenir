@@ -2432,9 +2432,9 @@ class Morph9(Morph):
         self.equipped_bands.update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
-    # TODO: Optimize
     def transform(self):
         """
+        Simulates transformation for laguz units.
         """
         # check to see if operation is valid
         if self.is_laguz is False:
@@ -2500,9 +2500,9 @@ class Morph9(Morph):
         self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
         self.is_transformed = True
 
-    # TODO: Implement at one point or another.
     def revert(self):
         """
+        Simulates reversions for laguz units.
         """
         #raise NotImplementedError
         # check to see if operation is valid
@@ -2579,6 +2579,7 @@ class Morph9(Morph):
     @staticmethod
     def roundup_stats(dictlike: dict[str, int]):
         """
+        Rounds up stat-values of a given dict-like object.
         """
         for stat, value in dictlike.items():
             if value % 2 == 0:
@@ -2587,9 +2588,9 @@ class Morph9(Morph):
                 new_value = int(value / 2) + 1
             dictlike[stat] = new_value
 
-    # TODO: Implement at one point or another.
     def equip_demi_band(self):
         """
+        Simulates transformation via Demi Band.
         """
         # check to see if operation is valid
         if self.is_laguz is False:
@@ -2601,6 +2602,11 @@ class Morph9(Morph):
             raise DemiBandError(
                 f"The Demi Band is already equipped.",
                 reason=DemiBandError.Reason.ALREADY_EQUIPPED,
+            )
+        if self.is_transformed is True:
+            raise TransformationError(
+                f"{self.name} cannot transform again.",
+                reason=TransformationError.Reason.ALREADY_TRANSFORMED,
             )
         # execute operation
         path_to_db = self.path_to("cleaned_stats.db")
@@ -2660,6 +2666,7 @@ class Morph9(Morph):
     # TODO: Implement at one point or another.
     def unequip_demi_band(self):
         """
+        Simulates reversion via Demi Band.
         """
         #raise NotImplementedError
         # check to see if operation is valid
@@ -2672,6 +2679,11 @@ class Morph9(Morph):
             raise DemiBandError(
                 f"The Demi Band is already unequipped.",
                 reason=DemiBandError.Reason.NOT_EQUIPPED,
+            )
+        if self.is_transformed is False:
+            raise TransformationError(
+                f"{self.name} is already reverted.",
+                reason=TransformationError.Reason.NOT_TRANSFORMED,
             )
         # execute operation
         path_to_db = self.path_to("cleaned_stats.db")
