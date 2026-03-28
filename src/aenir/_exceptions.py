@@ -215,13 +215,14 @@ class DemiBandError(TransformationError):
         """
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
+        NOT_A_LAGUZ = enum.auto()
 
     def __init__(self, msg: str, reason: Reason):
         """
         Initialize 'reason' attribute.
         """
-        super().__init__(msg)
-        self.reason = reason
+        super().__init__(msg, reason)
+        #self.reason = reason
 
 class KnightWardError(AenirError):
     """

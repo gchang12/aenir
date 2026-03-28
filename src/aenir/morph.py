@@ -2200,6 +2200,20 @@ class Morph9(Morph):
                 "Naesala": "Raven (Naesala)",
                 "Giffca": "Lion",
             }[self._name]
+            self.current_cls = {
+                "Lethe": "Beast tribe (Cat F)",
+                "Mordecai": "Beast tribe (Tiger)",
+                "Muarim": "Beast tribe (Tiger)",
+                "Reyson": "Bird tribe (Heron M)",
+                "Janaff": "Bird tribe (Hawk)",
+                "Ulki": "Bird tribe (Hawk)",
+                "Ranulf": "Beast tribe (Cat M)",
+                "Ena": "Dragon tribe (Red F)",
+                "Nasir": "Dragon tribe (White)",
+                "Tibarn": "Bird tribe (Tibarn)",
+                "Naesala": "Bird tribe (Naesala)",
+                "Giffca": "Beast tribe (Lion)",
+            }[self._name]
         else:
             self.is_transformed = None
             self.cls_to_transform_to = None
@@ -2490,19 +2504,229 @@ class Morph9(Morph):
     def revert(self):
         """
         """
-        raise NotImplementedError
+        #raise NotImplementedError
+        # check to see if operation is valid
+        if self.is_laguz is False:
+            raise TransformationError(
+                f"{self.name} is not a laguz and cannot transform.",
+                reason=TransformationError.Reason.NOT_A_LAGUZ,
+            )
+        if self.is_transformed is False:
+            raise TransformationError(
+                f"{self.name} is already transformed.",
+                reason=TransformationError.Reason.ALREADY_TRANSFORMED,
+            )
+        if "Demi Band" in self.equipped_bands:
+            raise DemiBandError(
+                f"f{self.name} cannot revert with the Demi Band equipped. Try the 'unequip_demi_band' function.",
+                reason=DemiBandError.Reason.ALREADY_EQUIPPED,
+            )
+        # execute operation
+        path_to_db = self.path_to("cleaned_stats.db")
+        stat_list = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Def",
+            "Res",
+            "Con",
+            "Mov",
+            "Wt",
+        )
+        statdict0 = self.Stats.get_stat_dict(0)
+        # get bonus
+        logger.debug("current_cls: %r", self.current_cls)
+        logger.debug("cls_to_transform_to: %r", self.cls_to_transform_to)
+        table = "transformation_bonus"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list,
+            filters={"Class": self.current_cls},
+        ).fetchone()
+        bonus = dict(resultset)
+        # get maxes
+        stat_list2 = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+        )
+        table = "classes__maximum_stats0"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list2,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        maxes = dict(resultset)
+        max_statdict = statdict0.copy()
+        max_statdict.update(maxes)
+        # update attributes
+        self.max_stats = self.Stats(multiplier=100, **max_statdict)
+        bonus_statdict = statdict0.copy()
+        bonus_statdict.update(bonus)
+        self.current_stats += self.Stats(multiplier=-100, **bonus_statdict)
+        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
+        self.is_transformed = False
+
+    @staticmethod
+    def roundup_stats(dictlike: dict[str, int]):
+        """
+        """
+        for stat, value in dictlike.items():
+            if value % 2 == 0:
+                new_value = int(value / 2)
+            else:
+                new_value = int(value / 2) + 1
+            dictlike[stat] = new_value
 
     # TODO: Implement at one point or another.
     def equip_demi_band(self):
         """
         """
-        raise NotImplementedError
+        # check to see if operation is valid
+        if self.is_laguz is False:
+            raise DemiBandError(
+                f"{self.name} is not a laguz and cannot transform.",
+                reason=DemiBandError.Reason.NOT_A_LAGUZ,
+            )
+        if "Demi Band" in self.equipped_bands:
+            raise DemiBandError(
+                f"The Demi Band is already equipped.",
+                reason=DemiBandError.Reason.ALREADY_EQUIPPED,
+            )
+        # execute operation
+        path_to_db = self.path_to("cleaned_stats.db")
+        stat_list = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Def",
+            "Res",
+            "Con",
+            "Mov",
+            "Wt",
+        )
+        statdict0 = self.Stats.get_stat_dict(0)
+        # get bonus
+        table = "transformation_bonus"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        bonus = dict(resultset)
+        self.roundup_stats(bonus)
+        # get maxes
+        stat_list2 = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+        )
+        table = "transformation_maxes"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list2,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        maxes = dict(resultset)
+        max_statdict = statdict0.copy()
+        max_statdict.update(maxes)
+        # update attributes
+        self.max_stats = self.Stats(multiplier=100, **max_statdict)
+        bonus_statdict = statdict0.copy()
+        bonus_statdict.update(bonus)
+        self.current_stats += self.Stats(multiplier=100, **bonus_statdict)
+        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
+        self.is_transformed = True
+        self.equipped_bands["Demi Band"] = self.Stats(**self.Stats.get_stat_dict(0))
 
     # TODO: Implement at one point or another.
     def unequip_demi_band(self):
         """
         """
-        raise NotImplementedError
+        #raise NotImplementedError
+        # check to see if operation is valid
+        if self.is_laguz is False:
+            raise DemiBandError(
+                f"{self.name} is not a laguz and cannot transform.",
+                reason=DemiBandError.Reason.NOT_A_LAGUZ,
+            )
+        if "Demi Band" not in self.equipped_bands:
+            raise DemiBandError(
+                f"The Demi Band is already unequipped.",
+                reason=DemiBandError.Reason.NOT_EQUIPPED,
+            )
+        # execute operation
+        path_to_db = self.path_to("cleaned_stats.db")
+        stat_list = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Def",
+            "Res",
+            "Con",
+            "Mov",
+            "Wt",
+        )
+        statdict0 = self.Stats.get_stat_dict(0)
+        # get bonus
+        table = "transformation_bonus"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list,
+            filters={"Class": self.current_cls},
+        ).fetchone()
+        bonus = dict(resultset)
+        self.roundup_stats(bonus)
+        # get maxes
+        stat_list2 = (
+            "HP",
+            "Str",
+            "Mag",
+            "Skl",
+            "Spd",
+            "Lck",
+            "Def",
+            "Res",
+        )
+        table = "classes__maximum_stats0"
+        resultset = self.query_db(
+            path_to_db,
+            table,
+            fields=stat_list2,
+            filters={"Class": self.cls_to_transform_to},
+        ).fetchone()
+        maxes = dict(resultset)
+        max_statdict = statdict0.copy()
+        max_statdict.update(maxes)
+        # update attributes
+        self.max_stats = self.Stats(multiplier=100, **max_statdict)
+        bonus_statdict = statdict0.copy()
+        bonus_statdict.update(bonus)
+        self.current_stats += self.Stats(multiplier=-100, **bonus_statdict)
+        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
+        self.is_transformed = False
+        self.equipped_bands.pop("Demi Band")
 
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """
@@ -2575,3 +2799,4 @@ Dragon tribe (White) 	White Dragon 	0 	+10 	0 	+5 	+3 	+5 	+5 	+24 	+1 	0
 '''
 
 
+# TODO: Test for all Laguz.
