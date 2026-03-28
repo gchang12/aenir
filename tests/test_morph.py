@@ -6616,6 +6616,33 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = err.reason
         expected = TransformationError.Reason.NOT_TRANSFORMED
 
+class FE9AllLaguzUnits(unittest.TestCase):
+    """
+    All FE9 Laguz Units.
+    """
+
+    def setUp(self):
+        """
+        Initializes list of morphs to initialize.
+        """
+        self.laguz_list = Morph9.LAGUZ_LIST()
+
+    def test_transform__and__revert(self):
+        """
+        """
+        for laguz_name in self.laguz_list:
+            morph = get_morph(9, laguz_name)
+            morph.transform()
+            morph.revert()
+
+    def test_transform__and__revert__demi_band(self):
+        """
+        """
+        for laguz_name in self.laguz_list:
+            morph = get_morph(9, laguz_name)
+            morph.equip_demi_band()
+            morph.unequip_demi_band()
+
 class FE9BeorcUnit(unittest.TestCase):
     """
     FE9 Titania
