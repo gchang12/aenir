@@ -1,12 +1,12 @@
 ## The following requirements were added by pip freeze:
--e git+https://github.com/gchang12/aenir.git@49d362208ba61929a443f4e11b0225dbf37d4b44#egg=aenir
+-e git+https://github.com/gchang12/aenir.git@a77487884c98365ea6dfad8be104b2087fe49755#egg=aenir
 cachetools==7.0.1
 certifi==2026.1.4
 cffi==2.0.0
 chardet==5.2.0
 charset-normalizer==3.4.4
 colorama==0.4.6
-cryptography==46.0.5
+cryptography==46.0.6
 distlib==0.4.0
 docutils==0.22.4
 filelock==3.20.3
@@ -25,7 +25,7 @@ packaging==26.0
 platformdirs==4.5.1
 pluggy==1.6.0
 pycparser==3.0
-Pygments==2.19.2
+Pygments==2.20.0
 pyproject-api==1.10.0
 readme_renderer==44.0
 requests==2.33.0
