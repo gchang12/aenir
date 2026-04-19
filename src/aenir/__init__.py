@@ -20,3 +20,17 @@ finally:
     del version, PackageNotFoundError
 
 from aenir.morph import get_morph
+from aenir._exceptions import (
+    AenirError,
+    UnitNotFoundError,
+    InitError,
+    LevelUpError,
+    PromotionError,
+    StatBoosterError,
+    ScrollError,
+    GrowthsItemError,
+    BandError,
+    TransformationError,
+    DemiBandError,
+    KnightWardError,
+)
