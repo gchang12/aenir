@@ -2663,7 +2663,6 @@ class Morph9(Morph):
         self.is_transformed = True
         self.equipped_bands["Demi Band"] = self.Stats(**self.Stats.get_stat_dict(0))
 
-    # TODO: Implement at one point or another.
     def unequip_demi_band(self):
         """
         Simulates reversion via Demi Band.
@@ -2771,44 +2770,4 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
 # TODO: Fix naming of values.
 # TODO: Print cumulative difference.
 # TODO: Insert footer containing all meta info.
-
-'''
-https://serenesforest.net/path-of-radiance/classes/transformation/
-Notes: If the Demi Band item is equipped, the stat gains will be halved (decimals are rounded up).
-Before 	                After 	        HP 	Str 	Mag 	Skl 	Spd 	Def 	Res 	Con 	Mov 	Cap
-Beast tribe (Cat M) 	Cat (M) 	0 	+6 	0 	+4 	+3 	+5 	+3 	+15 	+2 	0
-Beast tribe (Cat F) 	Cat (F) 	0 	+6 	0 	+4 	+3 	+5 	+3 	+15 	+2 	0
-Beast tribe (Tiger) 	Tiger 	0 	+7 	0 	+4 	+3 	+3 	+3 	+15 	+2 	0
-Beast tribe (Lion) 	Lion 	0 	+8 	0 	+4 	+4 	+5 	+3 	+15 	+2 	0
-Bird tribe (Hawk) 	Hawk 	0 	+6 	0 	+5 	+3 	+4 	+2 	+10 	+2 	0
-Bird tribe (Tibarn) 	Hawk (Tibarn) 	0 	+7 	+1 	+5 	+3 	+3 	+1 	+8 	+2 	0
-Bird tribe (Raven) 	Raven 	0 	+5 	+1 	+4 	+4 	+3 	+4 	+9 	+2 	0
-Bird tribe (Naesala) 	Raven (Naesala) 	0 	+6 	+2 	+4 	+3 	+3 	+3 	+7 	+2 	0
-Bird tribe (Heron M) 	Heron (M) 	0 	0 	+5 	+3 	+4 	+1 	+5 	+6 	+3 	0
-Bird tribe (Heron F) 	Heron (F) 	0 	0 	+5 	+3 	+4 	+1 	+5 	+6 	+3 	0
-Dragon tribe (Red M) 	Red Dragon (M) 	0 	+10 	0 	+6 	+3 	+4 	+5 	+26 	+1 	0
-Dragon tribe (Red F) 	Red Dragon (F) 	0 	+5 	0 	+4 	+4 	+4 	+5 	+12 	+1 	0
-Dragon tribe (White) 	White Dragon 	0 	+10 	0 	+5 	+3 	+5 	+5 	+24 	+1 	0
-    # Cap is unneeded.
-    @staticmethod
-    def ABSOLUTE_MAXES() -> Iterable[str]:
-        """
-        Returns list of absolute maxes.
-        """
-        return (
-            80_00, #"HP",
-            40_00, #"Str",
-            40_00, #"Mag",
-            40_00, #"Skl",
-            40_00, #"Spd",
-            40_00, #"Lck",
-            40_00, #"Def",
-            40_00, #"Res",
-            99_00, #"Mov",
-            99_00, #"Con",
-            99_00, #"Wt",
-        )
-'''
-
-
 # TODO: Test for all Laguz.

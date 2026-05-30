@@ -6786,6 +6786,23 @@ class FE6Units(unittest.TestCase):
                 self.assertGreater(current_stats['Mov'], 0)
                 self.assertGreater(current_stats['Con'], 0)
 
+    def test_initialize_with_all_chapter_values(self):
+        """
+        Confirms that Morph initializations with any of the given chapter values are valid.
+        """
+        for name in self.character_list:
+            try:
+                morph = get_morph(self.game_no, name, hard_mode=True, chapter=None)
+            except InitError as e:
+                if 'chapter' not in e.init_params:
+                    continue
+                chapters = e.init_params['chapter']
+                logger.debug("Initializing %s Morph with all of these parameters: %r", name, chapters)
+                #options = {key: values[0] for key, values in e.init_params.items()}
+                #morph = get_morph(self.game_no, name, **options)
+                for chapter in chapters:
+                    morph = get_morph(self.game_no, name, hard_mode=True, chapter=chapter)
+
 class FE7Units(unittest.TestCase):
     """
     Checks values of all possible instances of Morph7 class.
