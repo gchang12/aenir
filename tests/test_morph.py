@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 import importlib.resources
 
+import aenir.morph
 from aenir.games import FireEmblemGame
 from aenir.morph import (
     get_morph,
@@ -6756,3 +6757,112 @@ class FE8LArachel(unittest.TestCase):
         current_stats = self.morph.current_stats.as_dict()
         self.assertEqual(current_stats['Con'], 5_00)
         self.assertEqual(current_stats['Mov'], 6_00)
+
+class FE6Units(unittest.TestCase):
+    """
+    Checks values of all possible instances of Morph6 class.
+    """
+
+    def setUp(self):
+        """
+        Initializes initialization parameters.
+        """
+        self.game_no = 6
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).get_true_character_list()
+
+    def test_mov_and_con_are_nonzero(self):
+        """
+        Checks that Mov and Con of all units are nonzero.
+        """
+        for name in self.character_list:
+            logger.debug("Checking if '%s' has positive Mov and Con.", name)
+            try:
+                morph = get_morph(self.game_no, name)
+            except InitError as e:
+                options = {key: values[0] for key, values in e.init_params.items()}
+                morph = get_morph(self.game_no, name, **options)
+            current_stats = morph.current_stats.as_dict()
+            with self.subTest(name=name):
+                self.assertGreater(current_stats['Mov'], 0)
+                self.assertGreater(current_stats['Con'], 0)
+
+class FE7Units(unittest.TestCase):
+    """
+    Checks values of all possible instances of Morph7 class.
+    """
+
+    def setUp(self):
+        """
+        Initializes initialization parameters.
+        """
+        self.game_no = 7
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).get_true_character_list()
+
+    def test_mov_and_con_are_nonzero(self):
+        """
+        Checks that Mov and Con of all units are nonzero.
+        """
+        for name in self.character_list:
+            logger.debug("Checking if '%s' has positive Mov and Con.", name)
+            try:
+                morph = get_morph(self.game_no, name)
+            except InitError as e:
+                options = {key: values[0] for key, values in e.init_params.items()}
+                morph = get_morph(self.game_no, name, **options)
+            current_stats = morph.current_stats.as_dict()
+            with self.subTest(name=name):
+                if name == "Merlinus":
+                    logger.debug("Skipping Merlinus, who has 0 Mov.")
+                    continue
+                self.assertGreater(current_stats['Con'], 0)
+                self.assertGreater(current_stats['Mov'], 0)
+
+class FE8Units(unittest.TestCase):
+    """
+    Checks values of all possible instances of Morph8 class.
+    """
+
+    def setUp(self):
+        """
+        Initializes initialization parameters.
+        """
+        self.game_no = 8
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).get_true_character_list()
+
+    def test_mov_and_con_are_nonzero(self):
+        """
+        Checks that Mov and Con of all units are nonzero.
+        """
+        for name in self.character_list:
+            logger.debug("Checking if '%s' has positive Mov and Con.", name)
+            morph = get_morph(self.game_no, name)
+            current_stats = morph.current_stats.as_dict()
+            with self.subTest(name=name):
+                self.assertGreater(current_stats['Mov'], 0)
+                self.assertGreater(current_stats['Con'], 0)
+
+class FE9Units(unittest.TestCase):
+    """
+    Checks values of all possible instances of Morph9 class.
+    """
+
+    def setUp(self):
+        """
+        Initializes initialization parameters.
+        """
+        self.game_no = 9
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).get_true_character_list()
+
+    def test_mov_and_con_and_wt_are_nonzero(self):
+        """
+        Checks that Mov, Con, and Wt of all units are nonzero.
+        """
+        for name in self.character_list:
+            logger.debug("Checking if '%s' has positive Mov and Con.", name)
+            morph = get_morph(self.game_no, name)
+            current_stats = morph.current_stats.as_dict()
+            with self.subTest(name=name):
+                self.assertGreater(current_stats['Mov'], 0)
+                self.assertGreater(current_stats['Con'], 0)
+                self.assertGreater(current_stats['Wt'], 0)
+
