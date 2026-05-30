@@ -6738,3 +6738,21 @@ class FE9BeorcUnit(unittest.TestCase):
         self.assertEqual(actual, expected)
         self.assertNotIn("Demi Band", morph.equipped_bands)
 
+class FE8LArachel(unittest.TestCase):
+    """
+    Checks values of L'Arachel Morph.
+    """
+
+    def setUp(self):
+        """
+        Initializes Morph and binds it to the test-case instance.
+        """
+        self.morph = get_morph(8, "L'Arachel")
+
+    def test_zero_growth_stats_are_nonzero(self):
+        """
+        Checks that Con and Mov are nonzero.
+        """
+        current_stats = self.morph.current_stats.as_dict()
+        self.assertEqual(current_stats['Con'], 5_00)
+        self.assertEqual(current_stats['Mov'], 6_00)
