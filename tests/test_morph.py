@@ -443,7 +443,7 @@ class AllMorphs(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-            CHARACTER_LIST = ("Holyn",)
+            CHARACTERS = ("Holyn",)
 
             @classmethod
             def GAME(cls):
@@ -509,7 +509,7 @@ class Morph6Class2(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTER_LIST = (
+            CHARACTERS = (
                 "Roy",
                 "Marcus",
                 "Allen",
@@ -594,7 +594,7 @@ class Morph6Class2(unittest.TestCase):
         }
         self.kishuna = self.Morph(**self.init_kwargs)
 
-    def test_CHARACTER_LIST(self):
+    def test_CHARACTERS(self):
         """
         Validates list of all valid characters.
         """
@@ -673,7 +673,7 @@ class Morph6Class2(unittest.TestCase):
             "Zephiel",
             "Guinevere",
         )
-        actual = self.Morph.CHARACTER_LIST
+        actual = self.Morph.CHARACTERS
         self.assertTupleEqual(actual, expected)
 
     def test_set_max_level(self):
@@ -804,7 +804,7 @@ class FE4Ayra(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-            CHARACTER_LIST = ("Ira",)
+            CHARACTERS = ("Ira",)
 
             @classmethod
             def GAME(cls):
@@ -879,7 +879,7 @@ class FE6RutgerProtoMorph(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTER_LIST = ("Rutger",)
+            CHARACTERS = ("Rutger",)
 
         self.morph = TestMorph6("Rutger", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
@@ -1179,7 +1179,7 @@ class FE6RoyProtoMorph(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTER_LIST = ("Roy",)
+            CHARACTERS = ("Roy",)
         self.morph = TestMorph6("Roy", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
@@ -1330,11 +1330,11 @@ class Morph4Class(Morph4TestCase):
         with self.assertLogs(logger, logging.WARNING):
             Morph4("Sigurd", father="Lex")
 
-    def test_CHILD_LIST(self):
+    def test_CHILDREN(self):
         """
-        Validates `CHILD_LIST`.
+        Validates `CHILDREN`.
         """
-        actual = Morph4.CHILD_LIST
+        actual = Morph4.CHILDREN
         expected = (
             'Rana',
             'Lakche',
@@ -1353,11 +1353,11 @@ class Morph4Class(Morph4TestCase):
         )
         self.assertTupleEqual(actual, expected)
 
-    def test_FATHER_LIST(self):
+    def test_FATHERS(self):
         """
-        Validates `FATHER_LIST`.
+        Validates `FATHERS`.
         """
-        actual = Morph4.FATHER_LIST
+        actual = Morph4.FATHERS
         expected = (
             'Arden',
             'Azel',
@@ -1842,11 +1842,11 @@ class FE9MorphClass(Morph5TestCase):
         logger.debug("%s", self.id())
         super().setUp()
 
-    def test_KNIGHT_LIST(self):
+    def test_KNIGHTS(self):
         """
-        Checks value of KNIGHT_LIST static method.
+        Checks value of KNIGHTS static method.
         """
-        actual = Morph9.KNIGHT_LIST
+        actual = Morph9.KNIGHTS
         expected = (
             'Titania',
             'Oscar',
@@ -2876,7 +2876,7 @@ class Morph6Class(Morph6TestCase):
     Conducts tests on the Morph6 class itself.
     """
 
-    def test_CHARACTER_LIST6(self):
+    def test_CHARACTERS6(self):
         """
         Validates character list.
         """
@@ -2944,7 +2944,7 @@ class Morph6Class(Morph6TestCase):
             #'Zephiel',
             #'Guinevere',
         )
-        actual = tuple(Morph6.CHARACTER_LIST)
+        actual = tuple(Morph6.CHARACTERS)
         self.assertTupleEqual(actual, expected)
 
 
@@ -2953,7 +2953,7 @@ class FE6Gonzales(Morph6TestCase):
     Conduct series of tests with FE6!Gonzales as subject.
     """
 
-    def test_HARD_MODE_UNIT_LIST(self):
+    def test_HARD_MODE_UNITS(self):
         """
         Asserts that certain units qualify as units with hard-mode bonuses.
         """
@@ -2970,7 +2970,7 @@ class FE6Gonzales(Morph6TestCase):
             'Garret',
             'Zeis',
         )
-        actual = Morph6.HARD_MODE_UNIT_LIST
+        actual = Morph6.HARD_MODE_UNITS
         self.assertTupleEqual(actual, expected)
 
     def test_gonzales__no_route_or_hm(self):
@@ -3566,7 +3566,7 @@ class Morph7Class(Morph7TestCase):
     Conduct series of tests on Morph7 class itself.
     """
 
-    def test_CHARACTER_LIST7(self):
+    def test_CHARACTERS7(self):
         """
         Validates `get_true_character_list`.
         """
@@ -3616,7 +3616,7 @@ class Morph7Class(Morph7TestCase):
             'Renault',
             'Athos',
         )
-        actual = tuple(Morph7.CHARACTER_LIST)
+        actual = tuple(Morph7.CHARACTERS)
         self.assertTupleEqual(actual, expected)
 
 class FE7Ninian(Morph7TestCase):
@@ -3624,7 +3624,7 @@ class FE7Ninian(Morph7TestCase):
     Conduct series of tests with FE7!Ninian as subject.
     """
 
-    def test_HARD_MODE_UNIT_LIST(self):
+    def test_HARD_MODE_UNITS(self):
         """
         Validates list of units with hard-mode bonuses.
         """
@@ -3637,7 +3637,7 @@ class FE7Ninian(Morph7TestCase):
             'Harken',
             'Vaida',
         )
-        actual = Morph7.HARD_MODE_UNIT_LIST
+        actual = Morph7.HARD_MODE_UNITS
         self.assertTupleEqual(actual, expected)
 
     def test_ninian__lyn_mode(self):
@@ -4836,7 +4836,7 @@ class FE8Ross2(unittest.TestCase):
             A virtual representation of a unit from FE8: The Sacred Stones.
             """
             game_no = 8
-            CHARACTER_LIST = ("Ross",)
+            CHARACTERS = ("Ross",)
         self.morph = TestMorph8("Ross", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
@@ -6721,7 +6721,7 @@ class FE9AllLaguzUnits(unittest.TestCase):
         """
         Initializes list of morphs to initialize.
         """
-        self.laguz_list = Morph9.LAGUZ_LIST
+        self.laguz_list = Morph9.LAGUZ
 
     def test_transform__and__revert(self):
         """
@@ -6837,7 +6837,7 @@ class FE6Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 6
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTER_LIST
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6882,7 +6882,7 @@ class FE7Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 7
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTER_LIST
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6913,7 +6913,7 @@ class FE8Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 8
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTER_LIST
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6937,7 +6937,7 @@ class FE9Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 9
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTER_LIST
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
 
     def test_mov_and_con_and_wt_are_nonzero(self):
         """

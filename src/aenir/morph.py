@@ -151,7 +151,7 @@ class Morph(BaseMorph):
     game_no: int = 0
     #character_list_filter = lambda name: True
     stat_boosters = None
-    CHARACTER_LIST = ()
+    CHARACTERS = ()
 
     @classmethod
     def GAME(cls) -> FireEmblemGame:
@@ -167,7 +167,7 @@ class Morph(BaseMorph):
         """
         super().__init__()
         game = self.GAME()
-        character_list = self.CHARACTER_LIST
+        character_list = self.CHARACTERS
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
@@ -463,7 +463,7 @@ class Morph4(Morph):
     Genealogy of the Holy War
     """
     game_no = 4
-    FATHER_LIST = (
+    FATHERS = (
         'Arden',
         'Azel',
         'Alec',
@@ -478,7 +478,7 @@ class Morph4(Morph):
         'Levin',
         'Lex',
     )
-    CHILD_LIST = (
+    CHILDREN = (
         'Rana',
         'Lakche',
         'Skasaher',
@@ -494,7 +494,7 @@ class Morph4(Morph):
         'Sety',
         'Corpul',
     )
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Sigurd',
         'Noish',
         'Alec',
@@ -571,7 +571,7 @@ class Morph4(Morph):
         Implements creation of kids with variable stats, in addition to normal units.
         """
         # test if name refers to a child with father-dependent stats
-        kid_list = self.CHILD_LIST
+        kid_list = self.CHILDREN
         father_: str | None
         if name not in kid_list:
             # if no: use default init method
@@ -590,7 +590,7 @@ class Morph4(Morph):
             max_stats = self.max_stats
             promo_cls = self.promo_cls
         else:
-            father_list = self.FATHER_LIST
+            father_list = self.FATHERS
             if father not in father_list:
                 raise InitError(
                     f"'{father}' is not a valid father. List of valid fathers: {father_list}",
@@ -772,7 +772,7 @@ class Morph5(Morph):
         "Body Ring": ("Con", 3),
         "Leg Ring": ("Mov", 2),
     }
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Leaf',
         'Fin',
         'Evayle',
@@ -1049,7 +1049,7 @@ class Morph6(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Roy',
         'Marcus',
         'Allen',
@@ -1124,7 +1124,7 @@ class Morph6(Morph):
         #'Zephiel',
         #'Guinevere',
     )
-    HARD_MODE_UNIT_LIST = (
+    HARD_MODE_UNITS = (
         'Rutger',
         'Fir',
         'Shin',
@@ -1171,7 +1171,7 @@ class Morph6(Morph):
         else:
             #if chapter is not None:
                 #logger.warning("`chapter` value of %s will have no effect.", chapter)
-            if name in self.HARD_MODE_UNIT_LIST:
+            if name in self.HARD_MODE_UNITS:
                 if hard_mode is None:
                     init_params = {'hard_mode': (False, True)}
                     statdicts = self._get_hard_mode_stats()
@@ -1471,7 +1471,7 @@ class Morph7(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Lyn',
         'Sain',
         'Kent',
@@ -1524,7 +1524,7 @@ class Morph7(Morph):
         'Renault',
         'Athos',
     )
-    HARD_MODE_UNIT_LIST = (
+    HARD_MODE_UNITS = (
         'Guy',
         'Raven',
         'Legault',
@@ -1579,7 +1579,7 @@ class Morph7(Morph):
             which_bases = 1
             lyn_mode = None
         # check if unit can be recruited on hard-mode
-        if name in self.HARD_MODE_UNIT_LIST:
+        if name in self.HARD_MODE_UNITS:
             if hard_mode is None:
                 raise InitError(
                     f"Please specify a `hard_mode` boolean value for {name}.",
@@ -1753,7 +1753,7 @@ class Morph8(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Eirika',
         'Seth',
         'Franz',
@@ -1895,7 +1895,7 @@ class Morph9(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
-    CHARACTER_LIST = (
+    CHARACTERS = (
         'Ike',
         'Titania',
         'Oscar',
@@ -1945,7 +1945,7 @@ class Morph9(Morph):
         #'Sephiran',
         #'Leanne',
     )
-    KNIGHT_LIST = (
+    KNIGHTS = (
         #'Ike',
         'Titania',
         'Oscar',
@@ -1995,7 +1995,7 @@ class Morph9(Morph):
         #'Sephiran',
         #'Leanne',
     )
-    LAGUZ_LIST = (
+    LAGUZ = (
         #'Ike',
         #'Titania',
         #'Oscar',
@@ -2074,11 +2074,11 @@ class Morph9(Morph):
         Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        self.is_knight = name in self.KNIGHT_LIST
+        self.is_knight = name in self.KNIGHTS
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
-        self.is_laguz = name in self.LAGUZ_LIST
+        self.is_laguz = name in self.LAGUZ
         # for laguz units.
         if self.is_laguz is True:
             self.is_transformed = False
@@ -2217,7 +2217,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST,
+                knights=self.KNIGHTS,
             )
         if len(self.equipped_bands) >= self.inventory_size:
             valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
@@ -2246,7 +2246,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST,
+                knights=self.KNIGHTS,
             )
         if "Knight Ward" not in self.equipped_bands:
             valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
@@ -2272,7 +2272,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST,
+                knights=self.KNIGHTS,
             )
         elif equip is True and not knight_ward_is_equipped:
             try:
