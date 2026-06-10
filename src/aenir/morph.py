@@ -2,9 +2,6 @@
 Defines classes essential to comparing Fire Emblem unit stats.
 """
 
-# TODO: Make CHARACTER_LIST into class variable.
-# TODO: Make other all-caps methods into class variable.
-
 import importlib.resources
 import abc
 import sqlite3
@@ -152,15 +149,9 @@ class Morph(BaseMorph):
     Represents a Fire Emblem unit from the game associated with `game_no`.
     """
     game_no: int = 0
-    character_list_filter = lambda name: True
+    #character_list_filter = lambda name: True
     stat_boosters = None
-
-    @classmethod
-    def get_true_character_list(cls) -> Iterable[str]:
-        """
-        Returns list of unique characters.
-        """
-        return filter(cls.character_list_filter, cls.CHARACTER_LIST)
+    CHARACTER_LIST = ()
 
     @classmethod
     def GAME(cls) -> FireEmblemGame:
@@ -169,20 +160,6 @@ class Morph(BaseMorph):
         """
         return FireEmblemGame(cls.game_no)
 
-    @classmethod
-    def get_character_list(cls) -> Iterable[str]:
-        """
-        Returns list of characters from `GAME` as specified by characters__base_stats table.
-        """
-        #filename = "characters__base_stats-JOIN-characters__growth_rates.json"
-        table_name = "characters__base_stats-JOIN-characters__growth_rates"
-        path_to_db = cls.path_to("cleaned_stats.db")
-        with sqlite3.connect(path_to_db) as cnxn:
-            character_list = map(lambda nametuple: nametuple[0], cnxn.execute("SELECT Name FROM '%s';" % table_name))
-        #with open(path_to_json, encoding='utf-8') as rfile:
-            #character_list = tuple(json.load(rfile))
-        return tuple(character_list)
-
     def __init__(self, name: str, *, which_bases: int, which_growths: int):
         """
         Initializes game, name, base stats, growth rates, max stats, and other variables for containing
@@ -190,7 +167,7 @@ class Morph(BaseMorph):
         """
         super().__init__()
         game = self.GAME()
-        character_list = self.get_character_list()
+        character_list = self.CHARACTER_LIST
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
@@ -1060,7 +1037,7 @@ class Morph6(Morph):
     Sword of Seals
     """
     game_no = 6
-    character_list_filter = lambda name: True
+    #character_list_filter = lambda name: True
     stat_boosters = {
         "Angelic Robe": ("HP", 7),
         "Energy Ring": ("Pow", 2),
@@ -1482,7 +1459,7 @@ class Morph7(Morph):
     Blazing Sword
     """
     game_no = 7
-    character_list_filter = lambda name: True
+    #character_list_filter = lambda name: True
     stat_boosters = {
         "Angelic Robe": ("HP", 7),
         "Energy Ring": ("Pow", 2),
