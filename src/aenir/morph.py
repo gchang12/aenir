@@ -2,6 +2,8 @@
 Defines classes essential to comparing Fire Emblem unit stats.
 """
 
+# TODO: Make CHARACTER_LIST into class variables.
+
 import importlib.resources
 import abc
 import sqlite3
@@ -2575,6 +2577,15 @@ class Morph9(Morph):
         self.current_stats += self.Stats(multiplier=-100, **bonus_statdict)
         self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
         self.is_transformed = False
+
+    def shapeshift(self):
+        """
+        """
+        # TODO: Expose class list... why?
+        return {
+            False: self.transform,
+            True: self.revert,
+        }[self.is_transformed]()
 
     @staticmethod
     def roundup_stats(dictlike: dict[str, int]):
