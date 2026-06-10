@@ -2,7 +2,8 @@
 Defines classes essential to comparing Fire Emblem unit stats.
 """
 
-# TODO: Make CHARACTER_LIST into class variables.
+# TODO: Make CHARACTER_LIST into class variable.
+# TODO: Make other all-caps methods into class variable.
 
 import importlib.resources
 import abc
@@ -1089,7 +1090,7 @@ class Morph6(Morph):
     Sword of Seals
     """
     game_no = 6
-    character_list_filter = lambda name: " (HM)" not in name
+    character_list_filter = lambda name: True
     stat_boosters = {
         "Angelic Robe": ("HP", 7),
         "Energy Ring": ("Pow", 2),
@@ -1449,7 +1450,7 @@ class Morph6(Morph):
             'Lugh',
             'Clarine',
             'Rutger',
-            'Rutger (HM)',
+            #'Rutger (HM)',
             'Saul',
             'Dorothy',
             'Sue',
@@ -1462,36 +1463,36 @@ class Morph6(Morph):
             'Barth',
             'Oujay',
             'Fir',
-            'Fir (HM)',
+            #'Fir (HM)',
             'Shin',
-            'Shin (HM)',
+            #'Shin (HM)',
             'Gonzales',
-            'Gonzales (HM)',
+            #'Gonzales (HM)',
             'Geese',
             'Klein',
-            'Klein (HM)',
+            #'Klein (HM)',
             'Tate',
-            'Tate (HM)',
+            #'Tate (HM)',
             'Lalum',
             'Echidna',
             'Elphin',
             'Bartre',
             'Ray',
             'Cath',
-            'Cath (HM)',
+            #'Cath (HM)',
             'Miredy',
-            'Miredy (HM)',
+            #'Miredy (HM)',
             'Percival',
-            'Percival (HM)',
+            #'Percival (HM)',
             'Cecilia',
             'Sofiya',
             'Igrene',
             'Garret',
-            'Garret (HM)',
+            #'Garret (HM)',
             'Fa',
             'Hugh',
             'Zeis',
-            'Zeis (HM)',
+            #'Zeis (HM)',
             'Douglas',
             'Niime',
             'Dayan',
@@ -1523,7 +1524,7 @@ class Morph7(Morph):
     Blazing Sword
     """
     game_no = 7
-    character_list_filter = lambda name: " (HM)" not in name
+    character_list_filter = lambda name: True
     stat_boosters = {
         "Angelic Robe": ("HP", 7),
         "Energy Ring": ("Pow", 2),
@@ -1713,33 +1714,33 @@ class Morph7(Morph):
             'Hector',
             'Oswin',
             'Guy',
-            'Guy (HM)',
+            #'Guy (HM)',
             'Merlinus',
             'Priscilla',
             'Raven',
-            'Raven (HM)',
+            #'Raven (HM)',
             'Canas',
             'Dart',
             'Fiora',
             'Legault',
-            'Legault (HM)',
+            #'Legault (HM)',
             'Ninian',
             'Isadora',
             'Heath',
-            'Heath (HM)',
+            #'Heath (HM)',
             'Hawkeye',
             'Geitz',
-            'Geitz (HM)',
+            #'Geitz (HM)',
             'Farina',
             'Pent',
             'Louise',
             'Karel',
             'Harken',
-            'Harken (HM)',
+            #'Harken (HM)',
             'Nino',
             'Jaffar',
             'Vaida',
-            'Vaida (HM)',
+            #'Vaida (HM)',
             'Karla',
             'Renault',
             'Athos',
