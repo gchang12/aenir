@@ -138,7 +138,7 @@ class BaseMorph(abc.ABC):
             table = "%s%d" % (target_table, tableindex)
             filters = {field_to_scan: aliased_value}
             path_to_db = self.path_to("cleaned_stats.db")
-            fields = self.Stats.STAT_LIST()
+            fields = self.Stats.STAT_LIST
             query_kwargs = {
                 "path_to_db": path_to_db,
                 "table": table,
@@ -199,7 +199,7 @@ class Morph(BaseMorph):
         # class and level
         path_to_db = self.path_to("cleaned_stats.db")
         table = "characters__base_stats%d" % which_bases
-        fields = self.Stats.STAT_LIST() + ("Class", "Lv")
+        fields = self.Stats.STAT_LIST + ("Class", "Lv")
         filters = {"Name": name}
         basestats_query = self.query_db(
             path_to_db,
@@ -645,7 +645,7 @@ class Morph4(Morph):
             # begin query
             path_to_db = self.path_to("cleaned_stats.db")
             table = "characters__base_stats1"
-            fields = Stats.STAT_LIST() + ("Class", "Lv")
+            fields = Stats.STAT_LIST + ("Class", "Lv")
             filters = {"Name": name, "Father": father_}
             self.Stats = Stats
             stat_dict = dict(
@@ -666,7 +666,7 @@ class Morph4(Morph):
                 self.query_db(
                     path_to_db,
                     table="characters__growth_rates1",
-                    fields=Stats.STAT_LIST(),
+                    fields=Stats.STAT_LIST,
                     filters={"Name": name, "Father": father_},
                 ).fetchone()
             )
@@ -1040,7 +1040,7 @@ class Morph5(Morph):
         # get scroll list
         path_to_db = cls.path_to("cleaned_stats.db")
         table = "scroll_bonuses"
-        stat_list = list(cls.STATS().STAT_LIST())
+        stat_list = list(cls.STATS().STAT_LIST)
         resultset = cls.query_db(
             path_to_db,
             table,
@@ -2247,7 +2247,7 @@ class Morph9(Morph):
         """
         path_to_db = cls.path_to("cleaned_stats.db")
         table = "band_growths"
-        stat_list = list(cls.STATS().STAT_LIST())
+        stat_list = list(cls.STATS().STAT_LIST)
         resultset = cls.query_db(
             path_to_db,
             table,

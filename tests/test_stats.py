@@ -60,28 +60,16 @@ class IntStatsTest(unittest.TestCase):
             """
             Functional in that the 'STAT_LIST' class method is defined.
             """
-
-            @staticmethod
-            def STAT_LIST():
-                """
-                Returns tuple of strings that can be used as Python identifiers.
-                """
-                return (
-                    "a",
-                    "b",
-                    "c",
-                    "d",
-                    "e",
-                    "f",
-                    "g",
-                )
-
-            @staticmethod
-            def ZERO_GROWTH_STAT_LIST():
-                """
-                Returns empty tuple.
-                """
-                return ()
+            STAT_LIST = (
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+            )
+            ZERO_GROWTH_STAT_LIST = ()
 
         class FunctionalStats2(AbstractStats):
             """
@@ -89,27 +77,16 @@ class IntStatsTest(unittest.TestCase):
             demonstrate that stats of different classes cannot be operated on even if
             they share the same 'STAT_LIST'.
             """
-            @staticmethod
-            def STAT_LIST():
-                """
-                Returns tuple of strings that can be used as Python identifiers.
-                """
-                return (
-                    "a",
-                    "b",
-                    "c",
-                    "d",
-                    "e",
-                    "f",
-                    "g",
-                )
-
-            @staticmethod
-            def ZERO_GROWTH_STAT_LIST():
-                """
-                Returns empty tuple.
-                """
-                return ()
+            STAT_LIST = (
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+            )
+            ZERO_GROWTH_STAT_LIST = ()
 
         self.FunctionalStats = FunctionalStats
         self.FunctionalStats2 = FunctionalStats2
@@ -316,7 +293,7 @@ class IntStatsTest(unittest.TestCase):
         """
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
-        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
+        self.assertTupleEqual(stats1.STAT_LIST, stats2.STAT_LIST)
         with self.assertRaises(TypeError):
             stats1.imax(stats2)
         with self.assertRaises(TypeError):
@@ -329,7 +306,7 @@ class IntStatsTest(unittest.TestCase):
         """
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
-        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
+        self.assertTupleEqual(stats1.STAT_LIST, stats2.STAT_LIST)
         with self.assertRaises(TypeError):
             stats1.imin(stats2)
         with self.assertRaises(TypeError):
@@ -368,7 +345,7 @@ class IntStatsTest(unittest.TestCase):
         # copy-paste to lt
         stats1 = self.FunctionalStats(**self.statdict1)
         stats2 = self.FunctionalStats2(**self.statdict2)
-        self.assertTupleEqual(stats1.STAT_LIST(), stats2.STAT_LIST())
+        self.assertTupleEqual(stats1.STAT_LIST, stats2.STAT_LIST)
         with self.assertRaises(TypeError):
             stats1.__iadd__(stats2)
         with self.assertRaises(TypeError):
@@ -379,7 +356,7 @@ class IntStatsTest(unittest.TestCase):
         Tests that key-set in stat-dict is identical to STAT_LIST.
         """
         actual = set(self.FunctionalStats.get_stat_dict(0))
-        expected = set(self.FunctionalStats.STAT_LIST())
+        expected = set(self.FunctionalStats.STAT_LIST)
         self.assertSetEqual(actual, expected)
 
     def test_get_stat_dict(self):
@@ -454,7 +431,7 @@ class ImplementedStatsTests(unittest.TestCase):
             "Def",
             "Res",
         )
-        actual = GenealogyStats.STAT_LIST()
+        actual = GenealogyStats.STAT_LIST
         self.assertTupleEqual(actual, expected)
 
     def test_gba_stats(self):
@@ -472,7 +449,7 @@ class ImplementedStatsTests(unittest.TestCase):
             "Con",
             "Mov",
         )
-        actual = GBAStats.STAT_LIST()
+        actual = GBAStats.STAT_LIST
         self.assertTupleEqual(actual, expected)
 
     def test_thracia_stats(self):
@@ -493,7 +470,7 @@ class ImplementedStatsTests(unittest.TestCase):
             "MS",
             "PC",
         )
-        actual = ThraciaStats.STAT_LIST()
+        actual = ThraciaStats.STAT_LIST
         self.assertTupleEqual(actual, expected)
 
 class NonTupleStatsTest(unittest.TestCase):
@@ -511,20 +488,8 @@ class NonTupleStatsTest(unittest.TestCase):
             """
             Where 'STAT_LIST' returns a non-tuple.
             """
-
-            @staticmethod
-            def STAT_LIST():
-                """
-                Returns non-tuple.
-                """
-                return None
-
-            @staticmethod
-            def ZERO_GROWTH_STAT_LIST():
-                """
-                Defines list of stats that cannot grow.
-                """
-                return ()
+            STAT_LIST = None
+            ZERO_GROWTH_STAT_LIST = ()
 
         self.Stats = NonTupleStats
 
@@ -558,7 +523,7 @@ class NoStatListStatTest(unittest.TestCase):
         Asserts that subclasses that have not implemented the 'STAT_LIST' class
         method cannot be used to create an object.
         """
-        with self.assertRaises(TypeError) as type_err:
+        with self.assertRaises(NotImplementedError) as type_err:
             self.Stats()
 
 class InvalidIdentifierStatsTest(unittest.TestCase):
@@ -576,24 +541,12 @@ class InvalidIdentifierStatsTest(unittest.TestCase):
             """
             Where 'STAT_LIST' is a str-tuple containing one invalid identifier.
             """
-
-            @staticmethod
-            def STAT_LIST():
-                """
-                Returns tuple of strings that cannot be used as Python identifiers.
-                """
-                return (
-                    "a",
-                    "b",
-                    ".",
-                )
-
-            @staticmethod
-            def ZERO_GROWTH_STAT_LIST():
-                """
-                Defines list of stats that cannot grow.
-                """
-                return ()
+            STAT_LIST = (
+                "a",
+                "b",
+                ".",
+            )
+            ZERO_GROWTH_STAT_LIST = ()
 
         self.Stats = InvalidIdentifierStats
 
@@ -626,25 +579,13 @@ class NonStrTupleStatsTest(unittest.TestCase):
             """
             Where 'STAT_LIST' is a tuple containing at least one str.
             """
-
-            @staticmethod
-            def STAT_LIST():
-                """
-                Returns a tuple containing at least one non-str.
-                """
-                return (
-                    "a",
-                    "b",
-                    3,
-                    "c",
-                )
-
-            @staticmethod
-            def ZERO_GROWTH_STAT_LIST():
-                """
-                Defines list of stats that cannot grow.
-                """
-                return ()
+            STAT_LIST = (
+                "a",
+                "b",
+                3,
+                "c",
+            )
+            ZERO_GROWTH_STAT_LIST = ()
 
         self.Stats = NonStrTupleStats
 
@@ -682,7 +623,7 @@ class AbsoluteMaxesTests(unittest.TestCase):
             "Def": 30_00,
             "Res": 30_00,
         }
-        actual = dict(zip(GenealogyStats.STAT_LIST(), GenealogyStats.ABSOLUTE_MAXES()))
+        actual = dict(zip(GenealogyStats.STAT_LIST, GenealogyStats.ABSOLUTE_MAXES))
         self.assertDictEqual(actual, expected)
 
     def test_thracia_stats(self):
@@ -703,7 +644,7 @@ class AbsoluteMaxesTests(unittest.TestCase):
             "MS": 5_00,
             "PC": 5_00,
         }
-        actual = dict(zip(ThraciaStats.STAT_LIST(), ThraciaStats.ABSOLUTE_MAXES()))
+        actual = dict(zip(ThraciaStats.STAT_LIST, ThraciaStats.ABSOLUTE_MAXES))
         self.assertDictEqual(actual, expected)
 
     def test_gba_stats(self):
@@ -721,7 +662,7 @@ class AbsoluteMaxesTests(unittest.TestCase):
             "Con": 25_00,
             "Mov": 15_00,
         }
-        actual = dict(zip(GBAStats.STAT_LIST(), GBAStats.ABSOLUTE_MAXES()))
+        actual = dict(zip(GBAStats.STAT_LIST, GBAStats.ABSOLUTE_MAXES))
         self.assertDictEqual(actual, expected)
 
     def test_radiant_stats(self):
@@ -741,6 +682,6 @@ class AbsoluteMaxesTests(unittest.TestCase):
             "Con": 99_00,
             "Wt": 99_00,
         }
-        actual = dict(zip(RadiantStats.STAT_LIST(), RadiantStats.ABSOLUTE_MAXES()))
+        actual = dict(zip(RadiantStats.STAT_LIST, RadiantStats.ABSOLUTE_MAXES))
         self.assertDictEqual(actual, expected)
 

@@ -2191,7 +2191,7 @@ class FE5Leif(Morph5TestCase):
         og_growths = leif._og_growth_rates.as_dict()
         new_growths = leif.growth_rates.as_dict()
         comparison = {}
-        for stat in leif.Stats.STAT_LIST():
+        for stat in leif.Stats.STAT_LIST:
             og_stat = og_growths[stat]
             new_stat = new_growths[stat]
             comparison[stat] = new_stat > og_stat
@@ -4092,7 +4092,7 @@ class FE7HardModeUnit(Morph7TestCase):
         expected = raven._meta
         self.assertIsNot(actual, expected)
         logger.debug("actual: %r, expected: %r", base_raven.current_stats.as_dict(), raven_clone.current_stats.as_dict())
-        for stat in raven.Stats.STAT_LIST():
+        for stat in raven.Stats.STAT_LIST:
             actual = getattr(raven.current_stats, stat)
             expected = getattr(raven_clone.current_stats, stat)
             logger.debug("(%s) actual: %r, expected: %r", stat, actual, expected)
@@ -5283,7 +5283,7 @@ class FE9Ike(Morph9TestCase):
         og_growths = ike._og_growth_rates.as_dict()
         new_growths = ike.growth_rates.as_dict()
         comparison = {}
-        for stat in ike.Stats.STAT_LIST():
+        for stat in ike.Stats.STAT_LIST:
             og_stat = og_growths[stat]
             new_stat = new_growths[stat]
             comparison[stat] = new_stat > og_stat
