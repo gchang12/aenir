@@ -160,7 +160,7 @@ class Morph(BaseMorph):
         """
         Returns list of unique characters.
         """
-        return filter(cls.character_list_filter, cls.CHARACTER_LIST())
+        return filter(cls.character_list_filter, cls.CHARACTER_LIST)
 
     @classmethod
     def GAME(cls) -> FireEmblemGame:
@@ -170,7 +170,7 @@ class Morph(BaseMorph):
         return FireEmblemGame(cls.game_no)
 
     @classmethod
-    def CHARACTER_LIST(cls) -> Iterable[str]:
+    def get_character_list(cls) -> Iterable[str]:
         """
         Returns list of characters from `GAME` as specified by characters__base_stats table.
         """
@@ -190,7 +190,7 @@ class Morph(BaseMorph):
         """
         super().__init__()
         game = self.GAME()
-        character_list = self.CHARACTER_LIST()
+        character_list = self.get_character_list()
         if name not in character_list:
             raise UnitNotFoundError(
                 f"{name} not found. List of characters from Fire Emblem: {game.formal_name}: {character_list}",
@@ -486,6 +486,101 @@ class Morph4(Morph):
     Genealogy of the Holy War
     """
     game_no = 4
+    FATHER_LIST = (
+        'Arden',
+        'Azel',
+        'Alec',
+        'Claude',
+        'Jamka',
+        'Dew',
+        'Noish',
+        'Fin',
+        'Beowolf',
+        'Holyn',
+        'Midayle',
+        'Levin',
+        'Lex',
+    )
+    CHILD_LIST = (
+        'Rana',
+        'Lakche',
+        'Skasaher',
+        'Delmud',
+        'Lester',
+        'Fee',
+        'Arthur',
+        'Patty',
+        'Nanna',
+        'Leen',
+        'Tinny',
+        'Faval',
+        'Sety',
+        'Corpul',
+    )
+    CHARACTER_LIST = (
+        'Sigurd',
+        'Noish',
+        'Alec',
+        'Arden',
+        'Cuan',
+        'Ethlin',
+        'Fin',
+        'Lex',
+        'Azel',
+        'Midayle',
+        'Adean',
+        'Dew',
+        'Ira',
+        'Diadora',
+        'Jamka',
+        'Holyn',
+        'Lachesis',
+        'Levin',
+        'Sylvia',
+        'Fury',
+        'Beowolf',
+        'Briggid',
+        'Claude',
+        'Tiltyu',
+        'Mana',
+        'Radney',
+        'Roddlevan',
+        'Oifey',
+        'Tristan',
+        'Dimna',
+        'Yuria',
+        'Femina',
+        'Amid',
+        'Johan',
+        'Johalva',
+        'Shanan',
+        'Daisy',
+        'Janne',
+        'Aless',
+        'Laylea',
+        'Linda',
+        'Asaello',
+        'Hawk',
+        'Hannibal',
+        'Sharlow',
+        'Celice',
+        'Leaf',
+        'Altenna',
+        'Rana',
+        'Lakche',
+        'Skasaher',
+        'Delmud',
+        'Lester',
+        'Fee',
+        'Arthur',
+        'Patty',
+        'Nanna',
+        'Leen',
+        'Tinny',
+        'Faval',
+        'Sety',
+        'Corpul',
+    )
 
     @property
     def inventory_size(self) -> int:
@@ -494,125 +589,12 @@ class Morph4(Morph):
         """
         return 7
 
-    @staticmethod
-    def FATHER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE4 fathers.
-        """
-        return (
-            'Arden',
-            'Azel',
-            'Alec',
-            'Claude',
-            'Jamka',
-            'Dew',
-            'Noish',
-            'Fin',
-            'Beowolf',
-            'Holyn',
-            'Midayle',
-            'Levin',
-            'Lex',
-        )
-
-    @staticmethod
-    def CHILD_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE4 children whose fathers can vary.
-        """
-        return (
-            'Rana',
-            'Lakche',
-            'Skasaher',
-            'Delmud',
-            'Lester',
-            'Fee',
-            'Arthur',
-            'Patty',
-            'Nanna',
-            'Leen',
-            'Tinny',
-            'Faval',
-            'Sety',
-            'Corpul',
-        )
-
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE4 characters.
-        """
-        return (
-            'Sigurd',
-            'Noish',
-            'Alec',
-            'Arden',
-            'Cuan',
-            'Ethlin',
-            'Fin',
-            'Lex',
-            'Azel',
-            'Midayle',
-            'Adean',
-            'Dew',
-            'Ira',
-            'Diadora',
-            'Jamka',
-            'Holyn',
-            'Lachesis',
-            'Levin',
-            'Sylvia',
-            'Fury',
-            'Beowolf',
-            'Briggid',
-            'Claude',
-            'Tiltyu',
-            'Mana',
-            'Radney',
-            'Roddlevan',
-            'Oifey',
-            'Tristan',
-            'Dimna',
-            'Yuria',
-            'Femina',
-            'Amid',
-            'Johan',
-            'Johalva',
-            'Shanan',
-            'Daisy',
-            'Janne',
-            'Aless',
-            'Laylea',
-            'Linda',
-            'Asaello',
-            'Hawk',
-            'Hannibal',
-            'Sharlow',
-            'Celice',
-            'Leaf',
-            'Altenna',
-            'Rana',
-            'Lakche',
-            'Skasaher',
-            'Delmud',
-            'Lester',
-            'Fee',
-            'Arthur',
-            'Patty',
-            'Nanna',
-            'Leen',
-            'Tinny',
-            'Faval',
-            'Sety',
-            'Corpul',
-        )
-
     def __init__(self, name: str, *, father: str | None = None):
         """
         Implements creation of kids with variable stats, in addition to normal units.
         """
         # test if name refers to a child with father-dependent stats
-        kid_list = self.CHILD_LIST()
+        kid_list = self.CHILD_LIST
         father_: str | None
         if name not in kid_list:
             # if no: use default init method
@@ -631,7 +613,7 @@ class Morph4(Morph):
             max_stats = self.max_stats
             promo_cls = self.promo_cls
         else:
-            father_list = self.FATHER_LIST()
+            father_list = self.FATHER_LIST
             if father not in father_list:
                 raise InitError(
                     f"'{father}' is not a valid father. List of valid fathers: {father_list}",
@@ -813,6 +795,74 @@ class Morph5(Morph):
         "Body Ring": ("Con", 3),
         "Leg Ring": ("Mov", 2),
     }
+    CHARACTER_LIST = (
+        'Leaf',
+        'Fin',
+        'Evayle',
+        'Halvan',
+        'Othin',
+        'Dagda',
+        'Tania',
+        'Marty',
+        'Ronan',
+        'Rifis',
+        'Safy',
+        'Brighton',
+        'Machua',
+        'Lara',
+        'Felgus',
+        'Karin',
+        'Dalsin',
+        'Asvel',
+        'Nanna',
+        'Hicks',
+        'Shiva',
+        'Carrion',
+        'Selphina',
+        'Kein',
+        'Alva',
+        'Robert',
+        'Fred',
+        'Olwen',
+        'Mareeta',
+        'Salem',
+        'Pahn',
+        'Tina',
+        'Trewd',
+        'Glade',
+        'Dean',
+        'Eda',
+        'Homeros',
+        'Linoan',
+        'Ralph',
+        'Eyrios',
+        'Sleuf',
+        'Sara',
+        'Miranda',
+        'Shanam',
+        'Misha',
+        'Xavier',
+        'Amalda',
+        'Conomore',
+        'Delmud',
+        'Cyas',
+        'Sety',
+        'Galzus',
+    )
+    CRUSADERS = (
+        'Baldo',
+        'Blaggi',
+        'Dain',
+        'Fala',
+        'Heim',
+        'Hezul',
+        'Neir',
+        'Noba',
+        'Odo',
+        'Sety',
+        'Tordo',
+        'Ulir',
+    )
 
     @property
     def inventory_size(self) -> int:
@@ -820,26 +870,6 @@ class Morph5(Morph):
         Declares the number of Crusader Scrolls one can equip.
         """
         return 7
-
-    @staticmethod
-    def CRUSADERS() -> Iterable[str]:
-        """
-        Returns an alphabetized list of Crusaders.
-        """
-        return (
-            'Baldo',
-            'Blaggi',
-            'Dain',
-            'Fala',
-            'Heim',
-            'Hezul',
-            'Neir',
-            'Noba',
-            'Odo',
-            'Sety',
-            'Tordo',
-            'Ulir',
-        )
 
     def get_promotion_item(self) -> str | None:
         """
@@ -862,66 +892,6 @@ class Morph5(Morph):
         else:
             promotion_item = ("Knight Proof" if super().get_promotion_item() else None)
         return promotion_item
-
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE5 characters.
-        """
-        return (
-            'Leaf',
-            'Fin',
-            'Evayle',
-            'Halvan',
-            'Othin',
-            'Dagda',
-            'Tania',
-            'Marty',
-            'Ronan',
-            'Rifis',
-            'Safy',
-            'Brighton',
-            'Machua',
-            'Lara',
-            'Felgus',
-            'Karin',
-            'Dalsin',
-            'Asvel',
-            'Nanna',
-            'Hicks',
-            'Shiva',
-            'Carrion',
-            'Selphina',
-            'Kein',
-            'Alva',
-            'Robert',
-            'Fred',
-            'Olwen',
-            'Mareeta',
-            'Salem',
-            'Pahn',
-            'Tina',
-            'Trewd',
-            'Glade',
-            'Dean',
-            'Eda',
-            'Homeros',
-            'Linoan',
-            'Ralph',
-            'Eyrios',
-            'Sleuf',
-            'Sara',
-            'Miranda',
-            'Shanam',
-            'Misha',
-            'Xavier',
-            'Amalda',
-            'Conomore',
-            'Delmud',
-            'Cyas',
-            'Sety',
-            'Galzus',
-        )
 
     def __init__(self, name: str):
         """
@@ -1102,6 +1072,94 @@ class Morph6(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
+    CHARACTER_LIST = (
+        'Roy',
+        'Marcus',
+        'Allen',
+        'Lance',
+        'Wolt',
+        'Bors',
+        'Merlinus',
+        'Ellen',
+        'Dieck',
+        'Wade',
+        'Lott',
+        'Thany',
+        'Chad',
+        'Lugh',
+        'Clarine',
+        'Rutger',
+        #'Rutger (HM)',
+        'Saul',
+        'Dorothy',
+        'Sue',
+        'Zealot',
+        'Treck',
+        'Noah',
+        'Astohl',
+        'Lilina',
+        'Wendy',
+        'Barth',
+        'Oujay',
+        'Fir',
+        #'Fir (HM)',
+        'Shin',
+        #'Shin (HM)',
+        'Gonzales',
+        #'Gonzales (HM)',
+        'Geese',
+        'Klein',
+        #'Klein (HM)',
+        'Tate',
+        #'Tate (HM)',
+        'Lalum',
+        'Echidna',
+        'Elphin',
+        'Bartre',
+        'Ray',
+        'Cath',
+        #'Cath (HM)',
+        'Miredy',
+        #'Miredy (HM)',
+        'Percival',
+        #'Percival (HM)',
+        'Cecilia',
+        'Sofiya',
+        'Igrene',
+        'Garret',
+        #'Garret (HM)',
+        'Fa',
+        'Hugh',
+        'Zeis',
+        #'Zeis (HM)',
+        'Douglas',
+        'Niime',
+        'Dayan',
+        'Juno',
+        'Yodel',
+        'Karel',
+        #'Narshen',
+        #'Gale',
+        #'Hector',
+        #'Brunya',
+        #'Eliwood',
+        #'Murdoch',
+        #'Zephiel',
+        #'Guinevere',
+    )
+    HARD_MODE_UNIT_LIST = (
+        'Rutger',
+        'Fir',
+        'Shin',
+        'Gonzales',
+        'Klein',
+        'Tate',
+        'Cath',
+        'Miredy',
+        'Percival',
+        'Garret',
+        'Zeis',
+    )
 
     def __init__(self, name: str, *, hard_mode: bool | None = None, number_of_declines: int | None = None, chapter: str | None = None):
         """
@@ -1136,7 +1194,7 @@ class Morph6(Morph):
         else:
             #if chapter is not None:
                 #logger.warning("`chapter` value of %s will have no effect.", chapter)
-            if name in self.HARD_MODE_UNIT_LIST():
+            if name in self.HARD_MODE_UNIT_LIST:
                 if hard_mode is None:
                     init_params = {'hard_mode': (False, True)}
                     statdicts = self._get_hard_mode_stats()
@@ -1409,106 +1467,6 @@ class Morph6(Morph):
             promotion_item = super().get_promotion_item()
         return promotion_item
 
-    @staticmethod
-    def HARD_MODE_UNIT_LIST() -> Iterable[str]:
-        """
-        Declares the list of all FE6 characters with hard-mode bonuses.
-        """
-        return (
-            'Rutger',
-            'Fir',
-            'Shin',
-            'Gonzales',
-            'Klein',
-            'Tate',
-            'Cath',
-            'Miredy',
-            'Percival',
-            'Garret',
-            'Zeis',
-        )
-
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE6 characters.
-        """
-        return (
-            'Roy',
-            'Marcus',
-            'Allen',
-            'Lance',
-            'Wolt',
-            'Bors',
-            'Merlinus',
-            'Ellen',
-            'Dieck',
-            'Wade',
-            'Lott',
-            'Thany',
-            'Chad',
-            'Lugh',
-            'Clarine',
-            'Rutger',
-            #'Rutger (HM)',
-            'Saul',
-            'Dorothy',
-            'Sue',
-            'Zealot',
-            'Treck',
-            'Noah',
-            'Astohl',
-            'Lilina',
-            'Wendy',
-            'Barth',
-            'Oujay',
-            'Fir',
-            #'Fir (HM)',
-            'Shin',
-            #'Shin (HM)',
-            'Gonzales',
-            #'Gonzales (HM)',
-            'Geese',
-            'Klein',
-            #'Klein (HM)',
-            'Tate',
-            #'Tate (HM)',
-            'Lalum',
-            'Echidna',
-            'Elphin',
-            'Bartre',
-            'Ray',
-            'Cath',
-            #'Cath (HM)',
-            'Miredy',
-            #'Miredy (HM)',
-            'Percival',
-            #'Percival (HM)',
-            'Cecilia',
-            'Sofiya',
-            'Igrene',
-            'Garret',
-            #'Garret (HM)',
-            'Fa',
-            'Hugh',
-            'Zeis',
-            #'Zeis (HM)',
-            'Douglas',
-            'Niime',
-            'Dayan',
-            'Juno',
-            'Yodel',
-            'Karel',
-            #'Narshen',
-            #'Gale',
-            #'Hector',
-            #'Brunya',
-            #'Eliwood',
-            #'Murdoch',
-            #'Zephiel',
-            #'Guinevere',
-        )
-
     def _set_min_promo_level(self) -> None:
         """
         Declares that Roy can promote at any level.
@@ -1536,6 +1494,83 @@ class Morph7(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
+    CHARACTER_LIST = (
+        'Lyn',
+        'Sain',
+        'Kent',
+        'Florina',
+        'Wil',
+        'Dorcas',
+        'Serra',
+        'Erk',
+        'Rath',
+        'Matthew',
+        'Nils',
+        'Lucius',
+        'Wallace',
+        'Eliwood',
+        'Lowen',
+        'Marcus',
+        'Rebecca',
+        'Bartre',
+        'Hector',
+        'Oswin',
+        'Guy',
+        #'Guy (HM)',
+        'Merlinus',
+        'Priscilla',
+        'Raven',
+        #'Raven (HM)',
+        'Canas',
+        'Dart',
+        'Fiora',
+        'Legault',
+        #'Legault (HM)',
+        'Ninian',
+        'Isadora',
+        'Heath',
+        #'Heath (HM)',
+        'Hawkeye',
+        'Geitz',
+        #'Geitz (HM)',
+        'Farina',
+        'Pent',
+        'Louise',
+        'Karel',
+        'Harken',
+        #'Harken (HM)',
+        'Nino',
+        'Jaffar',
+        'Vaida',
+        #'Vaida (HM)',
+        'Karla',
+        'Renault',
+        'Athos',
+    )
+    HARD_MODE_UNIT_LIST = (
+        'Guy',
+        'Raven',
+        'Legault',
+        'Heath',
+        'Geitz',
+        'Harken',
+        'Vaida',
+    )
+    LYNDIS_LEAGUE = (
+        "Lyn",
+        "Sain",
+        "Kent",
+        "Florina",
+        "Wil",
+        "Dorcas",
+        "Serra",
+        "Erk",
+        "Rath",
+        "Matthew",
+        "Nils",
+        "Lucius",
+        "Wallace",
+    )
 
     def __init__(self, name: str, *, lyn_mode: bool | None = None, hard_mode: bool | None = None):
         """
@@ -1543,7 +1578,7 @@ class Morph7(Morph):
         Support for growths item present.
         """
         # check if unit is available in lyn-mode
-        lyndis_league = self.LYNDIS_LEAGUE()
+        lyndis_league = self.LYNDIS_LEAGUE
         if name in lyndis_league:
             if lyn_mode is None:
                 raise InitError(
@@ -1567,7 +1602,7 @@ class Morph7(Morph):
             which_bases = 1
             lyn_mode = None
         # check if unit can be recruited on hard-mode
-        if name in self.HARD_MODE_UNIT_LIST():
+        if name in self.HARD_MODE_UNIT_LIST:
             if hard_mode is None:
                 raise InitError(
                     f"Please specify a `hard_mode` boolean value for {name}.",
@@ -1687,101 +1722,6 @@ class Morph7(Morph):
             stat_dict[stat] += value * num_levels
         self.current_stats = self.Stats(**stat_dict, multiplier=1)
 
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE7 characters.
-        """
-        return (
-            'Lyn',
-            'Sain',
-            'Kent',
-            'Florina',
-            'Wil',
-            'Dorcas',
-            'Serra',
-            'Erk',
-            'Rath',
-            'Matthew',
-            'Nils',
-            'Lucius',
-            'Wallace',
-            'Eliwood',
-            'Lowen',
-            'Marcus',
-            'Rebecca',
-            'Bartre',
-            'Hector',
-            'Oswin',
-            'Guy',
-            #'Guy (HM)',
-            'Merlinus',
-            'Priscilla',
-            'Raven',
-            #'Raven (HM)',
-            'Canas',
-            'Dart',
-            'Fiora',
-            'Legault',
-            #'Legault (HM)',
-            'Ninian',
-            'Isadora',
-            'Heath',
-            #'Heath (HM)',
-            'Hawkeye',
-            'Geitz',
-            #'Geitz (HM)',
-            'Farina',
-            'Pent',
-            'Louise',
-            'Karel',
-            'Harken',
-            #'Harken (HM)',
-            'Nino',
-            'Jaffar',
-            'Vaida',
-            #'Vaida (HM)',
-            'Karla',
-            'Renault',
-            'Athos',
-        )
-
-    @staticmethod
-    def HARD_MODE_UNIT_LIST() -> Iterable[str]:
-        """
-        Declares the list of all FE7 characters with hard-mode bonuses.
-        """
-        return (
-            'Guy',
-            'Raven',
-            'Legault',
-            'Heath',
-            'Geitz',
-            'Harken',
-            'Vaida',
-        )
-
-    @staticmethod
-    def LYNDIS_LEAGUE() -> Iterable[str]:
-        """
-        Returns list of Lyndis League.
-        """
-        return (
-            "Lyn",
-            "Sain",
-            "Kent",
-            "Florina",
-            "Wil",
-            "Dorcas",
-            "Serra",
-            "Erk",
-            "Rath",
-            "Matthew",
-            "Nils",
-            "Lucius",
-            "Wallace",
-        )
-
     def _set_min_promo_level(self) -> None:
         """
         Sets minimum promo-level of main lords to 1; sets minimum promo-level of other units to usual.
@@ -1836,6 +1776,51 @@ class Morph8(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
+    CHARACTER_LIST = (
+        'Eirika',
+        'Seth',
+        'Franz',
+        'Gilliam',
+        'Vanessa',
+        'Moulder',
+        'Ross',
+        'Garcia',
+        'Neimi',
+        'Colm',
+        'Artur',
+        'Lute',
+        'Natasha',
+        'Joshua',
+        'Ephraim',
+        'Forde',
+        'Kyle',
+        'Orson',
+        'Tana',
+        'Amelia',
+        'Innes',
+        'Gerik',
+        'Tethys',
+        'Marisa',
+        "L'Arachel",
+        'Dozla',
+        'Saleh',
+        'Ewan',
+        'Cormag',
+        'Rennac',
+        'Duessel',
+        'Knoll',
+        'Myrrh',
+        'Syrene',
+        'Caellach',
+        'Riev',
+        'Ismaire',
+        'Selena',
+        'Glen',
+        'Hayden',
+        'Valter',
+        'Fado',
+        'Lyon',
+    )
 
     @property
     def inventory_size(self) -> int:
@@ -1864,57 +1849,6 @@ class Morph8(Morph):
         else:
             min_promo_level = 10
         self.min_promo_level = min_promo_level
-
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE8 characters.
-        """
-        return (
-            'Eirika',
-            'Seth',
-            'Franz',
-            'Gilliam',
-            'Vanessa',
-            'Moulder',
-            'Ross',
-            'Garcia',
-            'Neimi',
-            'Colm',
-            'Artur',
-            'Lute',
-            'Natasha',
-            'Joshua',
-            'Ephraim',
-            'Forde',
-            'Kyle',
-            'Orson',
-            'Tana',
-            'Amelia',
-            'Innes',
-            'Gerik',
-            'Tethys',
-            'Marisa',
-            "L'Arachel",
-            'Dozla',
-            'Saleh',
-            'Ewan',
-            'Cormag',
-            'Rennac',
-            'Duessel',
-            'Knoll',
-            'Myrrh',
-            'Syrene',
-            'Caellach',
-            'Riev',
-            'Ismaire',
-            'Selena',
-            'Glen',
-            'Hayden',
-            'Valter',
-            'Fado',
-            'Lyon',
-        )
 
     def __init__(self, name: str):
         """
@@ -1984,6 +1918,156 @@ class Morph9(Morph):
         "Boots": ("Mov", 2),
         "Body Ring": ("Con", 3),
     }
+    CHARACTER_LIST = (
+        'Ike',
+        'Titania',
+        'Oscar',
+        'Boyd',
+        'Rhys',
+        'Shinon',
+        'Gatrie',
+        'Soren',
+        'Mia',
+        'Ilyana',
+        'Marcia',
+        'Mist',
+        'Rolf',
+        'Lethe',
+        'Mordecai',
+        'Volke',
+        'Kieran',
+        'Brom',
+        'Nephenee',
+        'Zihark',
+        'Jill',
+        'Sothe',
+        'Astrid',
+        'Makalov',
+        'Stefan',
+        'Muarim',
+        'Tormod',
+        'Devdan',
+        'Tanith',
+        'Reyson',
+        'Janaff',
+        'Ulki',
+        'Calill',
+        'Tauroneo',
+        'Ranulf',
+        'Haar',
+        'Lucia',
+        'Bastian',
+        'Geoffrey',
+        'Largo',
+        'Elincia',
+        'Ena',
+        'Nasir',
+        'Tibarn',
+        'Naesala',
+        'Giffca',
+        #'Sephiran',
+        #'Leanne',
+    )
+    KNIGHT_LIST = (
+        #'Ike',
+        'Titania',
+        'Oscar',
+        #'Boyd',
+        #'Rhys',
+        #'Shinon',
+        'Gatrie',
+        #'Soren',
+        #'Mia',
+        #'Ilyana',
+        #'Marcia',
+        #'Mist',
+        #'Rolf',
+        #'Lethe',
+        #'Mordecai',
+        #'Volke',
+        'Kieran',
+        'Brom',
+        'Nephenee',
+        #'Zihark',
+        #'Jill',
+        #'Sothe',
+        'Astrid',
+        'Makalov',
+        #'Stefan',
+        #'Muarim',
+        #'Tormod',
+        'Devdan',
+        #'Tanith',
+        #'Reyson',
+        #'Janaff',
+        #'Ulki',
+        #'Calill',
+        'Tauroneo',
+        #'Ranulf',
+        #'Haar',
+        #'Lucia',
+        #'Bastian',
+        'Geoffrey',
+        #'Largo',
+        #'Elincia',
+        #'Ena',
+        #'Nasir',
+        #'Tibarn',
+        #'Naesala',
+        #'Giffca',
+        #'Sephiran',
+        #'Leanne',
+    )
+    LAGUZ_LIST = (
+        #'Ike',
+        #'Titania',
+        #'Oscar',
+        #'Boyd',
+        #'Rhys',
+        #'Shinon',
+        #'Gatrie',
+        #'Soren',
+        #'Mia',
+        #'Ilyana',
+        #'Marcia',
+        #'Mist',
+        #'Rolf',
+        'Lethe',
+        'Mordecai',
+        #'Volke',
+        #'Kieran',
+        #'Brom',
+        #'Nephenee',
+        #'Zihark',
+        #'Jill',
+        #'Sothe',
+        #'Astrid',
+        #'Makalov',
+        #'Stefan',
+        'Muarim',
+        #'Tormod',
+        #'Devdan',
+        #'Tanith',
+        'Reyson',
+        'Janaff',
+        'Ulki',
+        #'Calill',
+        #'Tauroneo',
+        'Ranulf',
+        #'Haar',
+        #'Lucia',
+        #'Bastian',
+        #'Geoffrey',
+        #'Largo',
+        #'Elincia',
+        'Ena',
+        'Nasir',
+        'Tibarn',
+        'Naesala',
+        'Giffca',
+        #'Sephiran',
+        #'Leanne',
+    )
 
     @property
     def inventory_size(self) -> int:
@@ -2008,184 +2092,16 @@ class Morph9(Morph):
             promotion_item = None
         return promotion_item
 
-    @staticmethod
-    def CHARACTER_LIST() -> Iterable[str]:
-        """
-        Declares the list of all valid FE9 characters.
-        """
-        return (
-            'Ike',
-            'Titania',
-            'Oscar',
-            'Boyd',
-            'Rhys',
-            'Shinon',
-            'Gatrie',
-            'Soren',
-            'Mia',
-            'Ilyana',
-            'Marcia',
-            'Mist',
-            'Rolf',
-            'Lethe',
-            'Mordecai',
-            'Volke',
-            'Kieran',
-            'Brom',
-            'Nephenee',
-            'Zihark',
-            'Jill',
-            'Sothe',
-            'Astrid',
-            'Makalov',
-            'Stefan',
-            'Muarim',
-            'Tormod',
-            'Devdan',
-            'Tanith',
-            'Reyson',
-            'Janaff',
-            'Ulki',
-            'Calill',
-            'Tauroneo',
-            'Ranulf',
-            'Haar',
-            'Lucia',
-            'Bastian',
-            'Geoffrey',
-            'Largo',
-            'Elincia',
-            'Ena',
-            'Nasir',
-            'Tibarn',
-            'Naesala',
-            'Giffca',
-            #'Sephiran',
-            #'Leanne',
-        )
-
-    @staticmethod
-    def LAGUZ_LIST():
-        """
-        Returns a list of Laguz units.
-        """
-        return (
-            #'Ike',
-            #'Titania',
-            #'Oscar',
-            #'Boyd',
-            #'Rhys',
-            #'Shinon',
-            #'Gatrie',
-            #'Soren',
-            #'Mia',
-            #'Ilyana',
-            #'Marcia',
-            #'Mist',
-            #'Rolf',
-            'Lethe',
-            'Mordecai',
-            #'Volke',
-            #'Kieran',
-            #'Brom',
-            #'Nephenee',
-            #'Zihark',
-            #'Jill',
-            #'Sothe',
-            #'Astrid',
-            #'Makalov',
-            #'Stefan',
-            'Muarim',
-            #'Tormod',
-            #'Devdan',
-            #'Tanith',
-            'Reyson',
-            'Janaff',
-            'Ulki',
-            #'Calill',
-            #'Tauroneo',
-            'Ranulf',
-            #'Haar',
-            #'Lucia',
-            #'Bastian',
-            #'Geoffrey',
-            #'Largo',
-            #'Elincia',
-            'Ena',
-            'Nasir',
-            'Tibarn',
-            'Naesala',
-            'Giffca',
-            #'Sephiran',
-            #'Leanne',
-        )
-
-    @staticmethod
-    def KNIGHT_LIST() -> Iterable[str]:
-        """
-        Declares the list of all FE9 knights.
-        """
-        return (
-            #'Ike',
-            'Titania',
-            'Oscar',
-            #'Boyd',
-            #'Rhys',
-            #'Shinon',
-            'Gatrie',
-            #'Soren',
-            #'Mia',
-            #'Ilyana',
-            #'Marcia',
-            #'Mist',
-            #'Rolf',
-            #'Lethe',
-            #'Mordecai',
-            #'Volke',
-            'Kieran',
-            'Brom',
-            'Nephenee',
-            #'Zihark',
-            #'Jill',
-            #'Sothe',
-            'Astrid',
-            'Makalov',
-            #'Stefan',
-            #'Muarim',
-            #'Tormod',
-            'Devdan',
-            #'Tanith',
-            #'Reyson',
-            #'Janaff',
-            #'Ulki',
-            #'Calill',
-            'Tauroneo',
-            #'Ranulf',
-            #'Haar',
-            #'Lucia',
-            #'Bastian',
-            'Geoffrey',
-            #'Largo',
-            #'Elincia',
-            #'Ena',
-            #'Nasir',
-            #'Tibarn',
-            #'Naesala',
-            #'Giffca',
-            #'Sephiran',
-            #'Leanne',
-        )
-
     def __init__(self, name: str):
         """
         Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        self.is_knight = name in self.KNIGHT_LIST()
+        self.is_knight = name in self.KNIGHT_LIST
         self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
-        self.is_laguz = name in self.LAGUZ_LIST()
+        self.is_laguz = name in self.LAGUZ_LIST
         # for laguz units.
         if self.is_laguz is True:
             self.is_transformed = False
@@ -2324,7 +2240,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot equip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST(),
+                knights=self.KNIGHT_LIST,
             )
         if len(self.equipped_bands) >= self.inventory_size:
             valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
@@ -2353,7 +2269,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST(),
+                knights=self.KNIGHT_LIST,
             )
         if "Knight Ward" not in self.equipped_bands:
             valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
@@ -2379,7 +2295,7 @@ class Morph9(Morph):
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
-                knights=self.KNIGHT_LIST(),
+                knights=self.KNIGHT_LIST,
             )
         elif equip is True and not knight_ward_is_equipped:
             try:
