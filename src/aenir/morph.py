@@ -2637,7 +2637,7 @@ class Morph9(Morph):
 
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """
-    Ergonomic means whereby one may access all Morph classes.
+    Ergonomic means whereby one may instantiate a Morph.
     """
     try:
         morph_cls = {
@@ -2649,10 +2649,26 @@ def get_morph(game_no: int, name: str, **kwargs) -> Morph:
             9: Morph9,
         }[game_no]
     except KeyError:
-        raise NotImplementedError("Stat comparison for FE%s has not been implemented." % game_no)
+        raise NotImplementedError("Stat comparison for FE%r has not been implemented." % game_no)
     morph = morph_cls(name, **kwargs)
     return morph
 
+def get_morph_class(game_no: int):
+    """
+    Ergonomic means whereby one may access all Morph classes.
+    """
+    try:
+        morph_cls = {
+            4: Morph4,
+            5: Morph5,
+            6: Morph6,
+            7: Morph7,
+            8: Morph8,
+            9: Morph9,
+        }[game_no]
+        return morph_cls
+    except KeyError:
+        raise NotImplementedError("Stat comparison for FE%r has not been implemented." % game_no)
 
 # Web Interface
 # TODO: Make sure that confirm-button remains disabled when trying and failing to boost stats via item.

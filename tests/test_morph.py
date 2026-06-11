@@ -13,6 +13,7 @@ import aenir.morph
 from aenir.games import FireEmblemGame
 from aenir.morph import (
     get_morph,
+    get_morph_class,
     BaseMorph,
     Morph,
     Morph4,
@@ -6211,6 +6212,34 @@ class GetMorph(unittest.TestCase):
         for game, lord in lords_and_games.items():
             with self.assertRaises(NotImplementedError):
                 get_morph(game, lord)
+
+class GetMorphClass(unittest.TestCase):
+    """
+    Tests `get_morph` shortcut function on a few test cases.
+    """
+
+    def setUp(self):
+        """
+        Adds test-id to log for demarcation
+        """
+        logger.critical("%s", self.id())
+
+    def test_fe6(self):
+        """
+        FE6
+        """
+        actual = get_morph_class(6)
+        expected = Morph6
+        self.assertEqual(actual, expected)
+
+    def test_fe6__6_is_str(self):
+        """
+        FE6
+        """
+        with self.assertRaises(NotImplementedError):
+            get_morph_class("6")
+        #expected = Morph6
+        #self.assertEqual(actual, expected)
 
 class FE7HarkenHM(unittest.TestCase):
     """
