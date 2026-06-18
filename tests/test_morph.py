@@ -444,7 +444,12 @@ class AllMorphs(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-            CHARACTERS = ("Holyn",)
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return ("Holyn",)
 
             @classmethod
             def GAME(cls):
@@ -510,81 +515,86 @@ class Morph6Class2(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTERS = (
-                "Roy",
-                "Marcus",
-                "Allen",
-                "Lance",
-                "Wolt",
-                "Bors",
-                "Merlinus",
-                "Ellen",
-                "Dieck",
-                "Wade",
-                "Lott",
-                "Thany",
-                "Chad",
-                "Lugh",
-                "Clarine",
-                "Rutger",
-                "Rutger (HM)",
-                "Saul",
-                "Dorothy",
-                "Sue",
-                "Zealot",
-                "Treck",
-                "Noah",
-                "Astohl",
-                "Lilina",
-                "Wendy",
-                "Barth",
-                "Oujay",
-                "Fir",
-                "Fir (HM)",
-                "Shin",
-                "Shin (HM)",
-                "Gonzales",
-                "Gonzales (HM)",
-                "Geese",
-                "Klein",
-                "Klein (HM)",
-                "Tate",
-                "Tate (HM)",
-                "Lalum",
-                "Echidna",
-                "Elphin",
-                "Bartre",
-                "Ray",
-                "Cath",
-                "Cath (HM)",
-                "Miredy",
-                "Miredy (HM)",
-                "Percival",
-                "Percival (HM)",
-                "Cecilia",
-                "Sofiya",
-                "Igrene",
-                "Garret",
-                "Garret (HM)",
-                "Fa",
-                "Hugh",
-                "Zeis",
-                "Zeis (HM)",
-                "Douglas",
-                "Niime",
-                "Dayan",
-                "Juno",
-                "Yodel",
-                "Karel",
-                "Narshen",
-                "Gale",
-                "Hector",
-                "Brunya",
-                "Eliwood",
-                "Murdoch",
-                "Zephiel",
-                "Guinevere",
-            )
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return (
+                    "Roy",
+                    "Marcus",
+                    "Allen",
+                    "Lance",
+                    "Wolt",
+                    "Bors",
+                    "Merlinus",
+                    "Ellen",
+                    "Dieck",
+                    "Wade",
+                    "Lott",
+                    "Thany",
+                    "Chad",
+                    "Lugh",
+                    "Clarine",
+                    "Rutger",
+                    "Rutger (HM)",
+                    "Saul",
+                    "Dorothy",
+                    "Sue",
+                    "Zealot",
+                    "Treck",
+                    "Noah",
+                    "Astohl",
+                    "Lilina",
+                    "Wendy",
+                    "Barth",
+                    "Oujay",
+                    "Fir",
+                    "Fir (HM)",
+                    "Shin",
+                    "Shin (HM)",
+                    "Gonzales",
+                    "Gonzales (HM)",
+                    "Geese",
+                    "Klein",
+                    "Klein (HM)",
+                    "Tate",
+                    "Tate (HM)",
+                    "Lalum",
+                    "Echidna",
+                    "Elphin",
+                    "Bartre",
+                    "Ray",
+                    "Cath",
+                    "Cath (HM)",
+                    "Miredy",
+                    "Miredy (HM)",
+                    "Percival",
+                    "Percival (HM)",
+                    "Cecilia",
+                    "Sofiya",
+                    "Igrene",
+                    "Garret",
+                    "Garret (HM)",
+                    "Fa",
+                    "Hugh",
+                    "Zeis",
+                    "Zeis (HM)",
+                    "Douglas",
+                    "Niime",
+                    "Dayan",
+                    "Juno",
+                    "Yodel",
+                    "Karel",
+                    "Narshen",
+                    "Gale",
+                    "Hector",
+                    "Brunya",
+                    "Eliwood",
+                    "Murdoch",
+                    "Zephiel",
+                    "Guinevere",
+                )
 
         self.Morph = TestMorph6
         self.Morph.__name__ = "Morph"
@@ -674,7 +684,7 @@ class Morph6Class2(unittest.TestCase):
             "Zephiel",
             "Guinevere",
         )
-        actual = self.Morph.CHARACTERS
+        actual = self.Morph.CHARACTERS()
         self.assertTupleEqual(actual, expected)
 
     def test_set_max_level(self):
@@ -805,7 +815,12 @@ class FE4Ayra(unittest.TestCase):
             """
             #__name__ = "Morph"
             game_no = 4
-            CHARACTERS = ("Ira",)
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return ("Ira",)
 
             @classmethod
             def GAME(cls):
@@ -880,7 +895,12 @@ class FE6RutgerProtoMorph(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTERS = ("Rutger",)
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return ("Rutger",)
 
         self.morph = TestMorph6("Rutger", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
@@ -1180,7 +1200,12 @@ class FE6RoyProtoMorph(unittest.TestCase):
             A virtual representation of a unit from FE6: Binding Blade.
             """
             game_no = 6
-            CHARACTERS = ("Roy",)
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return ("Roy",)
         self.morph = TestMorph6("Roy", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
@@ -1335,7 +1360,7 @@ class Morph4Class(Morph4TestCase):
         """
         Validates `CHILDREN`.
         """
-        actual = Morph4.CHILDREN
+        actual = Morph4.CHILDREN()
         expected = (
             'Rana',
             'Lakche',
@@ -1358,7 +1383,7 @@ class Morph4Class(Morph4TestCase):
         """
         Validates `FATHERS`.
         """
-        actual = Morph4.FATHERS
+        actual = Morph4.FATHERS()
         expected = (
             'Arden',
             'Azel',
@@ -1847,7 +1872,7 @@ class FE9MorphClass(Morph5TestCase):
         """
         Checks value of KNIGHTS static method.
         """
-        actual = Morph9.KNIGHTS
+        actual = Morph9.KNIGHTS()
         expected = (
             'Titania',
             'Oscar',
@@ -1921,7 +1946,7 @@ class FE7MorphClass(Morph5TestCase):
         """
         Checks value of LYNDIS_LEAGUE static method.
         """
-        actual = Morph7.LYNDIS_LEAGUE
+        actual = Morph7.LYNDIS_LEAGUE()
         expected = (
             "Lyn",
             "Sain",
@@ -1954,7 +1979,7 @@ class FE5MorphClass(Morph5TestCase):
         """
         Checks the value of the static CRUSADERS method.
         """
-        actual = Morph5.CRUSADERS
+        actual = Morph5.CRUSADERS()
         expected = (
             'Baldo',
             'Blaggi',
@@ -2260,7 +2285,7 @@ class FE5Leif(Morph5TestCase):
         og_growths = leif._og_growth_rates.as_dict()
         new_growths = leif.growth_rates.as_dict()
         comparison = {}
-        for stat in leif.Stats.STAT_LIST:
+        for stat in leif.Stats.STAT_LIST():
             og_stat = og_growths[stat]
             new_stat = new_growths[stat]
             comparison[stat] = new_stat > og_stat
@@ -2945,7 +2970,7 @@ class Morph6Class(Morph6TestCase):
             #'Zephiel',
             #'Guinevere',
         )
-        actual = tuple(Morph6.CHARACTERS)
+        actual = tuple(Morph6.CHARACTERS())
         self.assertTupleEqual(actual, expected)
 
 
@@ -2971,7 +2996,7 @@ class FE6Gonzales(Morph6TestCase):
             'Garret',
             'Zeis',
         )
-        actual = Morph6.HARD_MODE_UNITS
+        actual = Morph6.HARD_MODE_UNITS()
         self.assertTupleEqual(actual, expected)
 
     def test_gonzales__no_route_or_hm(self):
@@ -3617,7 +3642,7 @@ class Morph7Class(Morph7TestCase):
             'Renault',
             'Athos',
         )
-        actual = tuple(Morph7.CHARACTERS)
+        actual = tuple(Morph7.CHARACTERS())
         self.assertTupleEqual(actual, expected)
 
 class FE7Ninian(Morph7TestCase):
@@ -3638,7 +3663,7 @@ class FE7Ninian(Morph7TestCase):
             'Harken',
             'Vaida',
         )
-        actual = Morph7.HARD_MODE_UNITS
+        actual = Morph7.HARD_MODE_UNITS()
         self.assertTupleEqual(actual, expected)
 
     def test_ninian__lyn_mode(self):
@@ -4161,7 +4186,7 @@ class FE7HardModeUnit(Morph7TestCase):
         expected = raven._meta
         self.assertIsNot(actual, expected)
         logger.debug("actual: %r, expected: %r", base_raven.current_stats.as_dict(), raven_clone.current_stats.as_dict())
-        for stat in raven.Stats.STAT_LIST:
+        for stat in raven.Stats.STAT_LIST():
             actual = getattr(raven.current_stats, stat)
             expected = getattr(raven_clone.current_stats, stat)
             logger.debug("(%s) actual: %r, expected: %r", stat, actual, expected)
@@ -4837,7 +4862,12 @@ class FE8Ross2(unittest.TestCase):
             A virtual representation of a unit from FE8: The Sacred Stones.
             """
             game_no = 8
-            CHARACTERS = ("Ross",)
+
+            @staticmethod
+            def CHARACTERS():
+                """
+                """
+                return ("Ross",)
         self.morph = TestMorph8("Ross", which_bases=0, which_growths=0)
         logger.critical("%s", self.id())
 
@@ -5353,7 +5383,7 @@ class FE9Ike(Morph9TestCase):
         og_growths = ike._og_growth_rates.as_dict()
         new_growths = ike.growth_rates.as_dict()
         comparison = {}
-        for stat in ike.Stats.STAT_LIST:
+        for stat in ike.Stats.STAT_LIST():
             og_stat = og_growths[stat]
             new_stat = new_growths[stat]
             comparison[stat] = new_stat > og_stat
@@ -6750,7 +6780,7 @@ class FE9AllLaguzUnits(unittest.TestCase):
         """
         Initializes list of morphs to initialize.
         """
-        self.laguz_list = Morph9.LAGUZ
+        self.laguz_list = Morph9.LAGUZ()
 
     def test_transform__and__revert(self):
         """
@@ -6866,7 +6896,7 @@ class FE6Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 6
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS()
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6911,7 +6941,7 @@ class FE7Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 7
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS()
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6942,7 +6972,7 @@ class FE8Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 8
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS()
 
     def test_mov_and_con_are_nonzero(self):
         """
@@ -6966,7 +6996,7 @@ class FE9Units(unittest.TestCase):
         Initializes initialization parameters.
         """
         self.game_no = 9
-        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS
+        self.character_list = getattr(aenir.morph, "Morph%d" % self.game_no).CHARACTERS()
 
     def test_mov_and_con_and_wt_are_nonzero(self):
         """
