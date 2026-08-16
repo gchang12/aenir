@@ -6,7 +6,7 @@ cffi==2.0.0
 chardet==7.4.3
 charset-normalizer==3.4.7
 colorama==0.4.6
-cryptography==49.0.0
+cryptography
 distlib==0.4.3
 docutils==0.23
 filelock==3.29.4
