@@ -962,9 +962,9 @@ class FE6RutgerProtoMorph(unittest.TestCase):
             actual,
             expected,
         )
-        actual = rutger._meta
+        actual = rutger._miscellany
         expected = {
-            #"Hard Mode": False,
+            #"hard_mode": False,
             "Stat Boosters": [],
         }
         self.assertDictEqual(
@@ -2253,7 +2253,7 @@ class FE5Leif(Morph5TestCase):
         with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
             leif.set_scrolls(scrolls)
         MOCK_modify_growths.assert_called_once_with()
-        actual = tuple(leif.equipped_scrolls)
+        actual = tuple(leif._miscellany['equipped_scrolls'])
         expected = tuple(scrolls)
         self.assertTupleEqual(actual, expected)
 
@@ -2279,7 +2279,7 @@ class FE5Leif(Morph5TestCase):
         #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
         leif.set_scrolls(scrolls)
         #MOCK_modify_growths.assert_called_once_with()
-        actual = tuple(leif.equipped_scrolls)
+        actual = tuple(leif._miscellany['equipped_scrolls'])
         expected = tuple(scrolls)
         self.assertTupleEqual(actual, expected)
         og_growths = leif._og_growth_rates.as_dict()
@@ -2603,7 +2603,7 @@ class FE5Eda(Morph5TestCase):
         Asserts that effectively negative growth rates are zero.
         """
         eda = self.morph
-        eda.equipped_scrolls[None] = eda.Stats(**eda.Stats.get_stat_dict(-200))
+        eda._miscellany['equipped_scrolls'][None] = eda.Stats(**eda.Stats.get_stat_dict(-200))
         eda._apply_scroll_bonuses()
         actual = all(eda.growth_rates == eda.Stats(**eda.Stats.get_stat_dict(0)))
         expected = True
@@ -2622,7 +2622,7 @@ class FE5Eda(Morph5TestCase):
         for scroll in scrolls_to_equip:
             eda.equip_scroll(scroll)
         eda.unequip_scroll(scroll)
-        actual = set(eda.equipped_scrolls)
+        actual = set(eda._miscellany['equipped_scrolls'])
         expected = set(scrolls_to_equip) - {"Fala"}
         self.assertSetEqual(actual, expected)
 
@@ -2725,8 +2725,8 @@ class FE5Eda(Morph5TestCase):
         scroll_name = "Odo"
         og_growths = eda.growth_rates.copy()
         eda.equip_scroll(scroll_name)
-        self.assertIn(scroll_name, eda.equipped_scrolls)
-        self.assertEqual(len(eda.equipped_scrolls), 1)
+        self.assertIn(scroll_name, eda._miscellany['equipped_scrolls'])
+        self.assertEqual(len(eda._miscellany['equipped_scrolls']), 1)
         new_growths = eda.growth_rates
         actual = all(og_growths == new_growths)
         expected = False
@@ -2796,8 +2796,8 @@ class FE5Eda(Morph5TestCase):
         expected = ScrollError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
-        self.assertNotIn(scroll_name, eda.equipped_scrolls)
-        self.assertEqual(len(eda.equipped_scrolls), 0)
+        self.assertNotIn(scroll_name, eda._miscellany['equipped_scrolls'])
+        self.assertEqual(len(eda._miscellany['equipped_scrolls']), 0)
         new_growths = eda.growth_rates
         actual = all(og_growths == new_growths)
         expected = True
@@ -2830,7 +2830,7 @@ class FE5Eda(Morph5TestCase):
             scroll_name = self.scrolls[i]
             eda.equip_scroll(scroll_name)
         # affirm size of equipped scrolls
-        self.assertGreater(len(self.scrolls), len(eda.equipped_scrolls))
+        self.assertGreater(len(self.scrolls), len(eda._miscellany['equipped_scrolls']))
         # try to equip another scroll
         scroll_name = self.scrolls[-1]
         with self.assertRaises(ScrollError) as err_ctx:
@@ -3301,14 +3301,14 @@ class FE6Rutger(Morph6TestCase):
 
     def test_hardmode_version_exists(self):
         """
-        Validate _meta['Hard Mode'] value.
+        Validate _meta['hard_mode'] value.
         """
         hard_mode = False
         rutger = Morph6("Rutger", hard_mode=hard_mode)
-        self.assertIs(rutger._meta["Hard Mode"], hard_mode)
+        self.assertIs(rutger.init_options["hard_mode"], hard_mode)
         hard_mode = True
         rutger2 = Morph6("Rutger", hard_mode=hard_mode)
-        self.assertIs(rutger2._meta["Hard Mode"], hard_mode)
+        self.assertIs(rutger2.init_options["hard_mode"], hard_mode)
         self.assertEqual(rutger2.name, "Rutger")
 
     def test_hardmode_diff(self):
@@ -3386,7 +3386,7 @@ class FE6Roy(Morph6TestCase):
         """
         with self.assertLogs(logger, logging.WARNING):
             wolt = Morph6("Roy", hard_mode=True)
-        self.assertIsNone(wolt._meta["Hard Mode"])
+        self.assertIsNone(wolt.init_options["hard_mode"])
 
     def test_inventory_size(self):
         """
@@ -3549,7 +3549,7 @@ class FE6Hugh(Morph6TestCase):
         number_of_declines = 3
         with self.assertLogs(logger, logging.WARNING):
             morph = Morph6("Roy", number_of_declines=number_of_declines)
-        actual = morph._meta["Number of Declines"]
+        actual = morph.init_options["number_of_declines"]
         self.assertIsNone(actual)
 
 class Morph7TestCase(unittest.TestCase):
@@ -4182,8 +4182,8 @@ class FE7HardModeUnit(Morph7TestCase):
         actual = raven_clone.current_stats
         expected = base_raven.current_stats
         self.assertEqual(actual, expected)
-        actual = raven_clone._meta
-        expected = raven._meta
+        actual = raven_clone._miscellany
+        expected = raven._miscellany
         self.assertIsNot(actual, expected)
         logger.debug("actual: %r, expected: %r", base_raven.current_stats.as_dict(), raven_clone.current_stats.as_dict())
         for stat in raven.Stats.STAT_LIST():
@@ -4199,22 +4199,22 @@ class FE7HardModeUnit(Morph7TestCase):
         """
         logger.debug("This function now gets the old bonuses. Deprecate when possible.")
         raven = Morph7("Raven (HM)", hard_mode=False)
-        self.assertIsNone(raven._meta["Hard Mode"])
+        self.assertIsNone(raven.init_options["hard_mode"])
         raven2 = Morph7("Raven", hard_mode=True)
-        self.assertIs(raven2._meta["Hard Mode"], True)
+        self.assertIs(raven2.init_options["hard_mode"], True)
         diff = (raven.current_stats > raven2.current_stats).as_dict()
         self.assertSetEqual(set(diff.values()), {0, None})
 
     def test_hardmode_version_exists(self):
         """
-        Validates `_meta['Hard Mode']` parameter of morph instance.
+        Validates `_meta['hard_mode']` parameter of morph instance.
         """
         hard_mode = False
         raven = Morph7("Raven", hard_mode=hard_mode)
-        self.assertIs(raven._meta["Hard Mode"], hard_mode)
+        self.assertIs(raven.init_options["hard_mode"], hard_mode)
         hard_mode = True
         raven2 = Morph7("Raven", hard_mode=hard_mode)
-        self.assertIs(raven2._meta["Hard Mode"], hard_mode)
+        self.assertIs(raven2.init_options["hard_mode"], hard_mode)
         self.assertEqual(raven2.name, "Raven")
 
     def test_hardmode_diff(self):
@@ -4247,7 +4247,7 @@ class FE7NormalOnlyUnit(Morph7TestCase):
         """
         with self.assertLogs(logger, logging.WARNING):
             lyn = Morph7("Lyn", hard_mode=True, lyn_mode=True)
-        self.assertIsNone(lyn._meta["Hard Mode"])
+        self.assertIsNone(lyn.init_options["hard_mode"])
 
 class FE7NonLyndisLeague(Morph7TestCase):
     """
@@ -4260,7 +4260,7 @@ class FE7NonLyndisLeague(Morph7TestCase):
         """
         with self.assertLogs(logger, logging.WARNING):
             athos = Morph7("Athos", lyn_mode=True)
-        self.assertIsNone(athos._meta["Lyn Mode"])
+        self.assertIsNone(athos.init_options["lyn_mode"])
 
 class FE7LyndisLeague(Morph7TestCase):
     """
@@ -4286,15 +4286,15 @@ class FE7LyndisLeague(Morph7TestCase):
         Comparing across campaigns.
         """
         lyn = Morph7("Lyn", lyn_mode=True)
-        self.assertIs(lyn._meta["Lyn Mode"], True)
+        self.assertIs(lyn.init_options["lyn_mode"], True)
         lyn2 = Morph7("Lyn", lyn_mode=False)
-        self.assertIs(lyn2._meta["Lyn Mode"], False)
+        self.assertIs(lyn2.init_options["lyn_mode"], False)
         diff = (lyn.current_stats > lyn2.current_stats).as_dict()
         self.assertNotEqual(set(diff.values()), {0})
 
     def test_lyndis_league(self):
         """
-        Initialize all Lyn Mode units sans Wallace.
+        Initialize all lyn_mode units sans Wallace.
         """
         lyndis_league = (
             "Lyn",
@@ -4314,9 +4314,9 @@ class FE7LyndisLeague(Morph7TestCase):
         for name in filter(lambda name: name != "Wallace", lyndis_league):
             logger.debug("name: '%s'", name)
             morph = Morph7(name, lyn_mode=True)
-            self.assertIs(morph._meta["Lyn Mode"], True)
+            self.assertIs(morph.init_options["lyn_mode"], True)
             morph2 = Morph7(name, lyn_mode=False)
-            self.assertIs(morph2._meta["Lyn Mode"], False)
+            self.assertIs(morph2.init_options["lyn_mode"], False)
             diff = (morph.current_stats > morph2.current_stats).as_dict()
             if name in ("Dorcas", "Serra", "Erk", "Matthew", "Nils", "Lucius"):
                 logger.debug("'%s' does not differ stat-wise between tutorial and main campaign.", name)
@@ -5356,7 +5356,7 @@ class FE9Ike(Morph9TestCase):
         with patch("aenir.morph.Morph9._apply_band_bonuses") as MOCK_modify_growths:
             ike.set_bands(bands)
         MOCK_modify_growths.assert_called_once_with()
-        actual = tuple(ike.equipped_bands)
+        actual = tuple(ike._miscellany['equipped_bands'])
         expected = tuple(bands)
         self.assertTupleEqual(actual, expected)
 
@@ -5377,7 +5377,7 @@ class FE9Ike(Morph9TestCase):
         #with patch("aenir.morph.Morph5._apply_scroll_bonuses") as MOCK_modify_growths:
         ike.set_bands(bands)
         #MOCK_modify_growths.assert_called_once_with()
-        actual = tuple(ike.equipped_bands)
+        actual = tuple(ike._miscellany['equipped_bands'])
         expected = tuple(bands)
         self.assertTupleEqual(actual, expected)
         og_growths = ike._og_growth_rates.as_dict()
@@ -5636,15 +5636,15 @@ class FE9Knight(Morph9TestCase):
         )
         morph = self.morph
         morph.set_bands(bands)
-        actual = set(morph.equipped_bands)
+        actual = set(morph._miscellany['equipped_bands'])
         expected = set(bands)
         self.assertSetEqual(actual, expected)
         morph.set_knight_ward(True)
-        actual = set(morph.equipped_bands)
+        actual = set(morph._miscellany['equipped_bands'])
         expected = set(bands).union(["Knight Ward"])
         self.assertSetEqual(actual, expected)
         morph.set_knight_ward(False)
-        actual = set(morph.equipped_bands)
+        actual = set(morph._miscellany['equipped_bands'])
         expected = set(bands)
         self.assertSetEqual(actual, expected)
 
@@ -5654,7 +5654,7 @@ class FE9Knight(Morph9TestCase):
         """
         morph = self.morph
         morph.set_knight_ward(True)
-        actual = tuple(morph.equipped_bands)
+        actual = tuple(morph._miscellany['equipped_bands'])
         expected = ("Knight Ward",)
         self.assertTupleEqual(actual, expected)
         morph.set_knight_ward(True)
@@ -5666,7 +5666,7 @@ class FE9Knight(Morph9TestCase):
         """
         morph = self.morph
         morph.set_knight_ward(False)
-        actual = tuple(morph.equipped_bands)
+        actual = tuple(morph._miscellany['equipped_bands'])
         expected = ()
         self.assertTupleEqual(actual, expected)
         morph.set_knight_ward(False)
@@ -5700,7 +5700,7 @@ class FE9Knight(Morph9TestCase):
         actual = err.reason
         expected = BandError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
-        self.assertIn("Knight Ward", morph.equipped_bands)
+        self.assertIn("Knight Ward", morph._miscellany['equipped_bands'])
 
     #@unittest.expectedFailure
     def test_set_bands__inventory_is_not_full(self):
@@ -5725,7 +5725,7 @@ class FE9Knight(Morph9TestCase):
         morph = self.morph
         morph.equip_knight_ward()
         morph.set_bands(bands)
-        self.assertSetEqual(set(bands), set(morph.equipped_bands))
+        self.assertSetEqual(set(bands), set(morph._miscellany['equipped_bands']))
 
     def test_set_knight_ward__bands_are_set(self):
         """
@@ -5747,7 +5747,7 @@ class FE9Knight(Morph9TestCase):
         morph = self.morph
         morph.set_bands(bands)
         morph.set_knight_ward(True)
-        self.assertSetEqual(set(bands).union(set(["Knight Ward"])), set(morph.equipped_bands))
+        self.assertSetEqual(set(bands).union(set(["Knight Ward"])), set(morph._miscellany['equipped_bands']))
 
     def test_set_knight_ward__too_many_bands(self):
         """
@@ -5774,7 +5774,7 @@ class FE9Knight(Morph9TestCase):
         actual = err.reason
         expected = KnightWardError.Reason.NO_INVENTORY_SPACE
         self.assertEqual(actual, expected)
-        self.assertSetEqual(set(bands), set(morph.equipped_bands))
+        self.assertSetEqual(set(bands), set(morph._miscellany['equipped_bands']))
 
     def test_unequip_knight_ward__has_been_augmented(self):
         """
@@ -5821,7 +5821,7 @@ class FE9Knight(Morph9TestCase):
             #"Thief Band",
         )
         for scroll in scrolls:
-            kieran.equipped_bands[scroll] = None
+            kieran._miscellany['equipped_bands'][scroll] = None
         with self.assertRaises(KnightWardError) as err_ctx:
             kieran.equip_knight_ward()
         err = err_ctx.exception
@@ -5851,9 +5851,9 @@ class FE9Knight(Morph9TestCase):
         kieran = self.morph
         with self.assertRaises(KnightWardError):
             kieran.unequip_knight_ward()
-        #kieran.equipped_bands = {"Knight Ward": None}
+        #kieran._miscellany['equipped_bands'] = {"Knight Ward": None}
         expected = {}
-        actual = kieran.equipped_bands
+        actual = kieran._miscellany['equipped_bands']
         self.assertDictEqual(actual, expected)
         self.assertEqual(kieran.growth_rates, kieran._og_growth_rates)
 
@@ -5925,8 +5925,8 @@ class FE9BandEquipper(Morph9TestCase):
         band_name = "Sword Band"
         og_growths = jill.growth_rates.copy()
         jill.equip_band(band_name)
-        self.assertIn(band_name, jill.equipped_bands)
-        self.assertEqual(len(jill.equipped_bands), 1)
+        self.assertIn(band_name, jill._miscellany['equipped_bands'])
+        self.assertEqual(len(jill._miscellany['equipped_bands']), 1)
         new_growths = jill.growth_rates
         actual = all(og_growths == new_growths)
         expected = False
@@ -6033,12 +6033,12 @@ class FE9BandEquipper(Morph9TestCase):
             band_name = self.bands[i]
             jill.equip_band(band_name)
         # affirm size of equipped bands
-        self.assertGreater(len(self.bands), len(jill.equipped_bands))
-        logger.debug("Equipped bands: '%s'", jill.equipped_bands.keys())
+        self.assertGreater(len(self.bands), len(jill._miscellany['equipped_bands']))
+        logger.debug("Equipped bands: '%s'", jill._miscellany['equipped_bands'].keys())
         # try to equip another band
         last_band = self.bands[-1]
         logger.debug("Trying to equip: '%s'", last_band)
-        self.assertNotIn(last_band, jill.equipped_bands)
+        self.assertNotIn(last_band, jill._miscellany['equipped_bands'])
         with self.assertRaises(BandError) as err_ctx:
             jill.equip_band(last_band)
         err = err_ctx.exception
@@ -6078,8 +6078,8 @@ class FE9BandEquipper(Morph9TestCase):
         expected = BandError.Reason.NOT_FOUND
         self.assertEqual(actual, expected)
         # check state
-        self.assertNotIn(band_name, jill.equipped_bands)
-        self.assertEqual(len(jill.equipped_bands), 0)
+        self.assertNotIn(band_name, jill._miscellany['equipped_bands'])
+        self.assertEqual(len(jill._miscellany['equipped_bands']), 0)
         new_growths = jill.growth_rates
         actual = all(og_growths == new_growths)
         expected = True
@@ -6352,7 +6352,7 @@ class FE6CathHM(unittest.TestCase):
         }
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
-        morph.chapter = "12"
+        morph._init_options["chapter"] = "12"
         morph._apply_hard_mode_bonus()
         expected = {
             "HP": 20_05,
@@ -6429,7 +6429,7 @@ class FE6TateHM(unittest.TestCase):
         }
         actual = morph.current_stats.as_dict()
         self.assertDictEqual(actual, expected)
-        morph.chapter = "11A"
+        morph._init_options["chapter"] = "11A"
         morph._apply_hard_mode_bonus()
         expected = {
             "HP": 27_85,
@@ -6677,8 +6677,8 @@ class FE9LaguzUnit(unittest.TestCase):
         """
         morph = self.morph
         morph.equip_demi_band()
-        self.assertIn("Demi Band", morph.equipped_bands)
-        actual = morph.is_transformed
+        self.assertIn("Demi Band", morph._miscellany['equipped_bands'])
+        actual = morph._miscellany['is_transformed']
         expected = True
         self.assertIs(actual, expected)
         with self.assertRaises(DemiBandError) as err_ctx:
@@ -6764,7 +6764,7 @@ class FE9LaguzUnit(unittest.TestCase):
         morph = self.morph
         #morph.transform()
         #morph.revert()
-        morph.equipped_bands["Demi Band"] = None
+        morph._miscellany['equipped_bands']["Demi Band"] = None
         with self.assertRaises(TransformationError) as err_ctx:
             morph.unequip_demi_band()
         err = err_ctx.exception
@@ -6851,7 +6851,7 @@ class FE9BeorcUnit(unittest.TestCase):
         actual = err.reason
         expected = DemiBandError.Reason.NOT_A_LAGUZ
         self.assertEqual(actual, expected)
-        self.assertNotIn("Demi Band", morph.equipped_bands)
+        self.assertNotIn("Demi Band", morph._miscellany['equipped_bands'])
 
     def test_unequip_demi_band__not_a_laguz(self):
         """
@@ -6865,7 +6865,7 @@ class FE9BeorcUnit(unittest.TestCase):
         actual = err.reason
         expected = DemiBandError.Reason.NOT_A_LAGUZ
         self.assertEqual(actual, expected)
-        self.assertNotIn("Demi Band", morph.equipped_bands)
+        self.assertNotIn("Demi Band", morph._miscellany['equipped_bands'])
 
 class FE8LArachel(unittest.TestCase):
     """

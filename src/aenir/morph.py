@@ -41,8 +41,6 @@ from aenir._exceptions import (
 )
 from aenir._logging import logger
 
-# TODO: Turn constants back into static methods.
-
 class BaseMorph(abc.ABC):
     """
     Defines attributes pertinent to backend side of stat comparison.
@@ -216,7 +214,7 @@ class Morph(BaseMorph):
         ).fetchone()
         max_stats = self.Stats(**stat_dict2)
         # (miscellany)
-        _meta: dict[str, Any] = {"Stat Boosters": []}
+        _miscellany: dict[str, Any] = {"Stat Boosters": []}
         # initialize all attributes here.
         self._game = game
         self._name: str = name
@@ -227,7 +225,7 @@ class Morph(BaseMorph):
         self.growth_rates = growth_rates
         self.current_clstype = current_clstype
         self.max_stats = max_stats
-        self._meta = _meta
+        self._miscellany = _miscellany
         self.history: List[Tuple[str, str]] = []
         self.max_level: int | None = None
         self.min_promo_level: int | None = None
@@ -237,6 +235,10 @@ class Morph(BaseMorph):
     def as_dict(self):
         """
         """
+        _miscellany = {key: value for key, value in self._miscellany.items()}
+        for key, value in _miscellany:
+            if isinstance(value, self.Stats):
+                _miscellany[key] = value.as_dict()
         return {
             # init
             "game": self.game,
@@ -254,8 +256,25 @@ class Morph(BaseMorph):
             "min_promo_level": self.min_promo_level,
             "promo_cls": self.promo_cls,
             # morph-specific options
-            "_miscellany": self._miscellany,
+            "_miscellany": _miscellany,
         }
+
+    @classmethod
+    def from_dict(cls, data):
+        """
+        """
+        _miscellany = data['_miscellany']
+        Stats = cls.STATS()
+        for key, value in _miscellany:
+            if isinstance(value, Stats):
+                _miscellany[key] = Stats(value)
+        game = data.pop('game')
+        name = data.pop('name')
+        init_options = data.pop('init_options')
+        morph = cls(game, name, **init_options)
+        for key, value in data:
+            setattr(morph, key, value)
+        return morph
 
     @property
     def game(self) -> FireEmblemGame:
@@ -270,6 +289,13 @@ class Morph(BaseMorph):
         The name of the unit.
         """
         return self._name
+
+    @property
+    def init_options(self) -> dict:
+        """
+        The init-options of the unit.
+        """
+        return self._init_options
 
     def get_growths_augment(self):
         """
@@ -426,7 +452,7 @@ class Morph(BaseMorph):
 
     def use_stat_booster(self, item_name: str) -> None:
         """
-        Boosts stats in accordance with item specified; appends record to `_meta`.
+        Boosts stats in accordance with item specified; appends record to `_miscellany`.
         """
         item_bonus_dict = self.stat_boosters
         increment = self.Stats(**self.Stats.get_stat_dict(0))
@@ -447,7 +473,7 @@ class Morph(BaseMorph):
         setattr(increment, stat, bonus * 100)
         self.current_stats += increment
         self.current_stats.imin(self.max_stats)
-        self._meta["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
+        self._miscellany["Stat Boosters"].append((self.current_lv, self.current_cls, item_name))
 
     def copy(self) -> Self:
         """
@@ -618,15 +644,14 @@ class Morph4(Morph):
         """
         # test if name refers to a child with father-dependent stats
         kid_list = self.CHILDREN()
-        father_: str | None
+        _init_options = {}
         if name not in kid_list:
             # if no: use default init method
             super().__init__(name, which_bases=0, which_growths=0)
             if father is not None:
                 logger.warning("Father ('%s') specified for unit who has fixed stats ('%s'). Ignoring.", father, name)
-            father_ = None
-            #self._meta["Father"] = self.father
-            _meta = self._meta
+            _init_options['father'] = None
+            _miscellany = self._miscellany
             game = self.game
             current_cls = self.current_cls
             current_lv = self.current_lv
@@ -644,14 +669,14 @@ class Morph4(Morph):
                     init_params={"father": father_list},
                 )
             # begin initialization here
-            father_ = father
             Stats = self.STATS()
             game = self.GAME()
+            _init_options['father'] = father
             # begin query
             path_to_db = self.path_to("cleaned_stats.db")
             table = "characters__base_stats1"
             fields = Stats.STAT_LIST() + ("Class", "Lv")
-            filters = {"Name": name, "Father": father_}
+            filters = {"Name": name, "Father": father}
             self.Stats = Stats
             stat_dict = dict(
                 self.query_db(
@@ -672,7 +697,7 @@ class Morph4(Morph):
                     path_to_db,
                     table="characters__growth_rates1",
                     fields=Stats.STAT_LIST(),
-                    filters={"Name": name, "Father": father_},
+                    filters={"Name": name, "Father": father},
                 ).fetchone()
             )
             growth_rates = Stats(multiplier=1, **stat_dict2)
@@ -687,8 +712,8 @@ class Morph4(Morph):
             ).fetchone()
             max_stats = Stats(**stat_dict3)
             # (miscellany)
-            #self._meta = {'History': [], "Father": father}
-            _meta = {'History': []}
+            #self._miscellany = {'History': [], "Father": father}
+            _miscellany = {'History': []}
         try:
             promo_cls = {
                 "Ira": "Swordmaster",
@@ -703,7 +728,7 @@ class Morph4(Morph):
             }[name]
         except KeyError:
             promo_cls = None
-        _meta["Stat Boosters"] = None
+        _miscellany["Stat Boosters"] = None
         table_name = "characters__base_stats-JOIN-classes__promotion_gains"
         path_to_db = self.path_to("cleaned_stats.db")
         with sqlite3.connect(path_to_db) as cnxn:
@@ -717,10 +742,10 @@ class Morph4(Morph):
         # set instance attributes
         self.min_promo_level = 20
         self.max_level = max_level
-        self._meta = _meta
-        self._father = father_
         self._game = game
         self._name = name
+        self._init_options = _init_options
+        self._miscellany = _miscellany
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -729,7 +754,7 @@ class Morph4(Morph):
         self.max_stats = max_stats
         self.promo_cls = promo_cls
         self.history = []
-        #self._meta.pop("Stat Boosters")
+        #self._miscellany.pop("Stat Boosters")
 
     def use_stat_booster(self, item_name: str) -> None:
         """
@@ -951,8 +976,8 @@ class Morph5(Morph):
         # set instance attributes
         self.promo_cls = promo_cls
         self._og_growth_rates = self.growth_rates.copy()
-        self.equipped_scrolls: dict[str, self.Stats] = {}
         self.scroll_dict = self.SCROLL_DICT()
+        self._miscellany["equipped_scrolls"]: dict[str, self.Stats] = {}
 
     def _set_min_promo_level(self) -> None:
         """
@@ -991,10 +1016,10 @@ class Morph5(Morph):
         Updates `growth_rates` in accordance with currently equipped scrolls.
         """
         self.growth_rates = self._og_growth_rates.copy()
-        for bonus in self.equipped_scrolls.values():
+        for bonus in self._miscellany["equipped_scrolls"].values():
             self.growth_rates += bonus
         self.growth_rates.imax(self.Stats(**self.Stats.get_stat_dict(0)))
-        self.growth_rates.has_been_augmented = bool(self.equipped_scrolls)
+        self.growth_rates.has_been_augmented = bool(self._miscellany["equipped_scrolls"])
 
     def set_scrolls(self, scrolls):
         """
@@ -1005,17 +1030,17 @@ class Morph5(Morph):
             raise ScrollError(
                 "No inventory space!",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
-                equipped_scrolls=tuple(self.equipped_scrolls),
+                equipped_scrolls=tuple(self._miscellany["equipped_scrolls"]),
             )
         # validate scrolls to equip
         if not set(scrolls).issubset(set(self.scroll_dict)):
-            valid_scrolls = {scroll_name: (scroll_name not in self.equipped_scrolls) for scroll_name in self.scroll_dict}
+            valid_scrolls = {scroll_name: (scroll_name not in self._miscellany["equipped_scrolls"]) for scroll_name in self.scroll_dict}
             raise ScrollError(
                 "A scroll in the selection was not found.",
                 reason=ScrollError.Reason.NOT_FOUND,
                 valid_scrolls=valid_scrolls,
             )
-        self.equipped_scrolls = {scroll_name: self.Stats(multiplier=1, **self.scroll_dict[scroll_name]) for scroll_name in scrolls}
+        self._miscellany["equipped_scrolls"] = {scroll_name: self.Stats(multiplier=1, **self.scroll_dict[scroll_name]) for scroll_name in scrolls}
         self._apply_scroll_bonuses()
 
     def unequip_scroll(self, scroll_name: str) -> None:
@@ -1023,13 +1048,13 @@ class Morph5(Morph):
         Removes `scroll_name` from list of equipped scrolls and updates
         `growth_rates` accordingly. Throws error if scroll isn't equipped.
         """
-        if scroll_name in self.equipped_scrolls:
-            self.equipped_scrolls.pop(scroll_name)
+        if scroll_name in self._miscellany["equipped_scrolls"]:
+            self._miscellany["equipped_scrolls"].pop(scroll_name)
             self._apply_scroll_bonuses()
         else:
-            scroll_list = {scroll: (scroll in self.equipped_scrolls) for scroll in self.scroll_dict}
+            scroll_list = {scroll: (scroll in self._miscellany["equipped_scrolls"]) for scroll in self.scroll_dict}
             raise ScrollError(
-                f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self.equipped_scrolls.keys())}",
+                f"'{scroll_name}' is not equipped. Equipped_scrolls: {tuple(self._miscellany['equipped_scrolls'].keys())}",
                 reason=ScrollError.Reason.NOT_EQUIPPED,
                 valid_scrolls=scroll_list,
                 invalid_scroll=scroll_name,
@@ -1062,30 +1087,30 @@ class Morph5(Morph):
         scroll_list = self.scroll_dict
         if scroll_name not in scroll_list:
             # raise error
-            valid_scrolls = {scroll: (scroll not in self.equipped_scrolls) for scroll in scroll_list}
+            valid_scrolls = {scroll: (scroll not in self._miscellany["equipped_scrolls"]) for scroll in scroll_list}
             raise ScrollError(
                 f"'{scroll_name}' is not a valid scroll. List of valid scrolls: {scroll_list}.",
                 reason=ScrollError.Reason.NOT_FOUND,
                 valid_scrolls=valid_scrolls,
             )
         # https://serenesforest.net/thracia-776/inventory/crusader-scrolls/
-        if scroll_name in self.equipped_scrolls:
-            valid_scrolls = {scroll: (scroll not in self.equipped_scrolls) for scroll in scroll_list}
+        if scroll_name in self._miscellany["equipped_scrolls"]:
+            valid_scrolls = {scroll: (scroll not in self._miscellany["equipped_scrolls"]) for scroll in scroll_list}
             raise ScrollError(
-                f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self.equipped_scrolls.keys())}.",
+                f"'{scroll_name}' is already equipped. Equipped scrolls: {tuple(self._miscellany["equipped_scrolls"].keys())}.",
                 reason=ScrollError.Reason.ALREADY_EQUIPPED,
                 valid_scrolls=valid_scrolls,
                 invalid_scroll=scroll_name,
             )
-        if len(self.equipped_scrolls) >= self.inventory_size:
-            valid_scrolls = {scroll: (scroll in self.equipped_scrolls) for scroll in scroll_list}
+        if len(self._miscellany["equipped_scrolls"]) >= self.inventory_size:
+            valid_scrolls = {scroll: (scroll in self._miscellany["equipped_scrolls"]) for scroll in scroll_list}
             raise ScrollError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=ScrollError.Reason.NO_INVENTORY_SPACE,
                 valid_scrolls=valid_scrolls,
             )
         stat_dict = scroll_list[scroll_name]
-        self.equipped_scrolls[scroll_name] = self.Stats(multiplier=1, **stat_dict)
+        self._miscellany["equipped_scrolls"][scroll_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_scroll_bonuses()
 
 class Morph6(Morph):
@@ -1208,7 +1233,6 @@ class Morph6(Morph):
         """
         New parameters: Hard Mode, Hugh-Declines; validates if character has a hard-mode version of their stats.
         """
-        self.chapter = chapter
         if name == "Gonzales":
             valid_chapters = ("10A", "10B")
             valid_hm_values = (False, True)
@@ -1282,8 +1306,9 @@ class Morph6(Morph):
             decrement = self.Stats(**stat_dict)
             self.current_stats += decrement
         # set instance attributes
-        self._meta["Hard Mode"] = hard_mode
-        self._meta["Number of Declines"] = number_of_declines
+        self._init_options["hard_mode"] = hard_mode
+        self._init_options["number_of_declines"] = number_of_declines
+        self._init_options["chapter"] = chapter
         if hard_mode is True:
             self._apply_hard_mode_bonus()
 
@@ -1474,7 +1499,7 @@ class Morph6(Morph):
         """
         statdicts = self._get_hard_mode_stats()
         name = self.name
-        chapter = self.chapter
+        chapter = self._init_options["chapter"]
         try:
             stat_bonus = statdicts[(name, chapter)]
         except KeyError:
@@ -1678,14 +1703,12 @@ class Morph7(Morph):
             current_clstype = "classes__promotion_gains"
         else:
             current_clstype = self.current_clstype
-        _growths_item = "Afa's Drops"
         # set instance attributes
         self.current_clstype = current_clstype
         self._name = name
-        self._meta["Lyn Mode"] = lyn_mode
-        self._meta["Hard Mode"] = hard_mode
-        self._growths_item = _growths_item
-        self._meta[_growths_item] = None
+        self._init_options["lyn_mode"] = lyn_mode
+        self._init_options["hard_mode"] = hard_mode
+        self._miscellany["Afa's Drops"] = None
         self._og_growth_rates = None
         if hard_mode is True:
             self._apply_hard_mode_bonus()
@@ -1800,12 +1823,11 @@ class Morph7(Morph):
         """
         Increases `growth_rates` by 5; throws error if this was already invokedd.
         """
-        _growths_item = self._growths_item
-        if self._meta[_growths_item] is not None:
+        if self._miscellany["Afa's Drops"] is not None:
             raise GrowthsItemError(
-                f"{self.name} already used {_growths_item}.",
+                f"{self.name} already used Afa's Drops.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
-                consumption_date=self._meta[_growths_item],
+                consumption_date=self._miscellany["Afa's Drops"],
             )
         # save copy of original stats.
         self._og_growth_rates = self.growth_rates.copy()
@@ -1815,7 +1837,7 @@ class Morph7(Morph):
         growths_increment.Con = 0
         self.growth_rates += growths_increment
         self.growth_rates.has_been_augmented = True
-        self._meta[self._growths_item] = (self.current_lv, self.current_cls)
+        self._miscellany["Afa's Drops"] = (self.current_lv, self.current_cls)
 
 
 class Morph8(Morph):
@@ -1918,10 +1940,8 @@ class Morph8(Morph):
         Declares growths item: "Metis' Tome"
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        _growths_item = "Metis's Tome"
         # set instance attributes
-        self._growths_item = _growths_item
-        self._meta[_growths_item] = None
+        self._miscellany["Metis's Tome"] = None
         self._og_growth_rates = None
 
     def _set_max_level(self) -> None:
@@ -1947,12 +1967,11 @@ class Morph8(Morph):
         """
         Increases growths by 5
         """
-        _growths_item = self._growths_item
-        if self._meta[_growths_item] is not None:
+        if self._miscellany["Metis's Tome"] is not None:
             raise GrowthsItemError(
-                f"{self.name} already used {_growths_item}.",
+                f"{self.name} already used Metis's Tome.",
                 reason=GrowthsItemError.Reason.ALREADY_CONSUMED,
-                consumption_date=self._meta[_growths_item],
+                consumption_date=self._miscellany["Metis's Tome"],
             )
         # save copy of original stats.
         self._og_growth_rates = self.growth_rates.copy()
@@ -1962,7 +1981,7 @@ class Morph8(Morph):
         growths_increment.Con = 0
         self.growth_rates += growths_increment
         self.growth_rates.has_been_augmented = True
-        self._meta[self._growths_item] = (self.current_lv, self.current_cls)
+        self._miscellany["Metis's Tome"] = (self.current_lv, self.current_cls)
 
 class Morph9(Morph):
     """
@@ -2175,15 +2194,15 @@ class Morph9(Morph):
         Provides usual initialization plus extra attributes for band equipment and Knight Ward.
         """
         super().__init__(name, which_bases=0, which_growths=0)
-        self.is_knight = name in self.KNIGHTS()
-        self.equipped_bands: dict[str, self.Stats] = {}
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
+        self.is_knight = name in self.KNIGHTS()
         self.is_laguz = name in self.LAGUZ()
+        self._miscellany['equipped_bands']: dict[str, self.Stats] = {}
         # for laguz units.
         if self.is_laguz is True:
-            self.is_transformed = False
-            self.cls_to_transform_to = {
+            self._miscellany['is_transformed'] = False
+            self._miscellany['cls_to_transform_to'] = {
                 "Lethe": "Cat (F)",
                 "Mordecai": "Tiger",
                 "Muarim": "Tiger",
@@ -2212,8 +2231,8 @@ class Morph9(Morph):
                 "Giffca": "Beast tribe (Lion)",
             }[self._name]
         else:
-            self.is_transformed = None
-            self.cls_to_transform_to = None
+            self._miscellany['is_transformed'] = None
+            self._miscellany['cls_to_transform_to'] = None
 
     def _set_min_promo_level(self) -> None:
         """
@@ -2230,9 +2249,9 @@ class Morph9(Morph):
         Updates growth rates in accordance with currently equipped bands.
         """
         self.growth_rates = self._og_growth_rates.copy()
-        for bonus in self.equipped_bands.values():
+        for bonus in self._miscellany['equipped_bands'].values():
             self.growth_rates += bonus
-        self.growth_rates.has_been_augmented = bool(self.equipped_bands)
+        self.growth_rates.has_been_augmented = bool(self._miscellany['equipped_bands'])
 
     @classmethod
     def BAND_DICT(cls):
@@ -2258,42 +2277,42 @@ class Morph9(Morph):
         """
         band_list = self.band_dict
         if band_name not in band_list:
-            valid_bands = {band: (band not in self.equipped_bands) for band in band_list}
+            valid_bands = {band: (band not in self._miscellany['equipped_bands']) for band in band_list}
             raise BandError(
                 f"'{band_name}' is not a valid band. List of valid bands: {band_list}.",
                 reason=BandError.Reason.NOT_FOUND,
                 valid_bands=valid_bands,
             )
-        if band_name in self.equipped_bands:
-            valid_bands = {band: (band not in self.equipped_bands) for band in band_list}
+        if band_name in self._miscellany['equipped_bands']:
+            valid_bands = {band: (band not in self._miscellany['equipped_bands']) for band in band_list}
             raise BandError(
-                f"{band_name} is already equipped. Equipped bands: {tuple(self.equipped_bands.keys())}.",
+                f"{band_name} is already equipped. Equipped bands: {tuple(self._miscellany['equipped_bands'].keys())}.",
                 reason=BandError.Reason.ALREADY_EQUIPPED,
                 valid_bands=valid_bands,
                 invalid_band=band_name,
             )
-        if len(self.equipped_bands) >= self.inventory_size:
-            valid_bands = {band: (band in self.equipped_bands) for band in band_list}
+        if len(self._miscellany['equipped_bands']) >= self.inventory_size:
+            valid_bands = {band: (band in self._miscellany['equipped_bands']) for band in band_list}
             raise BandError(
                 f"You can equip at most {self.inventory_size} scrolls at once.",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
                 valid_bands=valid_bands,
             )
         stat_dict = band_list[band_name]
-        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
+        self._miscellany['equipped_bands'][band_name] = self.Stats(multiplier=1, **stat_dict)
         self._apply_band_bonuses()
 
     def unequip_band(self, band_name: str) -> None:
         """
         Simulates removal of band; throws error if band isn't equipped.
         """
-        if band_name in self.equipped_bands:
-            self.equipped_bands.pop(band_name)
+        if band_name in self._miscellany['equipped_bands']:
+            self._miscellany['equipped_bands'].pop(band_name)
             self._apply_band_bonuses()
         else:
-            valid_bands = {band: (band in self.equipped_bands) for band in self.band_dict}
+            valid_bands = {band: (band in self._miscellany['equipped_bands']) for band in self.band_dict}
             raise BandError(
-                f"{band_name} is not equipped. Equipped_bands: {tuple(self.equipped_bands.keys())}",
+                f"{band_name} is not equipped. Equipped_bands: {tuple(self._miscellany['equipped_bands'].keys())}",
                 reason=BandError.Reason.NOT_EQUIPPED,
                 valid_bands=valid_bands,
                 invalid_band=band_name,
@@ -2307,7 +2326,7 @@ class Morph9(Morph):
         stat_dict = self.Stats.get_stat_dict(0)
         stat_dict['Spd'] = 30
         # set to list of bands
-        self.equipped_bands[band_name] = self.Stats(multiplier=1, **stat_dict)
+        self._miscellany['equipped_bands'][band_name] = self.Stats(multiplier=1, **stat_dict)
 
     def equip_knight_ward(self) -> None:
         """
@@ -2320,15 +2339,15 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
                 knights=self.KNIGHTS(),
             )
-        if len(self.equipped_bands) >= self.inventory_size:
-            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
+        if len(self._miscellany['equipped_bands']) >= self.inventory_size:
+            valid_bands = {band_name: (band_name in self._miscellany['equipped_bands']) for band_name in self.band_dict}
             raise KnightWardError(
                 f"Your inventory is full at: {self.inventory_size} items. Knight Band has not equipped.",
                 reason=KnightWardError.Reason.NO_INVENTORY_SPACE,
                 valid_bands=valid_bands,
             )
-        if "Knight Ward" in self.equipped_bands:
-            #valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
+        if "Knight Ward" in self._miscellany['equipped_bands']:
+            #valid_bands = {band_name: (band_name in self._miscellany['equipped_bands']) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} already has the Knight Ward equipped.",
                 reason=KnightWardError.Reason.ALREADY_EQUIPPED,
@@ -2349,15 +2368,15 @@ class Morph9(Morph):
                 reason=KnightWardError.Reason.NOT_A_KNIGHT,
                 knights=self.KNIGHTS(),
             )
-        if "Knight Ward" not in self.equipped_bands:
-            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
+        if "Knight Ward" not in self._miscellany['equipped_bands']:
+            valid_bands = {band_name: (band_name in self._miscellany['equipped_bands']) for band_name in self.band_dict}
             raise KnightWardError(
                 f"{self.name} does not have the Knight Ward equipped.",
                 reason=KnightWardError.Reason.NOT_EQUIPPED,
                 valid_bands=valid_bands,
             )
         band_name = "Knight Ward"
-        self.equipped_bands.pop(band_name)
+        self._miscellany['equipped_bands'].pop(band_name)
         self._apply_band_bonuses()
 
     def set_knight_ward(self, equip: bool):
@@ -2368,7 +2387,7 @@ class Morph9(Morph):
         # (not is_equipped): set_knight_ward(True) -> equip (is_equipped)
         # (is_equipped): set_knight_ward(False) -> unequip (not is_equipped)
         # (not is_equipped): set_knight_ward(False) -> pass
-        knight_ward_is_equipped = "Knight Ward" in self.equipped_bands
+        knight_ward_is_equipped = "Knight Ward" in self._miscellany['equipped_bands']
         if self.is_knight is False:
             raise KnightWardError(
                 f"{self.name} is not a knight; cannot unequip Knight Ward.",
@@ -2395,28 +2414,28 @@ class Morph9(Morph):
             raise BandError(
                 "No inventory space!",
                 reason=BandError.Reason.NO_INVENTORY_SPACE,
-                equipped_bands=tuple(self.equipped_bands),
+                equipped_bands=tuple(self._miscellany['equipped_bands']),
             )
         # validate bands to equip
         if not set(bands).issubset(set(self.band_dict).union(["Knight Ward", "Demi Band"])):
-            valid_bands = {band_name: (band_name in self.equipped_bands) for band_name in self.band_dict}
-            valid_bands['Knight Ward'] = (None if self.is_knight is False else "Knight Ward" in self.equipped_bands)
-            valid_bands['Demi Band'] = (None if self.is_laguz is False else "Demi Band" in self.equipped_bands)
+            valid_bands = {band_name: (band_name in self._miscellany['equipped_bands']) for band_name in self.band_dict}
+            valid_bands['Knight Ward'] = (None if self.is_knight is False else "Knight Ward" in self._miscellany['equipped_bands'])
+            valid_bands['Demi Band'] = (None if self.is_laguz is False else "Demi Band" in self._miscellany['equipped_bands'])
             raise BandError(
                 "A band in the selection was not found.",
                 reason=BandError.Reason.NOT_FOUND,
                 valid_bands=valid_bands,
             )
         # simulate equipping
-        equipped_bands = self.equipped_bands.copy()
-        self.equipped_bands.clear()
+        equipped_bands = self._miscellany['equipped_bands'].copy()
+        self._miscellany['equipped_bands'].clear()
         try:
             bands.pop(bands.index("Knight Ward"))
             self.equip_knight_ward()
         except ValueError:
             pass
         except KnightWardError as err:
-            self.equipped_bands = equipped_bands
+            self._miscellany['equipped_bands'] = equipped_bands
             raise err
         try:
             bands.pop(bands.index("Demi Band"))
@@ -2424,9 +2443,9 @@ class Morph9(Morph):
         except ValueError:
             pass
         except DemiBandError as err:
-            self.equipped_bands = equipped_bands
+            self._miscellany['equipped_bands'] = equipped_bands
             raise err
-        self.equipped_bands.update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
+        self._miscellany['equipped_bands'].update({band_name: self.Stats(multiplier=1, **self.band_dict[band_name]) for band_name in bands})
         self._apply_band_bonuses()
 
     def transform(self):
@@ -2439,7 +2458,7 @@ class Morph9(Morph):
                 f"{self.name} is not a laguz and cannot transform.",
                 reason=TransformationError.Reason.NOT_A_LAGUZ,
             )
-        if self.is_transformed is True:
+        if self._miscellany['is_transformed'] is True:
             raise TransformationError(
                 f"{self.name} is already transformed.",
                 reason=TransformationError.Reason.ALREADY_TRANSFORMED,
@@ -2465,7 +2484,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         bonus = dict(resultset)
         # get maxes
@@ -2484,7 +2503,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list2,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         maxes = dict(resultset)
         max_statdict = statdict0.copy()
@@ -2494,8 +2513,8 @@ class Morph9(Morph):
         bonus_statdict = statdict0.copy()
         bonus_statdict.update(bonus)
         self.current_stats += self.Stats(multiplier=100, **bonus_statdict)
-        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
-        self.is_transformed = True
+        self._miscellany['cls_to_transform_to'], self.current_cls = self.current_cls, self._miscellany['cls_to_transform_to']
+        self._miscellany['is_transformed'] = True
 
     def revert(self):
         """
@@ -2508,12 +2527,12 @@ class Morph9(Morph):
                 f"{self.name} is not a laguz and cannot transform.",
                 reason=TransformationError.Reason.NOT_A_LAGUZ,
             )
-        if self.is_transformed is False:
+        if self._miscellany['is_transformed'] is False:
             raise TransformationError(
                 f"{self.name} is already transformed.",
                 reason=TransformationError.Reason.ALREADY_TRANSFORMED,
             )
-        if "Demi Band" in self.equipped_bands:
+        if "Demi Band" in self._miscellany['equipped_bands']:
             raise DemiBandError(
                 f"f{self.name} cannot revert with the Demi Band equipped. Try the 'unequip_demi_band' function.",
                 reason=DemiBandError.Reason.ALREADY_EQUIPPED,
@@ -2535,7 +2554,7 @@ class Morph9(Morph):
         statdict0 = self.Stats.get_stat_dict(0)
         # get bonus
         logger.debug("current_cls: %r", self.current_cls)
-        logger.debug("cls_to_transform_to: %r", self.cls_to_transform_to)
+        logger.debug("cls_to_transform_to: %r", self._miscellany['cls_to_transform_to'])
         table = "transformation_bonus"
         resultset = self.query_db(
             path_to_db,
@@ -2560,7 +2579,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list2,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         maxes = dict(resultset)
         max_statdict = statdict0.copy()
@@ -2570,8 +2589,8 @@ class Morph9(Morph):
         bonus_statdict = statdict0.copy()
         bonus_statdict.update(bonus)
         self.current_stats += self.Stats(multiplier=-100, **bonus_statdict)
-        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
-        self.is_transformed = False
+        self._miscellany['cls_to_transform_to'], self.current_cls = self.current_cls, self._miscellany['cls_to_transform_to']
+        self._miscellany['is_transformed'] = False
 
     @staticmethod
     def roundup_stats(dictlike: dict[str, int]):
@@ -2595,12 +2614,12 @@ class Morph9(Morph):
                 f"{self.name} is not a laguz and cannot transform.",
                 reason=DemiBandError.Reason.NOT_A_LAGUZ,
             )
-        if "Demi Band" in self.equipped_bands:
+        if "Demi Band" in self._miscellany['equipped_bands']:
             raise DemiBandError(
                 f"The Demi Band is already equipped.",
                 reason=DemiBandError.Reason.ALREADY_EQUIPPED,
             )
-        if self.is_transformed is True:
+        if self._miscellany['is_transformed'] is True:
             raise TransformationError(
                 f"{self.name} cannot transform again.",
                 reason=TransformationError.Reason.ALREADY_TRANSFORMED,
@@ -2626,7 +2645,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         bonus = dict(resultset)
         self.roundup_stats(bonus)
@@ -2646,7 +2665,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list2,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         maxes = dict(resultset)
         max_statdict = statdict0.copy()
@@ -2656,9 +2675,9 @@ class Morph9(Morph):
         bonus_statdict = statdict0.copy()
         bonus_statdict.update(bonus)
         self.current_stats += self.Stats(multiplier=100, **bonus_statdict)
-        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
-        self.is_transformed = True
-        self.equipped_bands["Demi Band"] = self.Stats(**self.Stats.get_stat_dict(0))
+        self._miscellany['cls_to_transform_to'], self.current_cls = self.current_cls, self._miscellany['cls_to_transform_to']
+        self._miscellany['is_transformed'] = True
+        self._miscellany['equipped_bands']["Demi Band"] = self.Stats(**self.Stats.get_stat_dict(0))
 
     def unequip_demi_band(self):
         """
@@ -2671,12 +2690,12 @@ class Morph9(Morph):
                 f"{self.name} is not a laguz and cannot transform.",
                 reason=DemiBandError.Reason.NOT_A_LAGUZ,
             )
-        if "Demi Band" not in self.equipped_bands:
+        if "Demi Band" not in self._miscellany['equipped_bands']:
             raise DemiBandError(
                 f"The Demi Band is already unequipped.",
                 reason=DemiBandError.Reason.NOT_EQUIPPED,
             )
-        if self.is_transformed is False:
+        if self._miscellany['is_transformed'] is False:
             raise TransformationError(
                 f"{self.name} is already reverted.",
                 reason=TransformationError.Reason.NOT_TRANSFORMED,
@@ -2722,7 +2741,7 @@ class Morph9(Morph):
             path_to_db,
             table,
             fields=stat_list2,
-            filters={"Class": self.cls_to_transform_to},
+            filters={"Class": self._miscellany['cls_to_transform_to']},
         ).fetchone()
         maxes = dict(resultset)
         max_statdict = statdict0.copy()
@@ -2732,9 +2751,9 @@ class Morph9(Morph):
         bonus_statdict = statdict0.copy()
         bonus_statdict.update(bonus)
         self.current_stats += self.Stats(multiplier=-100, **bonus_statdict)
-        self.cls_to_transform_to, self.current_cls = self.current_cls, self.cls_to_transform_to
-        self.is_transformed = False
-        self.equipped_bands.pop("Demi Band")
+        self._miscellany['cls_to_transform_to'], self.current_cls = self.current_cls, self._miscellany['cls_to_transform_to']
+        self._miscellany['is_transformed'] = False
+        self._miscellany['equipped_bands'].pop("Demi Band")
 
 def get_morph(game_no: int, name: str, **kwargs) -> Morph:
     """
