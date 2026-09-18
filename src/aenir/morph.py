@@ -237,8 +237,10 @@ class Morph(BaseMorph):
         """
         _miscellany = {key: value for key, value in self._miscellany.items()}
         for key, value in _miscellany.items():
-            if isinstance(value, self.Stats):
-                _miscellany[key] = value.as_dict()
+            if key in ("equipped_bands", "equipped_scrolls"):
+                scrolls = _miscellany[key]
+                for name, bonus in scrolls.items():
+                    scrolls[name] = bonus.as_dict()
         return {
             # init
             "game": self.game,
@@ -266,8 +268,10 @@ class Morph(BaseMorph):
         _miscellany = data['_miscellany']
         Stats = cls.STATS()
         for key, value in _miscellany.items():
-            if isinstance(value, Stats):
-                _miscellany[key] = Stats(**value)
+            if key in ("equipped_bands", "equipped_scrolls"):
+                scrolls = _miscellany[key]
+                for name, bonus in scrolls.items():
+                    scrolls[name] = Stats(**bonus)
         data.pop('game')
         name = data.pop('name')
         init_options = data.pop('init_options')

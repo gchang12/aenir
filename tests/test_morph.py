@@ -6818,6 +6818,7 @@ class FE9BeorcUnit(unittest.TestCase):
         """
         self.morph.equip_band("Sword Band")
         data = self.morph.as_dict()
+        json.dumps(data)
         morph = self.morph.from_dict(data)
         self.assertIn("Sword Band", self.morph._miscellany['equipped_bands'])
         self.assertIsInstance(self.morph._miscellany["equipped_bands"]["Sword Band"], self.morph.Stats)

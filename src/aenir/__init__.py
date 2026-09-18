@@ -2,8 +2,6 @@
 A project for calculating Fire Emblem stats.
 """
 
-# TODO: `to_json` method
-
 import sys
 
 if sys.version_info[:2] >= (3, 8):
