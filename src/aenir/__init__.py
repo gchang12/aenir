@@ -2,6 +2,8 @@
 A project for calculating Fire Emblem stats.
 """
 
+# TODO: `to_json` method
+
 import sys
 
 if sys.version_info[:2] >= (3, 8):
@@ -19,7 +21,10 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from aenir.morph import get_morph
+from aenir.morph import (
+    get_morph,
+    get_morph_class,
+)
 from aenir._exceptions import (
     AenirError,
     UnitNotFoundError,

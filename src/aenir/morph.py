@@ -219,7 +219,8 @@ class Morph(BaseMorph):
         _meta: dict[str, Any] = {"Stat Boosters": []}
         # initialize all attributes here.
         self._game = game
-        self._name: str | None = name
+        self._name: str = name
+        self._init_options: dict = {}
         self.current_cls = current_cls
         self.current_lv = current_lv
         self.current_stats = current_stats
@@ -232,6 +233,29 @@ class Morph(BaseMorph):
         self.min_promo_level: int | None = None
         self.promo_cls: str | None = None
         #self.stat_boosters = None
+
+    def as_dict(self):
+        """
+        """
+        return {
+            # init
+            "game": self.game,
+            "name": self.name,
+            "init_options": self.init_options,
+            # lifetime
+            "current_cls": self.current_cls,
+            "current_lv": self.current_lv,
+            "current_stats": self.current_stats.as_dict(),
+            "growth_rates": self.current_stats.as_dict(),
+            "current_clstype": self.current_clstype,
+            "max_stats": self.max_stats.as_dict(),
+            "history": self.history,
+            "max_level": self.max_level,
+            "min_promo_level": self.min_promo_level,
+            "promo_cls": self.promo_cls,
+            # morph-specific options
+            "_miscellany": self._miscellany,
+        }
 
     @property
     def game(self) -> FireEmblemGame:
