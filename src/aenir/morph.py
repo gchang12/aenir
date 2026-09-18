@@ -236,7 +236,7 @@ class Morph(BaseMorph):
         """
         """
         _miscellany = {key: value for key, value in self._miscellany.items()}
-        for key, value in _miscellany:
+        for key, value in _miscellany.items():
             if isinstance(value, self.Stats):
                 _miscellany[key] = value.as_dict()
         return {
@@ -265,14 +265,14 @@ class Morph(BaseMorph):
         """
         _miscellany = data['_miscellany']
         Stats = cls.STATS()
-        for key, value in _miscellany:
+        for key, value in _miscellany.items():
             if isinstance(value, Stats):
                 _miscellany[key] = Stats(value)
-        game = data.pop('game')
+        data.pop('game')
         name = data.pop('name')
         init_options = data.pop('init_options')
-        morph = cls(game, name, **init_options)
-        for key, value in data:
+        morph = cls(name, **init_options)
+        for key, value in data.items():
             setattr(morph, key, value)
         return morph
 

@@ -6813,6 +6813,12 @@ class FE9BeorcUnit(unittest.TestCase):
         morph = get_morph(**kwargs)
         self.morph = morph
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        data = self.morph.as_dict()
+        morph = self.morph.from_dict(data)
+
     def test_transform__not_a_laguz(self):
         """
         Tests that an error is thrown because the unit isn't a laguz.
