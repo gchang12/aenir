@@ -267,7 +267,7 @@ class Morph(BaseMorph):
         Stats = cls.STATS()
         for key, value in _miscellany.items():
             if isinstance(value, Stats):
-                _miscellany[key] = Stats(value)
+                _miscellany[key] = Stats(**value)
         data.pop('game')
         name = data.pop('name')
         init_options = data.pop('init_options')

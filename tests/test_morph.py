@@ -6816,8 +6816,12 @@ class FE9BeorcUnit(unittest.TestCase):
     def test_as_dict__from_dict(self):
         """
         """
+        self.morph.equip_band("Sword Band")
         data = self.morph.as_dict()
         morph = self.morph.from_dict(data)
+        self.assertIn("Sword Band", self.morph._miscellany['equipped_bands'])
+        self.assertIsInstance(self.morph._miscellany["equipped_bands"]["Sword Band"], self.morph.Stats)
+        morph._apply_band_bonuses()
 
     def test_transform__not_a_laguz(self):
         """
