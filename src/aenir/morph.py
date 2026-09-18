@@ -1713,7 +1713,8 @@ class Morph7(Morph):
         self._init_options["lyn_mode"] = lyn_mode
         self._init_options["hard_mode"] = hard_mode
         self._miscellany["Afa's Drops"] = None
-        self._og_growth_rates = None
+        #self._og_growth_rates = None
+        self._og_growth_rates = self.growth_rates.copy()
         if hard_mode is True:
             self._apply_hard_mode_bonus()
 
@@ -1834,7 +1835,7 @@ class Morph7(Morph):
                 consumption_date=self._miscellany["Afa's Drops"],
             )
         # save copy of original stats.
-        self._og_growth_rates = self.growth_rates.copy()
+        #self._og_growth_rates = self.growth_rates.copy()
         # increment
         growths_increment = self.Stats(multiplier=1, **self.Stats.get_stat_dict(5))
         growths_increment.Mov = 0
@@ -1946,7 +1947,8 @@ class Morph8(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         # set instance attributes
         self._miscellany["Metis's Tome"] = None
-        self._og_growth_rates = None
+        #self._og_growth_rates = None
+        self._og_growth_rates = self.growth_rates.copy()
 
     def _set_max_level(self) -> None:
         """

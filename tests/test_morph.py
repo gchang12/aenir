@@ -6823,6 +6823,7 @@ class FE9BeorcUnit(unittest.TestCase):
         self.assertIn("Sword Band", self.morph._miscellany['equipped_bands'])
         self.assertIsInstance(self.morph._miscellany["equipped_bands"]["Sword Band"], self.morph.Stats)
         morph._apply_band_bonuses()
+        self.morph._apply_band_bonuses()
 
     def test_transform__not_a_laguz(self):
         """
