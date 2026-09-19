@@ -277,7 +277,10 @@ class Morph(BaseMorph):
         init_options = data.pop('init_options')
         morph = cls(name, **init_options)
         for key, value in data.items():
-            setattr(morph, key, value)
+            if key in ('current_stats', 'max_stats', 'growth_rates'):
+                setattr(morph, key, Stats(**value))
+            else:
+                setattr(morph, key, value)
         return morph
 
     @property

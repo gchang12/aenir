@@ -2585,6 +2585,16 @@ class FE5Eda(Morph5TestCase):
         self.morph = Morph5("Eda")
         super().setUp()
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.equip_scroll("Odo")
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph2 = self.morph.from_dict(data)
+        morph2.level_up(10)
+        morph2.promote()
+
     def test_set_min_promo_level(self):
         """
         Tests that this method is being implemented.
@@ -3475,6 +3485,16 @@ class FE6Hugh(Morph6TestCase):
         """
         self.morph._set_max_level()
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        morph = Morph6("Hugh", number_of_declines=3)
+        morph.use_stat_booster("Angelic Robe")
+        data = morph.as_dict()
+        json.dumps(data)
+        morph2 = morph.from_dict(data)
+        morph2.level_up(5)
+        morph2.promote()
 
     @staticmethod
     def _create_control_hugh():
@@ -4267,6 +4287,18 @@ class FE7LyndisLeague(Morph7TestCase):
     Conduct series of tests with FE7!'Lyndis League' unit as subject.
     """
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        morph = Morph7("Lyn", lyn_mode=True)
+        morph.use_stat_booster("Angelic Robe")
+        morph.use_afas_drops()
+        data = morph.as_dict()
+        json.dumps(data)
+        morph2 = morph.from_dict(data)
+        morph2.level_up(10)
+        morph2.promote()
+
     def test_no_lynmode_specified(self):
         """
         No value specified for `lyn_mode`.
@@ -4974,6 +5006,17 @@ class FE8Eirika(Morph8TestCase):
         self.morph = Morph8("Eirika")
         super().setUp()
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.use_stat_booster("Angelic Robe")
+        self.morph.use_metiss_tome()
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph2 = self.morph.from_dict(data)
+        morph2.level_up(10)
+        morph2.promote()
+
     def test_set_min_promo_level(self):
         """
         Tests that this method is being implemented.
@@ -5066,6 +5109,16 @@ class FE8Ephraim(Morph8TestCase):
         Tests that this method is being implemented.
         """
         self.morph._set_min_promo_level()
+
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.use_metiss_tome()
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph2 = self.morph.from_dict(data)
+        morph2.level_up(10)
+        morph2.promote()
 
     def test_set_max_level(self):
         """
@@ -6282,6 +6335,15 @@ class FE7HarkenHM(unittest.TestCase):
         """
         self.morph = get_morph(7, "Harken", hard_mode=False)
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.use_afas_drops()
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph2 = self.morph.from_dict(data)
+        morph2.level_up(10)
+
     def test_apply_hard_mode_bonus(self):
         """
         Checks stats after updating stats to HM-version.
@@ -6508,6 +6570,15 @@ class FE6PercivalHM(unittest.TestCase):
         """
         self.morph = get_morph(6, "Percival", hard_mode=False)
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.level_up(1)
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph2 = self.morph.from_dict(data)
+        morph2.level_up(10)
+
     def test_apply_hard_mode_bonus__fail(self):
         """
         Asserts that valid chapter-list is exposed after attempting to apply a hard-mode bonus without a valid chapter.
@@ -6545,6 +6616,18 @@ class FE6FirHM(unittest.TestCase):
         """
         self.kwargs = {'game_no': 6, "name": "Fir", "hard_mode": None}
 
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.kwargs['hard_mode'] = True
+        morph = get_morph(**self.kwargs)
+        morph.level_up(10)
+        morph.promote()
+        data = morph.as_dict()
+        json.dumps(data)
+        morph2 = morph.from_dict(data)
+        morph2.level_up(10)
+
     def test_apply_hard_mode_bonus__fail(self):
         """
         Asserts that valid hard-mode values are exposed upon failed initialization.
@@ -6574,6 +6657,15 @@ class FE9LaguzUnit(unittest.TestCase):
         kwargs = {'game_no': 9, "name": "Lethe"}
         morph = get_morph(**kwargs)
         self.morph = morph
+
+    def test_as_dict__from_dict(self):
+        """
+        """
+        self.morph.transform()
+        data = self.morph.as_dict()
+        json.dumps(data)
+        morph = self.morph.from_dict(data)
+        morph.revert()
 
     def test_transform__and__revert(self):
         """
