@@ -250,7 +250,7 @@ class Morph(BaseMorph):
             "current_cls": self.current_cls,
             "current_lv": self.current_lv,
             "current_stats": self.current_stats.as_dict(),
-            "growth_rates": self.current_stats.as_dict(),
+            "growth_rates": self.growth_rates.as_dict(),
             "current_clstype": self.current_clstype,
             "max_stats": self.max_stats.as_dict(),
             "history": self.history,

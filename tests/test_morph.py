@@ -3495,6 +3495,8 @@ class FE6Hugh(Morph6TestCase):
         data = morph.as_dict()
         json.dumps(data)
         morph2 = morph.from_dict(data)
+        self.assertEqual(morph2.growth_rates.HP, 75)
+        self.assertEqual(morph2.current_stats.HP, 30_00)
         morph2.level_up(5)
         morph2.promote()
 
