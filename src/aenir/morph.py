@@ -271,14 +271,14 @@ class Morph(BaseMorph):
             if key in ("equipped_bands", "equipped_scrolls"):
                 scrolls = _miscellany[key]
                 for name, bonus in scrolls.items():
-                    scrolls[name] = Stats(**bonus)
+                    scrolls[name] = Stats(**bonus, multiplier=1)
         data.pop('game')
         name = data.pop('name')
         init_options = data.pop('init_options')
         morph = cls(name, **init_options)
         for key, value in data.items():
             if key in ('current_stats', 'max_stats', 'growth_rates'):
-                setattr(morph, key, Stats(**value))
+                setattr(morph, key, Stats(**value, multiplier=1))
             else:
                 setattr(morph, key, value)
         return morph

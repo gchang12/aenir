@@ -2592,6 +2592,8 @@ class FE5Eda(Morph5TestCase):
         data = self.morph.as_dict()
         json.dumps(data)
         morph2 = self.morph.from_dict(data)
+        self.assertEqual(morph2.current_stats.HP, 22_00)
+        self.assertEqual(morph2._miscellany["equipped_scrolls"]["Odo"].Skl, 30)
         morph2.level_up(10)
         morph2.promote()
 
