@@ -404,12 +404,12 @@ class Morph(BaseMorph):
         if self.current_lv < self.min_promo_level:
             # Wishful: Tell user what morph should promote to
             #print(query_kwargs)
-            result = self.query_db(**query_kwargs).fetchone()
+            resultset = self.query_db(**query_kwargs).fetchall()
             raise PromotionError(
                 f"{self.name} must be at least level {self.min_promo_level} to promote. Current level: {self.current_lv}.",
                 reason=PromotionError.Reason.LEVEL_TOO_LOW,
                 min_promo_level=self.min_promo_level,
-                promotion_list=[result["Promotion"]],
+                promotion_list=[result["Promotion"] for result in resultset],
             )
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()

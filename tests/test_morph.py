@@ -4786,6 +4786,27 @@ class FE8Ross(Morph8TestCase):
         name = "Ross"
         self._test_get_promotion_list__trainee(name)
 
+    def test_promote__level_too_low(self):
+        """
+        What happens when it's not time to promote your unit.
+        """
+        rutger = get_morph(8, "Ross")
+        with self.assertRaises(PromotionError) as exc_ctx:
+            rutger.promote()
+        err = exc_ctx.exception
+        actual = err.reason
+        expected = PromotionError.Reason.LEVEL_TOO_LOW
+        self.assertEqual(actual, expected)
+        actual = err.min_promo_level
+        expected = rutger.min_promo_level
+        self.assertEqual(actual, expected)
+        actual = err.promotion_list
+        expected = ["Fighter", "Pirate", "Journeyman (M)"]
+        self.assertListEqual(
+            rutger.history,
+            [],
+        )
+
     def test_ross(self):
         """
         Runs Ross through a series of level-ups and promotions.
