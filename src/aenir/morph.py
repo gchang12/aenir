@@ -399,8 +399,8 @@ class Morph(BaseMorph):
             )
         query_kwargs['fields'] += ("Promotion",)
         # check if unit's level is high enough to enable promotion
-        if self.min_promo_level is None:
-            self._set_min_promo_level()
+        #if self.min_promo_level is None:
+        self._set_min_promo_level()
         if self.current_lv < self.min_promo_level:
             # Wishful: Tell user what morph should promote to
             #print(query_kwargs)

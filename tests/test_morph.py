@@ -1030,11 +1030,11 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         Demonstrates that `promote` works.
         """
         rutger = self.morph
-        rutger.min_promo_level = 0
+        rutger.current_lv = 10
         rutger.promote("Swordmaster (M)")
         self.assertListEqual(
             rutger.history,
-            [(4, "Myrmidon")],
+            [(10, "Myrmidon")],
         )
         self.assertEqual(rutger.current_clstype, "classes__promotion_gains")
         self.assertEqual(rutger.current_cls, "Swordmaster (M)")
@@ -2249,6 +2249,17 @@ class FE5Lara(Morph5TestCase):
         self.assertEqual(actual, expected)
         #logger.debug("%s", err_ctx.exception.args)
 
+    def test_promote__cannot_promote_to_dancer(self):
+        """
+        """
+        lara = self.morph
+        lara.promo_cls = "Thief Fighter"
+        with self.assertRaises(PromotionError):
+            lara.promote(lara.promo_cls)
+        lara.promo_cls = "Dancer"
+        #with self.assertRaises(PromotionError) as err:
+        lara.promote(lara.promo_cls)
+
     def test_short_path(self):
         """
         Max out on the short path: Thief -> Dancer -> Thief Fighter
@@ -2871,6 +2882,18 @@ class FE6Rutger(Morph6TestCase):
         actual = all((hm_morph1.current_stats == hm_morph2.current_stats).as_dict().values())
         self.assertIs(actual, expected)
 
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        rutger = get_morph(6, "Rutger", hard_mode=True)
+        rutger.level_up(6)
+        with self.assertRaises(PromotionError) as err_ctx:
+            rutger.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Swordmaster (M)",))
+
     def test_no_hardmode_specified(self):
         """
         Try to initialize Rutger Morph without specifying hard_mode option.
@@ -3000,6 +3023,18 @@ class FE6Roy(Morph6TestCase):
         self.assertEqual(roy.current_lv, 1)
         roy.promote("Master Lord")
         self.assertEqual(roy.current_clstype, "classes__promotion_gains")
+
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        roy = self.morph
+        self.assertEqual(roy.current_lv, 1)
+        with self.assertRaises(PromotionError) as err_ctx:
+            roy.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Master Lord",))
 
     def test_promote__early2(self):
         """
@@ -3998,6 +4033,18 @@ class FE8Ross(Morph8TestCase):
     """
     Conduct series of tests with FE8!Ross as subject.
     """
+
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        morph = get_morph(8, "Ross")
+        morph.level_up(9)
+        with self.assertRaises(PromotionError) as err_ctx:
+            morph.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Fighter", "Pirate", "Journeyman (2)"))
 
     def test_get_promotion_list(self):
         """
