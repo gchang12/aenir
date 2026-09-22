@@ -1107,6 +1107,8 @@ class FE6RutgerProtoMorph(unittest.TestCase):
         actual = err.min_promo_level
         expected = rutger.min_promo_level
         self.assertEqual(actual, expected)
+        actual = err.promotion_list
+        expected = ["Swordmaster (M)"]
         self.assertListEqual(
             rutger.history,
             [],
