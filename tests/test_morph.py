@@ -1571,6 +1571,19 @@ class FE4ChildUnit(Morph4TestCase):
         self.morph = Morph4("Lakche", father="Lex")
         super().setUp()
 
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        morph = self.morph
+        morph.level_up(20 - morph.current_lv)
+        with self.assertRaises(PromotionError) as err_ctx:
+            morph.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Swordmaster",))
+        self.assertEqual(morph.promo_cls, "Swordmaster")
+
     def test_init__no_warning(self):
         """
         Asserts that no warning is logged upon successful initialization.
