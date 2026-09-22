@@ -414,48 +414,28 @@ class Morph(BaseMorph):
         # get promotion data
         resultset = self.query_db(**query_kwargs).fetchall()
         # if resultset has length > 1, filter to relevant
-        if len(resultset) > 1:
-            #if self.promo_cls is not None:
-            if promo_cls is not None:
-                _promo_cls = promo_cls
-            else:
-                _promo_cls = self.promo_cls
-            #if promo_cls:
-                #jself.promo_cls = promo_cls
-            new_resultset = list(
-                filter(
-                    lambda result: result['Promotion'] == _promo_cls,
-                    resultset,
-                )
-            )
-            if not new_resultset:
-                if self.game_no == 4:
-                    valid_promotions = (self.promo_cls,)
-                else:
-                    valid_promotions = tuple(result["Promotion"] for result in resultset)
-                raise PromotionError(
-                    f"'{_promo_cls}' is an invalid promotion. Valid promotions: {valid_promotions}",
-                    reason=PromotionError.Reason.INVALID_PROMOTION,
-                    promotion_list=valid_promotions,
-                )
-            else:
-                resultset = new_resultset
+        if promo_cls is not None:
+            _promo_cls = promo_cls
         else:
-            new_resultset = list(
-                filter(
-                    lambda result: result["Promotion"] == promo_cls,
-                    resultset,
-                )
+            _promo_cls = self.promo_cls
+        new_resultset = list(
+            filter(
+                lambda result: result['Promotion'] == _promo_cls,
+                resultset,
             )
-            if not new_resultset:
-                valid_promotions = tuple(result["Promotion"] for result in resultset)
-                raise PromotionError(
-                    f"'{promo_cls}' is an invalid promotion. Valid promotions: {valid_promotions}",
-                    reason=PromotionError.Reason.INVALID_PROMOTION,
-                    promotion_list=valid_promotions,
-                )
+        )
+        if not new_resultset:
+            if self.game_no == 4:
+                valid_promotions = (self.promo_cls,)
             else:
-                resultset = new_resultset
+                valid_promotions = tuple(result["Promotion"] for result in resultset)
+            raise PromotionError(
+                f"'{_promo_cls}' is an invalid promotion. Valid promotions: {valid_promotions}",
+                reason=PromotionError.Reason.INVALID_PROMOTION,
+                promotion_list=valid_promotions,
+            )
+        else:
+            resultset = new_resultset
         # ** PROMOTION START! **
         # record history
         self.history.append((self.current_lv, self.current_cls))
