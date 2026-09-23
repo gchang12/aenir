@@ -2210,6 +2210,28 @@ class FE5Linoan(Morph5TestCase):
         with self.assertRaises(PromotionError):
             morph.promote("Sage")
 
+def FE5Machua(Morph5TestCase):
+    """
+    """
+
+    def setUp(self):
+        """
+        """
+        self.morph = Morph5("Machua")
+
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        morph = self.morph
+        morph.level_up(20 - morph.current_lv)
+        with self.assertRaises(PromotionError) as err_ctx:
+            morph.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Mercenary",))
+        self.assertIsNone(morph.promo_cls)
+
 class FE5Lara(Morph5TestCase):
     """
     Tests centered around FE5!Linoan.
@@ -2221,6 +2243,19 @@ class FE5Lara(Morph5TestCase):
         """
         self.morph = Morph5("Lara")
         super().setUp()
+
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        morph = self.morph
+        morph.level_up(20 - morph.current_lv)
+        with self.assertRaises(PromotionError) as err_ctx:
+            morph.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Thief Fighter", "Dancer"))
+        self.assertIsNone(morph.promo_cls)
 
     def test_set_min_promo_level(self):
         """
