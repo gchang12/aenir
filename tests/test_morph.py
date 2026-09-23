@@ -1879,6 +1879,19 @@ class FE5Leif(Morph5TestCase):
         self.morph = Morph5("Leaf")
         super().setUp()
 
+    def test_promote__invalid_promotion(self):
+        """
+        Assert that valid promotions are returned in error when invalid promotion is passed as argument.
+        """
+        morph = self.morph
+        morph.level_up(20 - morph.current_lv)
+        with self.assertRaises(PromotionError) as err_ctx:
+            morph.promote("")
+        err = err_ctx.exception
+        self.assertEqual(err.reason, PromotionError.Reason.INVALID_PROMOTION)
+        self.assertTupleEqual(err.promotion_list, ("Prince",))
+        self.assertEqual(morph.promo_cls, None)
+
     def test_set_min_promo_level(self):
         """
         Tests that this method is being implemented.

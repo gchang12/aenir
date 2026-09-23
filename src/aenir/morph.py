@@ -425,7 +425,7 @@ class Morph(BaseMorph):
             )
         )
         if not new_resultset:
-            if self.game_no == 4 or (self.game_no == 5 and self.name != "Lara"):
+            if (self.promo_cls is not None) and (self.game_no == 4 or (self.game_no == 5 and self.name != "Lara")):
                 valid_promotions = (self.promo_cls,)
             else:
                 valid_promotions = tuple(result["Promotion"] for result in resultset)
