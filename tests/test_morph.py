@@ -5865,6 +5865,15 @@ class FE9LaguzUnit(unittest.TestCase):
         morph = get_morph(**kwargs)
         self.morph = morph
 
+    def test_level_up(self):
+        """
+        """
+        morph = self.morph
+        # only for getting .max_level before level_up invocation
+        morph._set_max_level()
+        morph.level_up(morph.max_level - morph.current_lv)
+        self.assertEqual(morph.max_level, morph.current_lv)
+
     def test_as_dict__from_dict(self):
         """
         """
