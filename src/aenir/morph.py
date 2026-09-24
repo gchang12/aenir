@@ -2212,11 +2212,11 @@ class Morph9(Morph):
         super().__init__(name, which_bases=0, which_growths=0)
         self._og_growth_rates = self.growth_rates.copy()
         self.band_dict = self.BAND_DICT()
-        self.is_knight = name in self.KNIGHTS()
-        self.is_laguz = name in self.LAGUZ()
+        self._is_knight = name in self.KNIGHTS()
+        self._is_laguz = name in self.LAGUZ()
         self._miscellany['equipped_bands']: dict[str, self.Stats] = {}
         # for laguz units.
-        if self.is_laguz is True:
+        if self._is_laguz is True:
             self._miscellany['is_transformed'] = False
             self._miscellany['cls_to_transform_to'] = {
                 "Lethe": "Cat (F)",
@@ -2249,6 +2249,18 @@ class Morph9(Morph):
         else:
             self._miscellany['is_transformed'] = None
             self._miscellany['cls_to_transform_to'] = None
+
+    @property
+    def is_knight(self):
+        """
+        """
+        return self._is_knight
+
+    @property
+    def is_laguz(self):
+        """
+        """
+        return self._is_laguz
 
     def _set_min_promo_level(self) -> None:
         """
