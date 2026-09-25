@@ -2024,18 +2024,18 @@ class FE5Leif(Morph5TestCase):
         self.assertEqual(actual, expected)
         actual = err.valid_scrolls
         expected = {
-            'Baldo': True,
-            'Blaggi': True,
-            'Dain': True,
-            'Fala': True,
-            'Heim': True,
-            'Hezul': True,
-            'Neir': True,
-            'Noba': True,
-            'Odo': True,
-            'Sety': True,
-            'Tordo': True,
-            'Ulir': True,
+            'Baldo': False,
+            'Blaggi': False,
+            'Dain': False,
+            'Fala': False,
+            'Heim': False,
+            'Hezul': False,
+            'Neir': False,
+            'Noba': False,
+            'Odo': False,
+            'Sety': False,
+            'Tordo': False,
+            'Ulir': False,
         }
         self.assertDictEqual(actual, expected)
 
@@ -2444,6 +2444,7 @@ class FE5Eda(Morph5TestCase):
         """
         self.morph.equip_scroll("Odo")
         data = self.morph.as_dict()
+        self.assertIsInstance(self.morph._miscellany["equipped_scrolls"]["Odo"], self.morph.Stats)
         json.dumps(data)
         morph2 = self.morph.from_dict(data)
         self.assertEqual(morph2.current_stats.HP, 22_00)
@@ -4855,6 +4856,16 @@ class FE9Knight(Morph9TestCase):
         name = "Kieran"
         self.morph = Morph9(name)
         super().setUp()
+
+    def test_as_dict(self):
+        """
+        """
+        bands = ["Sword Band", "Mage Band"]
+        self.morph.set_bands(bands)
+        morph2 = Morph9.from_dict(self.morph.as_dict())
+        for band in bands:
+            self.assertIsInstance(morph2._miscellany["equipped_bands"][band], morph2.Stats)
+        morph2.equip_knight_ward()
 
     def test_set_min_promo_level(self):
         """

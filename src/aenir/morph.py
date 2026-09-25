@@ -238,9 +238,10 @@ class Morph(BaseMorph):
         _miscellany = {key: value for key, value in self._miscellany.items()}
         for key, value in _miscellany.items():
             if key in ("equipped_bands", "equipped_scrolls"):
-                scrolls = _miscellany[key]
+                scrolls = _miscellany[key].copy()
                 for name, bonus in scrolls.items():
                     scrolls[name] = bonus.as_dict()
+                _miscellany[key] = scrolls
         return {
             # init
             "game": self.game,
@@ -1048,7 +1049,7 @@ class Morph5(Morph):
             )
         # validate scrolls to equip
         if not set(scrolls).issubset(set(self.scroll_dict)):
-            valid_scrolls = {scroll_name: (scroll_name not in self._miscellany["equipped_scrolls"]) for scroll_name in self.scroll_dict}
+            valid_scrolls = {scroll_name: (scroll_name in self._miscellany["equipped_scrolls"]) for scroll_name in self.scroll_dict}
             raise ScrollError(
                 "A scroll in the selection was not found.",
                 reason=ScrollError.Reason.NOT_FOUND,
