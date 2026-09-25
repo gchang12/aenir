@@ -5995,6 +5995,19 @@ class FE9LaguzUnit(unittest.TestCase):
         actual = err.reason
         expected = DemiBandError.Reason.ALREADY_EQUIPPED
 
+    def test_equip_demi_band__no_inventory_space(self):
+        """
+        Check to see what happens if you try to equip a Demi Band without any space.
+        """
+        morph = self.morph
+        morph._miscellany["equipped_bands"] = [None for _ in range(morph.inventory_size)]
+        try:
+            morph.equip_demi_band()
+        except DemiBandError as e:
+            self.assertEqual(e.reason, DemiBandError.Reason.NO_INVENTORY_SPACE)
+        self.assertNotIn("Demi Band", morph._miscellany['equipped_bands'])
+        self.assertIs(morph._miscellany['is_transformed'], False)
+
     def test_unequip_demi_band__again(self):
         """
         Asserts that an error's been thrown.

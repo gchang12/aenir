@@ -2652,6 +2652,11 @@ class Morph9(Morph):
                 f"{self.name} cannot transform again.",
                 reason=TransformationError.Reason.ALREADY_TRANSFORMED,
             )
+        if len(self._miscellany['equipped_bands']) + 1 > self.inventory_size:
+            raise DemiBandError(
+                f"{self.name} has no inventory space for a Demi Band.",
+                reason=DemiBandError.Reason.NO_INVENTORY_SPACE,
+            )
         # execute operation
         path_to_db = self.path_to("cleaned_stats.db")
         stat_list = (

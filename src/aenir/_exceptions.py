@@ -216,6 +216,7 @@ class DemiBandError(TransformationError):
         ALREADY_EQUIPPED = enum.auto()
         NOT_EQUIPPED = enum.auto()
         NOT_A_LAGUZ = enum.auto()
+        NO_INVENTORY_SPACE = enum.auto()
 
     def __init__(self, msg: str, reason: Reason):
         """
